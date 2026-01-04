@@ -72,7 +72,15 @@ const PostItNote = ({ grade, rotation = -1 }: PostItNoteProps) => {
   };
 
   const content = nextEvent?.description || "";
-  const title = nextEvent?.title || "Nästa lektion";
+  
+  // Format weekday in Swedish
+  const getSwedishWeekday = (date: Date) => {
+    const days = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
+    return days[date.getDay()];
+  };
+  
+  const weekday = nextEvent ? getSwedishWeekday(nextEvent.date) : '';
+  const title = nextEvent ? `Nästa lektion ${weekday}` : "Nästa lektion";
   
   return (
     <div 
