@@ -11,17 +11,6 @@ interface GradePageProps {
 }
 
 const GradePage = ({ grade }: GradePageProps) => {
-  // Mock next lesson content
-  const nextLessonContent = `**Idag arbetar vi med:**
-
-- Repetera förra veckans genomgång
-- Övningsuppgifter s. 45-48
-- Diskussion i par
-
-**Ta med:** Miniräknare och linjal
-
-[Länk till arbetsbladet](https://example.com)`;
-
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Hero Section - 1/5 (20%) */}
@@ -54,7 +43,7 @@ const GradePage = ({ grade }: GradePageProps) => {
           <div className="col-span-1 flex flex-col gap-4">
             <Calculator />
             <PostItNote 
-              content={nextLessonContent}
+              grade={grade}
               rotation={-2}
             />
           </div>
@@ -74,7 +63,7 @@ const GradePage = ({ grade }: GradePageProps) => {
           
           {/* Post-it */}
           <PostItNote 
-            content={nextLessonContent}
+            grade={grade}
             rotation={1}
           />
           
