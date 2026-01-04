@@ -1,16 +1,16 @@
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+
 interface PostItNoteProps {
-  title?: string;
-  content: string;
+  grade: number;
   rotation?: number;
 }
 
-const PostItNote = ({ title = "Nästa lektion", content, rotation = -1 }: PostItNoteProps) => {
-  // Parse markdown-like content
+const PostItNote = ({ grade, rotation = -1 }: PostItNoteProps) => {
+  const { nextEvent, loading } = useCalendarEvents(grade);
+
   const parseContent = (text: string) => {
-    // Split by lines for processing
     const lines = text.split('\n');
     const elements: JSX.Element[] = [];
-    let inList = false;
     let listItems: string[] = [];
     
     const flushList = () => {
@@ -24,17 +24,14 @@ const PostItNote = ({ title = "Nästa lektion", content, rotation = -1 }: PostIt
         );
         listItems = [];
       }
-      inList = false;
     };
     
     const parseInline = (text: string) => {
-      // Handle bold **text**
       const parts = text.split(/(\*\*[^*]+\*\*)/g);
       return parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={i}>{part.slice(2, -2)}</strong>;
         }
-        // Handle links [text](url)
         const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
         if (linkMatch) {
           return (
@@ -56,9 +53,7 @@ const PostItNote = ({ title = "Nästa lektion", content, rotation = -1 }: PostIt
     lines.forEach((line, i) => {
       const trimmed = line.trim();
       
-      // Check for list items
       if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
-        inList = true;
         listItems.push(trimmed.slice(2));
       } else {
         flushList();
@@ -75,6 +70,9 @@ const PostItNote = ({ title = "Nästa lektion", content, rotation = -1 }: PostIt
     flushList();
     return elements;
   };
+
+  const content = nextEvent?.description || "";
+  const title = nextEvent?.title || "Nästa lektion";
   
   return (
     <div 
@@ -94,7 +92,13 @@ const PostItNote = ({ title = "Nästa lektion", content, rotation = -1 }: PostIt
       
       {/* Content */}
       <div className="space-y-1">
-        {parseContent(content)}
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Laddar...</p>
+        ) : content ? (
+          parseContent(content)
+        ) : (
+          <p className="text-sm text-muted-foreground">Ingen beskrivning tillgänglig</p>
+        )}
       </div>
     </div>
   );
