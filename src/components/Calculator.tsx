@@ -166,12 +166,12 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
     <button
       onClick={onClick}
       className={`
-        flex items-center justify-center rounded font-bold text-base
+        flex items-center justify-center rounded-sm font-bold text-sm
         transition-all duration-150 active:scale-95
-        bg-[#4a4a3d]/80 text-[#c9b97a] border border-[#3a3a2d] 
-        shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.3)]
+        bg-[#4a4a3d]/70 text-[#c9b97a] border border-[#3a3a2d]/50 
+        shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.2)]
         hover:bg-[#5a5a4d]/80 hover:text-[#d9c98a]
-        w-10 h-10
+        w-[34px] h-[34px]
         ${isActive ? 'animate-pulse-glow bg-[#6a6a5d] ring-2 ring-[#c9b97a]/50' : ''}
         ${className}
       `}
@@ -182,25 +182,25 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
   
   return (
     <div 
-      className="relative rounded-xl overflow-hidden shadow-2xl"
+      className="relative rounded-xl overflow-hidden shadow-2xl w-[220px]"
       style={{
         backgroundImage: `url(${calculatorBg})`,
-        backgroundSize: 'cover',
+        backgroundSize: '100% 100%',
         backgroundPosition: 'center',
       }}
     >
       {/* Overlay for button area */}
-      <div className="p-4">
-        {/* Display - LCD style */}
-        <div className="bg-[#8b9a6b] rounded-lg p-3 mb-4 border-4 border-[#5a5a4d] shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)]">
-          <div className="text-right text-2xl font-mono text-[#1a2a1a] truncate font-bold tracking-wider">
+      <div className="pt-3 pb-4 px-3">
+        {/* Display - LCD style - positioned to match background */}
+        <div className="bg-[#8b9a6b]/90 rounded p-2 mb-2 mx-1 border-2 border-[#5a5a4d] shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)]">
+          <div className="text-right text-xl font-mono text-[#1a2a1a] truncate font-bold tracking-wider">
             {display}
           </div>
         </div>
         
         
         {/* Button grid - 5 columns */}
-        <div className="grid grid-cols-5 gap-1.5">
+        <div className="grid grid-cols-5 gap-[5px] px-1">
           {/* Row 1: π, √, x², x^y, [Radio: Spa] */}
           <Button onClick={insertPi}>π</Button>
           <Button onClick={squareRoot}>√</Button>
@@ -209,7 +209,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           <Button 
             onClick={() => toggleRadio("spa")}
             isActive={activeRadio === "spa"}
-            className="text-sm"
+            className="text-xs"
           >
             <span title={radioChannels[0].name}>{radioChannels[0].label}</span>
           </Button>
@@ -222,7 +222,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           <Button 
             onClick={() => toggleRadio("rock")}
             isActive={activeRadio === "rock"}
-            className="text-sm"
+            className="text-xs"
           >
             <span title={radioChannels[1].name}>{radioChannels[1].label}</span>
           </Button>
@@ -235,7 +235,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           <Button 
             onClick={() => toggleRadio("hiphop")}
             isActive={activeRadio === "hiphop"}
-            className="text-sm"
+            className="text-xs"
           >
             <span title={radioChannels[2].name}>{radioChannels[2].label}</span>
           </Button>
@@ -245,7 +245,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           <Button onClick={() => inputDigit("2")}>2</Button>
           <Button onClick={() => inputDigit("3")}>3</Button>
           <Button onClick={() => performOperation("+")}>+</Button>
-          <Button onClick={calculate} className="row-span-2 h-[84px]">=</Button>
+          <Button onClick={calculate} className="row-span-2 h-[73px]">=</Button>
           
           {/* Row 5: 0, ., C, − */}
           <Button onClick={() => inputDigit("0")}>0</Button>
