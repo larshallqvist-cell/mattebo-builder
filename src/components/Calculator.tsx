@@ -166,11 +166,12 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
     <button
       onClick={onClick}
       className={`
-        flex items-center justify-center rounded-md font-bold text-lg
+        flex items-center justify-center rounded font-bold text-lg
         transition-all duration-150 active:scale-95
         bg-[#4a4a3d]/80 text-[#c9b97a] border border-[#3a3a2d] 
         shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.3)]
         hover:bg-[#5a5a4d]/80 hover:text-[#d9c98a]
+        aspect-square
         ${isActive ? 'animate-pulse-glow bg-[#6a6a5d] ring-2 ring-[#c9b97a]/50' : ''}
         ${className}
       `}
@@ -199,58 +200,58 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         
         
         {/* Button grid - 5 columns */}
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-1.5">
           {/* Row 1: π, √, x², x^y, [Radio: Spa] */}
-          <Button onClick={insertPi} className="h-11">π</Button>
-          <Button onClick={squareRoot} className="h-11">√</Button>
-          <Button onClick={square} className="h-11">x²</Button>
-          <Button onClick={power} className="h-11">xʸ</Button>
+          <Button onClick={insertPi}>π</Button>
+          <Button onClick={squareRoot}>√</Button>
+          <Button onClick={square}>x²</Button>
+          <Button onClick={power}>xʸ</Button>
           <Button 
             onClick={() => toggleRadio("spa")}
             isActive={activeRadio === "spa"}
-            className="h-11 text-sm"
+            className="text-sm"
           >
             <span title={radioChannels[0].name}>{radioChannels[0].label}</span>
           </Button>
           
           {/* Row 2: 7, 8, 9, ×, [Radio: Rock] */}
-          <Button onClick={() => inputDigit("7")} className="h-11">7</Button>
-          <Button onClick={() => inputDigit("8")} className="h-11">8</Button>
-          <Button onClick={() => inputDigit("9")} className="h-11">9</Button>
-          <Button onClick={() => performOperation("×")} className="h-11">×</Button>
+          <Button onClick={() => inputDigit("7")}>7</Button>
+          <Button onClick={() => inputDigit("8")}>8</Button>
+          <Button onClick={() => inputDigit("9")}>9</Button>
+          <Button onClick={() => performOperation("×")}>×</Button>
           <Button 
             onClick={() => toggleRadio("rock")}
             isActive={activeRadio === "rock"}
-            className="h-11 text-sm"
+            className="text-sm"
           >
             <span title={radioChannels[1].name}>{radioChannels[1].label}</span>
           </Button>
           
           {/* Row 3: 4, 5, 6, ÷, [Radio: HipHop] */}
-          <Button onClick={() => inputDigit("4")} className="h-11">4</Button>
-          <Button onClick={() => inputDigit("5")} className="h-11">5</Button>
-          <Button onClick={() => inputDigit("6")} className="h-11">6</Button>
-          <Button onClick={() => performOperation("÷")} className="h-11">÷</Button>
+          <Button onClick={() => inputDigit("4")}>4</Button>
+          <Button onClick={() => inputDigit("5")}>5</Button>
+          <Button onClick={() => inputDigit("6")}>6</Button>
+          <Button onClick={() => performOperation("÷")}>÷</Button>
           <Button 
             onClick={() => toggleRadio("hiphop")}
             isActive={activeRadio === "hiphop"}
-            className="h-11 text-sm"
+            className="text-sm"
           >
             <span title={radioChannels[2].name}>{radioChannels[2].label}</span>
           </Button>
           
           {/* Row 4: 1, 2, 3, +, = (spans 2 rows) */}
-          <Button onClick={() => inputDigit("1")} className="h-11">1</Button>
-          <Button onClick={() => inputDigit("2")} className="h-11">2</Button>
-          <Button onClick={() => inputDigit("3")} className="h-11">3</Button>
-          <Button onClick={() => performOperation("+")} className="h-11">+</Button>
-          <Button onClick={calculate} className="h-[5.75rem] row-span-2">=</Button>
+          <Button onClick={() => inputDigit("1")}>1</Button>
+          <Button onClick={() => inputDigit("2")}>2</Button>
+          <Button onClick={() => inputDigit("3")}>3</Button>
+          <Button onClick={() => performOperation("+")}>+</Button>
+          <Button onClick={calculate} className="row-span-2 !aspect-auto">=</Button>
           
           {/* Row 5: 0, ., C, − */}
-          <Button onClick={() => inputDigit("0")} className="h-11">0</Button>
-          <Button onClick={inputDecimal} className="h-11">.</Button>
-          <Button onClick={clear} className="h-11 text-[#c45a3a]">C</Button>
-          <Button onClick={() => performOperation("-")} className="h-11">−</Button>
+          <Button onClick={() => inputDigit("0")}>0</Button>
+          <Button onClick={inputDecimal}>.</Button>
+          <Button onClick={clear} className="text-[#c45a3a]">C</Button>
+          <Button onClick={() => performOperation("-")}>−</Button>
         </div>
         
         {/* Radio status */}
