@@ -166,12 +166,12 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
     <button
       onClick={onClick}
       className={`
-        flex items-center justify-center rounded font-bold text-lg
+        flex items-center justify-center rounded font-bold text-base
         transition-all duration-150 active:scale-95
         bg-[#4a4a3d]/80 text-[#c9b97a] border border-[#3a3a2d] 
         shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.3)]
         hover:bg-[#5a5a4d]/80 hover:text-[#d9c98a]
-        aspect-square
+        w-10 h-10
         ${isActive ? 'animate-pulse-glow bg-[#6a6a5d] ring-2 ring-[#c9b97a]/50' : ''}
         ${className}
       `}
@@ -245,7 +245,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           <Button onClick={() => inputDigit("2")}>2</Button>
           <Button onClick={() => inputDigit("3")}>3</Button>
           <Button onClick={() => performOperation("+")}>+</Button>
-          <Button onClick={calculate} className="row-span-2 !aspect-auto">=</Button>
+          <Button onClick={calculate} className="row-span-2 h-[84px]">=</Button>
           
           {/* Row 5: 0, ., C, − */}
           <Button onClick={() => inputDigit("0")}>0</Button>
