@@ -250,11 +250,11 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           <Button onClick={() => performOperation("+")} className="h-11">+</Button>
           <Button onClick={calculate} className="h-[5.75rem] row-span-2">=</Button>
           
-          {/* Row 5: 0, ., Eng, C */}
+          {/* Row 5: 0, ., C, − */}
           <Button onClick={() => inputDigit("0")} className="h-11">0</Button>
           <Button onClick={inputDecimal} className="h-11">.</Button>
-          <Button onClick={toggleEngNotation} className="h-11 text-xs">Eng</Button>
           <Button onClick={clear} className="h-11 text-[#c45a3a]">C</Button>
+          <Button onClick={() => performOperation("-")} className="h-11">−</Button>
         </div>
         
         {/* Radio status */}
