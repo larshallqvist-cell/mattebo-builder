@@ -197,10 +197,6 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           </div>
         </div>
         
-        {/* Brand name */}
-        <div className="text-center text-[#c45a3a] font-bold text-sm tracking-widest mb-4" style={{ fontFamily: 'sans-serif' }}>
-          LASSECULATOR
-        </div>
         
         {/* Button grid - 5 columns */}
         <div className="grid grid-cols-5 gap-2">
