@@ -63,16 +63,15 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                 </div>
               )}
               
-              {/* Event item */}
-              <div className="px-4 py-3 border-b border-border/50 hover:bg-muted/30 transition-colors">
-                {/* Row 1: Date and Title */}
-                <div className="flex gap-4">
-                  {/* Date column */}
-                  <div className="flex-shrink-0 w-14 text-center">
+              {/* Event item - compact layout */}
+              <div className="px-3 py-2 border-b border-border/50 hover:bg-muted/30 transition-colors">
+                <div className="flex gap-3 items-center">
+                  {/* Date column - compact */}
+                  <div className="flex-shrink-0 w-12 text-center">
                     <div className="text-xs text-muted-foreground uppercase">
                       {formatDay(event.date)}
                     </div>
-                    <div className="text-xl font-bold text-foreground">
+                    <div className="text-lg font-bold text-foreground leading-tight">
                       {event.date.getDate()}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -80,22 +79,20 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                     </div>
                   </div>
                   
-                  {/* Title column */}
+                  {/* Content column - time/location first, then title */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-foreground line-clamp-2">
+                    {/* Time and Location */}
+                    <div className="flex gap-2 text-xs text-muted-foreground">
+                      <span>{formatTime(event.date)}–{formatTime(event.endDate)}</span>
+                      {event.location && (
+                        <span className="text-accent">{event.location}</span>
+                      )}
+                    </div>
+                    {/* Title */}
+                    <h4 className="font-medium text-foreground text-sm line-clamp-1 mt-0.5">
                       {event.title}
                     </h4>
                   </div>
-                </div>
-                
-                {/* Row 2: Time and Location */}
-                <div className="mt-2 ml-[4.5rem] flex gap-4 text-sm text-muted-foreground">
-                  <span>
-                    {formatTime(event.date)}–{formatTime(event.endDate)}
-                  </span>
-                  {event.location && (
-                    <span className="text-accent">{event.location}</span>
-                  )}
                 </div>
               </div>
             </div>
