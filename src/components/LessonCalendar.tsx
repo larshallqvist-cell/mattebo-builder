@@ -58,7 +58,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
               {showWeekHeader && (
                 <div className="bg-muted px-4 py-2">
                   <span className="text-sm font-bold text-accent tracking-wider">
-                    VECKA {event.week}
+                    VECKA {event.week} ({formatMonth(event.date)})
                   </span>
                 </div>
               )}
@@ -73,9 +73,6 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                     </div>
                     <div className="text-lg font-bold text-foreground leading-tight">
                       {event.date.getDate()}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatMonth(event.date)}
                     </div>
                   </div>
                   
