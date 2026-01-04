@@ -13,9 +13,9 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
   const [exponentMode, setExponentMode] = useState(false);
   
   const radioChannels = [
-    { id: "spa", label: "☁️", name: "Pluggmusik/Moln" },
-    { id: "rock", label: "🎸", name: "Gubbrock" },
-    { id: "hiphop", label: "🎤", name: "HipHop" },
+    { id: "spa", label: "🧘", name: "Spa - sleep music" },
+    { id: "rock", label: "🎸", name: "Classic 70-80's rock" },
+    { id: "hiphop", label: "🎤", name: "Hiphop - R'nB" },
   ];
   
   const inputDigit = useCallback((digit: string) => {
