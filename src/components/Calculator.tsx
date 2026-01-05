@@ -187,8 +187,8 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
       className={`
         transition-all duration-150 active:scale-95
         w-[34px] h-[34px] rounded-[4px]
-        bg-[#3a3a38]/40 hover:bg-[#4a4a48]/50
-        border border-[#2a2a28]/30
+        bg-red-500/50 hover:bg-red-600/60
+        border-2 border-red-400
         shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.15)]
         ${isActive ? 'ring-2 ring-[#c9b97a]/60 bg-[#4a4a48]/60' : ''}
         ${className}
