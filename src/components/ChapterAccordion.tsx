@@ -106,10 +106,10 @@ const ChapterAccordion = ({ grade }: ChapterAccordionProps) => {
                     <a
                       key={index}
                       href={link.url}
-                      className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group font-body"
+                      className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group font-body font-normal"
                     >
                       <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
-                      <span className="text-base text-foreground group-hover:text-accent transition-colors">
+                      <span className="text-[15px] text-foreground group-hover:text-accent transition-colors">
                         {link.title}
                       </span>
                     </a>

@@ -15,9 +15,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushList = () => {
       if (listItems.length > 0) {
         elements.push(
-          <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body">
+          <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body font-normal">
             {listItems.map((item, i) => (
-              <li key={i} className="text-base">{parseInline(item)}</li>
+              <li key={i} className="text-[15px]">{parseInline(item)}</li>
             ))}
           </ul>
         );
@@ -58,7 +58,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushList();
         if (trimmed) {
           elements.push(
-            <p key={`p-${i}`} className="text-base my-1 font-body">
+            <p key={`p-${i}`} className="text-[15px] my-1 font-body font-normal">
               {parseInline(trimmed)}
             </p>
           );
