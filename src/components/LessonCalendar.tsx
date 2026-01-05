@@ -68,7 +68,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                 <div className="flex gap-3 items-center">
                   {/* Date column - compact */}
                   <div className="flex-shrink-0 w-12 text-center font-body">
-                    <div className="text-sm text-muted-foreground uppercase">
+                    <div className="text-base text-muted-foreground uppercase">
                       {formatDay(event.date)}
                     </div>
                     <div className="text-xl font-bold text-foreground leading-tight">
@@ -79,7 +79,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                   {/* Content column - time/location first, then title */}
                   <div className="flex-1 min-w-0 font-body">
                     {/* Time and Location */}
-                    <div className="flex gap-2 text-sm text-muted-foreground">
+                    <div className="flex gap-2 text-base text-muted-foreground">
                       <span>{formatTime(event.date)}–{formatTime(event.endDate)}</span>
                       {event.location && (
                         <span className="text-accent">{event.location}</span>
