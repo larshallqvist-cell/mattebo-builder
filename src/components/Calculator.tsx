@@ -186,9 +186,9 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
       title={title}
       className={`
         transition-all duration-150 active:scale-95
-        bg-white/10 hover:bg-white/20 border border-white/40
+        bg-transparent hover:bg-white/15
         w-[32px] h-[32px] rounded-sm
-        ${isActive ? 'ring-2 ring-[#c9b97a]/50 bg-white/30' : ''}
+        ${isActive ? 'ring-2 ring-[#c9b97a]/50 bg-white/20' : ''}
         ${className}
       `}
     />
@@ -268,7 +268,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           title="="
           className="absolute right-0 top-[120px] w-[32px] h-[72px] rounded-sm
             transition-all duration-150 active:scale-95
-            bg-white/10 hover:bg-white/20 border border-white/40"
+            bg-transparent hover:bg-white/15"
         />
         
       </div>
