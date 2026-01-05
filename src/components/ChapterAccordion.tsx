@@ -83,7 +83,7 @@ const ChapterAccordion = ({ grade }: ChapterAccordionProps) => {
     <div className="bg-card rounded-lg border border-border overflow-hidden h-full flex flex-col">
       {/* Header */}
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
-        <h3 className="text-lg font-bold text-secondary-foreground">
+        <h3 className="text-xl font-bold text-secondary-foreground font-life-savers">
           Kapitel & Resurser
         </h3>
       </div>
@@ -98,7 +98,7 @@ const ChapterAccordion = ({ grade }: ChapterAccordionProps) => {
               className="accordion-chapter"
             >
               <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left">
-                <span className="font-medium text-foreground">{chapter.title}</span>
+                <span className="font-medium text-foreground text-base">{chapter.title}</span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 space-y-1">
@@ -108,8 +108,8 @@ const ChapterAccordion = ({ grade }: ChapterAccordionProps) => {
                       href={link.url}
                       className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group"
                     >
-                      <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-accent transition-colors" />
-                      <span className="text-sm text-foreground group-hover:text-accent transition-colors">
+                      <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
+                      <span className="text-base text-foreground group-hover:text-accent transition-colors">
                         {link.title}
                       </span>
                     </a>
