@@ -190,9 +190,15 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             height: '360px',
           }}
         >
-          {/* Display area */}
-          <div className="absolute top-[14px] left-[18px] right-[18px] h-[40px] flex items-center justify-end pr-3">
-            <div className="text-right text-lg font-mono text-[#1a2a1a] truncate font-bold tracking-wider">
+          {/* Display area - ljusgrå bakgrund med tydlig font */}
+          <div 
+            className="absolute top-[14px] left-[18px] right-[18px] h-[40px] rounded-sm flex items-center justify-end px-2"
+            style={{ backgroundColor: '#c8d4c0' }}
+          >
+            <div 
+              className="text-right truncate font-mono text-[#1a1a1a]"
+              style={{ fontSize: '20px', fontWeight: 600, letterSpacing: '1px' }}
+            >
               {display}
             </div>
           </div>
