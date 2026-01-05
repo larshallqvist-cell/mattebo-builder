@@ -186,9 +186,11 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
       title={title}
       className={`
         transition-all duration-150 active:scale-95
-        bg-transparent hover:bg-white/15
-        w-[32px] h-[32px] rounded-sm
-        ${isActive ? 'ring-2 ring-[#c9b97a]/50 bg-white/20' : ''}
+        w-[34px] h-[34px] rounded-[4px]
+        bg-[#3a3a38]/40 hover:bg-[#4a4a48]/50
+        border border-[#2a2a28]/30
+        shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.15)]
+        ${isActive ? 'ring-2 ring-[#c9b97a]/60 bg-[#4a4a48]/60' : ''}
         ${className}
       `}
     />
@@ -215,9 +217,9 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         </div>
       
         {/* Button grid container - positioned to match background buttons */}
-        <div className="absolute top-[112px] left-[20px]">
+        <div className="absolute top-[110px] left-[18px]">
         {/* Row 1: 5 knappar */}
-        <div className="flex gap-x-[12px] mb-[6px]">
+        <div className="flex gap-x-[10px] mb-[4px]">
           <Button onClick={insertPi} title="π" />
           <Button onClick={squareRoot} title="√" />
           <Button onClick={() => {
@@ -229,7 +231,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         </div>
         
         {/* Row 2: 5 knappar */}
-        <div className="flex gap-x-[12px] mb-[6px]">
+        <div className="flex gap-x-[10px] mb-[4px]">
           <Button onClick={() => inputDigit("7")} title="7" />
           <Button onClick={() => inputDigit("8")} title="8" />
           <Button onClick={() => inputDigit("9")} title="9" />
@@ -238,7 +240,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         </div>
         
         {/* Row 3: 5 knappar */}
-        <div className="flex gap-x-[12px] mb-[6px]">
+        <div className="flex gap-x-[10px] mb-[4px]">
           <Button onClick={() => inputDigit("4")} title="4" />
           <Button onClick={() => inputDigit("5")} title="5" />
           <Button onClick={() => inputDigit("6")} title="6" />
@@ -247,7 +249,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         </div>
         
         {/* Row 4: 4 knappar + start av dubbelknapp */}
-        <div className="flex gap-x-[12px] mb-[6px]">
+        <div className="flex gap-x-[10px] mb-[4px]">
           <Button onClick={() => inputDigit("1")} title="1" />
           <Button onClick={() => inputDigit("2")} title="2" />
           <Button onClick={() => inputDigit("3")} title="3" />
@@ -255,7 +257,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         </div>
         
         {/* Row 5: 4 knappar */}
-        <div className="flex gap-x-[12px]">
+        <div className="flex gap-x-[10px]">
           <Button onClick={() => inputDigit("0")} title="0" />
           <Button onClick={inputDecimal} title="." />
           <Button onClick={clear} title="C" />
@@ -266,9 +268,11 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         <button
           onClick={calculate}
           title="="
-          className="absolute right-0 top-[120px] w-[32px] h-[72px] rounded-sm
+          className="absolute right-[-2px] top-[116px] w-[34px] h-[74px] rounded-[4px]
             transition-all duration-150 active:scale-95
-            bg-transparent hover:bg-white/15"
+            bg-[#3a3a38]/40 hover:bg-[#4a4a48]/50
+            border border-[#2a2a28]/30
+            shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.15)]"
         />
         
       </div>
