@@ -42,15 +42,15 @@ const GradePage = ({ grade }: GradePageProps) => {
       <main className="flex-1 min-h-0 px-4 pt-2 pb-0 lg:px-6">
         {/* Desktop/Tablet: Grid layout */}
         <div className="hidden md:grid md:grid-cols-4 gap-4 lg:gap-6 h-full pb-4">
+          {/* Calendar Column - 25%, stretches to bottom */}
+          <div className="col-span-1 h-full overflow-hidden flex flex-col">
+            <LessonCalendar grade={grade} />
+          </div>
+          
           {/* Post-it + Calculator Column - 25% */}
           <div className="col-span-1 flex flex-col gap-4">
             <PostItNote grade={grade} />
             <Calculator />
-          </div>
-          
-          {/* Calendar Column - 25%, stretches to bottom */}
-          <div className="col-span-1 h-full overflow-hidden flex flex-col">
-            <LessonCalendar grade={grade} />
           </div>
           
           {/* Chapter Accordion - 50% */}
