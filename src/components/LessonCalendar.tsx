@@ -86,7 +86,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                       )}
                     </div>
                     {/* Title */}
-                    <h4 className="font-body font-normal text-foreground text-[15px] mt-0.5">
+                    <h4 className="font-body font-normal text-foreground text-[15px] mt-0.5 line-clamp-2">
                       {event.title}
                     </h4>
                   </div>
