@@ -80,14 +80,32 @@ export const useCalendarEvents = (grade: number) => {
       
       try {
         const icsUrl = ICS_URLS[grade] || ICS_URLS[9];
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(icsUrl)}`;
         
-        const response = await fetch(proxyUrl);
-        if (!response.ok) {
+        // Try multiple CORS proxies as fallback
+        const proxies = [
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(icsUrl)}`,
+          `https://corsproxy.io/?${encodeURIComponent(icsUrl)}`,
+        ];
+        
+        let icsData: string | null = null;
+        
+        for (const proxyUrl of proxies) {
+          try {
+            const response = await fetch(proxyUrl);
+            if (response.ok) {
+              icsData = await response.text();
+              break;
+            }
+          } catch {
+            // Try next proxy
+            continue;
+          }
+        }
+        
+        if (!icsData) {
           throw new Error("Kunde inte hämta kalendern");
         }
         
-        const icsData = await response.text();
         const parsedEvents = parseICSData(icsData);
         
         // Update cache
