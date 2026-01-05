@@ -251,13 +251,6 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
             bg-white/10 hover:bg-white/20 border border-white/40"
         />
         
-        {/* Radio 3 - hiphop, placerad under dubbelknappen */}
-        <Button 
-          onClick={() => toggleRadio("hiphop")} 
-          isActive={activeRadio === "hiphop"} 
-          title="Hiphop"
-          className="absolute right-0 top-[180px]"
-        />
       </div>
       
       {/* Radio status - positioned at bottom */}
