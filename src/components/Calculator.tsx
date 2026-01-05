@@ -198,48 +198,48 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
       <div className="absolute top-[88px] left-[18px]">
         {/* Button grid - 6 columns matching background image */}
         <div className="grid grid-cols-6 gap-x-[4px] gap-y-[4px]">
-          {/* Row 1: π, √, √, %, ÷, × */}
-          <Button onClick={insertPi} title="π" className="w-[32px] h-[32px]" />
-          <Button onClick={squareRoot} title="√" className="w-[32px] h-[32px]" />
-          <Button onClick={squareRoot} title="√" className="w-[32px] h-[32px]" />
+          {/* Row 1: π, √, %, ÷, ×, radio-spa */}
+          <Button onClick={insertPi} title="π" />
+          <Button onClick={squareRoot} title="√" />
           <Button onClick={() => {
             const val = parseFloat(display);
             setDisplay(String(val / 100));
-          }} title="%" className="w-[32px] h-[32px]" />
-          <Button onClick={() => performOperation("÷")} title="÷" className="w-[32px] h-[32px]" />
-          <Button onClick={() => toggleRadio("spa")} isActive={activeRadio === "spa"} title="Spa" className="w-[32px] h-[32px]" />
+          }} title="%" />
+          <Button onClick={() => performOperation("÷")} title="÷" />
+          <Button onClick={() => performOperation("×")} title="×" />
+          <Button onClick={() => toggleRadio("spa")} isActive={activeRadio === "spa"} title="Spa" />
           
-          {/* Row 2: 7, 8, 8, X, ×, radio */}
-          <Button onClick={() => inputDigit("7")} title="7" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("8")} title="8" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("8")} title="8" className="w-[32px] h-[32px]" />
-          <Button onClick={square} title="x²" className="w-[32px] h-[32px]" />
-          <Button onClick={() => performOperation("×")} title="×" className="w-[32px] h-[32px]" />
-          <Button onClick={() => toggleRadio("rock")} isActive={activeRadio === "rock"} title="Rock" className="w-[32px] h-[32px]" />
+          {/* Row 2: 7, 8, 9, x², −, radio-rock */}
+          <Button onClick={() => inputDigit("7")} title="7" />
+          <Button onClick={() => inputDigit("8")} title="8" />
+          <Button onClick={() => inputDigit("9")} title="9" />
+          <Button onClick={square} title="x²" />
+          <Button onClick={() => performOperation("-")} title="−" />
+          <Button onClick={() => toggleRadio("rock")} isActive={activeRadio === "rock"} title="Rock" />
           
-          {/* Row 3: 4, 5, 6, 3, +, radio */}
-          <Button onClick={() => inputDigit("4")} title="4" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("5")} title="5" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("6")} title="6" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("3")} title="3" className="w-[32px] h-[32px]" />
-          <Button onClick={() => performOperation("+")} title="+" className="w-[32px] h-[32px]" />
-          <Button onClick={() => toggleRadio("hiphop")} isActive={activeRadio === "hiphop"} title="Hiphop" className="w-[32px] h-[32px]" />
+          {/* Row 3: 4, 5, 6, x^y, +, radio-hiphop */}
+          <Button onClick={() => inputDigit("4")} title="4" />
+          <Button onClick={() => inputDigit("5")} title="5" />
+          <Button onClick={() => inputDigit("6")} title="6" />
+          <Button onClick={power} title="x^y" />
+          <Button onClick={() => performOperation("+")} title="+" />
+          <Button onClick={() => toggleRadio("hiphop")} isActive={activeRadio === "hiphop"} title="Hiphop" />
           
-          {/* Row 4: 1, 2, 3, −, =, empty */}
-          <Button onClick={() => inputDigit("1")} title="1" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("2")} title="2" className="w-[32px] h-[32px]" />
-          <Button onClick={() => inputDigit("3")} title="3" className="w-[32px] h-[32px]" />
-          <Button onClick={() => performOperation("-")} title="−" className="w-[32px] h-[32px]" />
-          <Button onClick={calculate} title="=" className="w-[32px] h-[32px]" />
-          <Button onClick={() => {}} title="" className="w-[32px] h-[32px] opacity-0 pointer-events-none" />
+          {/* Row 4: 1, 2, 3, =, = (continues), empty */}
+          <Button onClick={() => inputDigit("1")} title="1" />
+          <Button onClick={() => inputDigit("2")} title="2" />
+          <Button onClick={() => inputDigit("3")} title="3" />
+          <Button onClick={calculate} title="=" />
+          <Button onClick={calculate} title="=" />
+          <Button onClick={() => {}} className="opacity-0 pointer-events-none" />
           
-          {/* Row 5: 0, empty, ., =, =, empty */}
-          <Button onClick={() => inputDigit("0")} title="0" className="w-[32px] h-[32px]" />
-          <Button onClick={() => {}} title="" className="w-[32px] h-[32px] opacity-0 pointer-events-none" />
-          <Button onClick={inputDecimal} title="." className="w-[32px] h-[32px]" />
-          <Button onClick={calculate} title="=" className="w-[32px] h-[32px]" />
-          <Button onClick={calculate} title="=" className="w-[32px] h-[32px]" />
-          <Button onClick={() => {}} title="" className="w-[32px] h-[32px] opacity-0 pointer-events-none" />
+          {/* Row 5: 0, 0 (wide), ., C, empty, empty */}
+          <Button onClick={() => inputDigit("0")} title="0" />
+          <Button onClick={() => inputDigit("0")} title="0" />
+          <Button onClick={inputDecimal} title="." />
+          <Button onClick={clear} title="C" />
+          <Button onClick={() => {}} className="opacity-0 pointer-events-none" />
+          <Button onClick={() => {}} className="opacity-0 pointer-events-none" />
         </div>
       </div>
       
