@@ -195,7 +195,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
       </div>
       
       {/* Button grid container - positioned to match background buttons */}
-      <div className="absolute top-[88px] left-[18px]">
+      <div className="absolute top-[112px] left-[18px]">
         {/* Row 1: 5 knappar */}
         <div className="flex gap-x-[4px] mb-[4px]">
           <Button onClick={insertPi} title="π" />
