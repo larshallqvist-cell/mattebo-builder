@@ -2,10 +2,9 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 
 interface PostItNoteProps {
   grade: number;
-  rotation?: number;
 }
 
-const PostItNote = ({ grade, rotation = -1 }: PostItNoteProps) => {
+const PostItNote = ({ grade }: PostItNoteProps) => {
   const { nextEvent, loading } = useCalendarEvents(grade);
 
   const parseContent = (text: string) => {
@@ -18,7 +17,7 @@ const PostItNote = ({ grade, rotation = -1 }: PostItNoteProps) => {
         elements.push(
           <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2">
             {listItems.map((item, i) => (
-              <li key={i} className="text-sm">{parseInline(item)}</li>
+              <li key={i} className="text-base">{parseInline(item)}</li>
             ))}
           </ul>
         );
@@ -59,7 +58,7 @@ const PostItNote = ({ grade, rotation = -1 }: PostItNoteProps) => {
         flushList();
         if (trimmed) {
           elements.push(
-            <p key={`p-${i}`} className="text-sm my-1">
+            <p key={`p-${i}`} className="text-base my-1">
               {parseInline(trimmed)}
             </p>
           );
@@ -83,29 +82,20 @@ const PostItNote = ({ grade, rotation = -1 }: PostItNoteProps) => {
   const title = nextEvent ? `Nästa lektion ${weekday}` : "Nästa lektion";
   
   return (
-    <div 
-      className="post-it max-w-full"
-      style={{ transform: `rotate(${rotation}deg)` }}
-    >
-      {/* Tape effect */}
-      <div 
-        className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 bg-yellow-200/60 rounded-sm"
-        style={{ transform: 'rotate(2deg)' }}
-      />
-      
+    <div className="post-it-straight max-w-full">
       {/* Title */}
-      <h4 className="font-bold text-base mb-2 border-b border-yellow-600/30 pb-2">
+      <h4 className="font-bold text-lg mb-2 border-b border-yellow-600/30 pb-2">
         {title}
       </h4>
       
       {/* Content */}
       <div className="space-y-1">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Laddar...</p>
+          <p className="text-base text-muted-foreground">Laddar...</p>
         ) : content ? (
           parseContent(content)
         ) : (
-          <p className="text-sm text-muted-foreground">Ingen beskrivning tillgänglig</p>
+          <p className="text-base text-muted-foreground">Ingen beskrivning tillgänglig</p>
         )}
       </div>
     </div>

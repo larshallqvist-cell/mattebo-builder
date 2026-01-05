@@ -26,10 +26,10 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
   let lastShownWeek: number | null = null;
   
   return (
-    <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden">
+    <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-1">
       {/* Sticky header */}
       <div className="sticky top-0 z-10 bg-secondary px-4 py-3 border-b border-border">
-        <h3 className="text-lg font-bold text-secondary-foreground">
+        <h3 className="text-xl font-bold text-secondary-foreground font-life-savers">
           Lektionsplanering Åk {grade}
         </h3>
       </div>
@@ -57,7 +57,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
               {/* Week header */}
               {showWeekHeader && (
                 <div className="bg-muted px-4 py-2">
-                  <span className="text-sm font-bold text-accent tracking-wider">
+                  <span className="text-base font-bold text-accent tracking-wider">
                     VECKA {event.week} ({formatMonth(event.date)})
                   </span>
                 </div>
@@ -68,10 +68,10 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                 <div className="flex gap-3 items-center">
                   {/* Date column - compact */}
                   <div className="flex-shrink-0 w-12 text-center">
-                    <div className="text-xs text-muted-foreground uppercase">
+                    <div className="text-sm text-muted-foreground uppercase">
                       {formatDay(event.date)}
                     </div>
-                    <div className="text-lg font-bold text-foreground leading-tight">
+                    <div className="text-xl font-bold text-foreground leading-tight">
                       {event.date.getDate()}
                     </div>
                   </div>
@@ -79,14 +79,14 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                   {/* Content column - time/location first, then title */}
                   <div className="flex-1 min-w-0">
                     {/* Time and Location */}
-                    <div className="flex gap-2 text-xs text-muted-foreground">
+                    <div className="flex gap-2 text-sm text-muted-foreground">
                       <span>{formatTime(event.date)}–{formatTime(event.endDate)}</span>
                       {event.location && (
                         <span className="text-accent">{event.location}</span>
                       )}
                     </div>
                     {/* Title */}
-                    <h4 className="font-medium text-foreground text-sm line-clamp-1 mt-0.5">
+                    <h4 className="font-medium text-foreground text-base line-clamp-1 mt-0.5">
                       {event.title}
                     </h4>
                   </div>
@@ -97,7 +97,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
         })}
         
         {!loading && !error && upcomingEvents.length === 0 && (
-          <div className="p-8 text-center text-muted-foreground">
+          <div className="p-8 text-center text-muted-foreground text-base">
             Inga kommande lektioner
           </div>
         )}

@@ -53,6 +53,9 @@
     --wood-brown: 30 40% 30%;
     --post-it-yellow: 50 100% 75%;
     --calculator-gray: 220 10% 85%;
+    
+    /* Divider line color */
+    --divider-orange: 14 70% 51%;
 
     /* Sidebar */
     --sidebar-background: 150 25% 15%;
@@ -125,6 +128,13 @@
       2px 2px 0 hsl(45 70% 60%),
       4px 4px 8px rgba(0,0,0,0.3);
     transform: rotate(-1deg);
+  }
+  
+  .post-it-straight {
+    @apply bg-[hsl(var(--post-it-yellow))] text-[hsl(150,25%,20%)] p-4 rounded-sm;
+    box-shadow: 
+      2px 2px 0 hsl(45 70% 60%),
+      4px 4px 8px rgba(0,0,0,0.3);
   }
 
   .grade-card {

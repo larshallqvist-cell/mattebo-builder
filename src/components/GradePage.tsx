@@ -12,7 +12,7 @@ interface GradePageProps {
 
 const GradePage = ({ grade }: GradePageProps) => {
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden font-body">
       {/* Hero Section - 1/5 (20%) */}
       <div className="relative">
         <Hero 
@@ -28,24 +28,30 @@ const GradePage = ({ grade }: GradePageProps) => {
           <Home className="w-5 h-5 text-secondary-foreground" />
           <span className="text-sm font-medium text-secondary-foreground hidden sm:inline">Hem</span>
         </Link>
+        
+        {/* Soft divider line */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-[2px]"
+          style={{ 
+            background: 'linear-gradient(90deg, transparent, hsl(var(--divider-orange)) 20%, hsl(var(--divider-orange)) 80%, transparent)',
+            boxShadow: '0 1px 4px hsl(var(--divider-orange) / 0.4)'
+          }}
+        />
       </div>
       
-      {/* Content Area - 4/5 (80%) */}
-      <main className="flex-1 min-h-0 p-4 lg:p-6">
+      {/* Content Area - moved closer to hero */}
+      <main className="flex-1 min-h-0 px-4 pt-2 pb-0 lg:px-6">
         {/* Desktop/Tablet: Grid layout */}
-        <div className="hidden md:grid md:grid-cols-4 gap-4 lg:gap-6 h-full">
-          {/* Calendar Column - 25% */}
-          <div className="col-span-1 h-full overflow-hidden">
+        <div className="hidden md:grid md:grid-cols-4 gap-4 lg:gap-6 h-full pb-4">
+          {/* Calendar Column - 25%, stretches to bottom */}
+          <div className="col-span-1 h-full overflow-hidden flex flex-col">
             <LessonCalendar grade={grade} />
           </div>
           
           {/* Calculator Column - 25% */}
           <div className="col-span-1 flex flex-col gap-4">
             <Calculator />
-            <PostItNote 
-              grade={grade}
-              rotation={-2}
-            />
+            <PostItNote grade={grade} />
           </div>
           
           {/* Chapter Accordion - 50% */}
@@ -62,10 +68,7 @@ const GradePage = ({ grade }: GradePageProps) => {
           </div>
           
           {/* Post-it */}
-          <PostItNote 
-            grade={grade}
-            rotation={1}
-          />
+          <PostItNote grade={grade} />
           
           {/* Calculator */}
           <Calculator />
