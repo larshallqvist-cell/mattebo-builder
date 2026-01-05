@@ -214,10 +214,10 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             className="absolute rounded-sm flex items-center justify-end px-2"
             style={{ 
               backgroundColor: '#c8d4c0',
-              top: '6.5%',
-              left: '9.5%',
-              right: '9.5%',
-              height: '8.5%'
+              top: '5%',
+              left: '5%',
+              right: '5%',
+              height: '10.2%'
             }}
           >
             <div 
