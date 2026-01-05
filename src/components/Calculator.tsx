@@ -196,9 +196,8 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
       
       {/* Button grid container - positioned to match background buttons */}
       <div className="absolute top-[88px] left-[18px]">
-        {/* Button grid - 6 columns matching background image */}
-        <div className="grid grid-cols-6 gap-x-[4px] gap-y-[4px]">
-          {/* Row 1: π, √, %, ÷, ×, radio-spa */}
+        {/* Row 1: 5 knappar */}
+        <div className="flex gap-x-[4px] mb-[4px]">
           <Button onClick={insertPi} title="π" />
           <Button onClick={squareRoot} title="√" />
           <Button onClick={() => {
@@ -207,40 +206,58 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           }} title="%" />
           <Button onClick={() => performOperation("÷")} title="÷" />
           <Button onClick={() => performOperation("×")} title="×" />
-          <Button onClick={() => toggleRadio("spa")} isActive={activeRadio === "spa"} title="Spa" />
-          
-          {/* Row 2: 7, 8, 9, x², −, radio-rock */}
+        </div>
+        
+        {/* Row 2: 5 knappar */}
+        <div className="flex gap-x-[4px] mb-[4px]">
           <Button onClick={() => inputDigit("7")} title="7" />
           <Button onClick={() => inputDigit("8")} title="8" />
           <Button onClick={() => inputDigit("9")} title="9" />
           <Button onClick={square} title="x²" />
           <Button onClick={() => performOperation("-")} title="−" />
-          <Button onClick={() => toggleRadio("rock")} isActive={activeRadio === "rock"} title="Rock" />
-          
-          {/* Row 3: 4, 5, 6, x^y, +, radio-hiphop */}
+        </div>
+        
+        {/* Row 3: 5 knappar */}
+        <div className="flex gap-x-[4px] mb-[4px]">
           <Button onClick={() => inputDigit("4")} title="4" />
           <Button onClick={() => inputDigit("5")} title="5" />
           <Button onClick={() => inputDigit("6")} title="6" />
           <Button onClick={power} title="x^y" />
           <Button onClick={() => performOperation("+")} title="+" />
-          <Button onClick={() => toggleRadio("hiphop")} isActive={activeRadio === "hiphop"} title="Hiphop" />
-          
-          {/* Row 4: 1, 2, 3, =, = (continues), empty */}
+        </div>
+        
+        {/* Row 4: 4 knappar + start av dubbelknapp */}
+        <div className="flex gap-x-[4px] mb-[4px]">
           <Button onClick={() => inputDigit("1")} title="1" />
           <Button onClick={() => inputDigit("2")} title="2" />
           <Button onClick={() => inputDigit("3")} title="3" />
-          <Button onClick={calculate} title="=" />
-          <Button onClick={calculate} title="=" />
-          <Button onClick={() => {}} className="opacity-0 pointer-events-none" />
-          
-          {/* Row 5: 0, 0 (wide), ., C, empty, empty */}
-          <Button onClick={() => inputDigit("0")} title="0" />
+          <Button onClick={() => toggleRadio("spa")} isActive={activeRadio === "spa"} title="Spa" />
+        </div>
+        
+        {/* Row 5: 4 knappar */}
+        <div className="flex gap-x-[4px]">
           <Button onClick={() => inputDigit("0")} title="0" />
           <Button onClick={inputDecimal} title="." />
           <Button onClick={clear} title="C" />
-          <Button onClick={() => {}} className="opacity-0 pointer-events-none" />
-          <Button onClick={() => {}} className="opacity-0 pointer-events-none" />
+          <Button onClick={() => toggleRadio("rock")} isActive={activeRadio === "rock"} title="Rock" />
         </div>
+        
+        {/* Dubbelknapp = (höjd över rad 4-5) längst ner till höger */}
+        <button
+          onClick={calculate}
+          title="="
+          className="absolute right-0 top-[108px] w-[32px] h-[68px] rounded-sm
+            transition-all duration-150 active:scale-95
+            bg-white/10 hover:bg-white/20 border border-white/40"
+        />
+        
+        {/* Radio 3 - hiphop, placerad under dubbelknappen */}
+        <Button 
+          onClick={() => toggleRadio("hiphop")} 
+          isActive={activeRadio === "hiphop"} 
+          title="Hiphop"
+          className="absolute right-0 top-[180px]"
+        />
       </div>
       
       {/* Radio status - positioned at bottom */}
