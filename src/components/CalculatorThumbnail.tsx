@@ -9,9 +9,9 @@ const CalculatorThumbnail = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="group relative w-full max-w-[120px] aspect-[260/360] rounded-lg overflow-hidden 
+        className="group relative w-[100px] aspect-[260/360] rounded-lg overflow-hidden 
           shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105
-          border-2 border-secondary/30 hover:border-primary/50"
+          border-2 border-secondary/30 hover:border-primary/50 flex-shrink-0"
         title="Öppna kalkylatorn"
       >
         <img 
