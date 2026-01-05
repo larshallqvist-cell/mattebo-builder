@@ -31,10 +31,9 @@ const GradePage = ({ grade }: GradePageProps) => {
         
         {/* Glowing divider line */}
         <div 
-          className="absolute bottom-0 left-0 right-0 h-[4px]"
+          className="absolute bottom-0 left-0 right-0 h-[4px] animate-glow-pulse-orange"
           style={{ 
-            background: 'linear-gradient(90deg, transparent, hsl(var(--divider-orange)) 15%, hsl(var(--divider-orange)) 85%, transparent)',
-            boxShadow: '0 0 8px hsl(var(--divider-orange) / 0.6), 0 0 16px hsl(var(--divider-orange) / 0.4), 0 2px 4px hsl(var(--divider-orange) / 0.3)'
+            background: 'linear-gradient(90deg, transparent, hsl(var(--divider-orange)) 15%, hsl(var(--divider-orange)) 85%, transparent)'
           }}
         />
       </div>
