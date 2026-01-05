@@ -5,18 +5,26 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 interface CalculatorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
+  const isMobile = useIsMobile();
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [memory, setMemory] = useState<number>(0);
+  
+  // Responsive sizing: mobile = fullscreen, desktop = larger
+  const scale = isMobile ? 1 : 1.4;
+  const baseWidth = 260;
+  const baseHeight = 360;
+  const width = isMobile ? '100vw' : `${baseWidth * scale}px`;
+  const height = isMobile ? '100vh' : `${baseHeight * scale}px`;
   
   const inputDigit = useCallback((digit: string) => {
     if (waitingForOperand) {
@@ -155,6 +163,14 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     performOperation("^");
   }, [performOperation]);
   
+  // Button size scales with calculator
+  const btnSize = isMobile ? 'w-[calc((100vw-100px)/5)] h-[calc((100vw-100px)/5)]' : `w-[${34 * scale}px] h-[${34 * scale}px]`;
+  const btnSizeStyle = isMobile 
+    ? { width: 'calc((100vw - 100px) / 5)', height: 'calc((100vw - 100px) / 5)', maxWidth: '60px', maxHeight: '60px' }
+    : { width: `${34 * scale}px`, height: `${34 * scale}px` };
+  const gapSize = isMobile ? 'calc((100vw - 100px) / 25)' : `${10 * scale}px`;
+  const rowGap = isMobile ? 'calc((100vw - 100px) / 40)' : `${5 * scale}px`;
+  
   const Button = ({ 
     onClick, 
     className = "",
@@ -167,9 +183,10 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     <button
       onClick={onClick}
       title={title}
+      style={btnSizeStyle}
       className={`
         transition-all duration-150 active:scale-95
-        w-[34px] h-[34px] rounded-[4px]
+        rounded-[4px]
         bg-transparent hover:bg-white/10
         ${className}
       `}
@@ -178,26 +195,34 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 bg-transparent border-none shadow-none w-auto max-w-none">
+      <DialogContent 
+        className={`p-0 bg-transparent border-none shadow-none ${isMobile ? 'w-screen h-screen max-w-none max-h-none m-0 rounded-none' : 'w-auto max-w-none'}`}
+      >
         <DialogTitle className="sr-only">Kalkylator</DialogTitle>
         <div 
-          className="relative rounded-xl shadow-2xl"
+          className={`relative shadow-2xl ${isMobile ? 'rounded-none' : 'rounded-xl'}`}
           style={{
             backgroundImage: `url(${calculatorBg})`,
             backgroundSize: '100% 100%',
             backgroundPosition: 'center',
-            width: '260px',
-            height: '360px',
+            width: width,
+            height: height,
           }}
         >
           {/* Display area - ljusgrå bakgrund med tydlig font */}
           <div 
-            className="absolute top-[14px] left-[18px] right-[18px] h-[40px] rounded-sm flex items-center justify-end px-2"
-            style={{ backgroundColor: '#c8d4c0' }}
+            className="absolute rounded-sm flex items-center justify-end px-2"
+            style={{ 
+              backgroundColor: '#c8d4c0',
+              top: '3.9%',
+              left: '6.9%',
+              right: '6.9%',
+              height: '11.1%'
+            }}
           >
             <div 
               className="text-right truncate font-mono text-[#1a1a1a]"
-              style={{ fontSize: '20px', fontWeight: 600, letterSpacing: '1px' }}
+              style={{ fontSize: isMobile ? '28px' : `${20 * scale}px`, fontWeight: 600, letterSpacing: '1px' }}
             >
               {display}
             </div>
@@ -205,15 +230,26 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           
           {/* Memory indicator */}
           {memory !== 0 && (
-            <div className="absolute top-[16px] left-[22px] text-xs text-[#1a2a1a]/60 font-mono">
+            <div 
+              className="absolute text-[#1a2a1a]/60 font-mono"
+              style={{ top: '4.4%', left: '8.5%', fontSize: isMobile ? '14px' : `${12 * scale}px` }}
+            >
               M
             </div>
           )}
         
-          {/* Button grid container - fast position */}
-          <div className="absolute top-[109px] left-[22px]">
+          {/* Button grid container - percentage based positions */}
+          <div 
+            className="absolute flex flex-col"
+            style={{ 
+              top: '30.3%', 
+              left: '8.5%',
+              right: '8.5%',
+              gap: rowGap
+            }}
+          >
             {/* Row 1: π, √, %, ÷, × */}
-            <div className="flex gap-x-[10px] mb-[5px]">
+            <div className="flex" style={{ gap: gapSize }}>
               <Button onClick={insertPi} title="π" />
               <Button onClick={squareRoot} title="√" />
               <Button onClick={() => {
@@ -225,7 +261,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             </div>
             
             {/* Row 2: 7, 8, 9, x², − */}
-            <div className="flex gap-x-[10px] mb-[5px]">
+            <div className="flex" style={{ gap: gapSize }}>
               <Button onClick={() => inputDigit("7")} title="7" />
               <Button onClick={() => inputDigit("8")} title="8" />
               <Button onClick={() => inputDigit("9")} title="9" />
@@ -234,7 +270,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             </div>
             
             {/* Row 3: 4, 5, 6, x^y, + */}
-            <div className="flex gap-x-[10px] mb-[5px]">
+            <div className="flex" style={{ gap: gapSize }}>
               <Button onClick={() => inputDigit("4")} title="4" />
               <Button onClick={() => inputDigit("5")} title="5" />
               <Button onClick={() => inputDigit("6")} title="6" />
@@ -242,38 +278,52 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
               <Button onClick={() => performOperation("+")} title="+" />
             </div>
             
-            {/* Row 4: 1, 2, 3, M+ (nu: lägg till i minne) */}
-            <div className="flex gap-x-[10px] mb-[5px]">
+            {/* Row 4: 1, 2, 3, M+ */}
+            <div className="flex" style={{ gap: gapSize }}>
               <Button onClick={() => inputDigit("1")} title="1" />
               <Button onClick={() => inputDigit("2")} title="2" />
               <Button onClick={() => inputDigit("3")} title="3" />
               <Button onClick={memoryAdd} title="M+" />
             </div>
             
-            {/* Row 5: 0, ., C, MR (nu: hämta från minne) */}
-            <div className="flex gap-x-[10px]">
+            {/* Row 5: 0, ., C, MR */}
+            <div className="flex" style={{ gap: gapSize }}>
               <Button onClick={() => inputDigit("0")} title="0" />
               <Button onClick={inputDecimal} title="." />
               <Button onClick={clear} title="C" />
               <Button onClick={memoryRecall} title="MR" />
             </div>
-            
-            {/* = knappen (dubbelknapp rad 4-5) */}
-            <button
-              onClick={calculate}
-              title="="
-              className="absolute right-[-1px] top-[118px] w-[34px] h-[76px] rounded-[4px]
-                transition-all duration-150 active:scale-95
-                bg-transparent hover:bg-white/10"
-            />
           </div>
           
+          {/* = knappen (dubbelknapp rad 4-5) */}
+          <button
+            onClick={calculate}
+            title="="
+            style={{
+              position: 'absolute',
+              right: '8.5%',
+              top: '62.8%',
+              width: btnSizeStyle.width,
+              height: isMobile ? 'calc((100vw - 100px) / 5 * 2 + (100vw - 100px) / 40)' : `${(34 * 2 + 5) * scale}px`,
+              maxHeight: isMobile ? '125px' : undefined
+            }}
+            className="rounded-[4px] transition-all duration-150 active:scale-95 bg-transparent hover:bg-white/10"
+          />
+          
           {/* Extra rad för backspace och MC längst ner */}
-          <div className="absolute bottom-4 left-[22px] flex gap-x-[10px]">
+          <div 
+            className="absolute flex"
+            style={{ bottom: '4%', left: '8.5%', gap: gapSize }}
+          >
             <button
               onClick={backspace}
               title="⌫ Radera"
-              className="w-[34px] h-[24px] rounded-[4px] bg-secondary/60 hover:bg-secondary/80 
+              style={{ 
+                width: btnSizeStyle.width, 
+                height: isMobile ? '32px' : `${24 * scale}px`,
+                maxWidth: btnSizeStyle.maxWidth
+              }}
+              className="rounded-[4px] bg-secondary/60 hover:bg-secondary/80 
                 text-xs text-secondary-foreground transition-all active:scale-95"
             >
               ⌫
@@ -281,7 +331,12 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             <button
               onClick={memoryClear}
               title="MC Rensa minne"
-              className="w-[34px] h-[24px] rounded-[4px] bg-secondary/60 hover:bg-secondary/80 
+              style={{ 
+                width: btnSizeStyle.width, 
+                height: isMobile ? '32px' : `${24 * scale}px`,
+                maxWidth: btnSizeStyle.maxWidth
+              }}
+              className="rounded-[4px] bg-secondary/60 hover:bg-secondary/80 
                 text-xs text-secondary-foreground transition-all active:scale-95"
             >
               MC
