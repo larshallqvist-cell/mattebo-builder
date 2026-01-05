@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Home } from "lucide-react";
 import Hero from "@/components/Hero";
 import LessonCalendar from "@/components/LessonCalendar";
-import Calculator from "@/components/Calculator";
+import CalculatorThumbnail from "@/components/CalculatorThumbnail";
+import WebRadio from "@/components/WebRadio";
 import ChapterAccordion from "@/components/ChapterAccordion";
 import PostItNote from "@/components/PostItNote";
 
@@ -47,10 +48,15 @@ const GradePage = ({ grade }: GradePageProps) => {
             <LessonCalendar grade={grade} />
           </div>
           
-          {/* Post-it + Calculator Column - 25% */}
+          {/* Post-it + Calculator + Radio Column - 25% */}
           <div className="col-span-1 flex flex-col gap-4">
             <PostItNote grade={grade} />
-            <Calculator />
+            <div className="flex items-start gap-4">
+              <CalculatorThumbnail />
+              <div className="flex-1">
+                <WebRadio />
+              </div>
+            </div>
           </div>
           
           {/* Chapter Accordion - 50% */}
@@ -69,8 +75,13 @@ const GradePage = ({ grade }: GradePageProps) => {
           {/* Post-it */}
           <PostItNote grade={grade} />
           
-          {/* Calculator */}
-          <Calculator />
+          {/* Calculator + Radio */}
+          <div className="flex items-start gap-4">
+            <CalculatorThumbnail />
+            <div className="flex-1">
+              <WebRadio />
+            </div>
+          </div>
           
           {/* Chapters */}
           <ChapterAccordion grade={grade} />
