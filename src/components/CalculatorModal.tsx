@@ -215,8 +215,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             style={{ 
               backgroundColor: '#c8d4c0',
               top: '6.5%',
-              left: '10%',
-              right: '10%',
+              left: '15%',
+              right: '15%',
               height: '10.2%'
             }}
           >
