@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         "life-savers": ['"Life Savers"', 'cursive'],
+        "body": ['"Source Sans 3"', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
