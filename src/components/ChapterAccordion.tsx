@@ -97,8 +97,8 @@ const ChapterAccordion = ({ grade }: ChapterAccordionProps) => {
               value={chapter.id}
               className="accordion-chapter"
             >
-              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left">
-                <span className="font-medium text-foreground text-base font-body">{chapter.title}</span>
+              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left group/chapter">
+                <span className="font-medium text-foreground text-base font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)]">{chapter.title}</span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 space-y-1">
