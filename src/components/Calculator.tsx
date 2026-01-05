@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import calculatorBg from "@/assets/calculator-bg.jpeg";
 
 interface CalculatorProps {
@@ -12,6 +12,24 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [activeRadio, setActiveRadio] = useState<string | null>(null);
   const [exponentMode, setExponentMode] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  
+  // Beräkna skalning baserat på containerns bredd
+  useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const baseWidth = 260; // Bas-bredden på kalkylatorn
+        const newScale = Math.min(containerWidth / baseWidth, 1.5); // Max 150% skalning
+        setScale(newScale);
+      }
+    };
+    
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
   
   const radioChannels = [
     { id: "spa", label: "🧘", name: "Spa - sleep music" },
@@ -177,25 +195,27 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
   );
   
   return (
-    <div 
-      className="relative rounded-xl overflow-hidden shadow-2xl flex-shrink-0"
-      style={{
-        backgroundImage: `url(${calculatorBg})`,
-        backgroundSize: '100% 100%',
-        backgroundPosition: 'center',
-        width: '260px',
-        height: '360px',
-      }}
-    >
-      {/* Display area - positioned to match the LCD screen in background */}
-      <div className="absolute top-[14px] left-[18px] right-[18px] h-[40px] flex items-center justify-end pr-3">
-        <div className="text-right text-lg font-mono text-[#1a2a1a] truncate font-bold tracking-wider">
-          {display}
+    <div ref={containerRef} className="w-full flex justify-center" style={{ height: `${360 * scale}px` }}>
+      <div 
+        className="relative rounded-xl shadow-2xl origin-top"
+        style={{
+          backgroundImage: `url(${calculatorBg})`,
+          backgroundSize: '100% 100%',
+          backgroundPosition: 'center',
+          width: '260px',
+          height: '360px',
+          transform: `scale(${scale})`,
+        }}
+      >
+        {/* Display area - positioned to match the LCD screen in background */}
+        <div className="absolute top-[14px] left-[18px] right-[18px] h-[40px] flex items-center justify-end pr-3">
+          <div className="text-right text-lg font-mono text-[#1a2a1a] truncate font-bold tracking-wider">
+            {display}
+          </div>
         </div>
-      </div>
       
-      {/* Button grid container - positioned to match background buttons */}
-      <div className="absolute top-[112px] left-[18px]">
+        {/* Button grid container - positioned to match background buttons */}
+        <div className="absolute top-[112px] left-[18px]">
         {/* Row 1: 5 knappar */}
         <div className="flex gap-x-[14px] mb-[8px]">
           <Button onClick={insertPi} title="π" />
@@ -259,6 +279,7 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
           ♪ {radioChannels.find(c => c.id === activeRadio)?.name}
         </div>
       )}
+      </div>
     </div>
   );
 };
