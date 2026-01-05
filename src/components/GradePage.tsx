@@ -29,12 +29,12 @@ const GradePage = ({ grade }: GradePageProps) => {
           <span className="text-sm font-medium text-secondary-foreground hidden sm:inline">Hem</span>
         </Link>
         
-        {/* Soft divider line */}
+        {/* Glowing divider line */}
         <div 
-          className="absolute bottom-0 left-0 right-0 h-[2px]"
+          className="absolute bottom-0 left-0 right-0 h-[4px]"
           style={{ 
-            background: 'linear-gradient(90deg, transparent, hsl(var(--divider-orange)) 20%, hsl(var(--divider-orange)) 80%, transparent)',
-            boxShadow: '0 1px 4px hsl(var(--divider-orange) / 0.4)'
+            background: 'linear-gradient(90deg, transparent, hsl(var(--divider-orange)) 15%, hsl(var(--divider-orange)) 85%, transparent)',
+            boxShadow: '0 0 8px hsl(var(--divider-orange) / 0.6), 0 0 16px hsl(var(--divider-orange) / 0.4), 0 2px 4px hsl(var(--divider-orange) / 0.3)'
           }}
         />
       </div>
