@@ -76,14 +76,52 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
     const vevents = vcalendar.getAllSubcomponents("vevent");
     
     const allEvents: CalendarEvent[] = [];
+    // Samla RECURRENCE-ID händelser för att ersätta expanderade instanser
+    const recurrenceOverrides = new Map<string, CalendarEvent>();
     
+    // Första pass: samla alla RECURRENCE-ID händelser
     vevents.forEach((vevent, index) => {
+      const recurrenceId = vevent.getFirstPropertyValue("recurrence-id");
+      if (recurrenceId) {
+        const event = new ICAL.Event(vevent);
+        const startDate = event.startDate.toJSDate();
+        const endDate = event.endDate.toJSDate();
+        const key = `${event.uid}-${recurrenceId.toString()}`;
+        
+        recurrenceOverrides.set(key, {
+          id: `${event.uid}-override-${index}`,
+          title: event.summary || "Ingen titel",
+          date: startDate,
+          endDate: endDate,
+          location: event.location || undefined,
+          description: event.description || undefined,
+          week: getWeekNumber(startDate),
+        });
+      }
+    });
+    
+    // Andra pass: hantera vanliga och återkommande händelser
+    vevents.forEach((vevent, index) => {
+      const recurrenceId = vevent.getFirstPropertyValue("recurrence-id");
+      // Hoppa över RECURRENCE-ID händelser - de hanterades ovan
+      if (recurrenceId) return;
+      
       const event = new ICAL.Event(vevent);
       
       // Kolla om det är en recurring event
       if (event.isRecurring()) {
         const expanded = expandRecurringEvent(vevent, event);
-        allEvents.push(...expanded);
+        // Filtrera bort instanser som har en override
+        expanded.forEach(e => {
+          // Kolla om det finns en override för denna instans
+          const overrideKey = Array.from(recurrenceOverrides.keys()).find(key => 
+            key.startsWith(event.uid) && 
+            Math.abs(recurrenceOverrides.get(key)!.date.getTime() - e.date.getTime()) < 60000
+          );
+          if (!overrideKey) {
+            allEvents.push(e);
+          }
+        });
       } else {
         const startDate = event.startDate.toJSDate();
         const endDate = event.endDate.toJSDate();
@@ -98,6 +136,11 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
           week: getWeekNumber(startDate),
         });
       }
+    });
+    
+    // Lägg till alla overrides
+    recurrenceOverrides.forEach(override => {
+      allEvents.push(override);
     });
     
     return allEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
