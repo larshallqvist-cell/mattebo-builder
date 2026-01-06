@@ -20,8 +20,7 @@ interface ResourceCategory {
   links: ResourceLink[];
 }
 
-// Sheet ID - this should be configured per deployment
-const SHEET_ID = localStorage.getItem('mattebo_sheet_id') || '';
+// Category icons and order configuration
 
 const categoryConfig: Record<string, { icon: React.ReactNode; order: number }> = {
   'Videolektioner': { icon: <Video className="w-5 h-5" />, order: 1 },
