@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Radio, Pause, Play, Volume2, Music } from "lucide-react";
+import { Radio, Pause, Play, Volume2, VolumeX, Music } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 
 interface RadioChannel {
   id: string;
@@ -24,6 +25,8 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<TrackInfo | null>(null);
+  const [volume, setVolume] = useState(70);
+  const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const metadataIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -103,6 +106,24 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       stopMetadataPolling();
     };
   }, []);
+
+  // Update volume when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+    }
+  }, [volume, isMuted]);
+
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    if (value[0] > 0 && isMuted) {
+      setIsMuted(false);
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
   
   const handleChannelClick = (channel: RadioChannel) => {
     // If clicking the same channel, stop it
@@ -142,6 +163,9 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       setIsLoading(false);
     });
 
+    // Apply current volume
+    audio.volume = isMuted ? 0 : volume / 100;
+
     // Start fetching metadata
     startMetadataPolling(channel.metadataId);
 
@@ -153,12 +177,30 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
   
   return (
     <div className="bg-card/80 backdrop-blur-sm rounded-xl border border-border p-4 shadow-lg">
-      {/* Header */}
+      {/* Header with volume control */}
       <div className="flex items-center gap-2 mb-3">
         <Radio className="w-5 h-5 text-primary" />
         <h3 className="font-medium text-foreground">Webbradio</h3>
         {activeChannel && (
-          <Volume2 className="w-4 h-4 text-primary animate-pulse ml-auto" />
+          <div className="flex items-center gap-2 ml-auto">
+            <button 
+              onClick={toggleMute}
+              className="p-1 hover:bg-secondary rounded transition-colors"
+            >
+              {isMuted || volume === 0 ? (
+                <VolumeX className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+              )}
+            </button>
+            <Slider
+              value={[isMuted ? 0 : volume]}
+              onValueChange={handleVolumeChange}
+              max={100}
+              step={1}
+              className="w-16"
+            />
+          </div>
         )}
       </div>
       
