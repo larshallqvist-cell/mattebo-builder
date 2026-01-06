@@ -101,12 +101,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
       setError(null);
 
       try {
-        const { data, error: fnError } = await supabase.functions.invoke('get-resources', {
-          body: null,
-          headers: {},
-        });
-
-        // Build URL with query params manually since invoke doesn't support query params directly
+        // Call edge function with query params
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-resources?grade=${grade}&chapter=${chapter}&sheetId=${encodeURIComponent(sheetId)}`,
           {
