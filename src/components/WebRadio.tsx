@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Radio, Pause, Play, Volume2 } from "lucide-react";
+import { Radio, Pause, Play, Volume2, Music } from "lucide-react";
 
 interface RadioChannel {
   id: string;
@@ -8,6 +8,12 @@ interface RadioChannel {
   description: string;
   color: string;
   streamUrl: string;
+  metadataId: string; // SomaFM channel ID for metadata
+}
+
+interface TrackInfo {
+  artist: string;
+  title: string;
 }
 
 interface WebRadioProps {
@@ -17,7 +23,9 @@ interface WebRadioProps {
 const WebRadio = ({ onChannelChange }: WebRadioProps) => {
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState<TrackInfo | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const metadataIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const channels: RadioChannel[] = [
     { 
@@ -26,7 +34,8 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       emoji: "🧘", 
       description: "Lugn & avslappning", 
       color: "from-teal-500 to-cyan-600",
-      streamUrl: "https://ice1.somafm.com/dronezone-128-mp3"
+      streamUrl: "https://ice1.somafm.com/dronezone-128-mp3",
+      metadataId: "dronezone"
     },
     { 
       id: "rock", 
@@ -34,7 +43,8 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       emoji: "🎸", 
       description: "70-80-tals klassiker", 
       color: "from-red-500 to-orange-600",
-      streamUrl: "https://ice1.somafm.com/metal-128-mp3"
+      streamUrl: "https://ice1.somafm.com/metal-128-mp3",
+      metadataId: "metal"
     },
     { 
       id: "hiphop", 
@@ -42,17 +52,55 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       emoji: "🎤", 
       description: "R&B & Hip-Hop", 
       color: "from-purple-500 to-pink-600",
-      streamUrl: "https://ice1.somafm.com/beatblender-128-mp3"
+      streamUrl: "https://ice1.somafm.com/beatblender-128-mp3",
+      metadataId: "beatblender"
     },
   ];
 
+  const fetchTrackInfo = async (metadataId: string) => {
+    try {
+      const response = await fetch(`https://somafm.com/songs/${metadataId}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.songs && data.songs.length > 0) {
+          const currentSong = data.songs[0];
+          setCurrentTrack({
+            artist: currentSong.artist || "Okänd artist",
+            title: currentSong.title || "Okänd låt"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch track info:', error);
+    }
+  };
+
+  const startMetadataPolling = (metadataId: string) => {
+    // Fetch immediately
+    fetchTrackInfo(metadataId);
+    
+    // Then poll every 30 seconds
+    metadataIntervalRef.current = setInterval(() => {
+      fetchTrackInfo(metadataId);
+    }, 30000);
+  };
+
+  const stopMetadataPolling = () => {
+    if (metadataIntervalRef.current) {
+      clearInterval(metadataIntervalRef.current);
+      metadataIntervalRef.current = null;
+    }
+    setCurrentTrack(null);
+  };
+
   useEffect(() => {
-    // Cleanup audio on unmount
+    // Cleanup on unmount
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      stopMetadataPolling();
     };
   }, []);
   
@@ -63,6 +111,7 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      stopMetadataPolling();
       setActiveChannel(null);
       onChannelChange?.(null);
       return;
@@ -72,6 +121,7 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
+    stopMetadataPolling();
 
     // Start new stream
     setIsLoading(true);
@@ -91,6 +141,9 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       console.error('Playback failed:', err);
       setIsLoading(false);
     });
+
+    // Start fetching metadata
+    startMetadataPolling(channel.metadataId);
 
     setActiveChannel(channel.id);
     onChannelChange?.(channel.id);
@@ -137,14 +190,27 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
         ))}
       </div>
       
-      {/* Now playing */}
+      {/* Now playing with track info */}
       {activeChannelData && (
         <div className="mt-3 pt-3 border-t border-border">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Nu spelar:</span>
-            <span className="font-medium text-foreground">
-              {activeChannelData.emoji} {activeChannelData.description}
-            </span>
+          <div className="flex items-start gap-2 text-sm">
+            <Music className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              {currentTrack ? (
+                <>
+                  <p className="font-medium text-foreground truncate">
+                    {currentTrack.title}
+                  </p>
+                  <p className="text-muted-foreground text-xs truncate">
+                    {currentTrack.artist}
+                  </p>
+                </>
+              ) : (
+                <p className="text-muted-foreground animate-pulse">
+                  Laddar låtinfo...
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}
