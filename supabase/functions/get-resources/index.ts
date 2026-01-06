@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 interface ResourceRow {
-  grade: number;
   chapter: number;
   category: string;
   title: string;
@@ -33,6 +32,14 @@ serve(async (req) => {
       );
     }
 
+    if (!grade) {
+      console.error('Missing grade parameter');
+      return new Response(
+        JSON.stringify({ error: 'grade parameter is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const apiKey = Deno.env.get('GOOGLE_SHEETS_API_KEY');
     if (!apiKey) {
       console.error('GOOGLE_SHEETS_API_KEY not configured');
@@ -42,18 +49,28 @@ serve(async (req) => {
       );
     }
 
-    // Fetch data from Google Sheets
-    // Assuming data is in first sheet, columns A-E, starting from row 2 (row 1 is header)
-    const range = 'A2:E1000';
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+    // Use grade-specific tab: Åk6, Åk7, Åk8, Åk9
+    // Columns: A=Kapitel, B=Kategori, C=Länktext, D=URL
+    const tabName = `Åk${grade}`;
+    const range = `${tabName}!A2:D1000`;
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
     
-    console.log(`Fetching from Google Sheets: ${sheetId}`);
+    console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
     
     const response = await fetch(sheetsUrl);
     
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Google Sheets API error:', errorText);
+      
+      // Check if it's a tab not found error
+      if (response.status === 400 && errorText.includes('Unable to parse range')) {
+        return new Response(
+          JSON.stringify({ error: `Fliken "${tabName}" hittades inte i kalkylbladet`, resources: {} }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: 'Failed to fetch from Google Sheets', details: errorText }),
         { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -63,27 +80,21 @@ serve(async (req) => {
     const data = await response.json();
     const rows = data.values || [];
 
-    console.log(`Fetched ${rows.length} rows from sheet`);
+    console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
 
-    // Parse rows into structured data
+    // Parse rows into structured data (4 columns: Kapitel, Kategori, Länktext, URL)
     const resources: ResourceRow[] = rows
-      .filter((row: string[]) => row.length >= 5)
+      .filter((row: string[]) => row.length >= 4)
       .map((row: string[]) => ({
-        grade: parseInt(row[0], 10),
-        chapter: parseInt(row[1], 10),
-        category: row[2]?.trim() || '',
-        title: row[3]?.trim() || '',
-        url: row[4]?.trim() || '',
+        chapter: parseInt(row[0], 10),
+        category: row[1]?.trim() || '',
+        title: row[2]?.trim() || '',
+        url: row[3]?.trim() || '',
       }))
-      .filter((r: ResourceRow) => !isNaN(r.grade) && !isNaN(r.chapter) && r.title && r.url);
+      .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url);
 
-    // Filter by grade and chapter if provided
+    // Filter by chapter if provided
     let filtered = resources;
-    
-    if (grade) {
-      const gradeNum = parseInt(grade, 10);
-      filtered = filtered.filter(r => r.grade === gradeNum);
-    }
     
     if (chapter) {
       const chapterNum = parseInt(chapter, 10);
