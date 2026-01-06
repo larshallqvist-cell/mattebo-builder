@@ -27,29 +27,80 @@ const getWeekNumber = (date: Date): number => {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 };
 
+const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): CalendarEvent[] => {
+  const start = event.startDate;
+  const duration = event.duration;
+  
+  // Expandera 6 månader framåt från idag
+  const now = ICAL.Time.now();
+  const rangeEnd = now.clone();
+  rangeEnd.addDuration(new ICAL.Duration({ weeks: 26 }));
+  
+  const expand = new ICAL.RecurExpansion({
+    component: vevent,
+    dtstart: start,
+  });
+  
+  const occurrences: CalendarEvent[] = [];
+  let next;
+  let count = 0;
+  const maxOccurrences = 200;
+  
+  while ((next = expand.next()) && count < maxOccurrences) {
+    if (next.compare(rangeEnd) > 0) break;
+    if (next.compare(now) < 0) continue;
+    
+    const startDate = next.toJSDate();
+    const endDate = next.clone();
+    endDate.addDuration(duration);
+    
+    occurrences.push({
+      id: `${event.uid}-${next.toString()}`,
+      title: event.summary || "Ingen titel",
+      date: startDate,
+      endDate: endDate.toJSDate(),
+      location: event.location || undefined,
+      description: event.description || undefined,
+      week: getWeekNumber(startDate),
+    });
+    count++;
+  }
+  
+  return occurrences;
+};
+
 const parseICSData = (icsData: string): CalendarEvent[] => {
   try {
     const jcalData = ICAL.parse(icsData);
     const vcalendar = new ICAL.Component(jcalData);
     const vevents = vcalendar.getAllSubcomponents("vevent");
     
-    const events: CalendarEvent[] = vevents.map((vevent, index) => {
+    const allEvents: CalendarEvent[] = [];
+    
+    vevents.forEach((vevent, index) => {
       const event = new ICAL.Event(vevent);
-      const startDate = event.startDate.toJSDate();
-      const endDate = event.endDate.toJSDate();
       
-      return {
-        id: event.uid || `event-${index}`,
-        title: event.summary || "Ingen titel",
-        date: startDate,
-        endDate: endDate,
-        location: event.location || undefined,
-        description: event.description || undefined,
-        week: getWeekNumber(startDate),
-      };
+      // Kolla om det är en recurring event
+      if (event.isRecurring()) {
+        const expanded = expandRecurringEvent(vevent, event);
+        allEvents.push(...expanded);
+      } else {
+        const startDate = event.startDate.toJSDate();
+        const endDate = event.endDate.toJSDate();
+        
+        allEvents.push({
+          id: event.uid || `event-${index}`,
+          title: event.summary || "Ingen titel",
+          date: startDate,
+          endDate: endDate,
+          location: event.location || undefined,
+          description: event.description || undefined,
+          week: getWeekNumber(startDate),
+        });
+      }
     });
     
-    return events.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return allEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
   } catch (error) {
     console.error("Error parsing ICS data:", error);
     return [];
