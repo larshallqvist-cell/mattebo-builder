@@ -53,10 +53,10 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       id: "hiphop", 
       name: "Hip-Hop", 
       emoji: "🎤", 
-      description: "R&B & Hip-Hop", 
+      description: "Instrumental hip-hop", 
       color: "from-purple-500 to-pink-600",
-      streamUrl: "https://ice1.somafm.com/beatblender-128-mp3",
-      metadataId: "beatblender"
+      streamUrl: "https://ice1.somafm.com/fluid-128-mp3",
+      metadataId: "fluid"
     },
   ];
 
