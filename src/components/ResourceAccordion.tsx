@@ -188,20 +188,26 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
-                  {category.links.map((link, index) => (
-                    <a
-                      key={index}
-                      href={link.url}
-                      target={link.url.startsWith('http') ? '_blank' : undefined}
-                      rel={link.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group font-body font-normal"
-                    >
-                      <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
-                      <span className="text-[15px] text-foreground group-hover:text-accent transition-colors">
-                        {link.title}
-                      </span>
-                    </a>
-                  ))}
+                  {category.links.map((link, index) => {
+                    // Ensure URL has protocol for external links
+                    const isExternal = link.url.startsWith('http') || link.url.startsWith('www.');
+                    const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
+                    
+                    return (
+                      <a
+                        key={index}
+                        href={href}
+                        target={isExternal ? '_blank' : undefined}
+                        rel={isExternal ? 'noopener noreferrer' : undefined}
+                        className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group font-body font-normal"
+                      >
+                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                        <span className="text-[15px] text-foreground group-hover:text-accent transition-colors">
+                          {link.title}
+                        </span>
+                      </a>
+                    );
+                  })}
                 </div>
               </AccordionContent>
             </AccordionItem>
