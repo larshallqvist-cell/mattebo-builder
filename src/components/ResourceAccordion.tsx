@@ -207,7 +207,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         ) : (
                           <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
                         )}
-                        <span className="text-[15px] text-foreground group-hover:text-accent transition-colors">
+                        <span className="text-[15px] text-foreground group-hover:text-accent transition-all origin-left group-hover:scale-[1.02]">
                           {link.title}
                         </span>
                       </a>
