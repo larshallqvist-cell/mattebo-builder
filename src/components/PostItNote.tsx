@@ -136,7 +136,23 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return elements;
   };
 
-  const content = nextEvent?.description || "";
+  // Test content for demonstrating markdown formatting
+  const testContent = `## Veckans fokus
+Denna vecka arbetar vi med **bråktal**.
+
+### Viktiga punkter
+- Förläng och förkorta bråk
+- Jämför bråk med olika nämnare
+- Räkna med blandad form
+
+### Att göra
+1. Läs sidorna 45-52
+2. Gör övningarna på [Matteboken](www.matteboken.se)
+3. Repetera med **GeoGebra**
+
+Kontakta mig via [mejl](mailto:larare@skola.se) om du har frågor!`;
+
+  const content = nextEvent?.description || testContent;
   
   // Format weekday in Swedish
   const getSwedishWeekday = (date: Date) => {
