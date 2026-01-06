@@ -7,8 +7,56 @@ interface PostItNoteProps {
 const PostItNote = ({ grade }: PostItNoteProps) => {
   const { nextEvent, loading } = useCalendarEvents(grade);
 
+  // Convert HTML to Markdown-like format for consistent parsing
+  const htmlToMarkdown = (html: string): string => {
+    let text = html;
+    
+    // Handle line breaks
+    text = text.replace(/<br\s*\/?>/gi, '\n');
+    
+    // Handle bold tags
+    text = text.replace(/<b>([^<]*)<\/b>/gi, '**$1**');
+    text = text.replace(/<strong>([^<]*)<\/strong>/gi, '**$1**');
+    
+    // Handle underline (convert to bold for simplicity)
+    text = text.replace(/<u>([^<]*)<\/u>/gi, '**$1**');
+    
+    // Handle links
+    text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/gi, '[$2]($1)');
+    
+    // Handle list items - extract content
+    text = text.replace(/<li>([^<]*)<\/li>/gi, '- $1\n');
+    // Handle list items with nested content (like links)
+    text = text.replace(/<li>(.*?)<\/li>/gi, (match, content) => {
+      // If content already processed (has markdown link), just add bullet
+      if (content.includes('[') && content.includes('](')) {
+        return `- ${content}\n`;
+      }
+      return `- ${content}\n`;
+    });
+    
+    // Remove remaining list tags
+    text = text.replace(/<\/?ul>/gi, '\n');
+    text = text.replace(/<\/?ol>/gi, '\n');
+    
+    // Remove other common tags
+    text = text.replace(/<\/?p>/gi, '\n');
+    text = text.replace(/<\/?div>/gi, '\n');
+    text = text.replace(/<\/?span>/gi, '');
+    
+    // Clean up multiple newlines
+    text = text.replace(/\n{3,}/g, '\n\n');
+    text = text.trim();
+    
+    return text;
+  };
+
   const parseContent = (text: string) => {
-    const lines = text.split('\n');
+    // Check if content contains HTML tags
+    const hasHtml = /<[^>]+>/g.test(text);
+    const processedText = hasHtml ? htmlToMarkdown(text) : text;
+    
+    const lines = processedText.split('\n');
     const elements: JSX.Element[] = [];
     let bulletItems: string[] = [];
     let numberedItems: string[] = [];
