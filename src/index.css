@@ -166,3 +166,13 @@
     scrollbar-width: none;
   }
 }
+
+/* Romantic vignette softening effect - applied globally */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: inset 0 0 150px 60px rgba(0, 0, 0, 0.4);
+}
