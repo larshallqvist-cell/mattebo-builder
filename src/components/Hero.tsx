@@ -17,8 +17,8 @@ const Hero = ({ title, subtitle, heightClass = "h-[20vh]" }: HeroProps) => {
         style={{ backgroundImage: `url(${heroBg})` }}
       />
       
-      {/* Gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
+      {/* Gradient overlay for depth - reduced blur effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/15" />
       
       {/* Content */}
       <div className="relative z-10 text-center px-4">

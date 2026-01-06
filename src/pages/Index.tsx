@@ -16,7 +16,17 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col overflow-hidden">
       {/* Hero Section - 20% */}
-      <Hero title="Lasses mattegrejor" />
+      <div className="relative">
+        <Hero title="Lasses mattegrejor" />
+        
+        {/* Glowing divider line - yellow like the chalk text */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-[4px] animate-glow-pulse-yellow"
+          style={{ 
+            background: 'linear-gradient(90deg, transparent, hsl(var(--chalk-yellow)) 15%, hsl(var(--chalk-yellow)) 85%, transparent)'
+          }}
+        />
+      </div>
       
       {/* Grade Selection - 80% */}
       <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-0">
