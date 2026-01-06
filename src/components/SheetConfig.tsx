@@ -77,12 +77,14 @@ const SheetConfig = () => {
 
           <div className="bg-muted/50 rounded-lg p-3 text-sm">
             <p className="font-medium text-foreground mb-2">Sheet-struktur:</p>
+            <p className="text-xs text-muted-foreground mb-2">
+              Skapa en flik per årskurs: <strong>Åk6</strong>, <strong>Åk7</strong>, <strong>Åk8</strong>, <strong>Åk9</strong>
+            </p>
             <ul className="text-muted-foreground space-y-1 text-xs">
-              <li><strong>Kolumn A:</strong> Årskurs (6, 7, 8, 9)</li>
-              <li><strong>Kolumn B:</strong> Kapitel (1-5)</li>
-              <li><strong>Kolumn C:</strong> Kategori (Videolektioner, Spel, etc.)</li>
-              <li><strong>Kolumn D:</strong> Länktext</li>
-              <li><strong>Kolumn E:</strong> URL</li>
+              <li><strong>Kolumn A:</strong> Kapitel (1-5)</li>
+              <li><strong>Kolumn B:</strong> Kategori (Videolektioner, Spel, etc.)</li>
+              <li><strong>Kolumn C:</strong> Länktext</li>
+              <li><strong>Kolumn D:</strong> URL</li>
             </ul>
           </div>
 
