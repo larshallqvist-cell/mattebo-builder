@@ -167,12 +167,13 @@
   }
 }
 
-/* Romantic vignette softening effect - applied globally */
+/* Romantic softening effect - applied globally */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  box-shadow: inset 0 0 150px 60px rgba(0, 0, 0, 0.4);
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(255, 255, 255, 0.03) 100%);
+  backdrop-filter: blur(0.3px);
 }
