@@ -13,9 +13,9 @@ export interface CalendarEvent {
 
 // ICS URLs per grade
 const ICS_URLS: Record<number, string> = {
-  6: "https://calendar.google.com/calendar/ical/bac560a2da180a78f3ff69fd77ebaa580ef750833d374e2bcc184f4ac4b1c0ec%40group.calendar.google.com/private-ffebdd7af80a58ffc03de299343e1b41/basic.ics",
-  7: "https://calendar.google.com/calendar/ical/bac560a2da180a78f3ff69fd77ebaa580ef750833d374e2bcc184f4ac4b1c0ec%40group.calendar.google.com/private-ffebdd7af80a58ffc03de299343e1b41/basic.ics",
-  8: "https://calendar.google.com/calendar/ical/bac560a2da180a78f3ff69fd77ebaa580ef750833d374e2bcc184f4ac4b1c0ec%40group.calendar.google.com/private-ffebdd7af80a58ffc03de299343e1b41/basic.ics",
+  6: "https://calendar.google.com/calendar/ical/0f524015b333a62614ee79bfffa842b02ba01f68ac67a3d8691b4391abc6af1e%40group.calendar.google.com/private-2888a415c500bbb3bf6c96a255c48b82/basic.ics",
+  7: "https://calendar.google.com/calendar/ical/d4f5bcba13265c8b896d83349278dddd9415bae5ed132e28a0103682d92e9e17%40group.calendar.google.com/private-86942205e370b95b069d0b24dec6f766/basic.ics",
+  8: "https://calendar.google.com/calendar/ical/cbab979826818c72a03dbe3429daa2f509bcdc1ec4954dfc5f3b685e0b550871%40group.calendar.google.com/private-f9e4b06417fa4b09dcf8a6d659aaf436/basic.ics",
   9: "https://calendar.google.com/calendar/ical/bac560a2da180a78f3ff69fd77ebaa580ef750833d374e2bcc184f4ac4b1c0ec%40group.calendar.google.com/private-ffebdd7af80a58ffc03de299343e1b41/basic.ics",
 };
 
