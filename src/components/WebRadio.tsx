@@ -9,7 +9,7 @@ interface RadioChannel {
   description: string;
   color: string;
   streamUrl: string;
-  metadataId: string; // SomaFM channel ID for metadata
+  metadataId?: string; // SomaFM channel ID for metadata (optional for non-SomaFM channels)
 }
 
 interface TrackInfo {
@@ -57,6 +57,15 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       color: "from-purple-500 to-pink-600",
       streamUrl: "https://ice1.somafm.com/fluid-128-mp3",
       metadataId: "fluid"
+    },
+    { 
+      id: "christian", 
+      name: "Kristet", 
+      emoji: "✝️", 
+      description: "Kristen pop (K-LOVE)", 
+      color: "from-sky-500 to-blue-600",
+      streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/KLOVENATIONAL.mp3"
+      // No metadataId - K-LOVE doesn't have the same API
     },
   ];
 
@@ -166,8 +175,16 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
     // Apply current volume
     audio.volume = isMuted ? 0 : volume / 100;
 
-    // Start fetching metadata
-    startMetadataPolling(channel.metadataId);
+    // Start fetching metadata (only for SomaFM channels)
+    if (channel.metadataId) {
+      startMetadataPolling(channel.metadataId);
+    } else {
+      // For non-SomaFM channels, show the description as track info
+      setCurrentTrack({
+        artist: channel.description,
+        title: "Liveradio"
+      });
+    }
 
     setActiveChannel(channel.id);
     onChannelChange?.(channel.id);
@@ -204,15 +221,15 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
         )}
       </div>
       
-      {/* Channel buttons */}
-      <div className="flex gap-2">
+      {/* Channel buttons - 2x2 grid */}
+      <div className="grid grid-cols-4 gap-2">
         {channels.map((channel) => (
           <button
             key={channel.id}
             onClick={() => handleChannelClick(channel)}
             disabled={isLoading}
             className={`
-              flex-1 flex flex-col items-center gap-1 p-3 rounded-lg
+              flex flex-col items-center gap-1 p-2 rounded-lg
               transition-all duration-300 
               ${activeChannel === channel.id 
                 ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-105` 
@@ -221,8 +238,8 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
               ${isLoading ? 'opacity-70 cursor-wait' : ''}
             `}
           >
-            <span className="text-2xl">{channel.emoji}</span>
-            <span className="text-xs font-medium">{channel.name}</span>
+            <span className="text-xl">{channel.emoji}</span>
+            <span className="text-[10px] font-medium leading-tight">{channel.name}</span>
             {activeChannel === channel.id ? (
               <Pause className="w-3 h-3" />
             ) : (
