@@ -25,28 +25,57 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       }
     };
     
-    const parseInline = (text: string) => {
-      const parts = text.split(/(\*\*[^*]+\*\*)/g);
-      return parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={i}>{part.slice(2, -2)}</strong>;
+    const parseInline = (text: string): (string | JSX.Element)[] => {
+      const result: (string | JSX.Element)[] = [];
+      // Pattern to match **bold**, [link](url), or plain text
+      const pattern = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
+      let lastIndex = 0;
+      let match;
+      let keyIndex = 0;
+      
+      while ((match = pattern.exec(text)) !== null) {
+        // Add text before the match
+        if (match.index > lastIndex) {
+          result.push(text.slice(lastIndex, match.index));
         }
-        const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
-        if (linkMatch) {
-          return (
-            <a 
-              key={i} 
-              href={linkMatch[2]} 
-              className="text-primary-foreground/80 underline hover:text-primary-foreground"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {linkMatch[1]}
-            </a>
-          );
+        
+        const token = match[0];
+        
+        if (token.startsWith('**') && token.endsWith('**')) {
+          // Bold text
+          result.push(<strong key={`b-${keyIndex++}`}>{token.slice(2, -2)}</strong>);
+        } else if (token.startsWith('[')) {
+          // Link: [text](url)
+          const linkMatch = token.match(/\[([^\]]+)\]\(([^)]+)\)/);
+          if (linkMatch) {
+            let href = linkMatch[2];
+            // Normalize URL
+            if (href.startsWith('www.')) {
+              href = 'https://' + href;
+            }
+            result.push(
+              <a 
+                key={`a-${keyIndex++}`}
+                href={href} 
+                className="text-primary-foreground/80 underline hover:text-primary-foreground"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {linkMatch[1]}
+              </a>
+            );
+          }
         }
-        return part;
-      });
+        
+        lastIndex = pattern.lastIndex;
+      }
+      
+      // Add remaining text
+      if (lastIndex < text.length) {
+        result.push(text.slice(lastIndex));
+      }
+      
+      return result;
     };
     
     lines.forEach((line, i) => {
