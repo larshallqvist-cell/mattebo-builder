@@ -9,6 +9,7 @@ import Ak7 from "./pages/Ak7";
 import Ak8 from "./pages/Ak8";
 import Ak9 from "./pages/Ak9";
 import NotFound from "./pages/NotFound";
+import SheetConfig from "./components/SheetConfig";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <SheetConfig />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
