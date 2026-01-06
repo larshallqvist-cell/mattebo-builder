@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2 } from "lucide-react";
+import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2, Link } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ResourceLink {
@@ -201,7 +201,11 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         rel={isExternal ? 'noopener noreferrer' : undefined}
                         className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group font-body font-normal"
                       >
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                        {isExternal ? (
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                        ) : (
+                          <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                        )}
                         <span className="text-[15px] text-foreground group-hover:text-accent transition-colors">
                           {link.title}
                         </span>
