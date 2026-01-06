@@ -192,8 +192,14 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return days[date.getDay()];
   };
   
+  // Format time as HH:MM
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  };
+  
   const weekday = nextEvent ? getSwedishWeekday(nextEvent.date) : '';
-  const title = nextEvent ? `Nästa lektion ${weekday}` : "Nästa lektion";
+  const time = nextEvent ? formatTime(nextEvent.date) : '';
+  const title = nextEvent ? `Nästa lektion ${weekday} ${time}` : "Nästa lektion";
   
   return (
     <div className="post-it-straight max-w-full">
