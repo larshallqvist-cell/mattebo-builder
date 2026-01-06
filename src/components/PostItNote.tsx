@@ -10,31 +10,43 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const parseContent = (text: string) => {
     const lines = text.split('\n');
     const elements: JSX.Element[] = [];
-    let listItems: string[] = [];
+    let bulletItems: string[] = [];
+    let numberedItems: string[] = [];
     
-    const flushList = () => {
-      if (listItems.length > 0) {
+    const flushBulletList = () => {
+      if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body font-normal">
-            {listItems.map((item, i) => (
+          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body font-normal">
+            {bulletItems.map((item, i) => (
               <li key={i} className="text-[15px]">{parseInline(item)}</li>
             ))}
           </ul>
         );
-        listItems = [];
+        bulletItems = [];
+      }
+    };
+    
+    const flushNumberedList = () => {
+      if (numberedItems.length > 0) {
+        elements.push(
+          <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 font-body font-normal">
+            {numberedItems.map((item, i) => (
+              <li key={i} className="text-[15px]">{parseInline(item)}</li>
+            ))}
+          </ol>
+        );
+        numberedItems = [];
       }
     };
     
     const parseInline = (text: string): (string | JSX.Element)[] => {
       const result: (string | JSX.Element)[] = [];
-      // Pattern to match **bold**, [link](url), or plain text
       const pattern = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
       let lastIndex = 0;
       let match;
       let keyIndex = 0;
       
       while ((match = pattern.exec(text)) !== null) {
-        // Add text before the match
         if (match.index > lastIndex) {
           result.push(text.slice(lastIndex, match.index));
         }
@@ -42,14 +54,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         const token = match[0];
         
         if (token.startsWith('**') && token.endsWith('**')) {
-          // Bold text
           result.push(<strong key={`b-${keyIndex++}`}>{token.slice(2, -2)}</strong>);
         } else if (token.startsWith('[')) {
-          // Link: [text](url)
           const linkMatch = token.match(/\[([^\]]+)\]\(([^)]+)\)/);
           if (linkMatch) {
             let href = linkMatch[2];
-            // Normalize URL
             if (href.startsWith('www.')) {
               href = 'https://' + href;
             }
@@ -70,7 +79,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         lastIndex = pattern.lastIndex;
       }
       
-      // Add remaining text
       if (lastIndex < text.length) {
         result.push(text.slice(lastIndex));
       }
@@ -81,10 +89,19 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     lines.forEach((line, i) => {
       const trimmed = line.trim();
       
+      // Check for bullet list items
       if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
-        listItems.push(trimmed.slice(2));
-      } else {
-        flushList();
+        flushNumberedList();
+        bulletItems.push(trimmed.slice(2));
+      } 
+      // Check for numbered list items (1. 2. 3. etc)
+      else if (/^\d+\.\s/.test(trimmed)) {
+        flushBulletList();
+        numberedItems.push(trimmed.replace(/^\d+\.\s/, ''));
+      } 
+      else {
+        flushBulletList();
+        flushNumberedList();
         if (trimmed) {
           elements.push(
             <p key={`p-${i}`} className="text-[15px] my-1 font-body font-normal">
@@ -95,7 +112,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       }
     });
     
-    flushList();
+    flushBulletList();
+    flushNumberedList();
     return elements;
   };
 
