@@ -89,8 +89,27 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     lines.forEach((line, i) => {
       const trimmed = line.trim();
       
+      // Check for headings (## or ###)
+      if (trimmed.startsWith('### ')) {
+        flushBulletList();
+        flushNumberedList();
+        elements.push(
+          <h6 key={`h6-${i}`} className="text-[14px] font-semibold mt-3 mb-1 font-body">
+            {parseInline(trimmed.slice(4))}
+          </h6>
+        );
+      }
+      else if (trimmed.startsWith('## ')) {
+        flushBulletList();
+        flushNumberedList();
+        elements.push(
+          <h5 key={`h5-${i}`} className="text-[15px] font-semibold mt-3 mb-1 font-body">
+            {parseInline(trimmed.slice(3))}
+          </h5>
+        );
+      }
       // Check for bullet list items
-      if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+      else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
         flushNumberedList();
         bulletItems.push(trimmed.slice(2));
       } 
