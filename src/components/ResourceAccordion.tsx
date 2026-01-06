@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2, Link } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -193,7 +194,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                     const isExternal = link.url.startsWith('http') || link.url.startsWith('www.');
                     const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
                     
-                    return (
+                    const linkContent = (
                       <a
                         key={index}
                         href={href}
@@ -210,6 +211,19 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                           {link.title}
                         </span>
                       </a>
+                    );
+                    
+                    return isExternal ? (
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          {linkContent}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Öppnas i nytt fönster</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      linkContent
                     );
                   })}
                 </div>
