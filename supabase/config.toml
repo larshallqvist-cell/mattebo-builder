@@ -1,1 +1,4 @@
 project_id = "elzqxtrncamxiymbjqio"
+
+[functions.get-resources]
+verify_jwt = false
