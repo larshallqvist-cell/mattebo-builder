@@ -196,7 +196,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`p-0 bg-transparent border-none shadow-none ${isMobile ? 'w-screen h-screen max-w-none max-h-none m-0 rounded-none' : 'w-auto max-w-none'}`}
+        className={`p-0 bg-transparent border-none shadow-none ${isMobile ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none m-0 rounded-none translate-x-0 translate-y-0 left-0 top-0' : 'w-auto max-w-none'}`}
       >
         <DialogTitle className="sr-only">Kalkylator</DialogTitle>
         <div 
