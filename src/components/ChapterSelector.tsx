@@ -45,7 +45,21 @@ const ChapterSelector = ({
         Kapitel:
       </span>
       <div className="flex gap-1 sm:gap-2">
-        {chapters.map(chapter => {})}
+        {chapters.map(chapter => (
+          <button
+            key={chapter}
+            onClick={() => setSelectedChapter(chapter)}
+            className={cn(
+              "w-8 h-8 sm:w-10 sm:h-10 rounded-full text-sm font-medium transition-all",
+              "border-2 hover:scale-105",
+              selectedChapter === chapter
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background text-foreground border-muted-foreground/30 hover:border-primary/50"
+            )}
+          >
+            {chapter}
+          </button>
+        ))}
       </div>
     </div>;
 };
