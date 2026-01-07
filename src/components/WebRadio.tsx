@@ -62,10 +62,10 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       id: "christian", 
       name: "Kristet", 
       emoji: "✝️", 
-      description: "Kristen pop (Hope FM)", 
+      description: "Kristen pop (WJTL)", 
       color: "from-sky-500 to-blue-600",
-      streamUrl: "https://ice26.securenetsystems.net/WVBV"
-      // No metadataId - Hope FM doesn't have the same API
+      streamUrl: "https://us9.maindigitalstream.com/ssl/WJTL"
+      // No metadataId - WJTL doesn't have SomaFM API
     },
   ];
 
