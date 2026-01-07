@@ -76,13 +76,13 @@ const GradePage = ({ grade }: GradePageProps) => {
         
         {/* Mobile: Vertical stack */}
         <div className="md:hidden space-y-4 overflow-y-auto h-full pb-8">
+          {/* Post-it first on mobile */}
+          <PostItNote grade={grade} />
+          
           {/* Calendar */}
           <div className="h-[400px]">
             <LessonCalendar grade={grade} />
           </div>
-          
-          {/* Post-it */}
-          <PostItNote grade={grade} />
           
           {/* Calculator + Radio */}
           <div className="flex items-start gap-4">
