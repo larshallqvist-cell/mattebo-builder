@@ -50,13 +50,13 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       metadataId: "seventies"
     },
     { 
-      id: "hiphop", 
-      name: "Hip-Hop", 
-      emoji: "🎤", 
-      description: "Instrumental hip-hop", 
+      id: "pop", 
+      name: "Pop", 
+      emoji: "🎧", 
+      description: "Aktuella hits (OnlyHit)", 
       color: "from-purple-500 to-pink-600",
-      streamUrl: "https://ice1.somafm.com/fluid-128-mp3",
-      metadataId: "fluid"
+      streamUrl: "https://cdn.onlyhitsradio.net/onlyhits"
+      // No metadataId - OnlyHit doesn't have SomaFM API
     },
     { 
       id: "christian", 
