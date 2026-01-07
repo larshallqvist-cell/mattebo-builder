@@ -19,8 +19,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [memory, setMemory] = useState<number>(0);
   
-  // Responsive sizing: mobile = fullscreen, desktop = larger
-  const scale = isMobile ? 1 : 1.4;
+  // Responsive sizing: mobile = fullscreen, desktop = proportional
+  const scale = isMobile ? 1 : 1.2;
   const baseWidth = 260;
   const baseHeight = 360;
   const width = isMobile ? '100vw' : `${baseWidth * scale}px`;
