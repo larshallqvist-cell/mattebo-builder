@@ -60,7 +60,7 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
     },
     { 
       id: "christian", 
-      name: "Andligt", 
+      name: "Faith", 
       emoji: "✌🏼", 
       description: "Kristen pop (WJTL)", 
       color: "from-sky-500 to-blue-600",
