@@ -21,7 +21,7 @@ const GradePage = ({ grade }: GradePageProps) => {
       {/* Hero Section - 1/5 (20%) */}
       <div className="relative">
         <Hero 
-          title={`Resurser Åk ${grade}`}
+          title={`Årskurs ${grade}`}
           heightClass="h-[20vh]"
         />
         
