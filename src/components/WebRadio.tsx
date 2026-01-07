@@ -62,10 +62,10 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
       id: "christian", 
       name: "Kristet", 
       emoji: "✝️", 
-      description: "Kristen pop (K-LOVE)", 
+      description: "Kristen pop (Hope FM)", 
       color: "from-sky-500 to-blue-600",
-      streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/KLOVENATIONAL.mp3"
-      // No metadataId - K-LOVE doesn't have the same API
+      streamUrl: "https://ice26.securenetsystems.net/WVBV"
+      // No metadataId - Hope FM doesn't have the same API
     },
   ];
 
