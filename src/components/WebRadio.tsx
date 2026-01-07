@@ -42,12 +42,12 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
     },
     { 
       id: "rock", 
-      name: "Rock", 
+      name: "Klassisk Rock", 
       emoji: "🎸", 
-      description: "70-80-tals klassiker", 
-      color: "from-red-500 to-orange-600",
-      streamUrl: "https://ice1.somafm.com/metal-128-mp3",
-      metadataId: "metal"
+      description: "70-tals klassiker", 
+      color: "from-amber-500 to-orange-600",
+      streamUrl: "https://ice1.somafm.com/seventies-128-mp3",
+      metadataId: "seventies"
     },
     { 
       id: "hiphop", 
@@ -60,8 +60,8 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
     },
     { 
       id: "christian", 
-      name: "Kristet", 
-      emoji: "✝️", 
+      name: "Andligt", 
+      emoji: "✌🏼", 
       description: "Kristen pop (WJTL)", 
       color: "from-sky-500 to-blue-600",
       streamUrl: "https://us9.maindigitalstream.com/ssl/WJTL"
