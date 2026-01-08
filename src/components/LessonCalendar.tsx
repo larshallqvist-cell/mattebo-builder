@@ -57,7 +57,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
               {/* Week header */}
               {showWeekHeader && (
                 <div className="bg-muted px-4 py-2">
-                  <span className="text-[15px] font-normal text-accent tracking-wider font-body">
+                  <span className="text-base font-normal text-accent tracking-wider font-body">
                     VECKA {event.week} ({formatMonth(event.date)})
                   </span>
                 </div>
@@ -68,7 +68,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                 <div className="flex gap-3 items-center">
                   {/* Date column - compact */}
                   <div className="flex-shrink-0 w-12 text-center font-body">
-                    <div className="text-[15px] text-muted-foreground uppercase">
+                    <div className="text-base text-muted-foreground uppercase">
                       {formatDay(event.date)}
                     </div>
                     <div className="text-xl font-normal text-foreground leading-tight">
@@ -79,14 +79,14 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                   {/* Content column - time/location first, then title */}
                   <div className="flex-1 min-w-0 font-body">
                     {/* Time and Location */}
-                    <div className="flex gap-2 text-[15px] text-muted-foreground">
+                    <div className="flex gap-2 text-base text-muted-foreground">
                       <span>{formatTime(event.date)}–{formatTime(event.endDate)}</span>
                       {event.location && (
                         <span className="text-accent">{event.location}</span>
                       )}
                     </div>
                     {/* Title */}
-                    <h4 className="font-body font-normal text-foreground text-[15px] mt-0.5 line-clamp-2">
+                    <h4 className="font-body font-normal text-foreground text-lg mt-0.5 line-clamp-2">
                       {event.title}
                     </h4>
                   </div>
