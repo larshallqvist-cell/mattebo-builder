@@ -56,7 +56,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
             <div key={event.id}>
               {/* Week header */}
               {showWeekHeader && (
-                <div className="bg-muted px-4 py-2">
+                <div className="bg-muted px-4 py-2 border-b-2 border-chalk-yellow/60">
                   <span className="text-base font-normal text-accent tracking-wider font-body">
                     VECKA {event.week} ({formatMonth(event.date)})
                   </span>
@@ -64,7 +64,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
               )}
               
               {/* Event item - compact layout */}
-              <div className="px-3 py-2 border-b border-border/50 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 border-b-2 border-chalk-yellow/40 hover:bg-muted/30 transition-colors">
                 <div className="flex gap-3 items-center">
                   {/* Date column - compact */}
                   <div className="flex-shrink-0 w-12 text-center font-body">
