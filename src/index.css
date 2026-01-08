@@ -132,7 +132,7 @@
     box-shadow:
       2px 2px 0 hsl(45 70% 60%),
       4px 4px 8px rgba(0, 0, 0, 0.3);
-    transform: rotate(-1deg);
+    transform: rotate(-2deg);
   }
 
   .post-it-straight {
@@ -180,5 +180,5 @@ body::before {
   pointer-events: none;
   z-index: 9999;
   background: linear-gradient(to bottom, rgba(255, 235, 205, 0.04) 0%, rgba(255, 220, 180, 0.06) 100%);
-  backdrop-filter: blur(0.9px) sepia(0.08);
+  backdrop-filter: blur(0.6px) sepia(0.09);
 }
