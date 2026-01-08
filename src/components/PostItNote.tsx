@@ -66,7 +66,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         elements.push(
           <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body font-normal">
             {bulletItems.map((item, i) => (
-              <li key={i} className="text-[15px]">{parseInline(item)}</li>
+              <li key={i} className="text-lg">{parseInline(item)}</li>
             ))}
           </ul>
         );
@@ -79,7 +79,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         elements.push(
           <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 font-body font-normal">
             {numberedItems.map((item, i) => (
-              <li key={i} className="text-[15px]">{parseInline(item)}</li>
+              <li key={i} className="text-lg">{parseInline(item)}</li>
             ))}
           </ol>
         );
@@ -142,7 +142,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushBulletList();
         flushNumberedList();
         elements.push(
-          <h6 key={`h6-${i}`} className="text-[14px] font-semibold mt-3 mb-1 font-body">
+          <h6 key={`h6-${i}`} className="text-base font-semibold mt-3 mb-1 font-body">
             {parseInline(trimmed.slice(4))}
           </h6>
         );
@@ -151,7 +151,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushBulletList();
         flushNumberedList();
         elements.push(
-          <h5 key={`h5-${i}`} className="text-[15px] font-semibold mt-3 mb-1 font-body">
+          <h5 key={`h5-${i}`} className="text-lg font-semibold mt-3 mb-1 font-body">
             {parseInline(trimmed.slice(3))}
           </h5>
         );
@@ -171,7 +171,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushNumberedList();
         if (trimmed) {
           elements.push(
-            <p key={`p-${i}`} className="text-[15px] my-1 font-body font-normal">
+            <p key={`p-${i}`} className="text-lg my-1 font-body font-normal">
               {parseInline(trimmed)}
             </p>
           );
