@@ -64,9 +64,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body font-normal">
+          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-0.5 my-1 font-body font-normal">
             {bulletItems.map((item, i) => (
-              <li key={i} className="text-lg">{parseInline(item)}</li>
+              <li key={i} className="text-xl leading-snug">{parseInline(item)}</li>
             ))}
           </ul>
         );
@@ -77,9 +77,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushNumberedList = () => {
       if (numberedItems.length > 0) {
         elements.push(
-          <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 font-body font-normal">
+          <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-0.5 my-1 font-body font-normal">
             {numberedItems.map((item, i) => (
-              <li key={i} className="text-lg">{parseInline(item)}</li>
+              <li key={i} className="text-xl leading-snug">{parseInline(item)}</li>
             ))}
           </ol>
         );
@@ -142,7 +142,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushBulletList();
         flushNumberedList();
         elements.push(
-          <h6 key={`h6-${i}`} className="text-base font-semibold mt-3 mb-1 font-body">
+          <h6 key={`h6-${i}`} className="text-xl font-semibold mt-2 mb-0.5 font-body leading-snug">
             {parseInline(trimmed.slice(4))}
           </h6>
         );
@@ -151,7 +151,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushBulletList();
         flushNumberedList();
         elements.push(
-          <h5 key={`h5-${i}`} className="text-lg font-semibold mt-3 mb-1 font-body">
+          <h5 key={`h5-${i}`} className="text-2xl font-semibold mt-2 mb-0.5 font-body leading-snug">
             {parseInline(trimmed.slice(3))}
           </h5>
         );
@@ -171,7 +171,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushNumberedList();
         if (trimmed) {
           elements.push(
-            <p key={`p-${i}`} className="text-lg my-1 font-body font-normal">
+            <p key={`p-${i}`} className="text-xl my-0.5 font-body font-normal leading-snug">
               {parseInline(trimmed)}
             </p>
           );
@@ -209,7 +209,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       </h4>
       
       {/* Content */}
-      <div className="space-y-1">
+      <div className="space-y-0">
         {loading ? (
           <p className="text-base text-muted-foreground">Laddar...</p>
         ) : content ? (
