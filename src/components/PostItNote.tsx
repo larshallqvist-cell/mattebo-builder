@@ -166,9 +166,9 @@ const PostItNote = ({
   const weekday = nextEvent ? getSwedishWeekday(nextEvent.date) : '';
   const time = nextEvent ? formatTime(nextEvent.date) : '';
   const title = nextEvent ? `Nästa lektion ${weekday} ${time}` : "Nästa lektion";
-  return <div className="post-it-straight max-w-full">
+  return <div className="post-it-straight max-w-full border-secondary border-solid">
       {/* Title */}
-      <h4 className="font-bold mb-2 border-b border-yellow-600/30 pb-2 text-2xl">
+      <h4 className="font-bold mb-2 border-b border-yellow-600/30 pb-2 text-2xl my-0 px-0 text-center">
         {title}
       </h4>
       
