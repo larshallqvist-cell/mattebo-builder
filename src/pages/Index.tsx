@@ -26,7 +26,7 @@ const Index = () => {
         {/* Glowing divider line - yellow like the chalk text */}
         <div style={{
         background: 'linear-gradient(90deg, transparent, hsl(var(--chalk-yellow)) 15%, hsl(var(--chalk-yellow)) 85%, transparent)'
-      }} className="absolute bottom-0 left-0 right-0 h-[4px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0 border-none" />
+      }} className="absolute bottom-0 left-0 right-0 h-[4px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0" />
       </div>
       
       {/* Grade Selection - 80% */}
