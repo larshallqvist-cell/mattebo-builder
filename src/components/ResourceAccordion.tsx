@@ -157,9 +157,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
       {/* Header */}
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-secondary-foreground font-life-savers">
-            Kapitel {chapter} - Resursers
-          </h3>
+          <h3 className="text-xl font-bold text-secondary-foreground font-life-savers">Kapitel {chapter} - Resurser</h3>
           {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
         </div>
         {error && <p className="text-xs text-destructive mt-1">{error}</p>}
