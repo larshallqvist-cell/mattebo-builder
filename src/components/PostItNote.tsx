@@ -168,7 +168,7 @@ const PostItNote = ({
   const title = nextEvent ? `Nästa lektion ${weekday} ${time}` : "Nästa lektion";
   return <div className="post-it-straight max-w-full">
       {/* Title */}
-      <h4 className="font-bold mb-2 border-b border-yellow-600/30 pb-2 text-3xl">
+      <h4 className="font-bold mb-2 border-b border-yellow-600/30 pb-2 text-2xl">
         {title}
       </h4>
       
