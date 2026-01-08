@@ -179,7 +179,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
             <AccordionItem 
               key={category.id} 
               value={category.id}
-              className="accordion-chapter"
+              className="accordion-chapter border-b-2 border-chalk-yellow/40"
             >
               <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left group/chapter data-[state=open]:bg-muted/30">
                 <span className="flex items-center gap-3 font-medium text-foreground text-base font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange">
@@ -200,7 +200,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         href={href}
                         target={isExternal ? '_blank' : undefined}
                         rel={isExternal ? 'noopener noreferrer' : undefined}
-                        className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal"
+                        className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal border-b border-chalk-yellow/25"
                       >
                         {isExternal ? (
                           <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
