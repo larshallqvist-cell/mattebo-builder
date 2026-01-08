@@ -24,7 +24,7 @@ const LessonCalendar = ({
     error
   } = useCalendarEvents(grade);
   let lastShownWeek: number | null = null;
-  return <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-1">
+  return <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-2">
       {/* Sticky header */}
       <div className="sticky top-0 z-10 bg-secondary px-4 py-3 border-b border-border">
         <h3 className="text-xl font-bold font-life-savers text-primary">
