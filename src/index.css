@@ -106,7 +106,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body text-lg font-normal;
+    @apply bg-background text-foreground font-body text-sm font-normal;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -124,7 +124,7 @@ export default {
             filter: "drop-shadow(0 0 6px hsl(var(--divider-orange) / 0.5))",
           },
           "50%": {
-            filter: "drop-shadow(0 0 22px hsl(var(--divider-orange) / 0.8))",
+            filter: "drop-shadow(0 0 12px hsl(var(--divider-orange) / 0.8))",
           },
         },
         "glow-pulse-yellow": {
