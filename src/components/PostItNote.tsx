@@ -138,7 +138,7 @@ const PostItNote = ({
         flushBulletList();
         flushNumberedList();
         if (trimmed) {
-          elements.push(<p key={`p-${i}`} className="my-0.5 font-body font-normal leading-snug text-lg">
+          elements.push(<p key={`p-${i}`} className="leading-snug text-lg">
               {parseInline(trimmed)}
             </p>);
         }
