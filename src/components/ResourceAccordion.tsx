@@ -165,7 +165,7 @@ const ResourceAccordion = ({
       {/* Header */}
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold font-life-savers text-primary text-2xl">
+          <h3 className="font-bold font-life-savers text-primary text-3xl">
             Kapitel {chapter} - Resurser
           </h3>
           {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
@@ -189,9 +189,9 @@ const ResourceAccordion = ({
                 // Ensure URL has protocol for external links
                 const isExternal = link.url.startsWith('http') || link.url.startsWith('www.');
                 const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
-                const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal">
+                const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group text-xs font-semibold font-sans border border-muted-foreground">
                         {isExternal ? <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /> : <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />}
-                        <span className="text-[15px] text-foreground group-hover:text-accent transition-all origin-left group-hover:scale-[1.02]">
+                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] font-sans text-left font-thin text-secondary-foreground bg-destructive">
                           {link.title}
                         </span>
                       </a>;

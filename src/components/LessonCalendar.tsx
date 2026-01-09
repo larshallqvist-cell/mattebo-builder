@@ -15,11 +15,16 @@ const formatMonth = (date: Date): string => {
 interface LessonCalendarProps {
   grade: number;
 }
-const LessonCalendar = ({ grade }: LessonCalendarProps) => {
-  const { upcomingEvents, loading, error } = useCalendarEvents(grade);
+const LessonCalendar = ({
+  grade
+}: LessonCalendarProps) => {
+  const {
+    upcomingEvents,
+    loading,
+    error
+  } = useCalendarEvents(grade);
   let lastShownWeek: number | null = null;
-  return (
-    <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-2">
+  return <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-2">
       {/* Sticky header */}
       <div className="sticky top-0 z-10 bg-secondary px-4 py-3 border-b border-primary border-solid border">
         <h3 className="text-3xl font-bold font-life-savers text-primary">Lektionsplanering Åk {grade}</h3>
@@ -31,24 +36,19 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
 
         {error && <div className="p-8 text-center text-destructive">{error}</div>}
 
-        {!loading &&
-          !error &&
-          upcomingEvents.map((event) => {
-            const showWeekHeader = event.week !== lastShownWeek;
-            lastShownWeek = event.week;
-            return (
-              <div key={event.id}>
+        {!loading && !error && upcomingEvents.map(event => {
+        const showWeekHeader = event.week !== lastShownWeek;
+        lastShownWeek = event.week;
+        return <div key={event.id}>
                 {/* Week header */}
-                {showWeekHeader && (
-                  <div className="bg-muted px-4 py-2.5">
+                {showWeekHeader && <div className="bg-muted px-4 py-2.5 border-2 border-primary">
                     <span className="text-lg font-semibold text-primary tracking-wider font-body">
                       VECKA {event.week} ({formatMonth(event.date)})
                     </span>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Event item - compact layout */}
-                <div className="px-3 py-2.5 border-b border-chalk-yellow/20 hover:bg-muted/30 transition-colors shadow-none">
+                <div className="px-3 py-2.5 border-b hover:bg-muted/30 transition-colors shadow-none border-2 border-secondary-foreground">
                   <div className="flex gap-3 items-center">
                     {/* Date column - compact */}
                     <div className="flex-shrink-0 w-14 text-center font-body">
@@ -66,21 +66,17 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                         {event.location && <span className="text-chalk-yellow">{event.location}</span>}
                       </div>
                       {/* Title */}
-                      <h4 className="font-body font-normal text-foreground text-lg mt-0.5 line-clamp-2">
+                      <h4 className="font-body font-normal text-foreground mt-0.5 line-clamp-2 text-xl">
                         {event.title}
                       </h4>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              </div>;
+      })}
 
-        {!loading && !error && upcomingEvents.length === 0 && (
-          <div className="p-8 text-center text-muted-foreground text-base">Inga kommande lektioner</div>
-        )}
+        {!loading && !error && upcomingEvents.length === 0 && <div className="p-8 text-center text-muted-foreground text-base">Inga kommande lektioner</div>}
       </div>
-    </div>
-  );
+    </div>;
 };
 export default LessonCalendar;
