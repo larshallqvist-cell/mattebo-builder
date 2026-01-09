@@ -191,7 +191,7 @@ const ResourceAccordion = ({
                 const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
                 const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal">
                         {isExternal ? <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /> : <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />}
-                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] text-[#d7e7fe]">
+                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] text-[#d7e7fe] py-0">
                           {link.title}
                         </span>
                       </a>;
