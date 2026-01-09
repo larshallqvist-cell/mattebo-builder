@@ -174,7 +174,7 @@ const ResourceAccordion = ({
       </div>
       
       {/* Accordion */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto text-secondary-foreground">
         <Accordion type="single" collapsible className="w-full">
           {resources.map(category => <AccordionItem key={category.id} value={category.id} className="accordion-chapter">
               <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left group/chapter data-[state=open]:bg-muted/30">
@@ -191,7 +191,7 @@ const ResourceAccordion = ({
                 const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
                 const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group text-xs font-semibold font-sans border border-muted-foreground">
                         {isExternal ? <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /> : <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />}
-                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] font-sans text-left font-thin text-secondary-foreground bg-destructive">
+                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] font-sans text-left text-destructive-foreground font-medium bg-muted">
                           {link.title}
                         </span>
                       </a>;
