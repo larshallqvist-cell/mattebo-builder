@@ -19,7 +19,7 @@ const Hero = ({
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/15 border-0" />
       
       {/* Content */}
-      <div className="relative z-10 text-center px-4 mt-[10vh]">
+      <div className="relative z-10 text-center px-4">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl chalk-text font-bold tracking-wide">
           {title}
         </h1>
