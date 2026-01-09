@@ -165,7 +165,7 @@ const ResourceAccordion = ({
       {/* Header */}
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold font-life-savers text-primary text-3xl">
+          <h3 className="font-bold font-life-savers text-primary text-2xl">
             Kapitel {chapter} - Resurser
           </h3>
           {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
@@ -174,11 +174,11 @@ const ResourceAccordion = ({
       </div>
       
       {/* Accordion */}
-      <div className="flex-1 overflow-y-auto text-secondary-foreground">
+      <div className="flex-1 overflow-y-auto">
         <Accordion type="single" collapsible className="w-full">
           {resources.map(category => <AccordionItem key={category.id} value={category.id} className="accordion-chapter">
               <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left group/chapter data-[state=open]:bg-muted/30">
-                <span className="flex items-center gap-3 font-medium text-foreground font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange text-2xl">
+                <span className="flex items-center gap-3 font-medium text-foreground text-base font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange">
                   {category.icon}
                   {category.title}
                 </span>
@@ -189,9 +189,9 @@ const ResourceAccordion = ({
                 // Ensure URL has protocol for external links
                 const isExternal = link.url.startsWith('http') || link.url.startsWith('www.');
                 const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
-                const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group text-xs font-semibold font-sans border border-muted-foreground">
+                const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal">
                         {isExternal ? <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /> : <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />}
-                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] font-sans text-left text-destructive-foreground font-medium bg-muted">
+                        <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] text-[#d7e7fe]">
                           {link.title}
                         </span>
                       </a>;
