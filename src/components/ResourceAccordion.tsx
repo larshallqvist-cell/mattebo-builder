@@ -178,7 +178,7 @@ const ResourceAccordion = ({
         <Accordion type="single" collapsible className="w-full">
           {resources.map(category => <AccordionItem key={category.id} value={category.id} className="accordion-chapter">
               <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left group/chapter data-[state=open]:bg-muted/30">
-                <span className="flex items-center gap-3 font-medium text-foreground text-base font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange">
+                <span className="flex items-center gap-3 font-medium text-foreground font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange text-xl">
                   {category.icon}
                   {category.title}
                 </span>
