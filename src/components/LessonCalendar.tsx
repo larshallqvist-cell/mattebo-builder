@@ -54,7 +54,7 @@ const LessonCalendar = ({
                 </div>}
               
               {/* Event item - compact layout */}
-              <div className="px-3 py-2.5 border-b border-border/50 hover:bg-muted/30 transition-colors shadow-none">
+              <div className="px-3 py-2.5 border-b border-chalk-yellow/40 hover:bg-muted/30 transition-colors shadow-none">
                 <div className="flex gap-3 items-center">
                   {/* Date column - compact */}
                   <div className="flex-shrink-0 w-14 text-center font-body">
