@@ -27,7 +27,7 @@ const LessonCalendar = ({
   return <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-2">
       {/* Sticky header */}
       <div className="sticky top-0 z-10 bg-secondary px-4 py-3 border-b border-primary border-solid border">
-        <h3 className="text-xl font-bold font-life-savers text-primary">
+        <h3 className="text-2xl font-bold font-life-savers text-primary">
           Lektionsplanering Åk {grade}
         </h3>
       </div>
@@ -47,21 +47,21 @@ const LessonCalendar = ({
         lastShownWeek = event.week;
         return <div key={event.id}>
               {/* Week header */}
-              {showWeekHeader && <div className="bg-muted px-4 py-2">
-                  <span className="text-[15px] font-normal text-accent tracking-wider font-body">
+              {showWeekHeader && <div className="bg-muted px-4 py-2.5">
+                  <span className="text-lg font-semibold text-primary tracking-wider font-body">
                     VECKA {event.week} ({formatMonth(event.date)})
                   </span>
                 </div>}
               
               {/* Event item - compact layout */}
-              <div className="px-3 py-2 border-b border-border/50 hover:bg-muted/30 transition-colors shadow-none opacity-50">
+              <div className="px-3 py-2.5 border-b border-border/50 hover:bg-muted/30 transition-colors shadow-none">
                 <div className="flex gap-3 items-center">
                   {/* Date column - compact */}
-                  <div className="flex-shrink-0 w-12 text-center font-body">
-                    <div className="text-[15px] text-muted-foreground uppercase">
+                  <div className="flex-shrink-0 w-14 text-center font-body">
+                    <div className="text-base text-chalk-yellow uppercase font-medium">
                       {formatDay(event.date)}
                     </div>
-                    <div className="text-xl font-normal text-foreground leading-tight">
+                    <div className="text-2xl font-semibold text-primary leading-tight">
                       {event.date.getDate()}
                     </div>
                   </div>
@@ -69,12 +69,12 @@ const LessonCalendar = ({
                   {/* Content column - time/location first, then title */}
                   <div className="flex-1 min-w-0 font-body">
                     {/* Time and Location */}
-                    <div className="flex gap-2 text-[15px] text-muted-foreground">
+                    <div className="flex gap-2 text-base text-accent font-medium">
                       <span>{formatTime(event.date)}–{formatTime(event.endDate)}</span>
-                      {event.location && <span className="text-accent">{event.location}</span>}
+                      {event.location && <span className="text-chalk-yellow">{event.location}</span>}
                     </div>
                     {/* Title */}
-                    <h4 className="font-body font-normal text-foreground text-[15px] mt-0.5 line-clamp-2">
+                    <h4 className="font-body font-normal text-foreground text-lg mt-0.5 line-clamp-2">
                       {event.title}
                     </h4>
                   </div>

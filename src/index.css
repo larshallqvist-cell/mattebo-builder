@@ -106,7 +106,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body text-sm font-normal;
+    @apply bg-background text-foreground font-body text-base font-normal;
   }
 
   h1,
