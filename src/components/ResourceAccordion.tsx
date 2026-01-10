@@ -124,18 +124,36 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
                     const isExternal = cleanUrl.startsWith("http");
 
+                    const handleClick = (e: React.MouseEvent) => {
+                      if (isExternal) {
+                        e.preventDefault();
+                        console.log("Navigerar till:", cleanUrl);
+                        
+                        // Försök flera metoder för att säkerställa att länken öppnas
+                        try {
+                          // Metod 1: Försök window.top för att bryta ut ur iframe
+                          if (window.top && window.top !== window.self) {
+                            window.top.location.href = cleanUrl;
+                          } else {
+                            // Metod 2: Öppna i nytt fönster/tab
+                            window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                          }
+                        } catch (error) {
+                          // Metod 3: Fallback till window.location
+                          console.error("Kunde inte öppna länk med window.top, använder fallback", error);
+                          window.location.href = cleanUrl;
+                        }
+                      }
+                    };
+
                     return (
                       <a
                         key={index}
                         href={cleanUrl}
-                        // VIKTIGT: Vi använder _top för att tvinga webbläsaren att lämna iframen/appen
-                        target={isExternal ? "_top" : undefined}
+                        target={isExternal ? "_blank" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
                         className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent/10 transition-all group cursor-pointer"
-                        onClick={(e) => {
-                          // Om det är en extern länk, logga i konsolen så vi kan se vad som händer
-                          if (isExternal) console.log("Navigerar till:", cleanUrl);
-                        }}
+                        onClick={handleClick}
                       >
                         {isExternal ? (
                           <ExternalLink className="w-4 h-4 text-muted-foreground" />
