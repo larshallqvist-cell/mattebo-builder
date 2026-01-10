@@ -1,6 +1,6 @@
 /**
  * Filnamn: ResourceAccordion.tsx
- * Timestamp: 2026-01-10 17:43
+ * Timestamp: 2026-01-10 17:50
  * Beskrivning: Kraftfull länkhantering som tvingar webbläsaren att lämna
  * applikationen för att undvika 404-fel i inbäddade miljöer.
  */
