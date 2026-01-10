@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2, Link } from "lucide-react";
+import YouTubePlaylistModal from "./YouTubePlaylistModal";
 
 interface ResourceLink {
   title: string;
@@ -93,6 +94,8 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
   const [resources, setResources] = useState<ResourceCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -134,7 +137,30 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
   const chapterName = chapterNames[grade]?.[chapter] || "";
   const chapterTitle = chapterName ? `Kapitel ${chapter} - ${chapterName}` : `Kapitel ${chapter}`;
 
+  // Extrahera YouTube spellista-ID från URL
+  const extractPlaylistId = (url: string): string | null => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.searchParams.get('list');
+    } catch {
+      return null;
+    }
+  };
+
+  // Hantera klick på länk - öppna modal för spellistor, annars öppna direkt
+  const handleLinkClick = (e: React.MouseEvent, url: string) => {
+    const playlistId = extractPlaylistId(url);
+    
+    if (playlistId) {
+      e.preventDefault();
+      setSelectedPlaylistId(playlistId);
+      setIsModalOpen(true);
+    }
+    // Om det inte är en spellista, låt standardbeteendet (target="_blank") hantera det
+  };
+
   return (
+    <>
     <div className="bg-card rounded-lg border border-border overflow-hidden h-full flex flex-col">
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
@@ -158,6 +184,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                     // Rensa URL:en från osynliga tecken och whitespace
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
                     const isExternal = cleanUrl.startsWith("http");
+                    const isPlaylist = cleanUrl.includes('playlist?list=');
 
                     return (
                       <a
@@ -167,13 +194,11 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         target={isExternal ? "_blank" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
                         className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent/10 transition-all group cursor-pointer"
-                        onClick={(e) => {
-                          if (isExternal) {
-                            console.log("Öppnar extern länk:", cleanUrl);
-                          }
-                        }}
+                        onClick={(e) => handleLinkClick(e, cleanUrl)}
                       >
-                        {isExternal ? (
+                        {isPlaylist ? (
+                          <Video className="w-4 h-4 text-muted-foreground" />
+                        ) : isExternal ? (
                           <ExternalLink className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <Link className="w-4 h-4 text-muted-foreground" />
@@ -189,6 +214,17 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
         </Accordion>
       </div>
     </div>
+
+      {/* YouTube Spellista Modal */}
+      <YouTubePlaylistModal
+        playlistId={selectedPlaylistId}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedPlaylistId(null);
+        }}
+      />
+    </>
   );
 };
 
