@@ -95,9 +95,10 @@ serve(async (req) => {
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Google Sheets API error:', errorText);
+      // Log detailed error server-side only
+      console.error('Google Sheets API error:', response.status, errorText);
       
-      // Check if it's a tab not found error
+      // Check if it's a tab not found error - return user-friendly message
       if (response.status === 400 && errorText.includes('Unable to parse range')) {
         return new Response(
           JSON.stringify({ error: `Fliken "${tabName}" hittades inte i kalkylbladet`, resources: {} }),
@@ -105,9 +106,10 @@ serve(async (req) => {
         );
       }
       
+      // Return generic error without exposing internal details
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch from Google Sheets', details: errorText }),
-        { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Kunde inte hämta resurser. Försök igen senare.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -152,9 +154,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
+    // Log detailed error server-side only
     console.error('Error in get-resources function:', error);
+    // Return generic error without exposing internal details
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: String(error) }),
+      JSON.stringify({ error: 'Ett fel uppstod. Försök igen senare.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
