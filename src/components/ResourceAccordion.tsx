@@ -120,40 +120,23 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {category.links.map((link, index) => {
-                    // 1. Rensa URL:en från allt skräp
+                    // Rensa URL:en från osynliga tecken och whitespace
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
                     const isExternal = cleanUrl.startsWith("http");
-
-                    const handleClick = (e: React.MouseEvent) => {
-                      if (isExternal) {
-                        e.preventDefault();
-                        console.log("Navigerar till:", cleanUrl);
-                        
-                        // Försök flera metoder för att säkerställa att länken öppnas
-                        try {
-                          // Metod 1: Försök window.top för att bryta ut ur iframe
-                          if (window.top && window.top !== window.self) {
-                            window.top.location.href = cleanUrl;
-                          } else {
-                            // Metod 2: Öppna i nytt fönster/tab
-                            window.open(cleanUrl, '_blank', 'noopener,noreferrer');
-                          }
-                        } catch (error) {
-                          // Metod 3: Fallback till window.location
-                          console.error("Kunde inte öppna länk med window.top, använder fallback", error);
-                          window.location.href = cleanUrl;
-                        }
-                      }
-                    };
 
                     return (
                       <a
                         key={index}
                         href={cleanUrl}
+                        // Öppna externa länkar i ny flik för att undvika 404-fel och iframe-problem
                         target={isExternal ? "_blank" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
                         className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent/10 transition-all group cursor-pointer"
-                        onClick={handleClick}
+                        onClick={(e) => {
+                          if (isExternal) {
+                            console.log("Öppnar extern länk:", cleanUrl);
+                          }
+                        }}
                       >
                         {isExternal ? (
                           <ExternalLink className="w-4 h-4 text-muted-foreground" />

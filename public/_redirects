@@ -1,0 +1,5 @@
+# Netlify/Vercel redirects for SPA routing
+# This ensures all routes are handled by index.html
+# to prevent 404 errors when navigating directly to routes
+
+/*    /index.html   200

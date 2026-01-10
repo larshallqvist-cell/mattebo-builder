@@ -45,14 +45,30 @@ Detta skapar en `dist`-mapp med alla filer redo för driftsättning.
 
 1. Kör `npm run build`
 2. Ladda upp innehållet i `dist`-mappen till din webbserver
-3. Konfigurera din server att servera `index.html` för alla routes (SPA-routing)
+3. **VIKTIGT:** Konfigurera din server att servera `index.html` för alla routes för att undvika 404-fel
+
+#### Apache
+Projektet inkluderar en `.htaccess`-fil i `public/`-mappen som automatiskt kopieras till `dist/` vid byggning. Den hanterar SPA-routing automatiskt.
+
+#### Nginx
+Lägg till följande i din Nginx-konfiguration:
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+#### Netlify/Vercel
+Projektet inkluderar en `_redirects`-fil som automatiskt hanterar routing. Ingen extra konfiguration behövs.
 
 ### Automatisk driftsättning med CI/CD
 
 Rekommenderade tjänster som stöder automatisk deploy från GitHub:
-- **Netlify** - Koppla repot och deploya automatiskt vid push
+- **Netlify** - Koppla repot och deploya automatiskt vid push (rekommenderat, fungerar direkt)
 - **Vercel** - Samma princip, perfekt för React-appar
 - **GitHub Pages** - Gratis hosting direkt från repot
+
+**OBS:** Alla dessa tjänster hanterar SPA-routing automatiskt och förhindrar 404-fel.
 
 ## Tekniker
 

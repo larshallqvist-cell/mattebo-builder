@@ -111,17 +111,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               href = 'https://' + href;
             }
             
-            const handleLinkClick = (e: React.MouseEvent) => {
-              e.preventDefault();
-              try {
-                // Försök öppna i nytt fönster
-                window.open(href, '_blank', 'noopener,noreferrer');
-              } catch (error) {
-                console.error("Kunde inte öppna länk", error);
-                window.location.href = href;
-              }
-            };
-            
             result.push(
               <a 
                 key={`a-${keyIndex++}`}
@@ -129,7 +118,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 className="text-primary-foreground/80 underline hover:text-primary-foreground"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleLinkClick}
+                onClick={() => console.log("Öppnar länk:", href)}
               >
                 {linkMatch[1]}
               </a>
