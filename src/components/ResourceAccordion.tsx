@@ -1,8 +1,8 @@
 /**
  * Filnamn: ResourceAccordion.tsx
- * Timestamp: 2026-01-10 17:55
- * Beskrivning: Robust länkhantering som rensar dolda tecken och
- * tvingar webbläsaren att tolka länkar som externa för att undvika 404.
+ * Timestamp: 2026-01-10 17:43
+ * Beskrivning: Kraftfull länkhantering som tvingar webbläsaren att lämna
+ * applikationen för att undvika 404-fel i inbäddade miljöer.
  */
 
 import { useState, useEffect } from "react";
@@ -30,27 +30,13 @@ const categoryConfig: Record<
     order: number;
   }
 > = {
-  Videolektioner: {
-    icon: <Video className="w-5 h-5" />,
-    order: 1,
-  },
-  Spel: {
-    icon: <Gamepad2 className="w-5 h-5" />,
-    order: 2,
-  },
-  Extrauppgifter: {
-    icon: <FileText className="w-5 h-5" />,
-    order: 3,
-  },
-  Övrigt: {
-    icon: <MoreHorizontal className="w-5 h-5" />,
-    order: 4,
-  },
+  Videolektioner: { icon: <Video className="w-5 h-5" />, order: 1 },
+  Spel: { icon: <Gamepad2 className="w-5 h-5" />, order: 2 },
+  Extrauppgifter: { icon: <FileText className="w-5 h-5" />, order: 3 },
+  Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 4 },
 };
 
 const generateFallbackData = (grade: number, chapter: number): ResourceCategory[] => {
-  const chapterNames = ["Talförståelse", "Algebra", "Geometri", "Statistik", "Samband"];
-  const chapterName = chapterNames[chapter - 1] || "Kapitel";
   return [
     {
       id: "videos",
@@ -58,8 +44,8 @@ const generateFallbackData = (grade: number, chapter: number): ResourceCategory[
       icon: <Video className="w-5 h-5" />,
       links: [
         {
-          title: `Introduktion till ${chapterName}`,
-          url: `https://www.youtube.com/results?search_query=matematik+${chapterName}`,
+          title: `Sök matematik kapitel ${chapter}`,
+          url: `https://www.youtube.com/results?search_query=matematik+kapitel+${chapter}`,
         },
       ],
     },
@@ -84,41 +70,27 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
         return;
       }
       setLoading(true);
-      setError(null);
       try {
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-resources?grade=${grade}&chapter=${chapter}&sheetId=${encodeURIComponent(sheetId)}`,
           {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            },
+            headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
           },
         );
-        if (!response.ok) throw new Error("Failed to fetch resources");
-
         const result = await response.json();
-        if (result.error) throw new Error(result.error);
-
         const grouped = result.resources || {};
         const categories: ResourceCategory[] = Object.entries(grouped)
-          .map(([categoryName, links]) => {
-            const config = categoryConfig[categoryName] || {
-              icon: <MoreHorizontal className="w-5 h-5" />,
-              order: 99,
-            };
-            return {
-              id: categoryName.toLowerCase().replace(/[^a-z]/g, ""),
-              title: categoryName,
-              icon: config.icon,
-              links: links as ResourceLink[],
-              order: config.order,
-            };
-          })
+          .map(([name, links]) => ({
+            id: name.toLowerCase().replace(/[^a-z]/g, ""),
+            title: name,
+            icon: categoryConfig[name]?.icon || <MoreHorizontal className="w-5 h-5" />,
+            links: links as ResourceLink[],
+            order: categoryConfig[name]?.order || 99,
+          }))
           .sort((a, b) => (a.order || 99) - (b.order || 99));
-
         setResources(categories.length === 0 ? generateFallbackData(grade, chapter) : categories);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Kunde inte hämta resurser");
+        setError("Kunde inte hämta data");
         setResources(generateFallbackData(grade, chapter));
       } finally {
         setLoading(false);
@@ -134,58 +106,44 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
           <h3 className="font-bold font-life-savers text-primary text-2xl">Kapitel {chapter} - Resurser</h3>
           {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
         </div>
-        {error && <p className="text-xs text-destructive mt-1">{error}</p>}
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <Accordion type="single" collapsible className="w-full">
           {resources.map((category) => (
             <AccordionItem key={category.id} value={category.id} className="accordion-chapter">
-              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left group/chapter data-[state=open]:bg-muted/30">
-                <span className="flex items-center gap-3 font-medium text-foreground font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange text-xl">
-                  {category.icon}
-                  {category.title}
+              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left">
+                <span className="flex items-center gap-3 font-medium text-foreground text-xl">
+                  {category.icon} {category.title}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {category.links.map((link, index) => {
-                    // --- ULTRA-TVÄTT AV URL ---
-                    // Tar bort mellanslag och dolda tecken som kan orsaka 404
-                    const cleanUrl = link.url.replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
-
+                    // 1. Rensa URL:en från allt skräp
+                    const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
                     const isExternal = cleanUrl.startsWith("http");
 
                     return (
-                      <Tooltip key={index}>
-                        <TooltipTrigger asChild>
-                          <a
-                            href={cleanUrl}
-                            target={isExternal ? "_blank" : undefined}
-                            rel={isExternal ? "noopener noreferrer" : undefined}
-                            // Om target="_blank" blockeras, tvinga fram en "fönster-i-fönster" lösning
-                            onClick={(e) => {
-                              if (isExternal) {
-                                // Vi låter standardbeteendet ske, men loggar för felsökning
-                                console.log("Öppnar extern länk:", cleanUrl);
-                              }
-                            }}
-                            className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal cursor-pointer"
-                          >
-                            {isExternal ? (
-                              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                            ) : (
-                              <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
-                            )}
-                            <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] text-[#d7e7fe] py-0">
-                              {link.title}
-                            </span>
-                          </a>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{isExternal ? "Öppnas i nytt fönster" : "Gå till sektion"}</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      <a
+                        key={index}
+                        href={cleanUrl}
+                        // VIKTIGT: Vi använder _top för att tvinga webbläsaren att lämna iframen/appen
+                        target={isExternal ? "_top" : undefined}
+                        rel={isExternal ? "noopener noreferrer" : undefined}
+                        className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent/10 transition-all group cursor-pointer"
+                        onClick={(e) => {
+                          // Om det är en extern länk, logga i konsolen så vi kan se vad som händer
+                          if (isExternal) console.log("Navigerar till:", cleanUrl);
+                        }}
+                      >
+                        {isExternal ? (
+                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <Link className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        <span className="text-[15px] text-[#d7e7fe]">{link.title}</span>
+                      </a>
                     );
                   })}
                 </div>
