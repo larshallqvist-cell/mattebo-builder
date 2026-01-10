@@ -36,6 +36,38 @@ const categoryConfig: Record<
   Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 4 },
 };
 
+// Kapitelnamn för varje årskurs och kapitel
+const chapterNames: Record<number, Record<number, string>> = {
+  6: {
+    1: "Tal och räkning",
+    2: "Multiplikation och division",
+    3: "Samband och förändring",
+    4: "Geometri",
+    5: "Sikte på framtiden",
+  },
+  7: {
+    1: "Taluppfattning och tals användning",
+    2: "Algebra",
+    3: "Geometri",
+    4: "Samband och förändring",
+    5: "Sannolikhet och statistik",
+  },
+  8: {
+    1: "Taluppfattning och tals användning",
+    2: "Samband och förändring",
+    3: "Geometri",
+    4: "Algebra",
+    5: "Sannolikhet och statistik",
+  },
+  9: {
+    1: "Taluppfattning och tals användning",
+    2: "Samband och förändring",
+    3: "Algebra",
+    4: "Geometri",
+    5: "Sikte på framtiden",
+  },
+};
+
 const generateFallbackData = (grade: number, chapter: number): ResourceCategory[] => {
   return [
     {
@@ -99,11 +131,14 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
     fetchResources();
   }, [grade, chapter]);
 
+  const chapterName = chapterNames[grade]?.[chapter] || "";
+  const chapterTitle = chapterName ? `Kapitel ${chapter} - ${chapterName}` : `Kapitel ${chapter}`;
+
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden h-full flex flex-col">
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold font-life-savers text-primary text-2xl">Kapitel {chapter} - Resurser</h3>
+          <h3 className="font-bold font-life-savers text-primary text-2xl">{chapterTitle}</h3>
           {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
         </div>
       </div>
