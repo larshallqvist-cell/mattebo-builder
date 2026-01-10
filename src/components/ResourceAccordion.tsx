@@ -186,24 +186,46 @@ const ResourceAccordion = ({
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {category.links.map((link, index) => {
-                // Ensure URL has protocol for external links
-                const isExternal = link.url.startsWith('http') || link.url.startsWith('www.');
-                const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
-                const linkContent = <a key={index} href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined} className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal">
-                        {isExternal ? <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /> : <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />}
+                    // Ensure URL has protocol for external links
+                    const isExternal = link.url.startsWith('http') || link.url.startsWith('www.');
+                    const href = link.url.startsWith('www.') ? `https://${link.url}` : link.url;
+                    
+                    const handleClick = (e: React.MouseEvent) => {
+                      if (isExternal) {
+                        e.preventDefault();
+                        window.open(href, '_blank', 'noopener,noreferrer');
+                      }
+                    };
+                    
+                    const linkElement = (
+                      <a 
+                        key={index} 
+                        href={href} 
+                        onClick={handleClick}
+                        className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal cursor-pointer"
+                      >
+                        {isExternal ? (
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        ) : (
+                          <Link className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                        )}
                         <span className="text-[15px] transition-all origin-left group-hover:scale-[1.02] text-[#d7e7fe] py-0">
                           {link.title}
                         </span>
-                      </a>;
-                return isExternal ? <Tooltip key={index}>
+                      </a>
+                    );
+                    
+                    return isExternal ? (
+                      <Tooltip key={index}>
                         <TooltipTrigger asChild>
-                          {linkContent}
+                          <span className="contents">{linkElement}</span>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>Öppnas i nytt fönster</p>
                         </TooltipContent>
-                      </Tooltip> : linkContent;
-              })}
+                      </Tooltip>
+                    ) : linkElement;
+                  })}
                 </div>
               </AccordionContent>
             </AccordionItem>)}
