@@ -24,6 +24,7 @@ serve(async (req) => {
     const chapter = url.searchParams.get('chapter');
     const sheetId = url.searchParams.get('sheetId');
 
+    // Validate sheetId parameter - must be present and match Google Sheet ID format
     if (!sheetId) {
       console.error('Missing sheetId parameter');
       return new Response(
@@ -32,12 +33,45 @@ serve(async (req) => {
       );
     }
 
+    // Google Sheet IDs are typically 44 characters, but can vary between 20-100 characters
+    // They contain only alphanumeric characters, hyphens, and underscores
+    const sheetIdPattern = /^[a-zA-Z0-9-_]{20,100}$/;
+    if (!sheetIdPattern.test(sheetId)) {
+      console.error('Invalid sheetId format');
+      return new Response(
+        JSON.stringify({ error: 'Invalid sheetId format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate grade parameter - must be present and one of the valid grades
     if (!grade) {
       console.error('Missing grade parameter');
       return new Response(
         JSON.stringify({ error: 'grade parameter is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    const validGrades = ['6', '7', '8', '9'];
+    if (!validGrades.includes(grade)) {
+      console.error('Invalid grade parameter:', grade);
+      return new Response(
+        JSON.stringify({ error: 'Invalid grade parameter. Must be 6, 7, 8, or 9' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate chapter parameter if provided - must be a positive integer within reasonable range
+    if (chapter) {
+      const chapterNum = parseInt(chapter, 10);
+      if (isNaN(chapterNum) || chapterNum < 1 || chapterNum > 50) {
+        console.error('Invalid chapter parameter:', chapter);
+        return new Response(
+          JSON.stringify({ error: 'Invalid chapter parameter. Must be a number between 1 and 50' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     const apiKey = Deno.env.get('GOOGLE_SHEETS_API_KEY');
@@ -50,7 +84,7 @@ serve(async (req) => {
     }
 
     // Use grade-specific tab: Åk6, Åk7, Åk8, Åk9
-    // Columns: A=Kapitel, B=Kategori, C=Länktext, D=URL
+    // Grade is already validated to be one of ['6', '7', '8', '9']
     const tabName = `Åk${grade}`;
     const range = `${tabName}!A2:D1000`;
     const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
