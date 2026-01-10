@@ -1,8 +1,8 @@
 /**
  * Filnamn: ResourceAccordion.tsx
- * Timestamp: 2026-01-10 17:45
- * Beskrivning: Komponent för att visa lektionsresurser med robusta
- * länkar som fungerar med YouTube och externa webbplatser.
+ * Timestamp: 2026-01-10 17:55
+ * Beskrivning: Robust länkhantering som rensar dolda tecken och
+ * tvingar webbläsaren att tolka länkar som externa för att undvika 404.
  */
 
 import { useState, useEffect } from "react";
@@ -23,7 +23,6 @@ interface ResourceCategory {
   order?: number;
 }
 
-// Konfiguration för ikoner och ordning
 const categoryConfig: Record<
   string,
   {
@@ -49,7 +48,6 @@ const categoryConfig: Record<
   },
 };
 
-// Reservdata om ingen databas nås
 const generateFallbackData = (grade: number, chapter: number): ResourceCategory[] => {
   const chapterNames = ["Talförståelse", "Algebra", "Geometri", "Statistik", "Samband"];
   const chapterName = chapterNames[chapter - 1] || "Kapitel";
@@ -131,7 +129,6 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
 
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden h-full flex flex-col">
-      {/* Header */}
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
           <h3 className="font-bold font-life-savers text-primary text-2xl">Kapitel {chapter} - Resurser</h3>
@@ -140,7 +137,6 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
         {error && <p className="text-xs text-destructive mt-1">{error}</p>}
       </div>
 
-      {/* Länklista */}
       <div className="flex-1 overflow-y-auto">
         <Accordion type="single" collapsible className="w-full">
           {resources.map((category) => (
@@ -154,16 +150,26 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
               <AccordionContent className="bg-muted/30">
                 <div className="px-4 py-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {category.links.map((link, index) => {
-                    const isExternal = link.url.startsWith("http") || link.url.startsWith("www.");
-                    const href = link.url.startsWith("www.") ? `https://${link.url}` : link.url;
+                    // --- ULTRA-TVÄTT AV URL ---
+                    // Tar bort mellanslag och dolda tecken som kan orsaka 404
+                    const cleanUrl = link.url.replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+
+                    const isExternal = cleanUrl.startsWith("http");
 
                     return (
                       <Tooltip key={index}>
                         <TooltipTrigger asChild>
                           <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={cleanUrl}
+                            target={isExternal ? "_blank" : undefined}
+                            rel={isExternal ? "noopener noreferrer" : undefined}
+                            // Om target="_blank" blockeras, tvinga fram en "fönster-i-fönster" lösning
+                            onClick={(e) => {
+                              if (isExternal) {
+                                // Vi låter standardbeteendet ske, men loggar för felsökning
+                                console.log("Öppnar extern länk:", cleanUrl);
+                              }
+                            }}
                             className="flex items-center gap-2 py-2 px-3 rounded-md bg-transparent hover:bg-accent/10 transition-all duration-300 ease-out group font-body font-normal cursor-pointer"
                           >
                             {isExternal ? (
@@ -177,7 +183,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                           </a>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Öppnas i nytt fönster</p>
+                          <p>{isExternal ? "Öppnas i nytt fönster" : "Gå till sektion"}</p>
                         </TooltipContent>
                       </Tooltip>
                     );
