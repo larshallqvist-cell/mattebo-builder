@@ -87,7 +87,9 @@ serve(async (req) => {
     // Grade is already validated to be one of ['6', '7', '8', '9']
     const tabName = `Åk${grade}`;
     const range = `${tabName}!A2:D1000`;
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+    
+    // Use valueRenderOption=FORMULA to get hyperlink formulas, which contain the actual URLs
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}&valueRenderOption=FORMULA`;
     
     console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
     
@@ -116,16 +118,32 @@ serve(async (req) => {
     const data = await response.json();
     const rows = data.values || [];
 
+    // Helper function to extract URL from HYPERLINK formula or return raw value
+    // HYPERLINK format: =HYPERLINK("url","displayText") or just plain text/URL
+    const extractUrl = (cellValue: string): string => {
+      if (!cellValue) return '';
+      
+      // Check if it's a HYPERLINK formula
+      const hyperlinkMatch = cellValue.match(/^=HYPERLINK\s*\(\s*"([^"]+)"/i);
+      if (hyperlinkMatch) {
+        return hyperlinkMatch[1];
+      }
+      
+      // Return the raw value (could be a plain URL or text)
+      return cellValue.trim();
+    };
+
     console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
 
     // Parse rows into structured data (4 columns: Kapitel, Kategori, Länktext, URL)
+    // Extract actual URLs from HYPERLINK formulas if present
     const resources: ResourceRow[] = rows
       .filter((row: string[]) => row.length >= 4)
       .map((row: string[]) => ({
         chapter: parseInt(row[0], 10),
         category: row[1]?.trim() || '',
         title: row[2]?.trim() || '',
-        url: row[3]?.trim() || '',
+        url: extractUrl(row[3] || ''),
       }))
       .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url);
 
