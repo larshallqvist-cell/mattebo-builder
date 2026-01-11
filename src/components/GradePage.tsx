@@ -48,12 +48,12 @@ const GradePage = ({ grade }: GradePageProps) => {
         }}
       />
       
-      {/* Content Area - moved closer to hero */}
+      {/* Content Area - 2/3 (resources) + 1/3 (calendar/tools) from md */}
       <main className="flex-1 min-h-0 px-4 pt-2 pb-0 lg:px-6">
-        {/* Desktop/Tablet: 2-column layout */}
-        <div className="hidden md:grid md:grid-cols-2 gap-6 lg:gap-8 h-full pb-4">
-          {/* Left Column - Calendar, Post-it, Tools */}
-          <div className="h-full overflow-hidden flex flex-col gap-4">
+        {/* Desktop/Tablet: 2/3 - 1/3 layout */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 h-full pb-4">
+          {/* Left Column (1/3) - Calendar, Post-it, Tools */}
+          <div className="md:col-span-1 h-full overflow-hidden flex flex-col gap-4">
             <div className="flex-1 min-h-0">
               <LessonCalendar grade={grade} />
             </div>
@@ -66,8 +66,8 @@ const GradePage = ({ grade }: GradePageProps) => {
             </div>
           </div>
           
-          {/* Right Column - Resources */}
-          <div className="h-full overflow-hidden">
+          {/* Right Column (2/3) - Resources */}
+          <div className="md:col-span-2 h-full overflow-hidden">
             <ResourceAccordion grade={grade} chapter={selectedChapter} />
           </div>
         </div>
