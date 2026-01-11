@@ -60,11 +60,25 @@ Det senaste stora tillägget (commit 555ddcf) innehåller:
 ## 3. Testa applikationen lokalt
 
 ### Installera och kör
+
+**Viktigt:** Du måste först navigera till projektmappen innan du kör kommandona.
+
 ```bash
-# Installera beroenden
+# 1. Navigera till projektmappen (byt ut sökvägen till var du klonat projektet)
+cd /sökväg/till/mattebo-builder
+
+# Exempel:
+# cd ~/Documents/mattebo-builder
+# eller
+# cd /Users/dittanvändarnamn/mattebo-builder
+
+# 2. Kontrollera att du är i rätt mapp (ska visa package.json bland filerna)
+ls
+
+# 3. Installera beroenden
 npm install
 
-# Starta utvecklingsservern
+# 4. Starta utvecklingsservern
 npm run dev
 ```
 
