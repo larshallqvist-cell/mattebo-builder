@@ -79,6 +79,30 @@ npm run dev
 6. **Post-it** - Lägg till och ta bort anteckningar
 7. **Webbradio** - Spela bakgrundsmusik
 
+### Förväntade vyer när du kör applikationen:
+
+När du öppnar applikationen ska du se:
+
+**Startsidan (`http://localhost:8080/`):**
+- Rubrik "Lasses mattegrejor" med grön bakgrund
+- Underrubrik "Välj din årskurs"
+- Fyra kort för årskurs 6, 7, 8 och 9 med färgglada bakgrundsbilder
+- Text "Klicka på en årskurs för att se resurser och lektionsplaneringar"
+
+**Årskurssida (t.ex. `http://localhost:8080/ak6`):**
+- Rubrik "Årskurs 6"
+- Hemknapp i övre vänstra hörnet
+- Kapitelväljare (knappar 1-5)
+- Lektionsplanering med kalender (kräver konfiguration)
+- Miniräknare-ikon som öppnar en kalkylator
+- Webbradio med olika musikstationer (Spa, Klassisk Rock, Pop, Faith)
+- Kapitelresurser i accordion-format
+
+**Miniräknare (när du klickar på kalkylatorn):**
+- En popup-modal med en stiliserad räknare
+- Funktioner: grundläggande räkning, π, kvadratrot, procent, potens
+- Minneshantering (M+, MR, MC)
+
 ## 4. Granska specifika filändringar
 
 ### Se ändringar i en specifik fil
