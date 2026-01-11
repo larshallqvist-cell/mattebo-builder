@@ -118,7 +118,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                 </span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
-                <div className="px-4 py-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
+                <div className="px-3 py-1 grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 auto-rows-min grid-flow-row-dense">
                   {category.links.map((link, index) => {
                     // 1. Rensa URL:en från allt skräp
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
@@ -131,18 +131,18 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         // VIKTIGT: Vi använder _top för att tvinga webbläsaren att lämna iframen/appen
                         target={isExternal ? "_top" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
-                        className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent/10 transition-all group cursor-pointer"
+                        className="flex items-center gap-1.5 py-1 px-2 leading-tight rounded-md hover:bg-accent/10 transition-colors group cursor-pointer"
                         onClick={(e) => {
                           // Om det är en extern länk, logga i konsolen så vi kan se vad som händer
                           if (isExternal) console.log("Navigerar till:", cleanUrl);
                         }}
                       >
                         {isExternal ? (
-                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
                         ) : (
-                          <Link className="w-4 h-4 text-muted-foreground" />
+                          <Link className="w-3.5 h-3.5 text-muted-foreground" />
                         )}
-                        <span className="text-[15px] text-[#d7e7fe]">{link.title}</span>
+                        <span className="text-sm leading-tight text-[#d7e7fe]">{link.title}</span>
                       </a>
                     );
                   })}
