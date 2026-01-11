@@ -118,7 +118,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                 </span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
-                <div className="px-3 py-1 grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 auto-rows-min grid-flow-row-dense">
+                <div className="px-3 py-1 grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 auto-rows-min">
                   {category.links.map((link, index) => {
                     // 1. Rensa URL:en från allt skräp
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
