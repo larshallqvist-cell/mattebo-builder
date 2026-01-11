@@ -131,7 +131,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         // VIKTIGT: Vi använder _top för att tvinga webbläsaren att lämna iframen/appen
                         target={isExternal ? "_top" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
-                        className="flex items-center gap-1 py-0.5 px-2 leading-snug transition-colors rounded-md hover:bg-accent/10 group cursor-pointer"
+                        className="flex items-center gap-1 py-0.5 px-2 leading-snug transition-colors rounded-md hover:bg-accent/10 cursor-pointer"
                         onClick={(e) => {
                           // Om det är en extern länk, logga i konsolen så vi kan se vad som händer
                           if (isExternal) console.log("Navigerar till:", cleanUrl);
