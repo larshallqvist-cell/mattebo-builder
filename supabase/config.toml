@@ -2,3 +2,6 @@ project_id = "elzqxtrncamxiymbjqio"
 
 [functions.get-resources]
 verify_jwt = false
+
+[functions.get-calendar]
+verify_jwt = false
