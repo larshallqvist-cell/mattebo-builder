@@ -30,11 +30,22 @@ const Index = () => {
       </div>
       
       {/* Grade Selection - 80% */}
-      <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-0">
+      <main className="flex-1 flex items-start justify-center px-4 pt-4 md:pt-8">
         <div className="w-full max-w-6xl">
-          {/* Title */}
-          <h2 className="text-2xl md:text-3xl text-center text-foreground mb-8 md:mb-12 animate-fade-in">
-            Välj din årskurs
+      {/* Title with impatient letter animations */}
+          <h2 className="text-2xl md:text-3xl text-center text-foreground mb-4 md:mb-6 animate-fade-in flex justify-center gap-[1px]">
+            {"Välj din årskurs".split("").map((letter, i) => (
+              <span
+                key={i}
+                className={letter === " " ? "w-2" : "inline-block animate-impatient"}
+                style={{ 
+                  animationDelay: `${i * 0.1 + Math.random() * 0.5}s`,
+                  animationDuration: `${0.8 + Math.random() * 0.6}s`
+                }}
+              >
+                {letter}
+              </span>
+            ))}
           </h2>
           
           {/* Grade Cards Grid */}
