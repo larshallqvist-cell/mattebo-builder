@@ -35,7 +35,7 @@ const Index = () => {
             background:
               "linear-gradient(90deg, transparent, hsl(var(--chalk-yellow)) 15%, hsl(var(--chalk-yellow)) 85%, transparent)",
           }}
-          className="absolute bottom-0 left-0 right-0 h-[2px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0"
+          className="absolute bottom-0 left-0 right-0 h-[0px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0"
         />
       </div>
 
@@ -49,8 +49,8 @@ const Index = () => {
                 key={i}
                 className={letter === " " ? "w-2" : "inline-block animate-impatient"}
                 style={{
-                  animationDelay: `${i * 2.3 + Math.random() * 2}s`,
-                  animationDuration: `${1 + Math.random() * 3}s`,
+                  animationDelay: `${i * 0.3 + Math.random() * 2}s`,
+                  animationDuration: `${2.5 + Math.random() * 3}s`,
                 }}
               >
                 {letter}
