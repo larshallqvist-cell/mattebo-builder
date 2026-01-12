@@ -4,7 +4,7 @@ interface HeroProps {
   subtitle?: string;
   heightClass?: string;
 }
-const Hero = ({ title, subtitle, heightClass = "h-[40vh]" }: HeroProps) => {
+const Hero = ({ title, subtitle, heightClass = "h-[20vh]" }: HeroProps) => {
   return (
     <section className={`relative w-full ${heightClass} flex items-center justify-center overflow-hidden`}>
       {/* Background image */}
@@ -25,7 +25,7 @@ const Hero = ({ title, subtitle, heightClass = "h-[40vh]" }: HeroProps) => {
       </div>
 
       {/* Decorative chalk dust effect */}
-      <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 };
