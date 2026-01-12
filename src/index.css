@@ -170,6 +170,35 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Impatient letter animation - like restless dogs waiting */
+  @keyframes impatient {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    15% {
+      transform: translateY(-2px) rotate(-1deg);
+    }
+    30% {
+      transform: translateY(1px) rotate(0.5deg);
+    }
+    45% {
+      transform: translateY(-1px) rotate(-0.5deg);
+    }
+    60% {
+      transform: translateY(2px) rotate(1deg);
+    }
+    75% {
+      transform: translateY(-1px) rotate(-0.5deg);
+    }
+    90% {
+      transform: translateY(1px) rotate(0.3deg);
+    }
+  }
+
+  .animate-impatient {
+    animation: impatient 1s ease-in-out infinite;
+  }
 }
 
 /* Romantic softening effect with warm sepia tone - applied globally */

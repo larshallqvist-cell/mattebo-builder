@@ -29,12 +29,6 @@ const GradeCard = ({
           </span>
         </div>
         
-        {/* Subtle label */}
-        <div className="absolute bottom-4 left-0 right-0 text-center">
-          <span className="text-sm md:text-base text-foreground/80 font-medium tracking-wider uppercase">
-            Årskurs
-          </span>
-        </div>
       </div>
     </Link>;
 };
