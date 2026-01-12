@@ -18,7 +18,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/mattebo-builder">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/ak6" element={<Ak6 />} />
