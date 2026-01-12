@@ -50,7 +50,7 @@ const Index = () => {
                 className={letter === " " ? "w-2" : "inline-block animate-impatient"}
                 style={{
                   animationDelay: `${i * 0.3 + Math.random() * 2}s`,
-                  animationDuration: `${2.5 + Math.random() * 3}s`,
+                  animationDuration: `${1.0 + Math.random() * 3}s`,
                 }}
               >
                 {letter}
