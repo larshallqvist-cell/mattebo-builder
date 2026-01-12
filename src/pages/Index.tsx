@@ -35,7 +35,7 @@ const Index = () => {
             background:
               "linear-gradient(90deg, transparent, hsl(var(--chalk-yellow)) 15%, hsl(var(--chalk-yellow)) 85%, transparent)",
           }}
-          className="absolute bottom-0 left-0 right-0 h-[0px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0"
+          className="absolute bottom-0 left-0 right-0 h-[2px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0"
         />
       </div>
 
@@ -77,7 +77,7 @@ const Index = () => {
           <p
             className="text-center text-muted-foreground mt-8 md:mt-12 text-sm animate-fade-in"
             style={{
-              animationDelay: "0.5s",
+              animationDelay: "2s",
             }}
           >
             Klicka på en årskurs för att se resurser och lektionsplaneringar
