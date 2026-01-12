@@ -4,7 +4,7 @@ interface HeroProps {
   subtitle?: string;
   heightClass?: string;
 }
-const Hero = ({ title, subtitle, heightClass = "h-[10vh]" }: HeroProps) => {
+const Hero = ({ title, subtitle, heightClass = "h-[55vh]" }: HeroProps) => {
   return (
     <section className={`relative w-full ${heightClass} flex items-center justify-center overflow-hidden`}>
       {/* Background image */}
