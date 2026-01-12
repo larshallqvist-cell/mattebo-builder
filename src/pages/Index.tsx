@@ -39,8 +39,8 @@ const Index = () => {
                 key={i}
                 className={letter === " " ? "w-2" : "inline-block animate-impatient"}
                 style={{ 
-                  animationDelay: `${i * 0.1 + Math.random() * 0.5}s`,
-                  animationDuration: `${0.8 + Math.random() * 0.6}s`
+                  animationDelay: `${i * 0.3 + Math.random() * 2}s`,
+                  animationDuration: `${2.5 + Math.random() * 3}s`
                 }}
               >
                 {letter}

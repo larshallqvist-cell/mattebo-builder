@@ -174,30 +174,31 @@
   /* Impatient letter animation - like restless dogs waiting */
   @keyframes impatient {
     0%, 100% {
-      transform: translateY(0) rotate(0deg);
+      transform: translateY(0) rotate(0deg) scale(1);
     }
-    15% {
-      transform: translateY(-2px) rotate(-1deg);
+    10% {
+      transform: translateY(-3px) rotate(-2deg) scale(1.02);
     }
-    30% {
-      transform: translateY(1px) rotate(0.5deg);
+    25% {
+      transform: translateY(2px) rotate(1.5deg) scale(0.98);
     }
-    45% {
-      transform: translateY(-1px) rotate(-0.5deg);
+    40% {
+      transform: translateY(-2px) rotate(-1deg) scale(1.01);
     }
-    60% {
-      transform: translateY(2px) rotate(1deg);
+    55% {
+      transform: translateY(3px) rotate(2deg) scale(0.99);
     }
-    75% {
-      transform: translateY(-1px) rotate(-0.5deg);
+    70% {
+      transform: translateY(-1px) rotate(-1.5deg) scale(1.02);
     }
-    90% {
-      transform: translateY(1px) rotate(0.3deg);
+    85% {
+      transform: translateY(2px) rotate(0.5deg) scale(0.98);
     }
   }
 
   .animate-impatient {
-    animation: impatient 1s ease-in-out infinite;
+    animation: impatient 3s ease-in-out infinite;
+    display: inline-block;
   }
 }
 
