@@ -1,10 +1,13 @@
 import heroBg from "@/assets/hero-bg.jpg";
+
 interface HeroProps {
   title: string;
   subtitle?: string;
   heightClass?: string;
+  titleOffset?: string; // e.g. "mt-8" to push title down
 }
-const Hero = ({ title, subtitle, heightClass = "h-[40vh]" }: HeroProps) => {
+
+const Hero = ({ title, subtitle, heightClass = "h-[40vh]", titleOffset = "" }: HeroProps) => {
   return (
     <section className={`relative w-full ${heightClass} flex items-center justify-center overflow-hidden`}>
       {/* Background image */}
@@ -19,7 +22,7 @@ const Hero = ({ title, subtitle, heightClass = "h-[40vh]" }: HeroProps) => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/15 border-0" />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-4">
+      <div className={`relative z-10 text-center px-4 ${titleOffset}`}>
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl chalk-text font-bold tracking-wide">{title}</h1>
         {subtitle && <p className="mt-2 text-lg md:text-xl text-muted-foreground">{subtitle}</p>}
       </div>
@@ -29,4 +32,5 @@ const Hero = ({ title, subtitle, heightClass = "h-[40vh]" }: HeroProps) => {
     </section>
   );
 };
+
 export default Hero;

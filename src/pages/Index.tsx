@@ -25,9 +25,9 @@ const gradeData = [
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col overflow-hidden">
-      {/* Hero Section - 20% */}
+      {/* Hero Section - with title pushed down */}
       <div className="relative">
-        <Hero title="Lasses mattegrejor" />
+        <Hero title="Lasses mattegrejor" titleOffset="mt-12" />
 
         {/* Glowing divider line - yellow like the chalk text */}
         <div
@@ -39,11 +39,11 @@ const Index = () => {
         />
       </div>
 
-      {/* Grade Selection - 80% */}
-      <main className="flex-1 flex items-center justify-center px-4">
+      {/* Grade Selection - with subtitle raised */}
+      <main className="flex-1 flex items-center justify-center px-4 -mt-8">
         <div className="w-full max-w-6xl">
-          {/* Title with impatient letter animations */}
-          <h2 className="text-2xl md:text-3xl text-center text-foreground mb-2 md:mb-4 animate-fade-in flex justify-center gap-[1px]">
+          {/* Title with impatient letter animations - raised position */}
+          <h2 className="text-2xl md:text-3xl text-center text-foreground mb-4 md:mb-6 animate-fade-in flex justify-center gap-[1px]">
             {"Välj din årskurs".split("").map((letter, i) => (
               <span
                 key={i}
