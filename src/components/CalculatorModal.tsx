@@ -175,11 +175,13 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     onClick, 
     label = "",
     title = "",
+    large = false,
     className = ""
   }: { 
     onClick: () => void;
     label?: string;
     title?: string;
+    large?: boolean;
     className?: string;
   }) => (
     <button
@@ -188,7 +190,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
       style={{ 
         width: `${28 * scale}px`, 
         height: `${28 * scale}px`,
-        fontSize: `${32 * scale}px`
+        fontSize: large ? `${38 * scale}px` : `${22 * scale}px`
       }}
       className={`font-mathematics text-white transition-all duration-150 active:scale-95 rounded-[3px] flex items-center justify-center ${className}`}
     >
@@ -262,8 +264,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             {/* Row 2: 7, 8, 9, +, - */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("7")} label="" />
-              <SquareButton onClick={() => inputDigit("8")} label="8" />
-              <SquareButton onClick={() => inputDigit("9")} label="9" />
+              <SquareButton onClick={() => inputDigit("8")} label="8" large />
+              <SquareButton onClick={() => inputDigit("9")} label="9" large />
               <SquareButton onClick={() => performOperation("+")} label="+" />
               <SquareButton onClick={() => performOperation("-")} label="−" />
             </div>
@@ -272,7 +274,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("4")} label="" />
               <SquareButton onClick={() => inputDigit("5")} label="" />
-              <SquareButton onClick={() => inputDigit("6")} label="6" />
+              <SquareButton onClick={() => inputDigit("6")} label="6" large />
               <SquareButton onClick={() => performOperation("×")} label="" />
               <SquareButton onClick={() => performOperation("÷")} label="÷" />
             </div>
@@ -281,7 +283,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("1")} label="" />
               <SquareButton onClick={() => inputDigit("2")} label="" />
-              <SquareButton onClick={() => inputDigit("3")} label="3" />
+              <SquareButton onClick={() => inputDigit("3")} label="3" large />
               <SquareButton onClick={clear} label="C" />
               <SquareButton onClick={calculate} label="" />
             </div>
@@ -289,7 +291,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             {/* Row 5: 0, komma, ENG, C, = (dubbelknappar fortsätter) */}
             <div className="flex" style={{ gap: `${7 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("0")} label="" />
-              <SquareButton onClick={inputDecimal} label="," />
+              <SquareButton onClick={inputDecimal} label="," large />
               <SquareButton onClick={toggleScientificNotation} label="E" />
               <SquareButton onClick={clear} label="C" />
               <SquareButton onClick={calculate} label="" />
