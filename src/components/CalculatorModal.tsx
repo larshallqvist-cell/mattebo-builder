@@ -188,7 +188,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
       style={{ 
         width: `${28 * scale}px`, 
         height: `${28 * scale}px`,
-        fontSize: `${22 * scale}px`
+        fontSize: `${32 * scale}px`
       }}
       className={`font-mathematics text-white transition-all duration-150 active:scale-95 rounded-[3px] flex items-center justify-center ${className}`}
     >
