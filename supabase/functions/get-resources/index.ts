@@ -120,17 +120,22 @@ serve(async (req) => {
 
     // Helper function to extract URL from HYPERLINK formula or return raw value
     // HYPERLINK format: =HYPERLINK("url","displayText") or just plain text/URL
-    const extractUrl = (cellValue: string): string => {
-      if (!cellValue) return '';
+    const extractUrl = (cellValue: unknown): string => {
+      // Handle non-string values (numbers, null, undefined)
+      if (cellValue === null || cellValue === undefined) return '';
+      
+      // Convert to string if it's not already
+      const strValue = typeof cellValue === 'string' ? cellValue : String(cellValue);
+      if (!strValue) return '';
       
       // Check if it's a HYPERLINK formula
-      const hyperlinkMatch = cellValue.match(/^=HYPERLINK\s*\(\s*"([^"]+)"/i);
+      const hyperlinkMatch = strValue.match(/^=HYPERLINK\s*\(\s*"([^"]+)"/i);
       if (hyperlinkMatch) {
         return hyperlinkMatch[1];
       }
       
       // Return the raw value (could be a plain URL or text)
-      return cellValue.trim();
+      return strValue.trim();
     };
 
     console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
@@ -138,12 +143,12 @@ serve(async (req) => {
     // Parse rows into structured data (4 columns: Kapitel, Kategori, Länktext, URL)
     // Extract actual URLs from HYPERLINK formulas if present
     const resources: ResourceRow[] = rows
-      .filter((row: string[]) => row.length >= 4)
-      .map((row: string[]) => ({
-        chapter: parseInt(row[0], 10),
-        category: row[1]?.trim() || '',
-        title: row[2]?.trim() || '',
-        url: extractUrl(row[3] || ''),
+      .filter((row: unknown[]) => row.length >= 4)
+      .map((row: unknown[]) => ({
+        chapter: parseInt(String(row[0] || ''), 10),
+        category: String(row[1] || '').trim(),
+        title: String(row[2] || '').trim(),
+        url: extractUrl(row[3]),
       }))
       .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url);
 
