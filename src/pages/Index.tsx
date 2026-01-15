@@ -54,7 +54,7 @@ const Index = () => {
         <main className="flex-1 flex items-center justify-center px-4 -mt-8">
           <div className="w-full max-w-6xl">
             {/* Title with impatient letter animations - raised position */}
-            <h2 className="text-2xl md:text-3xl text-center text-foreground mb-4 md:mb-6 animate-fade-in flex justify-center gap-[1px]">
+            <h2 className="text-2xl md:text-3xl text-center text-foreground mb-4 md:mb-6 animate-fade-in flex justify-center gap-[1px] font-display">
               {"Välj din årskurs".split("").map((letter, i) => (
                 <span
                   key={i}
