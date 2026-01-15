@@ -32,9 +32,9 @@ const Index = () => {
       <div className="min-h-screen flex flex-col overflow-hidden">
         {/* Hero Section - with title pushed down */}
         <div className="relative">
-          <ParallaxHero title="Lasses mattegrejor" titleOffset="mt-12">
-            <HandwrittenText 
-              text="Lasses mattegrejor" 
+          <ParallaxHero title="Leteboskolans mattesida" titleOffset="mt-12">
+            <HandwrittenText
+              text="Leteboskolans mattesida"
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl chalk-text font-bold tracking-wide"
               speed={0.04}
             />
