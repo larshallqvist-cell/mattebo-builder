@@ -231,7 +231,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
         height: `${28 * scale}px`,
         fontSize: large ? `${38 * scale}px` : `${22 * scale}px`
       }}
-      className={`relative font-mathematics text-white transition-all duration-150 active:scale-95 rounded-[3px] flex items-center justify-center ${className}`}
+      className={`relative font-mathematics text-white transition-all duration-100 active:scale-90 active:brightness-90 hover:brightness-110 rounded-[3px] flex items-center justify-center ${className}`}
     >
       {label}
       {correction && <CorrectionLabel text={correction} crossed={crossed} />}
