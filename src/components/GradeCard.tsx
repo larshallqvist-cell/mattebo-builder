@@ -24,7 +24,7 @@ const GradeCard = ({
         
         {/* Grade number */}
         <div className="absolute inset-0 flex items-center justify-center opacity-80 border-solid rounded-md shadow-lg">
-          <span className="text-6xl md:text-7xl lg:text-8xl font-display font-bold text-primary drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-110">
+          <span className="text-6xl md:text-7xl lg:text-8xl font-life-savers font-bold text-primary drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-110">
             {grade}
           </span>
         </div>
