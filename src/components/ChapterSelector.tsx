@@ -109,12 +109,7 @@ const ChapterSelector = ({
           ))}
         </div>
       </div>
-      {/* Chapter subtitle */}
-      {currentSubtitle && (
-        <p className="mt-1 text-sm text-chalk-yellow font-medium">
-          {currentSubtitle}
-        </p>
-      )}
+      {/* Subtitle removed - now shown in ResourceAccordion header */}
     </div>
   );
 };

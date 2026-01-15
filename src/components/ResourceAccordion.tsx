@@ -1,6 +1,6 @@
 /**
  * Filnamn: ResourceAccordion.tsx
- * Timestamp: 2026-01-10 17:50
+ * Timestamp: 2026-01-15 20:15
  * Beskrivning: Kraftfull länkhantering som tvingar webbläsaren att lämna
  * applikationen för att undvika 404-fel i inbäddade miljöer.
  */
@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2, Link } from "lucide-react";
+import { getChapterSubtitle } from "@/components/ChapterSelector";
 
 interface ResourceLink {
   title: string;
@@ -102,7 +103,9 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
     <div className="bg-card rounded-lg border border-border overflow-hidden h-full flex flex-col">
       <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold font-life-savers text-primary text-2xl">Kapitel {chapter} - Resurser</h3>
+          <h3 className="font-bold font-life-savers text-primary text-2xl">
+            Kapitel {chapter} - {getChapterSubtitle(grade, chapter) || "Resurser"}
+          </h3>
           {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
         </div>
       </div>
