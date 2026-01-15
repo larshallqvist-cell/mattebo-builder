@@ -120,7 +120,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                 </span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
-                <div className="px-3 py-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                <div className="px-3 py-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0">
                   {category.links.map((link, index) => {
                     // 1. Rensa URL:en från allt skräp
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
@@ -133,7 +133,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         // VIKTIGT: Vi använder _top för att tvinga webbläsaren att lämna iframen/appen
                         target={isExternal ? "_top" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
-                        className="flex items-center gap-2 py-1 px-2 transition-colors rounded-md hover:bg-accent/10 cursor-pointer"
+                        className="flex items-center gap-2 py-0.5 px-2 transition-colors rounded-md hover:bg-accent/10 cursor-pointer"
                         onClick={(e) => {
                           // Om det är en extern länk, logga i konsolen så vi kan se vad som händer
                           if (isExternal) console.log("Navigerar till:", cleanUrl);
