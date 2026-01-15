@@ -258,15 +258,19 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           <div 
             className="absolute flex items-center justify-end pr-4"
             style={{ 
-              top: `${20 * scale}px`, 
-              left: `${20 * scale}px`, 
+              top: `${26 * scale}px`, 
+              left: `${8 * scale}px`, 
               right: `${20 * scale}px`, 
               height: `${55 * scale}px` 
             }}
           >
             <div 
-              className="text-right font-mono text-[#2a3a2a]/80 truncate font-bold tracking-wider"
-              style={{ fontSize: `${22 * scale}px` }}
+              className="text-right font-mono truncate font-bold tracking-wider"
+              style={{ 
+                fontSize: `${22 * scale}px`,
+                color: '#7fff00',
+                textShadow: '0 0 8px rgba(127, 255, 0, 0.6)'
+              }}
             >
               {display}
             </div>

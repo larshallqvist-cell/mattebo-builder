@@ -46,7 +46,7 @@ const HandwrittenText = ({
 
   return (
     <motion.span
-      className={`inline-flex flex-wrap justify-center ${className}`}
+      className={`inline-flex flex-wrap justify-center font-display ${className}`}
       variants={container}
       initial="hidden"
       animate="visible"
