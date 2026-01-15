@@ -140,15 +140,15 @@ serve(async (req) => {
 
     console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
     
-    // DEBUG: Log first 3 rows to understand structure
+    // DEBUG: Log first 5 rows to understand structure, including all columns
     if (rows.length > 0) {
-      console.log('DEBUG - First 3 rows:', JSON.stringify(rows.slice(0, 3)));
+      console.log('DEBUG - First 5 rows (full):', JSON.stringify(rows.slice(0, 5)));
     }
 
-    // Helper to extract chapter number from title like "G 1.1 ..." or "1.1 ..."
+    // Helper to extract chapter number from title like "G 1.1 ...", "Z 1.1 ...", or "1.1 ..."
     const extractChapterFromTitle = (title: string): number => {
-      // Match patterns like "G 1.1", "1.1", "G 2.3", etc.
-      const match = title.match(/(?:G\s*)?(\d+)\.\d+/i);
+      // Match patterns like "G 1.1", "Z 1.1", "1.1", "G 2.3", etc.
+      const match = title.match(/(?:[A-Z]\s*)?(\d+)\.\d+/i);
       if (match) {
         return parseInt(match[1], 10);
       }
@@ -167,18 +167,43 @@ serve(async (req) => {
     let resources: ResourceRow[];
 
     if (firstCellIsNumber) {
-      // Format B: Chapter | Category | Title | URL (or hyperlink in Title)
+      // Format B: Chapter | Category | Title (may contain HYPERLINK) | Display text
+      // Try to extract URL from column C first (the title cell which often has hyperlink)
+      // then fall back to column D
       resources = rows
         .filter((row: unknown[]) => row.length >= 3)
         .map((row: unknown[]) => {
           const chapter = parseInt(String(row[0] || ''), 10);
           const category = String(row[1] || '').trim() || 'Övrigt';
-          const title = String(row[2] || '').trim();
-          // URL could be in column D, or column C might be a hyperlink
-          const url = row.length >= 4 ? extractUrl(row[3]) : extractUrl(row[2]);
+          
+          // Column C might be a HYPERLINK formula - try to extract URL from it
+          const urlFromC = extractUrl(row[2]);
+          // Column D might also have a URL
+          const urlFromD = row.length >= 4 ? extractUrl(row[3]) : '';
+          
+          // Use URL from C if it starts with http, otherwise try D
+          const url = urlFromC.startsWith('http') ? urlFromC : urlFromD;
+          
+          // For title: if C was a hyperlink, use D as the display title
+          // Otherwise use C as the title
+          let title = '';
+          if (urlFromC.startsWith('http') && row.length >= 4) {
+            title = String(row[3] || '').trim();
+          } else {
+            title = String(row[2] || '').trim();
+          }
+          
           return { chapter, category, title, url };
         })
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
+      
+      // DEBUG: Log how many rows had valid URLs
+      const withUrls = rows.filter((row: unknown[]) => {
+        const urlC = extractUrl(row[2]);
+        const urlD = row.length >= 4 ? extractUrl(row[3]) : '';
+        return urlC.startsWith('http') || urlD.startsWith('http');
+      }).length;
+      console.log(`DEBUG - Rows with valid URLs: ${withUrls} out of ${rows.length}`);
     } else {
       // Format A: Title (with chapter embedded) | URL
       resources = rows
