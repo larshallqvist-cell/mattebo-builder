@@ -62,13 +62,12 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Standard Sheet-ID för resurser (kan överskrivas via SheetConfig)
+  const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
+
   useEffect(() => {
     const fetchResources = async () => {
-      const sheetId = localStorage.getItem("mattebo_sheet_id");
-      if (!sheetId) {
-        setResources(generateFallbackData(grade, chapter));
-        return;
-      }
+      const sheetId = localStorage.getItem("mattebo_sheet_id") || DEFAULT_SHEET_ID;
       setLoading(true);
       try {
         const response = await fetch(
