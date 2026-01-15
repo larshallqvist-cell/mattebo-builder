@@ -256,11 +256,11 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
         >
           {/* Display area - positioned to match the LCD screen */}
           <div 
-            className="absolute flex items-center justify-end pr-4"
+            className="absolute flex items-center justify-end"
             style={{ 
               top: `${26 * scale}px`, 
               left: `${-2 * scale}px`, 
-              right: `${20 * scale}px`, 
+              right: `${30 * scale}px`, 
               height: `${55 * scale}px` 
             }}
           >
