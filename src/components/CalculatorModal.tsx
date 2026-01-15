@@ -252,8 +252,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           <div 
             className="absolute"
             style={{ 
-              top: `${152 * scale}px`, 
-              left: `${10 * scale}px`
+              top: `${194 * scale}px`, 
+              left: `${38 * scale}px`
             }}
           >
             {/* Row 1: 1, 2, 3, +, = */}
