@@ -248,7 +248,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             </div>
           )}
         
-          {/* Row 1: Round buttons - Pi, √, x², x^y, (empty) */}
+          {/* Row 1: Round buttons - C, √, %, ÷, M+ */}
           <div 
             className="absolute flex"
             style={{ 
@@ -257,11 +257,30 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
               gap: `${10 * scale}px`
             }}
           >
-            <RoundButton onClick={inputPi} title="π (Pi)" />
+            <RoundButton onClick={clear} title="C (Clear)" />
             <RoundButton onClick={squareRoot} title="√" />
-            <RoundButton onClick={square} title="x²" />
-            <RoundButton onClick={power} title="x^y" />
-            <RoundButton onClick={() => {}} title="" />
+            <RoundButton onClick={percent} title="%" />
+            <RoundButton onClick={() => performOperation("÷")} title="÷" />
+            <RoundButton onClick={memoryAdd} title="M+" />
+          </div>
+          
+          {/* Row 2: Round buttons - MR, MC, +/- */}
+          <div 
+            className="absolute flex"
+            style={{ 
+              top: `${150 * scale}px`, 
+              left: `${43 * scale}px`,
+              gap: `${10 * scale}px`
+            }}
+          >
+            <RoundButton onClick={memoryRecall} title="MR" />
+            <RoundButton onClick={() => {
+              setMemory(0);
+            }} title="MC" />
+            <RoundButton onClick={() => {
+              const val = parseFloat(display.replace(",", "."));
+              setDisplay(String(-val).replace(".", ","));
+            }} title="+/-" />
           </div>
 
           {/* Square button grid - 5 columns x 5 rows */}
