@@ -164,7 +164,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     <button
       onClick={onClick}
       title={title}
-      style={{ width: `${38 * scale}px`, height: `${38 * scale}px` }}
+      style={{ width: `${28 * scale}px`, height: `${28 * scale}px` }}
       className={`transition-all duration-150 active:scale-95 rounded-[3px] bg-blue-500/50 hover:bg-blue-500/70 border border-blue-400 ${className}`}
     />
   );
