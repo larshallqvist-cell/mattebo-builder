@@ -144,7 +144,7 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                         ) : (
                           <Link className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                         )}
-                        <span className="text-base leading-normal text-foreground">{link.title}</span>
+                        <span className="text-lg leading-snug text-foreground">{link.title}</span>
                       </a>
                     );
                   })}
