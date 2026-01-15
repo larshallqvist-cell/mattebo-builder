@@ -170,38 +170,30 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     setWaitingForOperand(true);
   }, [display]);
   
-  // Round button (for scientific functions row) - VISIBLE FOR DEBUGGING
-  const RoundButton = ({ 
-    onClick, 
-    title = ""
-  }: { 
-    onClick: () => void;
-    title?: string;
-  }) => (
-    <button
-      onClick={onClick}
-      title={title}
-      style={{ width: `${20 * scale}px`, height: `${20 * scale}px` }}
-      className="transition-all duration-150 active:scale-95 rounded-full bg-red-500/50 hover:bg-red-500/70 border border-red-400"
-    />
-  );
-  
-  // Square button (for number grid) - VISIBLE FOR DEBUGGING
+  // Square button with Mathematics font label
   const SquareButton = ({ 
     onClick, 
+    label = "",
     title = "",
     className = ""
   }: { 
     onClick: () => void;
+    label?: string;
     title?: string;
     className?: string;
   }) => (
     <button
       onClick={onClick}
-      title={title}
-      style={{ width: `${28 * scale}px`, height: `${28 * scale}px` }}
-      className={`transition-all duration-150 active:scale-95 rounded-[3px] bg-blue-500/50 hover:bg-blue-500/70 border border-blue-400 ${className}`}
-    />
+      title={title || label}
+      style={{ 
+        width: `${28 * scale}px`, 
+        height: `${28 * scale}px`,
+        fontSize: `${14 * scale}px`
+      }}
+      className={`font-mathematics text-white transition-all duration-150 active:scale-95 rounded-[3px] flex items-center justify-center ${className}`}
+    >
+      {label}
+    </button>
   );
   
   return (
@@ -248,35 +240,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             </div>
           )}
         
-          {/* Row 1: Round buttons - INACTIVE FOR NOW */}
-          <div 
-            className="absolute flex"
-            style={{ 
-              top: `${120 * scale}px`, 
-              left: `${43 * scale}px`,
-              gap: `${10 * scale}px`
-            }}
-          >
-            <RoundButton onClick={() => {}} title="" />
-            <RoundButton onClick={() => {}} title="" />
-            <RoundButton onClick={() => {}} title="" />
-            <RoundButton onClick={() => {}} title="" />
-            <RoundButton onClick={() => {}} title="" />
-          </div>
-          
-          {/* Row 2: Round buttons - INACTIVE FOR NOW */}
-          <div 
-            className="absolute flex"
-            style={{ 
-              top: `${150 * scale}px`, 
-              left: `${43 * scale}px`,
-              gap: `${10 * scale}px`
-            }}
-          >
-            <RoundButton onClick={() => {}} title="" />
-            <RoundButton onClick={() => {}} title="" />
-            <RoundButton onClick={() => {}} title="" />
-          </div>
+          {/* Round buttons removed - inactive */}
 
           {/* Square button grid - 5 columns x 5 rows */}
           <div 
@@ -288,47 +252,47 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           >
             {/* Row 1: Pi, √, x², x^y, (tom) */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
-              <SquareButton onClick={inputPi} title="π" />
-              <SquareButton onClick={squareRoot} title="√" />
-              <SquareButton onClick={square} title="x²" />
-              <SquareButton onClick={power} title="x^y" />
-              <SquareButton onClick={() => {}} title="" />
+              <SquareButton onClick={inputPi} label="π" />
+              <SquareButton onClick={squareRoot} label="√" />
+              <SquareButton onClick={square} label="x²" />
+              <SquareButton onClick={power} label="xⁿ" />
+              <SquareButton onClick={() => {}} label="" />
             </div>
             
             {/* Row 2: 7, 8, 9, +, - */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
-              <SquareButton onClick={() => inputDigit("7")} title="7" />
-              <SquareButton onClick={() => inputDigit("8")} title="8" />
-              <SquareButton onClick={() => inputDigit("9")} title="9" />
-              <SquareButton onClick={() => performOperation("+")} title="+" />
-              <SquareButton onClick={() => performOperation("-")} title="-" />
+              <SquareButton onClick={() => inputDigit("7")} label="7" />
+              <SquareButton onClick={() => inputDigit("8")} label="8" />
+              <SquareButton onClick={() => inputDigit("9")} label="9" />
+              <SquareButton onClick={() => performOperation("+")} label="+" />
+              <SquareButton onClick={() => performOperation("-")} label="−" />
             </div>
             
             {/* Row 3: 4, 5, 6, ×, ÷ */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
-              <SquareButton onClick={() => inputDigit("4")} title="4" />
-              <SquareButton onClick={() => inputDigit("5")} title="5" />
-              <SquareButton onClick={() => inputDigit("6")} title="6" />
-              <SquareButton onClick={() => performOperation("×")} title="×" />
-              <SquareButton onClick={() => performOperation("÷")} title="÷" />
+              <SquareButton onClick={() => inputDigit("4")} label="4" />
+              <SquareButton onClick={() => inputDigit("5")} label="5" />
+              <SquareButton onClick={() => inputDigit("6")} label="6" />
+              <SquareButton onClick={() => performOperation("×")} label="×" />
+              <SquareButton onClick={() => performOperation("÷")} label="÷" />
             </div>
             
             {/* Row 4: 1, 2, 3, C, = (dubbelknappar börjar här) */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
-              <SquareButton onClick={() => inputDigit("1")} title="1" />
-              <SquareButton onClick={() => inputDigit("2")} title="2" />
-              <SquareButton onClick={() => inputDigit("3")} title="3" />
-              <SquareButton onClick={clear} title="C" />
-              <SquareButton onClick={calculate} title="=" />
+              <SquareButton onClick={() => inputDigit("1")} label="1" />
+              <SquareButton onClick={() => inputDigit("2")} label="2" />
+              <SquareButton onClick={() => inputDigit("3")} label="3" />
+              <SquareButton onClick={clear} label="C" />
+              <SquareButton onClick={calculate} label="=" />
             </div>
             
             {/* Row 5: 0, komma, ENG, C, = (dubbelknappar fortsätter) */}
             <div className="flex" style={{ gap: `${7 * scale}px` }}>
-              <SquareButton onClick={() => inputDigit("0")} title="0" />
-              <SquareButton onClick={inputDecimal} title="," />
-              <SquareButton onClick={toggleScientificNotation} title="ENG" />
-              <SquareButton onClick={clear} title="C" />
-              <SquareButton onClick={calculate} title="=" />
+              <SquareButton onClick={() => inputDigit("0")} label="0" />
+              <SquareButton onClick={inputDecimal} label="," />
+              <SquareButton onClick={toggleScientificNotation} label="E" />
+              <SquareButton onClick={clear} label="C" />
+              <SquareButton onClick={calculate} label="=" />
             </div>
           </div>
         </div>
