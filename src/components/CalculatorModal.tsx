@@ -59,6 +59,45 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     setWaitingForOperand(true);
   }, [memory]);
   
+  const inputPi = useCallback(() => {
+    setDisplay(String(Math.PI).replace(".", ","));
+    setWaitingForOperand(true);
+  }, []);
+  
+  const squareRoot = useCallback(() => {
+    const value = parseFloat(display.replace(",", "."));
+    setDisplay(String(Math.sqrt(value)).replace(".", ","));
+    setWaitingForOperand(true);
+  }, [display]);
+  
+  const square = useCallback(() => {
+    const value = parseFloat(display.replace(",", "."));
+    setDisplay(String(value * value).replace(".", ","));
+    setWaitingForOperand(true);
+  }, [display]);
+  
+  const power = useCallback(() => {
+    const inputValue = parseFloat(display.replace(",", "."));
+    setPreviousValue(inputValue);
+    setOperation("^");
+    setWaitingForOperand(true);
+  }, [display]);
+  
+  const toggleScientificNotation = useCallback(() => {
+    const value = parseFloat(display.replace(",", "."));
+    const currentDisplay = display.replace(",", ".");
+    
+    // Toggle between scientific and decimal notation
+    if (currentDisplay.includes("e")) {
+      // Convert from scientific to decimal
+      setDisplay(String(value).replace(".", ","));
+    } else {
+      // Convert to scientific notation
+      setDisplay(value.toExponential().replace(".", ","));
+    }
+    setWaitingForOperand(true);
+  }, [display]);
+  
   const performOperation = useCallback((nextOperation: string) => {
     const inputValue = parseFloat(display.replace(",", "."));
     
@@ -111,6 +150,9 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
         case "÷":
           newValue = inputValue !== 0 ? previousValue / inputValue : 0;
           break;
+        case "^":
+          newValue = Math.pow(previousValue, inputValue);
+          break;
         default:
           newValue = inputValue;
       }
@@ -121,13 +163,6 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
       setWaitingForOperand(true);
     }
   }, [display, previousValue, operation]);
-  
-  // Scientific functions
-  const squareRoot = useCallback(() => {
-    const value = parseFloat(display.replace(",", "."));
-    setDisplay(String(Math.sqrt(value)).replace(".", ","));
-    setWaitingForOperand(true);
-  }, [display]);
   
   const percent = useCallback(() => {
     const value = parseFloat(display.replace(",", "."));
@@ -213,7 +248,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             </div>
           )}
         
-          {/* Row 1: Round buttons - TXEL, VEEK, NIDE, TJUE, M1 */}
+          {/* Row 1: Round buttons - Pi, √, x², x^y, (empty) */}
           <div 
             className="absolute flex"
             style={{ 
@@ -222,30 +257,11 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
               gap: `${10 * scale}px`
             }}
           >
-            <RoundButton onClick={clear} title="C (Clear)" />
+            <RoundButton onClick={inputPi} title="π (Pi)" />
             <RoundButton onClick={squareRoot} title="√" />
-            <RoundButton onClick={percent} title="%" />
-            <RoundButton onClick={() => performOperation("÷")} title="÷" />
-            <RoundButton onClick={memoryAdd} title="M+" />
-          </div>
-          
-          {/* Row 2: Round buttons - DRI1, USHO, NOOC */}
-          <div 
-            className="absolute flex"
-            style={{ 
-              top: `${150 * scale}px`, 
-              left: `${43 * scale}px`,
-              gap: `${10 * scale}px`
-            }}
-          >
-            <RoundButton onClick={memoryRecall} title="MR" />
-            <RoundButton onClick={() => {
-              setMemory(0);
-            }} title="MC" />
-            <RoundButton onClick={() => {
-              const val = parseFloat(display.replace(",", "."));
-              setDisplay(String(-val).replace(".", ","));
-            }} title="+/-" />
+            <RoundButton onClick={square} title="x²" />
+            <RoundButton onClick={power} title="x^y" />
+            <RoundButton onClick={() => {}} title="" />
           </div>
 
           {/* Square button grid - 5 columns x 5 rows */}
@@ -256,49 +272,40 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
               left: `${34 * scale}px`
             }}
           >
-            {/* Row 1: 1, 2, 3, +, = */}
-            <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
-              <SquareButton onClick={() => inputDigit("1")} title="1" />
-              <SquareButton onClick={() => inputDigit("2")} title="2" />
-              <SquareButton onClick={() => inputDigit("3")} title="3" />
-              <SquareButton onClick={() => performOperation("+")} title="+" />
-              <SquareButton onClick={calculate} title="=" />
-            </div>
-            
-            {/* Row 2: 7, 8, 9, -, × */}
+            {/* Row 1: 7, 8, 9, +, - */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("7")} title="7" />
               <SquareButton onClick={() => inputDigit("8")} title="8" />
               <SquareButton onClick={() => inputDigit("9")} title="9" />
+              <SquareButton onClick={() => performOperation("+")} title="+" />
               <SquareButton onClick={() => performOperation("-")} title="-" />
-              <SquareButton onClick={() => performOperation("×")} title="×" />
             </div>
             
-            {/* Row 3: 4, 5, 6, ×, = */}
+            {/* Row 2: 4, 5, 6, ×, ÷ */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("4")} title="4" />
               <SquareButton onClick={() => inputDigit("5")} title="5" />
               <SquareButton onClick={() => inputDigit("6")} title="6" />
               <SquareButton onClick={() => performOperation("×")} title="×" />
-              <SquareButton onClick={calculate} title="=" />
+              <SquareButton onClick={() => performOperation("÷")} title="÷" />
             </div>
             
-            {/* Row 4: 1, 2, 8, -, + */}
+            {/* Row 3: 1, 2, 3, C, = (dubbelknappar börjar här) */}
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("1")} title="1" />
               <SquareButton onClick={() => inputDigit("2")} title="2" />
-              <SquareButton onClick={() => inputDigit("8")} title="8" />
-              <SquareButton onClick={() => performOperation("-")} title="-" />
-              <SquareButton onClick={() => performOperation("+")} title="+" />
+              <SquareButton onClick={() => inputDigit("3")} title="3" />
+              <SquareButton onClick={clear} title="C" />
+              <SquareButton onClick={calculate} title="=" />
             </div>
             
-            {/* Row 5: 0, 0, ,, -, ÷ */}
+            {/* Row 4: 0, komma, ENG, C, = (dubbelknappar fortsätter) */}
             <div className="flex" style={{ gap: `${7 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("0")} title="0" />
-              <SquareButton onClick={() => inputDigit("0")} title="00" />
               <SquareButton onClick={inputDecimal} title="," />
-              <SquareButton onClick={() => performOperation("-")} title="-" />
-              <SquareButton onClick={() => performOperation("÷")} title="÷" />
+              <SquareButton onClick={toggleScientificNotation} title="ENG" />
+              <SquareButton onClick={clear} title="C" />
+              <SquareButton onClick={calculate} title="=" />
             </div>
           </div>
         </div>
