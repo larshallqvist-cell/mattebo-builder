@@ -139,18 +139,39 @@ serve(async (req) => {
     };
 
     console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
+    
+    // DEBUG: Log first 3 rows to understand structure
+    if (rows.length > 0) {
+      console.log('DEBUG - First 3 rows:', JSON.stringify(rows.slice(0, 3)));
+    }
 
-    // Parse rows into structured data (4 columns: Kapitel, Kategori, Länktext, URL)
-    // Extract actual URLs from HYPERLINK formulas if present
+    // Helper to extract chapter number from title like "G 1.1 ..." or "1.1 ..."
+    const extractChapter = (title: string): number => {
+      // Match patterns like "G 1.1", "1.1", "G 2.3", etc.
+      const match = title.match(/(?:G\s*)?(\d+)\.\d+/i);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+      return NaN;
+    };
+
+    // NEW STRUCTURE: Based on actual sheet format
+    // Column A: Title (e.g., "G 1.1 Olika sorters tal")
+    // Column B: URL (e.g., "https://youtube.com/...")
+    // We extract chapter from title and use "Videolektioner" as default category
     const resources: ResourceRow[] = rows
-      .filter((row: unknown[]) => row.length >= 4)
-      .map((row: unknown[]) => ({
-        chapter: parseInt(String(row[0] || ''), 10),
-        category: String(row[1] || '').trim(),
-        title: String(row[2] || '').trim(),
-        url: extractUrl(row[3]),
-      }))
-      .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url);
+      .filter((row: unknown[]) => row.length >= 2) // At least title and URL
+      .map((row: unknown[]) => {
+        const title = String(row[0] || '').trim();
+        const url = extractUrl(row[1]);
+        const chapter = extractChapter(title);
+        // Default category - could be enhanced if sheet has category column
+        const category = 'Videolektioner';
+        return { chapter, category, title, url };
+      })
+      .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
+
+    console.log(`Parsed ${resources.length} valid resources`);
 
     // Filter by chapter if provided
     let filtered = resources;
