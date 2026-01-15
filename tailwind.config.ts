@@ -18,6 +18,7 @@ export default {
         body: ['"Source Sans 3"', "system-ui", "sans-serif"],
         mathematics: ['"Mathematics"', "serif"],
         pecita: ['"Pecita"', "cursive"],
+        caveat: ['"Caveat"', "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
