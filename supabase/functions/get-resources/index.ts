@@ -86,10 +86,10 @@ serve(async (req) => {
     // Use grade-specific tab: Åk6, Åk7, Åk8, Åk9
     // Grade is already validated to be one of ['6', '7', '8', '9']
     const tabName = `Åk${grade}`;
-    const range = `${tabName}!A2:D1000`;
     
-    // Use valueRenderOption=FORMULA to get hyperlink formulas, which contain the actual URLs
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}&valueRenderOption=FORMULA`;
+    // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links
+    // This is necessary because Google Sheets rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:D1000`)}&includeGridData=true`;
     
     console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
     
@@ -116,27 +116,35 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const rows = data.values || [];
-
-    // Helper function to extract URL from HYPERLINK formula or return raw value
-    // HYPERLINK format: =HYPERLINK("url","displayText") or just plain text/URL
-    const extractUrl = (cellValue: unknown): string => {
-      // Handle non-string values (numbers, null, undefined)
-      if (cellValue === null || cellValue === undefined) return '';
-      
-      // Convert to string if it's not already
-      const strValue = typeof cellValue === 'string' ? cellValue : String(cellValue);
-      if (!strValue) return '';
-      
-      // Check if it's a HYPERLINK formula
-      const hyperlinkMatch = strValue.match(/^=HYPERLINK\s*\(\s*"([^"]+)"/i);
-      if (hyperlinkMatch) {
-        return hyperlinkMatch[1];
-      }
-      
-      // Return the raw value (could be a plain URL or text)
-      return strValue.trim();
-    };
+    
+    // Extract rows from the grid data structure
+    const sheet = data.sheets?.[0];
+    const gridData = sheet?.data?.[0];
+    const rowData = gridData?.rowData || [];
+    
+    // Convert grid data to simple row arrays with hyperlink info
+    interface CellInfo {
+      value: string;
+      hyperlink?: string;
+    }
+    
+    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{ formattedValue?: string; hyperlink?: string; userEnteredValue?: { formulaValue?: string } }> }) => {
+      const cells = row.values || [];
+      return cells.map((cell) => {
+        const value = cell.formattedValue || '';
+        // Check for hyperlink in cell metadata (rich links)
+        const hyperlink = cell.hyperlink || '';
+        // Also check for HYPERLINK formula
+        const formula = cell.userEnteredValue?.formulaValue || '';
+        const formulaMatch = formula.match(/^=HYPERLINK\s*\(\s*"([^"]+)"/i);
+        const urlFromFormula = formulaMatch ? formulaMatch[1] : '';
+        
+        return {
+          value,
+          hyperlink: hyperlink || urlFromFormula
+        };
+      });
+    });
 
     console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
     
@@ -159,58 +167,46 @@ serve(async (req) => {
     // Format A (Åk6): [Title with chapter, URL] - 2 columns
     // Format B (Åk7-9): [Chapter number, Category, Title, URL] - 4 columns
     const firstRow = rows[0] || [];
-    const firstCellIsNumber = !isNaN(parseInt(String(firstRow[0] || ''), 10)) && 
-                               String(firstRow[0] || '').length <= 2;
+    const firstCellValue = firstRow[0]?.value || '';
+    const firstCellIsNumber = !isNaN(parseInt(firstCellValue, 10)) && firstCellValue.length <= 2;
     
     console.log(`Detected format: ${firstCellIsNumber ? 'B (Chapter|Category|Title|URL)' : 'A (Title|URL)'}`);
 
     let resources: ResourceRow[];
 
     if (firstCellIsNumber) {
-      // Format B: Chapter | Category | Title (may contain HYPERLINK) | Display text
-      // Try to extract URL from column C first (the title cell which often has hyperlink)
-      // then fall back to column D
+      // Format B: Chapter | Category | Länktext (title) | URL (hyperlink in cell D)
       resources = rows
-        .filter((row: unknown[]) => row.length >= 3)
-        .map((row: unknown[]) => {
-          const chapter = parseInt(String(row[0] || ''), 10);
-          const category = String(row[1] || '').trim() || 'Övrigt';
+        .filter((row: CellInfo[]) => row.length >= 4)
+        .map((row: CellInfo[]) => {
+          const chapter = parseInt(row[0]?.value || '', 10);
+          const category = (row[1]?.value || '').trim() || 'Övrigt';
+          const title = (row[2]?.value || '').trim();
           
-          // Column C might be a HYPERLINK formula - try to extract URL from it
-          const urlFromC = extractUrl(row[2]);
-          // Column D might also have a URL
-          const urlFromD = row.length >= 4 ? extractUrl(row[3]) : '';
-          
-          // Use URL from C if it starts with http, otherwise try D
-          const url = urlFromC.startsWith('http') ? urlFromC : urlFromD;
-          
-          // For title: if C was a hyperlink, use D as the display title
-          // Otherwise use C as the title
-          let title = '';
-          if (urlFromC.startsWith('http') && row.length >= 4) {
-            title = String(row[3] || '').trim();
-          } else {
-            title = String(row[2] || '').trim();
-          }
+          // Get URL from column D's hyperlink metadata or value
+          const cellD = row[3];
+          const url = cellD?.hyperlink || (cellD?.value?.startsWith('http') ? cellD.value : '');
           
           return { chapter, category, title, url };
         })
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
       
-      // DEBUG: Log how many rows had valid URLs
-      const withUrls = rows.filter((row: unknown[]) => {
-        const urlC = extractUrl(row[2]);
-        const urlD = row.length >= 4 ? extractUrl(row[3]) : '';
-        return urlC.startsWith('http') || urlD.startsWith('http');
+      // DEBUG: Log how many rows had valid URLs in column D
+      const withUrls = rows.filter((row: CellInfo[]) => {
+        if (row.length < 4) return false;
+        const cellD = row[3];
+        const url = cellD?.hyperlink || cellD?.value || '';
+        return url.startsWith('http');
       }).length;
-      console.log(`DEBUG - Rows with valid URLs: ${withUrls} out of ${rows.length}`);
+      console.log(`DEBUG - Rows with valid URLs in column D: ${withUrls} out of ${rows.length}`);
     } else {
       // Format A: Title (with chapter embedded) | URL
       resources = rows
-        .filter((row: unknown[]) => row.length >= 2)
-        .map((row: unknown[]) => {
-          const title = String(row[0] || '').trim();
-          const url = extractUrl(row[1]);
+        .filter((row: CellInfo[]) => row.length >= 2)
+        .map((row: CellInfo[]) => {
+          const title = (row[0]?.value || '').trim();
+          const cellB = row[1];
+          const url = cellB?.hyperlink || (cellB?.value?.startsWith('http') ? cellB.value : '');
           const chapter = extractChapterFromTitle(title);
           const category = 'Videolektioner';
           return { chapter, category, title, url };
