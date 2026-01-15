@@ -185,7 +185,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
         className="font-caveat font-bold relative"
         style={{ 
           color: '#3d2b1f',
-          fontSize: `${18 * scale}px`,
+          fontSize: `${22 * scale}px`,
         }}
       >
         {text}
@@ -315,7 +315,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
               <SquareButton onClick={() => inputDigit("4")} label="" />
               <SquareButton onClick={() => inputDigit("5")} label="" />
               <SquareButton onClick={() => inputDigit("6")} correction="6" />
-              <SquareButton onClick={() => performOperation("×")} label="" />
+              <SquareButton onClick={() => performOperation("×")} correction="×" />
               <SquareButton onClick={() => performOperation("÷")} correction="÷" />
             </div>
             
@@ -323,7 +323,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             <div className="flex" style={{ gap: `${7 * scale}px`, marginBottom: `${5 * scale}px` }}>
               <SquareButton onClick={() => inputDigit("1")} label="" />
               <SquareButton onClick={() => inputDigit("2")} label="" />
-              <SquareButton onClick={() => inputDigit("3")} correction="3" crossed />
+              <SquareButton onClick={() => inputDigit("3")} correction="3" />
               <SquareButton onClick={clear} correction="C" />
               <SquareButton onClick={calculate} label="" />
             </div>
