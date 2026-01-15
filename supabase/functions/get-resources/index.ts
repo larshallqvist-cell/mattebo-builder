@@ -146,7 +146,7 @@ serve(async (req) => {
     }
 
     // Helper to extract chapter number from title like "G 1.1 ..." or "1.1 ..."
-    const extractChapter = (title: string): number => {
+    const extractChapterFromTitle = (title: string): number => {
       // Match patterns like "G 1.1", "1.1", "G 2.3", etc.
       const match = title.match(/(?:G\s*)?(\d+)\.\d+/i);
       if (match) {
@@ -155,21 +155,43 @@ serve(async (req) => {
       return NaN;
     };
 
-    // NEW STRUCTURE: Based on actual sheet format
-    // Column A: Title (e.g., "G 1.1 Olika sorters tal")
-    // Column B: URL (e.g., "https://youtube.com/...")
-    // We extract chapter from title and use "Videolektioner" as default category
-    const resources: ResourceRow[] = rows
-      .filter((row: unknown[]) => row.length >= 2) // At least title and URL
-      .map((row: unknown[]) => {
-        const title = String(row[0] || '').trim();
-        const url = extractUrl(row[1]);
-        const chapter = extractChapter(title);
-        // Default category - could be enhanced if sheet has category column
-        const category = 'Videolektioner';
-        return { chapter, category, title, url };
-      })
-      .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
+    // Detect sheet format based on first row
+    // Format A (Åk6): [Title with chapter, URL] - 2 columns
+    // Format B (Åk7-9): [Chapter number, Category, Title, URL] - 4 columns
+    const firstRow = rows[0] || [];
+    const firstCellIsNumber = !isNaN(parseInt(String(firstRow[0] || ''), 10)) && 
+                               String(firstRow[0] || '').length <= 2;
+    
+    console.log(`Detected format: ${firstCellIsNumber ? 'B (Chapter|Category|Title|URL)' : 'A (Title|URL)'}`);
+
+    let resources: ResourceRow[];
+
+    if (firstCellIsNumber) {
+      // Format B: Chapter | Category | Title | URL (or hyperlink in Title)
+      resources = rows
+        .filter((row: unknown[]) => row.length >= 3)
+        .map((row: unknown[]) => {
+          const chapter = parseInt(String(row[0] || ''), 10);
+          const category = String(row[1] || '').trim() || 'Övrigt';
+          const title = String(row[2] || '').trim();
+          // URL could be in column D, or column C might be a hyperlink
+          const url = row.length >= 4 ? extractUrl(row[3]) : extractUrl(row[2]);
+          return { chapter, category, title, url };
+        })
+        .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
+    } else {
+      // Format A: Title (with chapter embedded) | URL
+      resources = rows
+        .filter((row: unknown[]) => row.length >= 2)
+        .map((row: unknown[]) => {
+          const title = String(row[0] || '').trim();
+          const url = extractUrl(row[1]);
+          const chapter = extractChapterFromTitle(title);
+          const category = 'Videolektioner';
+          return { chapter, category, title, url };
+        })
+        .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
+    }
 
     console.log(`Parsed ${resources.length} valid resources`);
 
