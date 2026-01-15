@@ -55,8 +55,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [exponentMode, setExponentMode] = useState(false);
   
-  // Responsive sizing - 20% larger
-  const scale = isMobile ? Math.min(window.innerWidth / 280, 1.7) : 1.44;
+  // Use original image size for sharpness
+  const scale = 1;
   const baseWidth = 260;
   const baseHeight = 360;
   
