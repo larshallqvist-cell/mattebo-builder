@@ -55,8 +55,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [exponentMode, setExponentMode] = useState(false);
   
-  // Responsive sizing
-  const scale = isMobile ? Math.min(window.innerWidth / 280, 1.4) : 1.2;
+  // Responsive sizing - 20% larger
+  const scale = isMobile ? Math.min(window.innerWidth / 280, 1.7) : 1.44;
   const baseWidth = 260;
   const baseHeight = 360;
   
