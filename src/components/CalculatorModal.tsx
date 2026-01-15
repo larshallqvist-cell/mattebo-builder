@@ -135,7 +135,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     setWaitingForOperand(true);
   }, [display]);
   
-  // Round button (for scientific functions row) - smaller size
+  // Round button (for scientific functions row) - VISIBLE FOR DEBUGGING
   const RoundButton = ({ 
     onClick, 
     title = ""
@@ -147,11 +147,11 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
       onClick={onClick}
       title={title}
       style={{ width: `${26 * scale}px`, height: `${26 * scale}px` }}
-      className="transition-all duration-150 active:scale-95 rounded-full bg-transparent hover:bg-white/20"
+      className="transition-all duration-150 active:scale-95 rounded-full bg-red-500/50 hover:bg-red-500/70 border border-red-400"
     />
   );
   
-  // Square button (for number grid) - smaller size
+  // Square button (for number grid) - VISIBLE FOR DEBUGGING
   const SquareButton = ({ 
     onClick, 
     title = "",
@@ -165,7 +165,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
       onClick={onClick}
       title={title}
       style={{ width: `${36 * scale}px`, height: `${36 * scale}px` }}
-      className={`transition-all duration-150 active:scale-95 rounded-[3px] bg-transparent hover:bg-white/15 ${className}`}
+      className={`transition-all duration-150 active:scale-95 rounded-[3px] bg-blue-500/50 hover:bg-blue-500/70 border border-blue-400 ${className}`}
     />
   );
   
