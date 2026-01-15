@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import calculatorBg from "@/assets/THE_LASSE_CULATOR.jpg";
+import calculatorBg from "@/assets/THE_LASSE_CULATOR_2.jpg";
 import {
   Dialog,
   DialogContent,
@@ -55,8 +55,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [exponentMode, setExponentMode] = useState(false);
   
-  // Use original image size for sharpness
-  const scale = 1;
+  // Now we can scale up with the high-res image
+  const scale = isMobile ? Math.min(window.innerWidth / 280, 1.5) : 1.3;
   const baseWidth = 260;
   const baseHeight = 360;
   

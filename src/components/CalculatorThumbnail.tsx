@@ -1,5 +1,5 @@
 import { useState } from "react";
-import calculatorBg from "@/assets/THE_LASSE_CULATOR.jpg";
+import calculatorBg from "@/assets/THE_LASSE_CULATOR_2.jpg";
 import CalculatorModal from "./CalculatorModal";
 
 const CalculatorThumbnail = () => {
