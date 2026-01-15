@@ -23,7 +23,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   // Image exact aspect ratio: 473:815 ≈ 0.58:1
   const baseWidth = 237;
   const baseHeight = 408;
-  const scale = isMobile ? Math.min(window.innerWidth / 260, 1.4) : 1.2;
+  const scale = isMobile ? Math.min(window.innerWidth / 260, 1.6) : 1.5;
   
   const inputDigit = useCallback((digit: string) => {
     if (waitingForOperand) {
@@ -146,7 +146,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     <button
       onClick={onClick}
       title={title}
-      style={{ width: `${26 * scale}px`, height: `${26 * scale}px` }}
+      style={{ width: `${20 * scale}px`, height: `${20 * scale}px` }}
       className="transition-all duration-150 active:scale-95 rounded-full bg-red-500/50 hover:bg-red-500/70 border border-red-400"
     />
   );
@@ -164,7 +164,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     <button
       onClick={onClick}
       title={title}
-      style={{ width: `${36 * scale}px`, height: `${36 * scale}px` }}
+      style={{ width: `${30 * scale}px`, height: `${30 * scale}px` }}
       className={`transition-all duration-150 active:scale-95 rounded-[3px] bg-blue-500/50 hover:bg-blue-500/70 border border-blue-400 ${className}`}
     />
   );
