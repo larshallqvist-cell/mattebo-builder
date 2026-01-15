@@ -253,8 +253,14 @@ const Calculator = ({ onRadioChange }: CalculatorProps) => {
         }}
       >
         {/* Display area - positioned to match the LCD screen in background */}
-        <div className="absolute top-[14px] left-[18px] right-[18px] h-[40px] flex items-center justify-end pr-3">
-          <div className="text-right text-lg font-mono text-[#1a2a1a] truncate font-bold tracking-wider">
+        <div className="absolute top-[14px] left-[8px] right-[28px] h-[40px] flex items-center justify-end pr-3">
+          <div 
+            className="text-right text-lg font-mono truncate font-bold tracking-wider"
+            style={{
+              color: '#7fff00',
+              textShadow: '0 0 8px #7fff00, 0 0 12px #7fff00',
+            }}
+          >
             {display}
           </div>
         </div>
