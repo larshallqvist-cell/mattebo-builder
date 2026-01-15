@@ -260,7 +260,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             style={{ 
               top: `${26 * scale}px`, 
               left: `${-2 * scale}px`, 
-              right: `${30 * scale}px`, 
+              right: `${50 * scale}px`, 
               height: `${55 * scale}px` 
             }}
           >
