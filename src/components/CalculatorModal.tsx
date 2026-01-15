@@ -258,7 +258,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           <div 
             className="absolute flex items-center justify-end"
             style={{ 
-              top: `${26 * scale}px`, 
+              top: `${32 * scale}px`, 
               left: `${-2 * scale}px`, 
               right: `${50 * scale}px`, 
               height: `${55 * scale}px` 
