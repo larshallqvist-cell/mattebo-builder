@@ -6,10 +6,46 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 interface CalculatorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+// PostIt-lapp komponent för korrigering av felaktiga knappar
+const CorrectionLabel = ({ 
+  text, 
+  style 
+}: { 
+  text: string; 
+  style?: React.CSSProperties;
+}) => (
+  <div 
+    className="absolute pointer-events-none z-10"
+    style={style}
+  >
+    <div 
+      className="relative bg-[#fffef0] shadow-md transform rotate-[-2deg]"
+      style={{
+        width: '28px',
+        height: '24px',
+        boxShadow: '1px 2px 4px rgba(0,0,0,0.3)',
+        border: '1px solid #e8e4c9',
+      }}
+    >
+      <span 
+        className="absolute inset-0 flex items-center justify-center text-[11px] text-[#1a1a8a]"
+        style={{
+          fontFamily: "'Caveat', 'Comic Sans MS', cursive",
+          fontWeight: 700,
+          transform: 'rotate(1deg)',
+        }}
+      >
+        {text}
+      </span>
+    </div>
+  </div>
+);
 
 const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   const isMobile = useIsMobile();
@@ -17,14 +53,12 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
-  const [memory, setMemory] = useState<number>(0);
+  const [exponentMode, setExponentMode] = useState(false);
   
-  // Responsive sizing: mobile = fullscreen, desktop = proportional
-  const scale = isMobile ? 1 : 1.2;
+  // Responsive sizing
+  const scale = isMobile ? Math.min(window.innerWidth / 280, 1.4) : 1.2;
   const baseWidth = 260;
   const baseHeight = 360;
-  const width = isMobile ? '100vw' : `${baseWidth * scale}px`;
-  const height = isMobile ? '100vh' : `${baseHeight * scale}px`;
   
   const inputDigit = useCallback((digit: string) => {
     if (waitingForOperand) {
@@ -37,10 +71,10 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   
   const inputDecimal = useCallback(() => {
     if (waitingForOperand) {
-      setDisplay("0.");
+      setDisplay("0,");
       setWaitingForOperand(false);
-    } else if (!display.includes(".")) {
-      setDisplay(display + ".");
+    } else if (!display.includes(",") && !display.includes(".")) {
+      setDisplay(display + ",");
     }
   }, [display, waitingForOperand]);
   
@@ -49,31 +83,11 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     setPreviousValue(null);
     setOperation(null);
     setWaitingForOperand(false);
-  }, []);
-  
-  const backspace = useCallback(() => {
-    if (display.length === 1 || (display.length === 2 && display.startsWith("-"))) {
-      setDisplay("0");
-    } else {
-      setDisplay(display.slice(0, -1));
-    }
-  }, [display]);
-  
-  const memoryAdd = useCallback(() => {
-    setMemory(memory + parseFloat(display));
-  }, [memory, display]);
-  
-  const memoryRecall = useCallback(() => {
-    setDisplay(String(memory));
-    setWaitingForOperand(true);
-  }, [memory]);
-  
-  const memoryClear = useCallback(() => {
-    setMemory(0);
+    setExponentMode(false);
   }, []);
   
   const performOperation = useCallback((nextOperation: string) => {
-    const inputValue = parseFloat(display);
+    const inputValue = parseFloat(display.replace(",", "."));
     
     if (previousValue === null) {
       setPreviousValue(inputValue);
@@ -101,7 +115,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           newValue = inputValue;
       }
       
-      setDisplay(String(newValue));
+      setDisplay(String(newValue).replace(".", ","));
       setPreviousValue(newValue);
     }
     
@@ -111,7 +125,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   
   const calculate = useCallback(() => {
     if (operation && previousValue !== null) {
-      const inputValue = parseFloat(display);
+      const inputValue = parseFloat(display.replace(",", "."));
       let newValue: number;
       
       switch (operation) {
@@ -134,7 +148,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           newValue = inputValue;
       }
       
-      setDisplay(String(newValue));
+      setDisplay(String(newValue).replace(".", ","));
       setPreviousValue(null);
       setOperation(null);
       setWaitingForOperand(true);
@@ -143,19 +157,19 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
   
   // Scientific functions
   const insertPi = useCallback(() => {
-    setDisplay(String(Math.PI));
+    setDisplay(String(Math.PI).replace(".", ","));
     setWaitingForOperand(true);
   }, []);
   
   const squareRoot = useCallback(() => {
-    const value = parseFloat(display);
-    setDisplay(String(Math.sqrt(value)));
+    const value = parseFloat(display.replace(",", "."));
+    setDisplay(String(Math.sqrt(value)).replace(".", ","));
     setWaitingForOperand(true);
   }, [display]);
   
   const square = useCallback(() => {
-    const value = parseFloat(display);
-    setDisplay(String(value * value));
+    const value = parseFloat(display.replace(",", "."));
+    setDisplay(String(value * value).replace(".", ","));
     setWaitingForOperand(true);
   }, [display]);
   
@@ -163,184 +177,147 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
     performOperation("^");
   }, [performOperation]);
   
-  // Button size scales with calculator
-  const btnSize = isMobile ? 'w-[calc((100vw-100px)/5)] h-[calc((100vw-100px)/5)]' : `w-[${34 * scale}px] h-[${34 * scale}px]`;
-  const btnSizeStyle = isMobile 
-    ? { width: 'calc((100vw - 100px) / 5)', height: 'calc((100vw - 100px) / 5)', maxWidth: '60px', maxHeight: '60px' }
-    : { width: `${34 * scale}px`, height: `${34 * scale}px` };
-  const gapSize = isMobile ? 'calc((100vw - 100px) / 25)' : `${10 * scale}px`;
-  const rowGap = isMobile ? 'calc((100vw - 100px) / 40)' : `${5 * scale}px`;
+  const toggleEngNotation = useCallback(() => {
+    const value = parseFloat(display.replace(",", "."));
+    if (exponentMode) {
+      setDisplay(String(value).replace(".", ","));
+    } else {
+      setDisplay(value.toExponential().replace(".", ","));
+    }
+    setExponentMode(!exponentMode);
+  }, [display, exponentMode]);
+  
+  // Button sizes scaled
+  const btnSize = 34 * scale;
+  const gap = 10 * scale;
   
   const Button = ({ 
     onClick, 
-    className = "",
     title = ""
   }: { 
     onClick: () => void;
-    className?: string;
     title?: string;
   }) => (
     <button
       onClick={onClick}
       title={title}
-      style={btnSizeStyle}
-      className={`
-        transition-all duration-150 active:scale-95
-        rounded-[4px]
-        bg-transparent hover:bg-white/10
-        ${className}
-      `}
+      style={{ width: `${btnSize}px`, height: `${btnSize}px` }}
+      className="transition-all duration-150 active:scale-95 rounded-[4px] bg-transparent hover:bg-white/10"
     />
   );
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`p-0 bg-transparent border-none shadow-none ${isMobile ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none m-0 rounded-none translate-x-0 translate-y-0 left-0 top-0' : 'w-auto max-w-none'}`}
+        className={`p-0 bg-transparent border-none shadow-none ${isMobile ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none m-0 rounded-none translate-x-0 translate-y-0 left-0 top-0 flex items-center justify-center' : 'w-auto max-w-none'}`}
       >
         <DialogTitle className="sr-only">Kalkylator</DialogTitle>
         <div 
-          className={`relative shadow-2xl ${isMobile ? 'rounded-none' : 'rounded-xl'}`}
+          className="relative rounded-xl shadow-2xl"
           style={{
             backgroundImage: `url(${calculatorBg})`,
             backgroundSize: '100% 100%',
             backgroundPosition: 'center',
-            width: width,
-            height: height,
+            width: `${baseWidth * scale}px`,
+            height: `${baseHeight * scale}px`,
           }}
         >
-          {/* Display area - ljusgrå bakgrund med tydlig font */}
+          {/* Display area - positioned to match the LCD screen in background */}
           <div 
-            className="absolute rounded-sm flex items-center justify-end px-2"
+            className="absolute flex items-center justify-end pr-3"
             style={{ 
-              backgroundColor: '#c8d4c0',
-              top: '6.5%',
-              left: '15%',
-              right: '15%',
-              height: '10.2%'
+              top: `${14 * scale}px`, 
+              left: `${18 * scale}px`, 
+              right: `${18 * scale}px`, 
+              height: `${40 * scale}px` 
             }}
           >
             <div 
-              className="text-right truncate font-mono text-[#1a1a1a]"
-              style={{ fontSize: isMobile ? '28px' : `${20 * scale}px`, fontWeight: 600, letterSpacing: '1px' }}
+              className="text-right font-mono text-[#1a2a1a] truncate font-bold tracking-wider"
+              style={{ fontSize: `${18 * scale}px` }}
             >
               {display}
             </div>
           </div>
-          
-          {/* Memory indicator */}
-          {memory !== 0 && (
-            <div 
-              className="absolute text-[#1a2a1a]/60 font-mono"
-              style={{ top: '4.4%', left: '8.5%', fontSize: isMobile ? '14px' : `${12 * scale}px` }}
-            >
-              M
-            </div>
-          )}
         
-          {/* Button grid container - percentage based positions */}
+          {/* Korrigeringslappar för felaktiga knappar på bilden */}
+          <CorrectionLabel text="xʸ" style={{ top: `${106 * scale}px`, left: `${22 * scale + 3 * (btnSize + gap) + 3 * scale}px` }} />
+          <CorrectionLabel text="+" style={{ top: `${(109 + 39) * scale}px`, left: `${22 * scale + 3 * (btnSize + gap) + 3 * scale}px` }} />
+          <CorrectionLabel text="−" style={{ top: `${(109 + 39) * scale}px`, left: `${22 * scale + 4 * (btnSize + gap) + 3 * scale}px` }} />
+          <CorrectionLabel text="×" style={{ top: `${(109 + 78) * scale}px`, left: `${22 * scale + 3 * (btnSize + gap) + 3 * scale}px` }} />
+          <CorrectionLabel text="÷" style={{ top: `${(109 + 78) * scale}px`, left: `${22 * scale + 4 * (btnSize + gap) + 3 * scale}px` }} />
+
+          {/* Button grid container - positioned to match background buttons */}
           <div 
-            className="absolute flex flex-col"
-            style={{ 
-              top: '30.3%', 
-              left: '8.5%',
-              right: '8.5%',
-              gap: rowGap
-            }}
+            className="absolute"
+            style={{ top: `${109 * scale}px`, left: `${22 * scale}px` }}
           >
-            {/* Row 1: π, √, %, ÷, × */}
-            <div className="flex" style={{ gap: gapSize }}>
-              <Button onClick={insertPi} title="π" />
-              <Button onClick={squareRoot} title="√" />
-              <Button onClick={() => {
-                const val = parseFloat(display);
-                setDisplay(String(val / 100));
-              }} title="%" />
-              <Button onClick={() => performOperation("÷")} title="÷" />
-              <Button onClick={() => performOperation("×")} title="×" />
+            {/* Rad 1: π, √, x², x^y, (tom) */}
+            <div className="flex" style={{ gap: `${gap}px`, marginBottom: `${5 * scale}px` }}>
+              <Button onClick={insertPi} title="π (Pi)" />
+              <Button onClick={squareRoot} title="√ (Roten ur)" />
+              <Button onClick={square} title="x² (Kvadrat)" />
+              <Button onClick={power} title="x^y (Potens)" />
+              <button style={{ width: `${btnSize}px`, height: `${btnSize}px` }} className="opacity-0 pointer-events-none" />
             </div>
             
-            {/* Row 2: 7, 8, 9, x², − */}
-            <div className="flex" style={{ gap: gapSize }}>
+            {/* Rad 2: 7, 8, 9, +, - */}
+            <div className="flex" style={{ gap: `${gap}px`, marginBottom: `${5 * scale}px` }}>
               <Button onClick={() => inputDigit("7")} title="7" />
               <Button onClick={() => inputDigit("8")} title="8" />
               <Button onClick={() => inputDigit("9")} title="9" />
-              <Button onClick={square} title="x²" />
-              <Button onClick={() => performOperation("-")} title="−" />
+              <Button onClick={() => performOperation("+")} title="+" />
+              <Button onClick={() => performOperation("-")} title="-" />
             </div>
             
-            {/* Row 3: 4, 5, 6, x^y, + */}
-            <div className="flex" style={{ gap: gapSize }}>
+            {/* Rad 3: 4, 5, 6, ×, ÷ */}
+            <div className="flex" style={{ gap: `${gap}px`, marginBottom: `${5 * scale}px` }}>
               <Button onClick={() => inputDigit("4")} title="4" />
               <Button onClick={() => inputDigit("5")} title="5" />
               <Button onClick={() => inputDigit("6")} title="6" />
-              <Button onClick={power} title="x^y" />
-              <Button onClick={() => performOperation("+")} title="+" />
+              <Button onClick={() => performOperation("×")} title="× (Multiplikation)" />
+              <Button onClick={() => performOperation("÷")} title="÷ (Division)" />
             </div>
             
-            {/* Row 4: 1, 2, 3, M+ */}
-            <div className="flex" style={{ gap: gapSize }}>
+            {/* Rad 4: 1, 2, 3 */}
+            <div className="flex" style={{ gap: `${gap}px`, marginBottom: `${5 * scale}px` }}>
               <Button onClick={() => inputDigit("1")} title="1" />
               <Button onClick={() => inputDigit("2")} title="2" />
               <Button onClick={() => inputDigit("3")} title="3" />
-              <Button onClick={memoryAdd} title="M+" />
             </div>
             
-            {/* Row 5: 0, ., C, MR */}
-            <div className="flex" style={{ gap: gapSize }}>
+            {/* Rad 5: 0, komma, Eng */}
+            <div className="flex" style={{ gap: `${gap}px` }}>
               <Button onClick={() => inputDigit("0")} title="0" />
-              <Button onClick={inputDecimal} title="." />
-              <Button onClick={clear} title="C" />
-              <Button onClick={memoryRecall} title="MR" />
+              <Button onClick={inputDecimal} title=", (komma)" />
+              <Button onClick={toggleEngNotation} title="Eng (Grundpotensform)" />
             </div>
-          </div>
-          
-          {/* = knappen (dubbelknapp rad 4-5) */}
-          <button
-            onClick={calculate}
-            title="="
-            style={{
-              position: 'absolute',
-              right: '8.5%',
-              top: '62.8%',
-              width: btnSizeStyle.width,
-              height: isMobile ? 'calc((100vw - 100px) / 5 * 2 + (100vw - 100px) / 40)' : `${(34 * 2 + 5) * scale}px`,
-              maxHeight: isMobile ? '125px' : undefined
-            }}
-            className="rounded-[4px] transition-all duration-150 active:scale-95 bg-transparent hover:bg-white/10"
-          />
-          
-          {/* Extra rad för backspace och MC längst ner */}
-          <div 
-            className="absolute flex"
-            style={{ bottom: '4%', left: '8.5%', gap: gapSize }}
-          >
+            
+            {/* C-knapp (Clear) - stor knapp position rad 4, kolumn 4 */}
             <button
-              onClick={backspace}
-              title="⌫ Radera"
+              onClick={clear}
+              title="C (Clear)"
+              className="absolute rounded-[4px] transition-all duration-150 active:scale-95 bg-transparent hover:bg-white/10"
               style={{ 
-                width: btnSizeStyle.width, 
-                height: isMobile ? '32px' : `${24 * scale}px`,
-                maxWidth: btnSizeStyle.maxWidth
+                top: `${(39 * 3) * scale}px`, 
+                left: `${3 * (btnSize + gap)}px`,
+                width: `${btnSize}px`,
+                height: `${btnSize * 2 + 5 * scale}px`
               }}
-              className="rounded-[4px] bg-secondary/60 hover:bg-secondary/80 
-                text-xs text-secondary-foreground transition-all active:scale-95"
-            >
-              ⌫
-            </button>
+            />
+            
+            {/* =-knapp (Lika med) - stor knapp position rad 4-5, kolumn 5 */}
             <button
-              onClick={memoryClear}
-              title="MC Rensa minne"
+              onClick={calculate}
+              title="= (Lika med)"
+              className="absolute rounded-[4px] transition-all duration-150 active:scale-95 bg-transparent hover:bg-white/10"
               style={{ 
-                width: btnSizeStyle.width, 
-                height: isMobile ? '32px' : `${24 * scale}px`,
-                maxWidth: btnSizeStyle.maxWidth
+                top: `${(39 * 3) * scale}px`, 
+                left: `${4 * (btnSize + gap)}px`,
+                width: `${btnSize}px`,
+                height: `${btnSize * 2 + 5 * scale}px`
               }}
-              className="rounded-[4px] bg-secondary/60 hover:bg-secondary/80 
-                text-xs text-secondary-foreground transition-all active:scale-95"
-            >
-              MC
-            </button>
+            />
           </div>
         </div>
       </DialogContent>
