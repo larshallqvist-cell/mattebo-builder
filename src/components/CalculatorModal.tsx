@@ -269,7 +269,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
               style={{ 
                 fontSize: `${22 * scale}px`,
                 color: '#7fff00',
-                textShadow: '0 0 4px #7fff00, 0 0 8px #7fff00, 0 0 16px #7fff00, 0 0 24px rgba(127, 255, 0, 0.5)'
+                textShadow: '0 0 3px #7fff00, 0 0 6px rgba(127, 255, 0, 0.4)'
               }}
             >
               {display}
