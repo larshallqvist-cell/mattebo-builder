@@ -101,15 +101,15 @@ const ChapterAccordion = ({ grade }: ChapterAccordionProps) => {
                 <span className="font-medium text-foreground text-base font-body transition-all duration-300 group-hover/chapter:text-[hsl(var(--divider-orange))] group-hover/chapter:drop-shadow-[0_0_8px_hsl(var(--divider-orange)/0.6)] group-data-[state=open]/chapter:text-[hsl(var(--divider-orange))] group-data-[state=open]/chapter:animate-text-glow-pulse-orange">{chapter.title}</span>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/30">
-                <div className="px-4 py-2 space-y-1">
+                <div className="px-3 py-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0">
                   {chapter.links.map((link, index) => (
                     <a
                       key={index}
                       href={link.url}
-                      className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-muted transition-colors group font-body font-normal"
+                      className="flex items-center gap-2 py-0.5 px-2 rounded-md hover:bg-muted transition-colors group font-body font-normal"
                     >
-                      <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
-                      <span className="text-[15px] text-foreground group-hover:text-accent transition-colors">
+                      <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                      <span className="text-base text-foreground group-hover:text-accent transition-colors">
                         {link.title}
                       </span>
                     </a>
