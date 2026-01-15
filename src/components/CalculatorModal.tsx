@@ -220,6 +220,8 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
             backgroundPosition: 'center',
             width: `${baseWidth * scale}px`,
             height: `${baseHeight * scale}px`,
+            imageRendering: 'auto',
+            filter: 'contrast(1.02)',
           }}
         >
           {/* Display area - positioned to match the LCD screen in background */}
