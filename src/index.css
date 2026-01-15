@@ -2,8 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mattebo Design System - Chalkboard aesthetic with warm, educational feel */
+/* Custom fonts */
+@font-face {
+  font-family: 'Mathematics';
+  src: url('/fonts/Mathematics.otf') format('opentype'),
+       url('/fonts/Mathematics.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
+@font-face {
+  font-family: 'Pecita';
+  src: url('/fonts/Pecita.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mattebo Design System - Chalkboard aesthetic with warm, educational feel */
 @layer base {
   :root {
     /* Main colors - Chalkboard green theme */

@@ -16,6 +16,8 @@ export default {
       fontFamily: {
         "life-savers": ['"Life Savers"', "cursive"],
         body: ['"Source Sans 3"', "system-ui", "sans-serif"],
+        mathematics: ['"Mathematics"', "serif"],
+        pecita: ['"Pecita"', "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
