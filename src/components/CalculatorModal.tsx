@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import calculatorBg from "@/assets/calculator-bg.jpeg";
+import calculatorBg from "@/assets/THE_LASSE_CULATOR.jpg";
 import {
   Dialog,
   DialogContent,
