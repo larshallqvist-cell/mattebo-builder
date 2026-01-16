@@ -112,42 +112,41 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         {/* Main Content */}
         <main className="flex-1 px-4 lg:px-6 py-6 relative z-20">
           <div className="max-w-7xl mx-auto">
-            {/* Desktop: Two-column layout */}
-            <div className="hidden lg:grid lg:grid-cols-3 gap-6 h-[calc(100vh-280px)]">
-              {/* Left Column - Resources */}
-              <div className="lg:col-span-2 h-full overflow-hidden">
-                <MetalPanel 
-                  title="Lektioner & Resurser" 
-                  icon={<BookOpen className="w-5 h-5" />}
-                  glowColor={glowColor}
-                  className="h-full flex flex-col"
-                >
-                  <div className="flex-1 overflow-hidden -m-4">
-                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
-                  </div>
-                </MetalPanel>
-              </div>
-
-              {/* Right Column - Calendar, Next Lesson & Tools */}
-              <div className="flex flex-col gap-4 h-full overflow-hidden">
-                {/* Next Lesson Panel */}
+            {/* Desktop: Two-column layout - Calendar is PRIMARY */}
+            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+              {/* Left Column - Calendar (2 columns wide) */}
+              <div className="lg:col-span-2 flex flex-col gap-4">
+                {/* Next Lesson - Compact header above calendar */}
                 <MetalPanel 
                   title="Nästa lektion" 
                   icon={<Calendar className="w-5 h-5" />}
                   glowColor={glowColor}
                   className="flex-shrink-0"
                 >
-                  <div className="max-h-[180px] overflow-y-auto -m-4 p-4">
-                    <PostItNote grade={grade} />
-                  </div>
+                  <PostItNote grade={grade} />
                 </MetalPanel>
 
-                {/* Calendar Screen */}
-                <ScreenFrame title={`Planering Åk ${grade}`} className="flex-1 min-h-0">
+                {/* Main Calendar Screen - Takes most space */}
+                <ScreenFrame title={`Planering Åk ${grade}`} className="flex-1 min-h-[500px]">
                   <div className="h-full overflow-hidden">
                     <LessonCalendar grade={grade} />
                   </div>
                 </ScreenFrame>
+              </div>
+
+              {/* Right Column - Resources & Tools (1 column) */}
+              <div className="flex flex-col gap-4">
+                {/* Resources */}
+                <MetalPanel 
+                  title="Lektioner & Resurser" 
+                  icon={<BookOpen className="w-5 h-5" />}
+                  glowColor={glowColor}
+                  className="flex-1"
+                >
+                  <div className="max-h-[400px] overflow-y-auto -m-4">
+                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                  </div>
+                </MetalPanel>
 
                 {/* Tools Row */}
                 <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0">
