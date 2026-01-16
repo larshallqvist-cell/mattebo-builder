@@ -1,15 +1,13 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const motivationalMessages = [
+const fallbackMessages = [
   "Du klarar det här! 🤖",
   "Matematik är som ett pussel – bit för bit!",
   "Fel är bara ett steg mot rätt svar!",
   "Fortsätt kämpa, du är på rätt väg!",
   "Varje problem har en lösning!",
-  "Ta en paus om du behöver – jag väntar här!",
-  "Glöm inte: övning ger färdighet!",
-  "Du blir smartare för varje uppgift!",
 ];
 
 interface MascotPanelProps {
@@ -17,14 +15,37 @@ interface MascotPanelProps {
 }
 
 const MascotPanel = ({ className }: MascotPanelProps) => {
-  const [message, setMessage] = useState(motivationalMessages[0]);
+  const [message, setMessage] = useState(fallbackMessages[0]);
   const [isBlinking, setIsBlinking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchAIMessage = useCallback(async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('mascot-message');
+      
+      if (error) {
+        console.error('Error fetching AI message:', error);
+        setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
+      } else if (data?.message) {
+        setMessage(data.message);
+      }
+    } catch (err) {
+      console.error('Failed to fetch AI message:', err);
+      setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
-    // Change message every 15 seconds
-    const messageInterval = setInterval(() => {
-      setMessage(motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)]);
-    }, 15000);
+    // Fetch initial AI message
+    fetchAIMessage();
+    
+    // Change message every 20 seconds
+    const messageInterval = setInterval(fetchAIMessage, 20000);
 
     // Blink every few seconds
     const blinkInterval = setInterval(() => {
