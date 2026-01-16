@@ -19,36 +19,26 @@ const Index = () => {
 
         {/* Hero Section */}
         <main className="flex-1 flex flex-col items-center justify-center px-6 pt-24 pb-12 relative z-20">
-          {/* Hero content */}
-          <div className="text-center mb-12 md:mb-16">
-            <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-orbitron font-bold mb-4 text-foreground"
-              style={{
-                textShadow: "0 2px 10px rgba(0,0,0,0.5), 0 0 30px hsl(var(--primary) / 0.2)",
-              }}
+        {/* Hero content */}
+        <div className="text-center mb-8 md:mb-12">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-orbitron font-bold text-foreground"
+            style={{
+              textShadow: "0 2px 10px rgba(0,0,0,0.5), 0 0 30px hsl(var(--primary) / 0.2)",
+            }}
+          >
+            Leteboskolans{" "}
+            <span 
+              className="text-primary"
+              style={{ textShadow: "0 0 20px hsl(var(--primary) / 0.6)" }}
             >
-              Leteboskolans{" "}
-              <span 
-                className="text-primary"
-                style={{ textShadow: "0 0 20px hsl(var(--primary) / 0.6)" }}
-              >
-                mattesida
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-lg md:text-xl text-muted-foreground font-nunito max-w-xl mx-auto"
-              style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
-            >
-              Välj din årskurs och utforska matematikens värld
-            </motion.p>
-          </div>
+              mattesida
+            </span>
+          </motion.h1>
+        </div>
 
           {/* Subtitle */}
           <motion.h2

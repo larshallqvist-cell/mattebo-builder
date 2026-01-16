@@ -31,6 +31,7 @@ const gradeColors: Record<number, { neon: string; glow: string; border: string }
 
 const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) => {
   const colors = gradeColors[grade];
+  const floatClass = delay % 2 === 0 ? "animate-float" : "animate-float-delayed";
 
   return (
     <Link to={`/ak${grade}`} className="block">
@@ -46,7 +47,8 @@ const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) =
           scale: 1.05,
           transition: { duration: 0.3 }
         }}
-        className="relative w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] md:w-[180px] md:h-[180px] lg:w-[200px] lg:h-[200px] cursor-pointer group"
+        className={`relative w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] md:w-[180px] md:h-[180px] lg:w-[200px] lg:h-[200px] cursor-pointer group ${floatClass}`}
+        style={{ animationDelay: `${delay * 0.5}s` }}
       >
         {/* Outer rusty metal frame */}
         <div 
