@@ -20,35 +20,35 @@
   font-display: swap;
 }
 
-/* Mattebo Design System - Chalkboard aesthetic with warm, educational feel */
+/* Mattebo Design System - Post-Apocalyptic Recycled Technology Theme */
 @layer base {
   :root {
-    /* Main colors - Chalkboard green theme */
-    --background: 150 25% 18%;
-    --foreground: 45 100% 90%;
+    /* Main colors - Dark blue-gray metal */
+    --background: 215 30% 12%;
+    --foreground: 45 20% 91%;
 
     /* Card surfaces */
-    --card: 150 20% 22%;
-    --card-foreground: 45 100% 90%;
+    --card: 215 25% 16%;
+    --card-foreground: 45 20% 91%;
 
     /* Popover/dropdown */
-    --popover: 150 20% 20%;
-    --popover-foreground: 45 100% 90%;
+    --popover: 215 25% 14%;
+    --popover-foreground: 45 20% 91%;
 
-    /* Primary - Warm yellow/gold (chalk-like) */
-    --primary: 45 100% 70%;
-    --primary-foreground: 150 25% 15%;
+    /* Primary - Warm copper/bronze */
+    --primary: 30 70% 50%;
+    --primary-foreground: 215 30% 10%;
 
-    /* Secondary - Muted teal */
-    --secondary: 160 30% 30%;
-    --secondary-foreground: 45 100% 90%;
+    /* Secondary - Muted steel */
+    --secondary: 215 20% 25%;
+    --secondary-foreground: 45 20% 91%;
 
     /* Muted elements */
-    --muted: 150 15% 25%;
-    --muted-foreground: 45 40% 70%;
+    --muted: 215 15% 20%;
+    --muted-foreground: 45 15% 65%;
 
-    /* Accent - Warm orange */
-    --accent: 30 80% 55%;
+    /* Accent - Copper glow */
+    --accent: 25 80% 55%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive */
@@ -56,13 +56,28 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 150 15% 30%;
-    --input: 150 15% 28%;
-    --ring: 45 100% 70%;
+    --border: 215 20% 25%;
+    --input: 215 20% 22%;
+    --ring: 30 70% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom colors for Mattebo */
+    /* Neon colors for grade cards */
+    --neon-turquoise: 175 80% 55%;
+    --neon-copper: 25 90% 60%;
+    --neon-blue: 200 85% 60%;
+    --neon-violet: 270 70% 65%;
+
+    /* Rust/Metal colors */
+    --rust-dark: 20 50% 20%;
+    --rust-medium: 25 45% 35%;
+    --rust-light: 30 40% 45%;
+    --metal-dark: 215 15% 30%;
+    --metal-light: 215 10% 50%;
+    --panel-inner: 215 25% 18%;
+    --panel-dark: 215 30% 10%;
+
+    /* Legacy colors for compatibility */
     --chalk-yellow: 45 100% 85%;
     --chalk-white: 45 20% 95%;
     --board-green: 150 25% 18%;
@@ -70,50 +85,48 @@
     --wood-brown: 30 40% 30%;
     --post-it-yellow: 50 100% 75%;
     --calculator-gray: 220 10% 85%;
-
-    /* Divider line color */
     --divider-orange: 14 70% 51%;
 
     /* Sidebar */
-    --sidebar-background: 150 25% 15%;
-    --sidebar-foreground: 45 100% 90%;
-    --sidebar-primary: 45 100% 70%;
-    --sidebar-primary-foreground: 150 25% 15%;
-    --sidebar-accent: 150 20% 25%;
-    --sidebar-accent-foreground: 45 100% 90%;
-    --sidebar-border: 150 15% 25%;
-    --sidebar-ring: 45 100% 70%;
+    --sidebar-background: 215 30% 10%;
+    --sidebar-foreground: 45 20% 91%;
+    --sidebar-primary: 30 70% 50%;
+    --sidebar-primary-foreground: 215 30% 10%;
+    --sidebar-accent: 215 25% 20%;
+    --sidebar-accent-foreground: 45 20% 91%;
+    --sidebar-border: 215 20% 20%;
+    --sidebar-ring: 30 70% 50%;
   }
 
   .dark {
     /* Same as root - dark theme by default */
-    --background: 150 25% 18%;
-    --foreground: 45 100% 90%;
-    --card: 150 20% 22%;
-    --card-foreground: 45 100% 90%;
-    --popover: 150 20% 20%;
-    --popover-foreground: 45 100% 90%;
-    --primary: 45 100% 70%;
-    --primary-foreground: 150 25% 15%;
-    --secondary: 160 30% 30%;
-    --secondary-foreground: 45 100% 90%;
-    --muted: 150 15% 25%;
-    --muted-foreground: 45 40% 70%;
-    --accent: 30 80% 55%;
+    --background: 215 30% 12%;
+    --foreground: 45 20% 91%;
+    --card: 215 25% 16%;
+    --card-foreground: 45 20% 91%;
+    --popover: 215 25% 14%;
+    --popover-foreground: 45 20% 91%;
+    --primary: 30 70% 50%;
+    --primary-foreground: 215 30% 10%;
+    --secondary: 215 20% 25%;
+    --secondary-foreground: 45 20% 91%;
+    --muted: 215 15% 20%;
+    --muted-foreground: 45 15% 65%;
+    --accent: 25 80% 55%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 150 15% 30%;
-    --input: 150 15% 28%;
-    --ring: 45 100% 70%;
-    --sidebar-background: 150 25% 15%;
-    --sidebar-foreground: 45 100% 90%;
-    --sidebar-primary: 45 100% 70%;
-    --sidebar-primary-foreground: 150 25% 15%;
-    --sidebar-accent: 150 20% 25%;
-    --sidebar-accent-foreground: 45 100% 90%;
-    --sidebar-border: 150 15% 25%;
-    --sidebar-ring: 45 100% 70%;
+    --border: 215 20% 25%;
+    --input: 215 20% 22%;
+    --ring: 30 70% 50%;
+    --sidebar-background: 215 30% 10%;
+    --sidebar-foreground: 45 20% 91%;
+    --sidebar-primary: 30 70% 50%;
+    --sidebar-primary-foreground: 215 30% 10%;
+    --sidebar-accent: 215 25% 20%;
+    --sidebar-accent-foreground: 45 20% 91%;
+    --sidebar-border: 215 20% 20%;
+    --sidebar-ring: 30 70% 50%;
   }
 }
 
@@ -123,7 +136,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body text-base font-normal;
+    @apply bg-background text-foreground font-nunito text-base font-normal;
   }
 
   h1,
@@ -132,7 +145,7 @@
   h4,
   h5,
   h6 {
-    @apply font-life-savers font-bold;
+    @apply font-orbitron font-bold;
   }
 }
 
@@ -145,7 +158,7 @@
   }
 
   .post-it {
-    @apply bg-[hsl(var(--post-it-yellow))] text-[hsl(150,25%,20%)] p-4 rounded-sm;
+    @apply bg-[hsl(var(--post-it-yellow))] text-[hsl(215,30%,15%)] p-4 rounded-sm;
     box-shadow:
       2px 2px 0 hsl(45 70% 60%),
       4px 4px 8px rgba(0, 0, 0, 0.3);
@@ -153,7 +166,7 @@
   }
 
   .post-it-straight {
-    @apply bg-[hsl(var(--post-it-yellow))] text-[hsl(150,25%,20%)] p-4 rounded-sm;
+    @apply bg-[hsl(var(--post-it-yellow))] text-[hsl(215,30%,15%)] p-4 rounded-sm;
     box-shadow:
       2px 2px 0 hsl(45 70% 60%),
       4px 4px 8px rgba(0, 0, 0, 0.3);
@@ -175,6 +188,37 @@
 
   .accordion-chapter {
     @apply border-b border-border/50;
+  }
+
+  /* Metal panel styling */
+  .metal-panel {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--rust-dark)) 0%,
+      hsl(var(--rust-medium)) 30%,
+      hsl(var(--rust-light)) 50%,
+      hsl(var(--rust-medium)) 70%,
+      hsl(var(--rust-dark)) 100%
+    );
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Neon text effect */
+  .neon-text {
+    text-shadow:
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
+  }
+
+  /* Navigation styling */
+  .nav-link {
+    @apply text-foreground/80 hover:text-primary transition-colors duration-200;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .nav-link:hover {
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
   }
 }
 
@@ -217,15 +261,41 @@
     animation: impatient 3s ease-in-out infinite;
     display: inline-block;
   }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-impatient,
+    .animate-float,
+    .animate-float-delayed,
+    .animate-pulse-glow,
+    .animate-fade-in,
+    .animate-scale-in {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 }
 
-/* Warm sepia tone - applied globally (no blur for sharp images) */
+/* Metal texture background with copper reflection */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
-  background: linear-gradient(to bottom, rgba(255, 235, 205, 0.04) 0%, rgba(255, 220, 180, 0.06) 100%);
-  filter: sepia(0.05);
+  z-index: 0;
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(205, 127, 50, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(184, 115, 51, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(30, 40, 55, 0.9) 0%, rgba(20, 28, 40, 0.95) 100%);
+}
+
+/* Light mist overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: 
+    radial-gradient(ellipse at 50% 100%, rgba(100, 120, 140, 0.1) 0%, transparent 60%);
 }

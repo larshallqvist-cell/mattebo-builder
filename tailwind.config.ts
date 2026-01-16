@@ -15,7 +15,9 @@ export default {
     extend: {
       fontFamily: {
         "life-savers": ['"Life Savers"', "cursive"],
-        body: ['"Source Sans 3"', "system-ui", "sans-serif"],
+        orbitron: ['"Orbitron"', "sans-serif"],
+        nunito: ['"Nunito Sans"', "system-ui", "sans-serif"],
+        body: ['"Nunito Sans"', "system-ui", "sans-serif"],
         mathematics: ['"Mathematics"', "serif"],
         pecita: ['"Pecita"', "cursive"],
         caveat: ['"Caveat"', "cursive"],
@@ -63,6 +65,21 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        neon: {
+          turquoise: "hsl(var(--neon-turquoise))",
+          copper: "hsl(var(--neon-copper))",
+          blue: "hsl(var(--neon-blue))",
+          violet: "hsl(var(--neon-violet))",
+        },
+        rust: {
+          dark: "hsl(var(--rust-dark))",
+          medium: "hsl(var(--rust-medium))",
+          light: "hsl(var(--rust-light))",
+        },
+        metal: {
+          dark: "hsl(var(--metal-dark))",
+          light: "hsl(var(--metal-light))",
         },
         chalk: {
           yellow: "hsl(var(--chalk-yellow))",
@@ -148,6 +165,10 @@ export default {
           "0%": { opacity: "0", transform: "scale(0.9)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        "neon-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.4s ease-out",
@@ -160,6 +181,7 @@ export default {
         "glow-pulse-yellow": "glow-pulse-yellow 2.5s ease-in-out infinite",
         "fade-in": "fade-in 0.6s ease-out forwards",
         "scale-in": "scale-in 0.4s ease-out forwards",
+        "neon-pulse": "neon-pulse 2s ease-in-out infinite",
       },
     },
   },
