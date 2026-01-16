@@ -123,16 +123,18 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 </ScreenFrame>
               </div>
 
-              {/* Column 2 - Next Lesson, Calculator, Radio, Mascot */}
+              {/* Column 2 - Next Lesson (expanded), Calculator, Radio */}
               <div className="lg:col-span-3 flex flex-col gap-3 h-full overflow-y-auto pr-1">
-                {/* Next Lesson */}
+                {/* Next Lesson - Takes more space */}
                 <MetalPanel 
                   title="Nästa lektion" 
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-shrink-0"
+                  className="flex-1 min-h-[200px]"
                 >
-                  <PostItNote grade={grade} />
+                  <div className="h-full overflow-y-auto">
+                    <PostItNote grade={grade} />
+                  </div>
                 </MetalPanel>
 
                 {/* Calculator */}
@@ -144,23 +146,23 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-shrink-0">
                   <WebRadio />
                 </MetalPanel>
-
-                {/* Mascot */}
-                <MascotPanel className="flex-shrink-0" />
               </div>
 
-              {/* Column 3 - Resources with chapter headers */}
-              <div className="lg:col-span-4 h-full overflow-hidden">
+              {/* Column 3 - Resources with chapter headers + Mascot at bottom */}
+              <div className="lg:col-span-4 h-full flex flex-col gap-3 overflow-hidden">
                 <MetalPanel 
                   title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
                   icon={<BookOpen className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="h-full flex flex-col"
+                  className="flex-1 min-h-0 flex flex-col"
                 >
                   <div className="flex-1 overflow-y-auto -mx-4 -mb-4 px-4 pb-4">
                     <ResourceAccordion grade={grade} chapter={selectedChapter} />
                   </div>
                 </MetalPanel>
+
+                {/* Mascot at bottom of right column */}
+                <MascotPanel className="flex-shrink-0" />
               </div>
             </div>
 
