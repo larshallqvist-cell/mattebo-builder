@@ -245,7 +245,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
       >
         <DialogTitle className="sr-only">Kalkylator</DialogTitle>
         <div 
-          className="relative rounded-xl shadow-2xl"
+          className="relative rounded-xl shadow-2xl overflow-visible"
           style={{
             backgroundImage: `url(${calculatorBg})`,
             backgroundSize: '100% 100%',
