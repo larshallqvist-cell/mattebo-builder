@@ -256,20 +256,21 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
         >
           {/* Display area - positioned to match the LCD screen */}
           <div 
-            className="absolute flex items-center justify-end"
+            className="absolute flex items-end justify-end overflow-visible"
             style={{ 
-              top: `${38 * scale}px`, 
+              top: `${32 * scale}px`, 
               left: `${-2 * scale}px`, 
               right: `${50 * scale}px`, 
               height: `${55 * scale}px` 
             }}
           >
             <div 
-              className="text-right font-mono truncate font-bold tracking-wider"
+              className="text-right font-mono font-bold tracking-wider overflow-visible"
               style={{ 
                 fontSize: `${22 * scale}px`,
                 color: '#7fff00',
-                textShadow: '0 0 3px #7fff00, 0 0 6px rgba(127, 255, 0, 0.4)'
+                textShadow: '0 0 3px #7fff00, 0 0 6px rgba(127, 255, 0, 0.4)',
+                lineHeight: 1
               }}
             >
               {display}
