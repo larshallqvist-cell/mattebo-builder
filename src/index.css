@@ -232,6 +232,33 @@
     scrollbar-width: none;
   }
 
+  /* Floating animation for grade cards */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+
+  @keyframes float-delayed {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 4.5s ease-in-out infinite;
+  }
+
   /* Impatient letter animation - like restless dogs waiting */
   @keyframes impatient {
     0%, 100% {

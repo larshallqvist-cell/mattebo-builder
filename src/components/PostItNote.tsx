@@ -202,20 +202,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const title = nextEvent ? `Nästa lektion ${weekday} ${time}` : "Nästa lektion";
   
   return (
-    <div className="post-it-straight max-w-full">
-      {/* Title */}
-      <h4 className="font-bold text-lg mb-2 border-b border-yellow-600/30 pb-2">
-        {title}
+    <div className="font-nunito text-foreground">
+      {/* Title with date/time */}
+      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30" style={{ color: 'hsl(var(--primary))' }}>
+        {loading ? "Laddar..." : (nextEvent ? `${weekday} ${time}` : "Ingen lektion planerad")}
       </h4>
       
       {/* Content */}
-      <div className="space-y-1">
+      <div className="space-y-1 text-foreground/90">
         {loading ? (
-          <p className="text-base text-muted-foreground">Laddar...</p>
+          <p className="text-sm text-muted-foreground">Hämtar lektionsinfo...</p>
         ) : content ? (
           parseContent(content)
         ) : (
-          <p className="text-base text-muted-foreground">Ingen beskrivning tillgänglig</p>
+          <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
         )}
       </div>
     </div>
