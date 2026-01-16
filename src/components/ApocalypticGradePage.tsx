@@ -13,7 +13,7 @@ import ResourceAccordion from "@/components/ResourceAccordion";
 import CalculatorThumbnail from "@/components/CalculatorThumbnail";
 import WebRadio from "@/components/WebRadio";
 import PostItNote from "@/components/PostItNote";
-import ChapterSelector, { getChapterFromCookie } from "@/components/ChapterSelector";
+import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 
 interface ApocalypticGradePageProps {
   grade: number;
@@ -109,57 +109,60 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           }}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 px-4 lg:px-6 py-6 relative z-20">
-          <div className="max-w-7xl mx-auto">
-            {/* Desktop: Two-column layout - Calendar is PRIMARY */}
-            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-              {/* Left Column - Calendar (2 columns wide) */}
-              <div className="lg:col-span-2 flex flex-col gap-4">
-                {/* Next Lesson - Compact header above calendar */}
-                <MetalPanel 
-                  title="Nästa lektion" 
-                  icon={<Calendar className="w-5 h-5" />}
-                  glowColor={glowColor}
-                  className="flex-shrink-0"
-                >
-                  <PostItNote grade={grade} />
-                </MetalPanel>
-
-                {/* Main Calendar Screen - Takes most space */}
-                <ScreenFrame title={`Planering Åk ${grade}`} className="flex-1 min-h-[500px]">
-                  <div className="h-full overflow-hidden">
+        {/* Main Content - Fixed to viewport height */}
+        <main className="flex-1 px-4 lg:px-6 py-4 relative z-20 overflow-hidden">
+          <div className="max-w-7xl mx-auto h-[calc(100vh-220px)]">
+            {/* Desktop: Three-column layout */}
+            <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
+              {/* Column 1 - Calendar (scrollable) */}
+              <div className="lg:col-span-5 h-full">
+                <ScreenFrame title={`Planering Åk ${grade}`} className="h-full">
+                  <div className="h-full overflow-y-auto">
                     <LessonCalendar grade={grade} />
                   </div>
                 </ScreenFrame>
               </div>
 
-              {/* Right Column - Resources & Tools (1 column) */}
-              <div className="flex flex-col gap-4">
-                {/* Resources */}
+              {/* Column 2 - Next Lesson, Calculator, Radio */}
+              <div className="lg:col-span-3 flex flex-col gap-3 h-full overflow-hidden">
+                {/* Next Lesson */}
                 <MetalPanel 
-                  title="Lektioner & Resurser" 
-                  icon={<BookOpen className="w-5 h-5" />}
+                  title="Nästa lektion" 
+                  icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-1"
+                  className="flex-1 min-h-0"
                 >
-                  <div className="max-h-[400px] overflow-y-auto -m-4">
-                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                  <div className="h-full overflow-y-auto">
+                    <PostItNote grade={grade} />
                   </div>
                 </MetalPanel>
 
-                {/* Tools Row */}
+                {/* Calculator */}
                 <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0">
-                  <div className="flex items-center gap-4">
-                    <CalculatorThumbnail />
-                    <div className="flex-1">
-                      <WebRadio />
-                    </div>
-                  </div>
+                  <CalculatorThumbnail />
+                </MetalPanel>
+
+                {/* Radio */}
+                <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-shrink-0">
+                  <WebRadio />
                 </MetalPanel>
 
                 {/* Mascot */}
-                <MascotPanel />
+                <MascotPanel className="flex-shrink-0" />
+              </div>
+
+              {/* Column 3 - Resources with chapter headers */}
+              <div className="lg:col-span-4 h-full overflow-hidden">
+                <MetalPanel 
+                  title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
+                  icon={<BookOpen className="w-4 h-4" />}
+                  glowColor={glowColor}
+                  className="h-full flex flex-col"
+                >
+                  <div className="flex-1 overflow-y-auto -mx-4 -mb-4 px-4 pb-4">
+                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                  </div>
+                </MetalPanel>
               </div>
             </div>
 

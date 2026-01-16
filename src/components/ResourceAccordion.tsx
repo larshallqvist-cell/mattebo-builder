@@ -5,7 +5,7 @@
  * applikationen för att undvika 404-fel i inbäddade miljöer.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2, Link } from "lucide-react";
@@ -62,42 +62,70 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
   const [resources, setResources] = useState<ResourceCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const cacheRef = useRef<Map<string, ResourceCategory[]>>(new Map());
 
   // Standard Sheet-ID för resurser (kan överskrivas via SheetConfig)
   const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
 
+  const fetchResources = useCallback(async () => {
+    const cacheKey = `${grade}-${chapter}`;
+    
+    // Return cached data immediately if available
+    if (cacheRef.current.has(cacheKey)) {
+      setResources(cacheRef.current.get(cacheKey)!);
+      return;
+    }
+
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    const sheetId = localStorage.getItem("mattebo_sheet_id") || DEFAULT_SHEET_ID;
+    setLoading(true);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-resources?grade=${grade}&chapter=${chapter}&sheetId=${encodeURIComponent(sheetId)}`,
+        {
+          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+          signal: abortControllerRef.current.signal,
+        },
+      );
+      const result = await response.json();
+      const grouped = result.resources || {};
+      const categories: ResourceCategory[] = Object.entries(grouped)
+        .map(([name, links]) => ({
+          id: name.toLowerCase().replace(/[^a-z]/g, ""),
+          title: name,
+          icon: categoryConfig[name]?.icon || <MoreHorizontal className="w-5 h-5" />,
+          links: links as ResourceLink[],
+          order: categoryConfig[name]?.order || 99,
+        }))
+        .sort((a, b) => (a.order || 99) - (b.order || 99));
+      
+      const finalResources = categories.length === 0 ? generateFallbackData(grade, chapter) : categories;
+      cacheRef.current.set(cacheKey, finalResources);
+      setResources(finalResources);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return; // Ignore aborted requests
+      setError("Kunde inte hämta data");
+      setResources(generateFallbackData(grade, chapter));
+    } finally {
+      setLoading(false);
+    }
+  }, [grade, chapter]);
+
   useEffect(() => {
-    const fetchResources = async () => {
-      const sheetId = localStorage.getItem("mattebo_sheet_id") || DEFAULT_SHEET_ID;
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-resources?grade=${grade}&chapter=${chapter}&sheetId=${encodeURIComponent(sheetId)}`,
-          {
-            headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-          },
-        );
-        const result = await response.json();
-        const grouped = result.resources || {};
-        const categories: ResourceCategory[] = Object.entries(grouped)
-          .map(([name, links]) => ({
-            id: name.toLowerCase().replace(/[^a-z]/g, ""),
-            title: name,
-            icon: categoryConfig[name]?.icon || <MoreHorizontal className="w-5 h-5" />,
-            links: links as ResourceLink[],
-            order: categoryConfig[name]?.order || 99,
-          }))
-          .sort((a, b) => (a.order || 99) - (b.order || 99));
-        setResources(categories.length === 0 ? generateFallbackData(grade, chapter) : categories);
-      } catch (err) {
-        setError("Kunde inte hämta data");
-        setResources(generateFallbackData(grade, chapter));
-      } finally {
-        setLoading(false);
+    fetchResources();
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
-    fetchResources();
-  }, [grade, chapter]);
+  }, [fetchResources]);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">

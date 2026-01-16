@@ -12,7 +12,11 @@ const motivationalMessages = [
   "Du blir smartare för varje uppgift!",
 ];
 
-const MascotPanel = () => {
+interface MascotPanelProps {
+  className?: string;
+}
+
+const MascotPanel = ({ className }: MascotPanelProps) => {
   const [message, setMessage] = useState(motivationalMessages[0]);
   const [isBlinking, setIsBlinking] = useState(false);
 
@@ -39,7 +43,7 @@ const MascotPanel = () => {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="relative rounded-lg p-3 flex items-start gap-3"
+      className={`relative rounded-lg p-3 flex items-start gap-3 ${className || ''}`}
       style={{
         background: `linear-gradient(135deg, 
           hsl(215 25% 18%) 0%, 
