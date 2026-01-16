@@ -100,26 +100,22 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
   }, [grade, chapter]);
 
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden h-full flex flex-col">
-      <div className="bg-secondary px-4 py-3 border-b border-border flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold font-life-savers text-primary text-2xl">
-            Kapitel {chapter} - {getChapterSubtitle(grade, chapter) || "Resurser"}
-          </h3>
-          {loading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-        </div>
-      </div>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Header removed - MetalPanel provides it */}
 
       <div className="flex-1 overflow-y-auto">
         <Accordion type="single" collapsible className="w-full">
           {resources.map((category) => (
-            <AccordionItem key={category.id} value={category.id} className="accordion-chapter">
-              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 text-left">
-                <span className="flex items-center gap-3 font-medium text-foreground text-xl">
-                  {category.icon} {category.title}
+            <AccordionItem key={category.id} value={category.id} className="border-b border-white/10">
+              <AccordionTrigger 
+                className="px-4 py-3 hover:bg-white/5 text-left transition-colors"
+              >
+                <span className="flex items-center gap-3 font-orbitron font-medium text-foreground text-lg">
+                  <span style={{ color: "hsl(var(--neon-copper))" }}>{category.icon}</span> 
+                  {category.title}
                 </span>
               </AccordionTrigger>
-              <AccordionContent className="bg-muted/30">
+              <AccordionContent className="bg-black/20">
                 <div className="px-3 py-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0">
                   {category.links.map((link, index) => {
                     // 1. Rensa URL:en från allt skräp
@@ -130,21 +126,19 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                       <a
                         key={index}
                         href={cleanUrl}
-                        // VIKTIGT: Vi använder _top för att tvinga webbläsaren att lämna iframen/appen
                         target={isExternal ? "_top" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
-                        className="flex items-center gap-2 py-0.5 px-2 transition-colors rounded-md hover:bg-accent/10 cursor-pointer"
+                        className="flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group"
                         onClick={(e) => {
-                          // Om det är en extern länk, logga i konsolen så vi kan se vad som händer
                           if (isExternal) console.log("Navigerar till:", cleanUrl);
                         }}
                       >
                         {isExternal ? (
-                          <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
                         ) : (
-                          <Link className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                          <Link className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
                         )}
-                        <span className="text-lg leading-snug text-foreground">{link.title}</span>
+                        <span className="text-base font-nunito leading-snug text-foreground/90 group-hover:text-foreground transition-colors">{link.title}</span>
                       </a>
                     );
                   })}

@@ -1,7 +1,7 @@
-import GradePage from "@/components/GradePage";
+import ApocalypticGradePage from "@/components/ApocalypticGradePage";
 
 const Ak9 = () => {
-  return <GradePage grade={9} />;
+  return <ApocalypticGradePage grade={9} />;
 };
 
 export default Ak9;
