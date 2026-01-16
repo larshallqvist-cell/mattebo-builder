@@ -123,18 +123,16 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 </ScreenFrame>
               </div>
 
-              {/* Column 2 - Next Lesson, Calculator, Radio */}
-              <div className="lg:col-span-3 flex flex-col gap-3 h-full overflow-hidden">
+              {/* Column 2 - Next Lesson, Calculator, Radio, Mascot */}
+              <div className="lg:col-span-3 flex flex-col gap-3 h-full overflow-y-auto pr-1">
                 {/* Next Lesson */}
                 <MetalPanel 
                   title="Nästa lektion" 
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-1 min-h-0"
+                  className="flex-shrink-0"
                 >
-                  <div className="h-full overflow-y-auto">
-                    <PostItNote grade={grade} />
-                  </div>
+                  <PostItNote grade={grade} />
                 </MetalPanel>
 
                 {/* Calculator */}
