@@ -1,100 +1,95 @@
-import ParallaxHero from "@/components/ParallaxHero";
-import HandwrittenText from "@/components/HandwrittenText";
-import GradeCard from "@/components/GradeCard";
+import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
-import ak6Image from "@/assets/ak6.jpg";
-import ak7Image from "@/assets/ak7.jpg";
-import ak8Image from "@/assets/ak8.jpg";
-import ak9Image from "@/assets/ak9.jpg";
+import ApocalypticGradeCard from "@/components/ApocalypticGradeCard";
+import ApocalypticNav from "@/components/ApocalypticNav";
+import ApocalypticFooter from "@/components/ApocalypticFooter";
+import DustParticles from "@/components/DustParticles";
 
-const gradeData = [
-  {
-    grade: 6,
-    image: ak6Image,
-  },
-  {
-    grade: 7,
-    image: ak7Image,
-  },
-  {
-    grade: 8,
-    image: ak8Image,
-  },
-  {
-    grade: 9,
-    image: ak9Image,
-  },
-];
+const grades = [6, 7, 8, 9];
 
 const Index = () => {
   return (
     <PageTransition>
-      <div className="min-h-screen flex flex-col overflow-hidden">
-        {/* Hero Section - with title pushed down */}
-        <div className="relative">
-          <ParallaxHero title="Leteboskolans mattesida" titleOffset="mt-12">
-            <HandwrittenText
-              text="Leteboskolans mattesida"
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl chalk-text font-bold tracking-wide"
-              speed={0.04}
-            />
-          </ParallaxHero>
+      <div className="min-h-screen flex flex-col relative">
+        {/* Dust particles background */}
+        <DustParticles />
 
-          {/* Glowing divider line - yellow like the chalk text */}
-          <div
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, hsl(var(--chalk-yellow)) 15%, hsl(var(--chalk-yellow)) 85%, transparent)",
-            }}
-            className="absolute bottom-0 left-0 right-0 h-[2px] animate-glow-pulse-yellow px-[50px] text-primary mx-0 py-[10px] my-[3px] border-0"
-          />
-        </div>
+        {/* Navigation */}
+        <ApocalypticNav />
 
-        {/* Grade Selection - with subtitle raised */}
-        <main className="flex-1 flex items-center justify-center px-4 -mt-8">
-          <div className="w-full max-w-6xl">
-            {/* Title with impatient letter animations - raised position */}
-            <h2 className="text-2xl md:text-3xl text-center text-foreground mb-4 md:mb-6 animate-fade-in flex justify-center gap-[1px] font-life-savers">
-              {"Välj din årskurs".split("").map((letter, i) => (
-                <span
-                  key={i}
-                  className={letter === " " ? "w-2" : "inline-block animate-impatient"}
-                  style={{
-                    animationDelay: `${i * 0.3 + Math.random() * 2}s`,
-                    animationDuration: `${5.5 + Math.random() * 3}s`,
-                  }}
-                >
-                  {letter}
-                </span>
-              ))}
-            </h2>
-
-            {/* Grade Cards Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 justify-items-center my-[5px]">
-              {gradeData.map((item, index) => (
-                <div
-                  key={item.grade}
-                  className="animate-scale-in"
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                  }}
-                >
-                  <GradeCard grade={item.grade} image={item.image} delay={index} />
-                </div>
-              ))}
-            </div>
-
-            {/* Footer hint */}
-            <p
-              className="text-center text-muted-foreground mt-8 md:mt-12 text-sm animate-fade-in"
+        {/* Hero Section */}
+        <main className="flex-1 flex flex-col items-center justify-center px-6 pt-24 pb-12 relative z-20">
+          {/* Hero content */}
+          <div className="text-center mb-12 md:mb-16">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-orbitron font-bold mb-4 text-foreground"
               style={{
-                animationDelay: "0.5s",
+                textShadow: "0 2px 10px rgba(0,0,0,0.5), 0 0 30px hsl(var(--primary) / 0.2)",
               }}
             >
-              Klicka på en årskurs för att se resurser och lektionsplaneringar
-            </p>
+              Leteboskolans{" "}
+              <span 
+                className="text-primary"
+                style={{ textShadow: "0 0 20px hsl(var(--primary) / 0.6)" }}
+              >
+                mattesida
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-lg md:text-xl text-muted-foreground font-nunito max-w-xl mx-auto"
+              style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
+            >
+              Välj din årskurs och utforska matematikens värld
+            </motion.p>
           </div>
+
+          {/* Subtitle */}
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-xl md:text-2xl font-orbitron font-medium text-foreground/80 mb-8 md:mb-12"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
+          >
+            Välj årskurs
+          </motion.h2>
+
+          {/* Grade Cards Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10 justify-items-center">
+            {grades.map((grade, index) => (
+              <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
+            ))}
+          </div>
+
+          {/* Instruction hint */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1 }}
+            className="text-center text-muted-foreground mt-12 text-sm font-nunito"
+          >
+            Klicka på en panel för att se resurser och lektionsplaneringar
+          </motion.p>
         </main>
+
+        {/* Decorative copper line */}
+        <div 
+          className="h-[2px] mx-6 relative z-20"
+          style={{
+            background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6) 20%, hsl(var(--primary) / 0.8) 50%, hsl(var(--primary) / 0.6) 80%, transparent)",
+            boxShadow: "0 0 10px hsl(var(--primary) / 0.4)",
+          }}
+        />
+
+        {/* Footer */}
+        <ApocalypticFooter />
       </div>
     </PageTransition>
   );
