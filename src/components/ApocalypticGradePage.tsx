@@ -11,6 +11,7 @@ import MascotPanel from "@/components/MascotPanel";
 import LessonCalendar from "@/components/LessonCalendar";
 import ResourceAccordion from "@/components/ResourceAccordion";
 import CalculatorThumbnail from "@/components/CalculatorThumbnail";
+import GeogebraLink from "@/components/GeogebraLink";
 import WebRadio from "@/components/WebRadio";
 import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
@@ -137,9 +138,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </div>
                 </MetalPanel>
 
-                {/* Calculator */}
+                {/* Calculator + Geogebra side by side */}
                 <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0">
-                  <CalculatorThumbnail />
+                  <div className="flex items-center justify-center gap-2">
+                    <CalculatorThumbnail compact />
+                    <GeogebraLink compact />
+                  </div>
                 </MetalPanel>
 
                 {/* Radio */}
