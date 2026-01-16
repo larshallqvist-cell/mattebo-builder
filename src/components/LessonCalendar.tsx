@@ -24,11 +24,8 @@ const LessonCalendar = ({
     error
   } = useCalendarEvents(grade);
   let lastShownWeek: number | null = null;
-  return <div className="h-full flex flex-col bg-card rounded-lg border border-border overflow-hidden flex-2">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-10 bg-secondary px-4 py-3 border-b border-primary border-solid border">
-        <h3 className="text-3xl font-bold font-life-savers text-primary">Lektionsplanering Åk {grade}</h3>
-      </div>
+  return <div className="h-full flex flex-col overflow-hidden">
+      {/* Sticky header - removed for ScreenFrame usage */}
 
       {/* Scrollable event list */}
       <div className="flex-1 overflow-y-auto no-scrollbar">
@@ -41,32 +38,49 @@ const LessonCalendar = ({
         lastShownWeek = event.week;
         return <div key={event.id}>
                 {/* Week header */}
-                {showWeekHeader && <div className="bg-muted px-4 py-2.5 border-2 border-primary">
-                    <span className="text-lg font-semibold text-primary tracking-wider font-body">
+                {showWeekHeader && <div 
+                  className="px-4 py-2.5"
+                  style={{
+                    background: "linear-gradient(90deg, rgba(64, 224, 208, 0.15) 0%, rgba(64, 224, 208, 0.05) 100%)",
+                    borderBottom: "1px solid rgba(64, 224, 208, 0.3)",
+                  }}
+                >
+                    <span 
+                      className="text-base font-orbitron font-semibold tracking-wider"
+                      style={{ color: "hsl(var(--neon-turquoise))", textShadow: "0 0 8px rgba(64, 224, 208, 0.5)" }}
+                    >
                       VECKA {event.week} ({formatMonth(event.date)})
                     </span>
                   </div>}
 
                 {/* Event item - compact layout */}
-                <div className="px-3 py-2.5 border-b hover:bg-muted/30 transition-colors shadow-none border-2 border-secondary-foreground">
+                <div 
+                  className="px-3 py-2.5 hover:bg-white/5 transition-colors cursor-pointer"
+                  style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+                >
                   <div className="flex gap-3 items-center">
                     {/* Date column - compact */}
-                    <div className="flex-shrink-0 w-14 text-center font-body">
-                      <div className="text-base text-chalk-yellow uppercase font-medium">{formatDay(event.date)}</div>
-                      <div className="text-2xl font-semibold text-primary leading-tight">{event.date.getDate()}</div>
+                    <div className="flex-shrink-0 w-14 text-center">
+                      <div className="text-sm font-nunito uppercase font-medium text-muted-foreground">{formatDay(event.date)}</div>
+                      <div 
+                        className="text-2xl font-orbitron font-bold leading-tight"
+                        style={{ color: "hsl(var(--neon-copper))", textShadow: "0 0 8px rgba(205, 127, 50, 0.4)" }}
+                      >
+                        {event.date.getDate()}
+                      </div>
                     </div>
 
                     {/* Content column - time/location first, then title */}
-                    <div className="flex-1 min-w-0 font-body">
+                    <div className="flex-1 min-w-0">
                       {/* Time and Location */}
-                      <div className="flex gap-2 text-base text-accent font-medium">
+                      <div className="flex gap-2 text-sm font-nunito font-medium text-muted-foreground">
                         <span>
                           {formatTime(event.date)}–{formatTime(event.endDate)}
                         </span>
-                        {event.location && <span className="text-chalk-yellow">{event.location}</span>}
+                        {event.location && <span style={{ color: "hsl(var(--neon-turquoise))" }}>{event.location}</span>}
                       </div>
                       {/* Title */}
-                      <h4 className="font-body font-normal text-foreground mt-0.5 line-clamp-2 text-xl">
+                      <h4 className="font-nunito font-normal text-foreground mt-0.5 line-clamp-2 text-base">
                         {event.title}
                       </h4>
                     </div>
