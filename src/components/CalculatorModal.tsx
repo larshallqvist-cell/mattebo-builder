@@ -258,7 +258,7 @@ const CalculatorModal = ({ open, onOpenChange }: CalculatorModalProps) => {
           <div 
             className="absolute flex items-end justify-end overflow-visible"
             style={{ 
-              top: `${20 * scale}px`, 
+              top: `${14 * scale}px`, 
               left: `${-2 * scale}px`, 
               right: `${50 * scale}px`, 
               height: `${55 * scale}px` 
