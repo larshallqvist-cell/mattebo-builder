@@ -33,7 +33,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   return (
     <PageTransition>
       <div 
-        className="min-h-screen flex flex-col relative"
+        className="h-screen flex flex-col relative overflow-hidden"
         style={{
           background: `
             radial-gradient(ellipse at 20% 30%, rgba(205, 127, 50, 0.08) 0%, transparent 50%),
@@ -109,30 +109,30 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           }}
         />
 
-        {/* Main Content - Fixed to viewport height */}
-        <main className="flex-1 px-4 lg:px-6 py-4 relative z-20 overflow-hidden">
-          <div className="max-w-7xl mx-auto h-[calc(100vh-220px)]">
+        {/* Main Content - Fixed to viewport, no external scroll */}
+        <main className="flex-1 px-4 lg:px-6 py-4 relative z-20 min-h-0">
+          <div className="max-w-7xl mx-auto h-full">
             {/* Desktop: Three-column layout */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
               {/* Column 1 - Calendar (scrollable) */}
-              <div className="lg:col-span-5 h-full">
-                <ScreenFrame title={`Planering Åk ${grade}`} className="h-full">
-                  <div className="h-full overflow-y-auto">
+              <div className="lg:col-span-5 h-full min-h-0">
+                <ScreenFrame title={`Planering Åk ${grade}`} className="h-full flex flex-col">
+                  <div className="flex-1 overflow-y-auto min-h-0">
                     <LessonCalendar grade={grade} />
                   </div>
                 </ScreenFrame>
               </div>
 
               {/* Column 2 - Next Lesson (expanded), Calculator, Radio */}
-              <div className="lg:col-span-3 flex flex-col gap-3 h-full overflow-y-auto pr-1">
+              <div className="lg:col-span-3 flex flex-col gap-3 h-full min-h-0">
                 {/* Next Lesson - Takes more space */}
                 <MetalPanel 
                   title="Nästa lektion" 
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-1 min-h-[200px]"
+                  className="flex-1 min-h-0 flex flex-col"
                 >
-                  <div className="h-full overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto min-h-0">
                     <PostItNote grade={grade} />
                   </div>
                 </MetalPanel>
@@ -149,14 +149,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               </div>
 
               {/* Column 3 - Resources with chapter headers + Mascot at bottom */}
-              <div className="lg:col-span-4 h-full flex flex-col gap-3 overflow-hidden">
+              <div className="lg:col-span-4 h-full flex flex-col gap-3 min-h-0">
                 <MetalPanel 
                   title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
                   icon={<BookOpen className="w-4 h-4" />}
                   glowColor={glowColor}
                   className="flex-1 min-h-0 flex flex-col"
                 >
-                  <div className="flex-1 overflow-y-auto -mx-4 -mb-4 px-4 pb-4">
+                  <div className="flex-1 overflow-y-auto min-h-0 -mx-4 -mb-4 px-4 pb-4">
                     <ResourceAccordion grade={grade} chapter={selectedChapter} />
                   </div>
                 </MetalPanel>
