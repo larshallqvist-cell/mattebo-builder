@@ -223,6 +223,46 @@
 }
 
 @layer utilities {
+  /* Industrial styled scrollbar */
+  .industrial-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .industrial-scrollbar::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, hsl(215 25% 12%) 0%, hsl(215 20% 16%) 100%);
+    border-left: 1px solid hsl(var(--rust-dark));
+  }
+
+  .industrial-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, 
+      hsl(var(--rust-light)) 0%, 
+      hsl(var(--rust-medium)) 50%, 
+      hsl(var(--rust-dark)) 100%
+    );
+    border-radius: 2px;
+    border: 1px solid hsl(var(--rust-dark));
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15);
+  }
+
+  .industrial-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, 
+      hsl(30 50% 50%) 0%, 
+      hsl(var(--rust-light)) 50%, 
+      hsl(var(--rust-medium)) 100%
+    );
+  }
+
+  .industrial-scrollbar::-webkit-scrollbar-corner {
+    background: hsl(215 25% 12%);
+  }
+
+  /* Firefox scrollbar */
+  .industrial-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--rust-medium)) hsl(215 25% 14%);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
