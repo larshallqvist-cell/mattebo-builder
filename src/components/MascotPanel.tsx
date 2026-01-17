@@ -39,13 +39,21 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
       const { data, error } = await supabase.functions.invoke('mascot-message');
       
       if (error) {
-        console.error('Error fetching AI message:', error);
+        // 402/429 errors are expected when rate limited - use fallback silently
+        console.log('Using fallback message:', error.message);
+        setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
+      } else if (data?.error) {
+        // Handle error responses from the edge function (e.g., 402 Payment required)
+        console.log('AI quota exceeded, using fallback:', data.error);
         setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
       } else if (data?.message) {
         setMessage(data.message);
+      } else {
+        setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
       }
     } catch (err) {
-      console.error('Failed to fetch AI message:', err);
+      // Network or other errors - use fallback silently
+      console.log('Using fallback message due to:', err);
       setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
     } finally {
       isLoadingRef.current = false;
