@@ -115,13 +115,21 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           <div className="max-w-7xl mx-auto h-full">
             {/* Desktop: Three-column layout */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
-              {/* Column 1 - Calendar (scrollable) */}
-              <div className="lg:col-span-5 h-full min-h-0">
-                <ScreenFrame title={`Planering Åk ${grade}`} className="h-full flex flex-col">
-                  <div className="flex-1 overflow-y-auto min-h-0">
-                    <LessonCalendar grade={grade} />
+              {/* Column 1 - Resources with chapter headers + Mascot at bottom (now widest) */}
+              <div className="lg:col-span-5 h-full flex flex-col gap-3 min-h-0">
+                <MetalPanel 
+                  title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
+                  icon={<BookOpen className="w-4 h-4" />}
+                  glowColor={glowColor}
+                  className="flex-1 min-h-0 flex flex-col"
+                >
+                  <div className="flex-1 overflow-y-auto min-h-0 -mx-4 -mb-4 px-4 pb-4 industrial-scrollbar">
+                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
                   </div>
-                </ScreenFrame>
+                </MetalPanel>
+
+                {/* Mascot at bottom of left column */}
+                <MascotPanel className="flex-shrink-0" />
               </div>
 
               {/* Column 2 - Next Lesson (expanded), Calculator, Radio */}
@@ -152,21 +160,13 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 </MetalPanel>
               </div>
 
-              {/* Column 3 - Resources with chapter headers + Mascot at bottom */}
-              <div className="lg:col-span-4 h-full flex flex-col gap-3 min-h-0">
-                <MetalPanel 
-                  title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
-                  icon={<BookOpen className="w-4 h-4" />}
-                  glowColor={glowColor}
-                  className="flex-1 min-h-0 flex flex-col"
-                >
-                  <div className="flex-1 overflow-y-auto min-h-0 -mx-4 -mb-4 px-4 pb-4 industrial-scrollbar">
-                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+              {/* Column 3 - Calendar (scrollable, now narrower) */}
+              <div className="lg:col-span-4 h-full min-h-0">
+                <ScreenFrame title={`Planering Åk ${grade}`} className="h-full flex flex-col">
+                  <div className="flex-1 overflow-y-auto min-h-0">
+                    <LessonCalendar grade={grade} />
                   </div>
-                </MetalPanel>
-
-                {/* Mascot at bottom of right column */}
-                <MascotPanel className="flex-shrink-0" />
+                </ScreenFrame>
               </div>
             </div>
 
