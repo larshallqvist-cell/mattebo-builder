@@ -150,25 +150,30 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
                     const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
                     const isExternal = cleanUrl.startsWith("http");
 
-                    return (
-                      <a
-                        key={index}
-                        href={cleanUrl}
-                        target={isExternal ? "_top" : undefined}
-                        rel={isExternal ? "noopener noreferrer" : undefined}
-                        className="flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group"
-                        onClick={(e) => {
-                          if (isExternal) console.log("Navigerar till:", cleanUrl);
-                        }}
-                      >
-                        {isExternal ? (
-                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
-                        ) : (
-                          <Link className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
-                        )}
-                        <span className="text-base font-nunito leading-snug text-foreground/90 group-hover:text-foreground transition-colors">{link.title}</span>
-                      </a>
-                    );
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          className="flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (isExternal) {
+                              // Force open in new tab - bypasses iframe restrictions
+                              window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                            } else {
+                              window.location.href = cleanUrl;
+                            }
+                          }}
+                        >
+                          {isExternal ? (
+                            <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
+                          ) : (
+                            <Link className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
+                          )}
+                          <span className="text-base font-nunito leading-snug text-foreground/90 group-hover:text-foreground transition-colors">{link.title}</span>
+                        </button>
+                      );
                   })}
                 </div>
               </AccordionContent>
