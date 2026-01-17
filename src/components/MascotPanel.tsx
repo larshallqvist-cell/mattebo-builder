@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, forwardRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const fallbackMessages = [
@@ -24,13 +24,15 @@ interface MascotPanelProps {
   className?: string;
 }
 
-const MascotPanel = ({ className }: MascotPanelProps) => {
+const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className }, ref) => {
   const [message, setMessage] = useState(fallbackMessages[0]);
   const [isBlinking, setIsBlinking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const isLoadingRef = useRef(false);
 
   const fetchAIMessage = useCallback(async () => {
-    if (isLoading) return;
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
     
     try {
@@ -46,9 +48,10 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
       console.error('Failed to fetch AI message:', err);
       setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
     }
-  }, [isLoading]);
+  }, []);
 
   useEffect(() => {
     // Fetch initial AI message
@@ -76,6 +79,7 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
@@ -210,6 +214,8 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
       </div>
     </motion.div>
   );
-};
+});
+
+MascotPanel.displayName = "MascotPanel";
 
 export default MascotPanel;
