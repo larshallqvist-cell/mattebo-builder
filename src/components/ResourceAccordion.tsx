@@ -5,11 +5,9 @@
  * applikationen för att undvika 404-fel i inbäddade miljöer.
  */
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Loader2, Link } from "lucide-react";
-import { getChapterSubtitle } from "@/components/ChapterSelector";
+import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, Loader2 } from "lucide-react";
 
 interface ResourceLink {
   title: string;
@@ -37,7 +35,7 @@ const categoryConfig: Record<
   Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 4 },
 };
 
-const generateFallbackData = (grade: number, chapter: number): ResourceCategory[] => {
+const generateFallbackData = (chapter: number): ResourceCategory[] => {
   return [
     {
       id: "videos",
@@ -58,7 +56,7 @@ interface ResourceAccordionProps {
   chapter: number;
 }
 
-const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
+const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ grade, chapter }, ref) => {
   const [resources, setResources] = useState<ResourceCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,13 +104,13 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
         }))
         .sort((a, b) => (a.order || 99) - (b.order || 99));
       
-      const finalResources = categories.length === 0 ? generateFallbackData(grade, chapter) : categories;
+      const finalResources = categories.length === 0 ? generateFallbackData(chapter) : categories;
       cacheRef.current.set(cacheKey, finalResources);
       setResources(finalResources);
     } catch (err: any) {
       if (err.name === 'AbortError') return; // Ignore aborted requests
       setError("Kunde inte hämta data");
-      setResources(generateFallbackData(grade, chapter));
+      setResources(generateFallbackData(chapter));
     } finally {
       setLoading(false);
     }
@@ -128,12 +126,26 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
   }, [fetchResources]);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div ref={ref} className="h-full flex flex-col overflow-hidden">
       {/* Header removed - MetalPanel provides it */}
 
       <div className="flex-1 overflow-y-auto">
-        <Accordion type="single" collapsible className="w-full">
-          {resources.map((category) => (
+        {loading && (
+          <div className="flex items-center justify-center py-8 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            <span className="font-nunito">Laddar resurser...</span>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="py-4 px-4 text-center text-muted-foreground font-nunito">
+            {error}
+          </div>
+        )}
+
+        {!loading && (
+          <Accordion type="single" collapsible className="w-full">
+            {resources.map((category) => (
             <AccordionItem key={category.id} value={category.id} className="border-b border-white/10">
               <AccordionTrigger 
                 className="px-4 py-3 hover:bg-white/5 text-left transition-colors"
@@ -179,10 +191,13 @@ const ResourceAccordion = ({ grade, chapter }: ResourceAccordionProps) => {
               </AccordionContent>
             </AccordionItem>
           ))}
-        </Accordion>
+          </Accordion>
+        )}
       </div>
     </div>
   );
-};
+});
+
+ResourceAccordion.displayName = "ResourceAccordion";
 
 export default ResourceAccordion;

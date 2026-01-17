@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, Calendar, BookOpen, Gamepad2, Settings } from "lucide-react";
+import { Home, Calendar, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
