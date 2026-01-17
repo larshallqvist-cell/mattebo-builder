@@ -3,11 +3,21 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const fallbackMessages = [
-  "Du klarar det här! 🤖",
-  "Matematik är som ett pussel – bit för bit!",
-  "Fel är bara ett steg mot rätt svar!",
-  "Fortsätt kämpa, du är på rätt väg!",
-  "Varje problem har en lösning!",
+  "Jag har sett tusentals elever – du har det som krävs 🌟",
+  "Tålamod är den klokaste vägen till kunskap 🦉",
+  "Rom byggdes inte på en dag, och det gör inte kunskap heller 🏛️",
+  "Varje steg framåt räknas, även de allra minsta 👣",
+  "Den som vågar fråga är klokare än den som låtsas veta 📚",
+  "Misstag är livets bästa lärare – lita på farfar ❤️",
+  "Du är viktigare än alla rätta svar i världen 💫",
+  "I min tid sa vi: öva, öva, öva – det gäller fortfarande! 💪",
+  "Lugn och ro är halva lösningen, min vän 🍵",
+  "Ingen föds som mästare – alla börjar som nybörjare 🌱",
+  "Jag tror på dig mer än du tror på dig själv just nu 🤗",
+  "Att kämpa är inte svaghet – det är mod 🦁",
+  "En dag kommer du titta tillbaka och le åt detta 😊",
+  "Kunskap växer sakta men stadigt, som ett träd 🌳",
+  "Det viktiga är inte hastigheten – det är riktningen 🧭",
 ];
 
 interface MascotPanelProps {
