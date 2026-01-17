@@ -179,7 +179,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
               {/* Right - Resources */}
               <MetalPanel 
-                title="Resurser" 
+                title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
                 icon={<BookOpen className="w-5 h-5" />}
                 glowColor={glowColor}
                 className="h-[400px]"
@@ -224,7 +224,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
               {/* Resources */}
               <MetalPanel 
-                title="Lektioner & Resurser" 
+                title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
                 icon={<BookOpen className="w-5 h-5" />}
                 glowColor={glowColor}
               >
