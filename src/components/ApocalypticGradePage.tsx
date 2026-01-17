@@ -66,7 +66,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
                   }}
                 >
-                  Kontrollpanelen
+                  Kontrollpanelen {grade}
                 </h1>
                 <p className="text-lg text-muted-foreground font-nunito">
                   Årskurs {grade} — Din kommandocentral för matematik
