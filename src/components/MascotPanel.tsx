@@ -74,8 +74,13 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
         boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
       }}
     >
-      {/* Robot mascot SVG */}
-      <div className="flex-shrink-0 relative">
+      {/* Robot mascot SVG - Clickable */}
+      <button
+        onClick={fetchAIMessage}
+        disabled={isLoading}
+        className="flex-shrink-0 relative cursor-pointer transition-transform hover:scale-105 active:scale-95 disabled:opacity-70 focus:outline-none"
+        title="Klicka för nytt meddelande!"
+      >
         <svg width="60" height="70" viewBox="0 0 60 70" className="drop-shadow-lg">
           {/* Body - Calculator shape */}
           <rect 
@@ -131,12 +136,14 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
           <line x1="30" y1="20" x2="30" y2="8" stroke="#8B7355" strokeWidth="2"/>
           <motion.circle 
             cx="30" cy="6" r="4"
-            fill="#FF6B6B"
+            fill={isLoading ? "#FFD700" : "#FF6B6B"}
             animate={{
-              opacity: [0.5, 1, 0.5],
-              filter: ["drop-shadow(0 0 2px #FF6B6B)", "drop-shadow(0 0 6px #FF6B6B)", "drop-shadow(0 0 2px #FF6B6B)"]
+              opacity: isLoading ? [0.3, 1, 0.3] : [0.5, 1, 0.5],
+              filter: isLoading 
+                ? ["drop-shadow(0 0 2px #FFD700)", "drop-shadow(0 0 8px #FFD700)", "drop-shadow(0 0 2px #FFD700)"]
+                : ["drop-shadow(0 0 2px #FF6B6B)", "drop-shadow(0 0 6px #FF6B6B)", "drop-shadow(0 0 2px #FF6B6B)"]
             }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            transition={{ duration: isLoading ? 0.5 : 1.5, repeat: Infinity }}
           />
           
           {/* Arms */}
@@ -152,7 +159,7 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
             </linearGradient>
           </defs>
         </svg>
-      </div>
+      </button>
 
       {/* Speech bubble */}
       <div className="relative flex-1">
