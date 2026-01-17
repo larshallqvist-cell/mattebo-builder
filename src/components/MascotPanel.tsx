@@ -43,9 +43,14 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
   useEffect(() => {
     // Fetch initial AI message
     fetchAIMessage();
-    
-    // Change message every 20 seconds
-    const messageInterval = setInterval(fetchAIMessage, 20000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Change message every 30 seconds
+    const messageInterval = setInterval(() => {
+      fetchAIMessage();
+    }, 30000);
 
     // Blink every few seconds
     const blinkInterval = setInterval(() => {
@@ -57,7 +62,7 @@ const MascotPanel = ({ className }: MascotPanelProps) => {
       clearInterval(messageInterval);
       clearInterval(blinkInterval);
     };
-  }, []);
+  }, [fetchAIMessage]);
 
   return (
     <motion.div
