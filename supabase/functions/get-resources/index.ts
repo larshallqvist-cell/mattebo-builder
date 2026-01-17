@@ -175,30 +175,39 @@ serve(async (req) => {
     let resources: ResourceRow[];
 
     if (firstCellIsNumber) {
-      // Format B: Chapter | Category | Länktext (title) | URL (hyperlink in cell D)
+      // Format B: Chapter | Category | Länktext (title) | URL (hyperlink in cell C or D)
       resources = rows
-        .filter((row: CellInfo[]) => row.length >= 4)
+        .filter((row: CellInfo[]) => row.length >= 3)
         .map((row: CellInfo[]) => {
           const chapter = parseInt(row[0]?.value || '', 10);
           const category = (row[1]?.value || '').trim() || 'Övrigt';
-          const title = (row[2]?.value || '').trim();
-          
-          // Get URL from column D's hyperlink metadata or value
+          const cellC = row[2];
           const cellD = row[3];
-          const url = cellD?.hyperlink || (cellD?.value?.startsWith('http') ? cellD.value : '');
+          
+          // Try to get URL from column D first, then fall back to column C
+          let url = '';
+          let title = '';
+          
+          // Check column D for URL
+          if (cellD) {
+            url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
+          }
+          
+          // If no URL in column D, check column C's hyperlink
+          if (!url && cellC?.hyperlink) {
+            url = cellC.hyperlink;
+          }
+          
+          // Title comes from column C's display value
+          title = (cellC?.value || '').trim();
           
           return { chapter, category, title, url };
         })
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
       
-      // DEBUG: Log how many rows had valid URLs in column D
-      const withUrls = rows.filter((row: CellInfo[]) => {
-        if (row.length < 4) return false;
-        const cellD = row[3];
-        const url = cellD?.hyperlink || cellD?.value || '';
-        return url.startsWith('http');
-      }).length;
-      console.log(`DEBUG - Rows with valid URLs in column D: ${withUrls} out of ${rows.length}`);
+      // DEBUG: Log how many rows had valid URLs
+      const withUrls = resources.length;
+      console.log(`DEBUG - Valid resources found: ${withUrls} out of ${rows.length} rows`);
     } else {
       // Format A: Title (with chapter embedded) | URL
       resources = rows
