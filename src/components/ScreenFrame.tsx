@@ -99,8 +99,8 @@ const ScreenFrame = ({ children, title, className = "" }: ScreenFrameProps) => {
           </div>
         )}
 
-        {/* Content with subtle glow */}
-        <div className="flex-1 overflow-hidden relative">
+        {/* Content with subtle glow - scrollable */}
+        <div className="flex-1 overflow-y-auto min-h-0 relative">
           {children}
         </div>
       </div>
