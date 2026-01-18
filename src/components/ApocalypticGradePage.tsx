@@ -49,18 +49,19 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         {/* Navigation */}
         <ApocalypticNav />
 
-        {/* Hero Header */}
-        <header className="relative pt-20 pb-6 px-6 z-20">
+        {/* Compact Hero Header with Chapter Selector */}
+        <header className="relative pt-16 pb-3 px-6 z-20">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex items-center justify-between"
+              className="flex items-center justify-between gap-4"
             >
-              <div>
+              {/* Title + Chapter Selector combined */}
+              <div className="flex items-center gap-6 flex-wrap">
                 <h1 
-                  className="text-3xl sm:text-4xl md:text-5xl font-orbitron font-bold mb-2"
+                  className="text-2xl sm:text-3xl md:text-4xl font-orbitron font-bold"
                   style={{
                     color: glowColor,
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
@@ -68,16 +69,16 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 >
                   Kontrollpanelen {grade}
                 </h1>
-                <p className="text-lg text-muted-foreground font-nunito">
-                  Årskurs {grade} — Din kommandocentral för matematik
-                </p>
+                
+                {/* Chapter Selector inline */}
+                <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               </div>
 
               {/* Quick actions */}
               <div className="hidden md:flex items-center gap-3">
                 <Link 
                   to="/"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:scale-105"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all hover:scale-105"
                   style={{
                     background: "rgba(0,0,0,0.3)",
                     border: `1px solid ${glowColor}40`,
@@ -87,16 +88,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <span className="text-sm font-nunito text-foreground/80">Hem</span>
                 </Link>
               </div>
-            </motion.div>
-
-            {/* Chapter Selector */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mt-4"
-            >
-              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
             </motion.div>
           </div>
         </header>
