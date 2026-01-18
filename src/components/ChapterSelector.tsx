@@ -11,8 +11,8 @@ const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
   6: {
     1: "Tal och beräkningar",
     2: "Algebra",
-    3: "Geometri",
-    4: "Bråk och procent",
+    3: "Bråk ochprocent",
+    4: "Geometri",
     5: "Statistik",
   },
   7: {
@@ -23,11 +23,11 @@ const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
     5: "Statistik",
   },
   8: {
-    1: "Tal och beräkningar",
-    2: "Algebra",
+    1: "Taluppfattning och tals användning",
+    2: "Samband och förändring",
     3: "Geometri",
-    4: "Bråk och procent",
-    5: "Statistik",
+    4: "Algebra",
+    5: "Sannolikhet och Statistik",
   },
   9: {
     1: "Tal och beräkningar",
@@ -42,9 +42,9 @@ const CHAPTER_COOKIE_PREFIX = "mattebo_chapter_grade_";
 
 const getChapterFromCookie = (grade: number): number => {
   const cookieName = `${CHAPTER_COOKIE_PREFIX}${grade}`;
-  const cookies = document.cookie.split(';');
+  const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
+    const [name, value] = cookie.trim().split("=");
     if (name === cookieName) {
       const parsed = parseInt(value, 10);
       if (parsed >= 1 && parsed <= 5) return parsed;
@@ -65,10 +65,7 @@ const getChapterSubtitle = (grade: number, chapter: number): string => {
   return CHAPTER_SUBTITLES[grade]?.[chapter] || "";
 };
 
-const ChapterSelector = ({
-  grade,
-  onChapterChange
-}: ChapterSelectorProps) => {
+const ChapterSelector = ({ grade, onChapterChange }: ChapterSelectorProps) => {
   const [selectedChapter, setSelectedChapter] = useState<number>(() => getChapterFromCookie(grade));
 
   useEffect(() => {
@@ -88,11 +85,9 @@ const ChapterSelector = ({
   return (
     <div className="flex flex-col items-center py-2 px-4">
       <div className="flex items-center justify-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground mr-2 hidden sm:inline">
-          Kapitel:
-        </span>
+        <span className="text-sm font-medium text-muted-foreground mr-2 hidden sm:inline">Kapitel:</span>
         <div className="flex gap-1 sm:gap-2">
-          {chapters.map(chapter => (
+          {chapters.map((chapter) => (
             <button
               key={chapter}
               onClick={() => setSelectedChapter(chapter)}
@@ -101,7 +96,7 @@ const ChapterSelector = ({
                 "border-2 hover:scale-105",
                 selectedChapter === chapter
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-foreground border-muted-foreground/30 hover:border-primary/50"
+                  : "bg-background text-foreground border-muted-foreground/30 hover:border-primary/50",
               )}
             >
               {chapter}
