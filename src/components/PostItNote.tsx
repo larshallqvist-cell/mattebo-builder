@@ -114,7 +114,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               <a 
                 key={`a-${keyIndex++}`}
                 href={href} 
-                className="text-primary-foreground/80 underline hover:text-primary-foreground"
+                className="text-yellow-400 underline hover:text-yellow-300"
                 target="_blank"
                 rel="noopener noreferrer"
               >
