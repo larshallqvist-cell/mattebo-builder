@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, Loader2 } from "lucide-react";
+import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, Loader2, AlertTriangle } from "lucide-react";
 
 interface ResourceLink {
   title: string;
@@ -34,6 +34,9 @@ const categoryConfig: Record<
   Extrauppgifter: { icon: <FileText className="w-5 h-5" />, order: 3 },
   Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 4 },
 };
+
+// Expected categories that should normally be present
+const expectedCategories = ["Videolektioner"];
 
 const generateFallbackData = (chapter: number): ResourceCategory[] => {
   return [
@@ -144,54 +147,76 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
         )}
 
         {!loading && (
-          <Accordion type="single" collapsible className="w-full">
-            {resources.map((category) => (
-            <AccordionItem key={category.id} value={category.id} className="border-b border-white/10">
-              <AccordionTrigger 
-                className="px-4 py-3 hover:bg-white/5 text-left transition-colors"
-              >
-                <span className="flex items-center gap-3 font-orbitron font-medium text-foreground text-lg">
-                  <span style={{ color: "hsl(var(--neon-copper))" }}>{category.icon}</span> 
-                  {category.title}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="bg-black/20">
-                <div className="px-3 py-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0">
-                  {category.links.map((link, index) => {
-                    // 1. Rensa URL:en från allt skräp
-                    const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
-                    const isExternal = cleanUrl.startsWith("http");
+          <>
+            {/* Warning if expected categories are missing */}
+            {resources.length > 0 && (() => {
+              const presentCategories = resources.map(r => r.title);
+              const missingCategories = expectedCategories.filter(c => !presentCategories.includes(c));
+              if (missingCategories.length > 0) {
+                return (
+                  <div className="mx-4 mb-3 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-md flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm font-nunito text-amber-200/90">
+                      <span className="font-medium">Saknas:</span> {missingCategories.join(", ")}
+                      <span className="block text-xs text-amber-200/60 mt-0.5">
+                        Kontrollera att kategorin finns i kalkylbladet
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+            
+            <Accordion type="single" collapsible className="w-full">
+              {resources.map((category) => (
+              <AccordionItem key={category.id} value={category.id} className="border-b border-white/10">
+                <AccordionTrigger 
+                  className="px-4 py-3 hover:bg-white/5 text-left transition-colors"
+                >
+                  <span className="flex items-center gap-3 font-orbitron font-medium text-foreground text-lg">
+                    <span style={{ color: "hsl(var(--neon-copper))" }}>{category.icon}</span> 
+                    {category.title}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="bg-black/20">
+                  <div className="px-3 py-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0">
+                    {category.links.map((link, index) => {
+                      // 1. Rensa URL:en från allt skräp
+                      const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
+                      const isExternal = cleanUrl.startsWith("http");
 
-                      return (
-                        <button
-                          key={index}
-                          type="button"
-                          className="flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (isExternal) {
-                              // Force open in new tab - bypasses iframe restrictions
-                              window.open(cleanUrl, '_blank', 'noopener,noreferrer');
-                            } else {
-                              window.location.href = cleanUrl;
-                            }
-                          }}
-                        >
-                          {isExternal ? (
-                            <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
-                          ) : (
-                            <Link className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
-                          )}
-                          <span className="text-base font-nunito leading-snug text-foreground/90 group-hover:text-foreground transition-colors">{link.title}</span>
-                        </button>
-                      );
-                  })}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-          </Accordion>
+                        return (
+                          <button
+                            key={index}
+                            type="button"
+                            className="flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (isExternal) {
+                                // Force open in new tab - bypasses iframe restrictions
+                                window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                              } else {
+                                window.location.href = cleanUrl;
+                              }
+                            }}
+                          >
+                            {isExternal ? (
+                              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
+                            ) : (
+                              <Link className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
+                            )}
+                            <span className="text-base font-nunito leading-snug text-foreground/90 group-hover:text-foreground transition-colors">{link.title}</span>
+                          </button>
+                        );
+                    })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+            </Accordion>
+          </>
         )}
       </div>
     </div>
