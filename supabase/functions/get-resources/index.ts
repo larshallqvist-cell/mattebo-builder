@@ -188,26 +188,59 @@ serve(async (req) => {
           let url = '';
           let title = '';
           
-          // Check column D for URL
+          // Check column D for URL (hyperlink or plain text URL)
           if (cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
           }
           
-          // If no URL in column D, check column C's hyperlink
+          // If no URL in column D, check column C for hyperlink
           if (!url && cellC?.hyperlink) {
             url = cellC.hyperlink;
           }
           
-          // Title comes from column C's display value
+          // If still no URL, check if column C's value itself is a URL
+          if (!url && cellC?.value?.startsWith('http')) {
+            url = cellC.value;
+          }
+          
+          // Title comes from column C's display value, or use URL as title if value is empty
           title = (cellC?.value || '').trim();
+          if (!title && url) {
+            // If title is empty but we have a URL, use a generic title
+            title = 'Länk';
+          }
           
           return { chapter, category, title, url };
         })
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
       
-      // DEBUG: Log how many rows had valid URLs
-      const withUrls = resources.length;
-      console.log(`DEBUG - Valid resources found: ${withUrls} out of ${rows.length} rows`);
+      // DEBUG: Log categories found and sample of resources without URLs
+      const categoriesFound = [...new Set(resources.map(r => r.category))];
+      console.log(`DEBUG - Categories found: ${JSON.stringify(categoriesFound)}`);
+      console.log(`DEBUG - Valid resources found: ${resources.length} out of ${rows.length} rows`);
+      
+      // DEBUG: Log rows that were filtered out due to missing URLs (first 5)
+      const filteredOut = rows
+        .filter((row: CellInfo[]) => row.length >= 3)
+        .map((row: CellInfo[]) => {
+          const chapter = parseInt(row[0]?.value || '', 10);
+          const category = (row[1]?.value || '').trim() || 'Övrigt';
+          const cellC = row[2];
+          const cellD = row[3];
+          let url = '';
+          if (cellD) {
+            url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
+          }
+          if (!url && cellC?.hyperlink) {
+            url = cellC.hyperlink;
+          }
+          return { chapter, category, title: cellC?.value || '', url, hasHyperlink: !!cellC?.hyperlink, cellDValue: cellD?.value || '' };
+        })
+        .filter(r => !r.url && r.category === 'Videolektioner');
+      
+      if (filteredOut.length > 0) {
+        console.log(`DEBUG - Videolektioner rows missing URLs (first 5): ${JSON.stringify(filteredOut.slice(0, 5))}`);
+      }
     } else {
       // Format A: Title (with chapter embedded) | URL
       resources = rows
