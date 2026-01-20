@@ -3,21 +3,21 @@ import { useState, useEffect, useCallback, useRef, forwardRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const fallbackMessages = [
-  "Jag har sett tusentals elever – du har det som krävs 🌟",
-  "Tålamod är den klokaste vägen till kunskap 🦉",
-  "Rom byggdes inte på en dag, och det gör inte kunskap heller 🏛️",
-  "Varje steg framåt räknas, även de allra minsta 👣",
-  "Den som vågar fråga är klokare än den som låtsas veta 📚",
-  "Misstag är livets bästa lärare – lita på farfar ❤️",
-  "Du är viktigare än alla rätta svar i världen 💫",
-  "I min tid sa vi: öva, öva, öva – det gäller fortfarande! 💪",
-  "Lugn och ro är halva lösningen, min vän 🍵",
-  "Ingen föds som mästare – alla börjar som nybörjare 🌱",
-  "Jag tror på dig mer än du tror på dig själv just nu 🤗",
-  "Att kämpa är inte svaghet – det är mod 🦁",
-  "En dag kommer du titta tillbaka och le åt detta 😊",
-  "Kunskap växer sakta men stadigt, som ett träd 🌳",
-  "Det viktiga är inte hastigheten – det är riktningen 🧭",
+  '"Den som vet att han inget vet, vet mer än den som tror sig veta allt." - Sokrates 🦉',
+  '"Kunskap är makt." - Francis Bacon ⚡',
+  '"Fantasin är viktigare än kunskap." - Albert Einstein 💭',
+  '"Livet är det som händer medan du planerar andra saker." - John Lennon 🎵',
+  '"I mitt liv har jag haft många bekymmer, de flesta hände aldrig." - Mark Twain 😌',
+  '"Det enda jag vet är att jag ingenting vet." - Sokrates 🤔',
+  '"Att lära sig är att ständigt upptäcka sin egen okunnighet." - Will Durant 📚',
+  '"Den som öppnar en skoldörr, stänger ett fängelse." - Victor Hugo 🚪',
+  '"Geni är 1% inspiration och 99% transpiration." - Thomas Edison 💡',
+  '"Allt verkar omöjligt tills det är gjort." - Nelson Mandela ✨',
+  '"Det svåraste i livet är att känna sig själv." - Thales 🪞',
+  '"Den som flyttar berg börjar med att bära små stenar." - Konfucius 🏔️',
+  '"Ett sinne som sträckts av nya idéer återgår aldrig till sin ursprungliga form." - Oliver Wendell Holmes 🧠',
+  '"Var förändringen du vill se i världen." - Mahatma Gandhi 🌍',
+  '"Den enda sanna visdomen är att veta att du ingenting vet." - Sokrates 🌟',
 ];
 
 interface MascotPanelProps {
