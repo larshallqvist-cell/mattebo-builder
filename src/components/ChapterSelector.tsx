@@ -8,26 +8,28 @@ interface ChapterSelectorProps {
 
 // Chapter subtitles per grade - easily configurable
 const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
+ // Chapter subtitles per grade - from commit fe8a582
+const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
   6: {
     1: "Tal och beräkningar",
     2: "Algebra",
-    3: "Geometri",
-    4: "Bråk och procent",
+    3: "Bråk ochprocent",
+    4: "Geometri",
     5: "Statistik",
   },
   7: {
     1: "Tal och beräkningar",
     2: "Algebra",
     3: "Geometri",
-    4: "Samband och förändring",
-    5: "Sannolikhet och Statistik",
+    4: "Bråk och procent",
+    5: "Statistik",
   },
   8: {
-    1: "Tal och beräkningar",
-    2: "Algebra",
+    1: "Taluppfattning och tals användning",
+    2: "Samband och förändring",
     3: "Geometri",
-    4: "Samband och förändring",
-    5: "Statistik",
+    4: "Algebra",
+    5: "Sannolikhet och Statistik",
   },
   9: {
     1: "Tal och beräkningar",
@@ -36,6 +38,7 @@ const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
     4: "Bråk och procent",
     5: "Statistik",
   },
+};
 };
 
 const CHAPTER_COOKIE_PREFIX = "mattebo_chapter_grade_";
