@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
-import { useState, useEffect, useCallback, useRef, forwardRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, forwardRef } from "react";
 
-const fallbackMessages = [
+const aphorisms = [
   '"Den som vet att han inget vet, vet mer än den som tror sig veta allt." - Sokrates 🦉',
   '"Kunskap är makt." - Francis Bacon ⚡',
   '"Fantasin är viktigare än kunskap." - Albert Einstein 💭',
@@ -25,52 +24,18 @@ interface MascotPanelProps {
 }
 
 const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className }, ref) => {
-  const [message, setMessage] = useState(fallbackMessages[0]);
+  const [message, setMessage] = useState(aphorisms[Math.floor(Math.random() * aphorisms.length)]);
   const [isBlinking, setIsBlinking] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const isLoadingRef = useRef(false);
 
-  const fetchAIMessage = useCallback(async () => {
-    if (isLoadingRef.current) return;
-    isLoadingRef.current = true;
-    setIsLoading(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('mascot-message');
-      
-      if (error) {
-        // 402/429 errors are expected when rate limited - use fallback silently
-        console.log('Using fallback message:', error.message);
-        setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
-      } else if (data?.error) {
-        // Handle error responses from the edge function (e.g., 402 Payment required)
-        console.log('AI quota exceeded, using fallback:', data.error);
-        setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
-      } else if (data?.message) {
-        setMessage(data.message);
-      } else {
-        setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
-      }
-    } catch (err) {
-      // Network or other errors - use fallback silently
-      console.log('Using fallback message due to:', err);
-      setMessage(fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]);
-    } finally {
-      isLoadingRef.current = false;
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Fetch initial AI message
-    fetchAIMessage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const getRandomAphorism = () => {
+    const randomIndex = Math.floor(Math.random() * aphorisms.length);
+    setMessage(aphorisms[randomIndex]);
+  };
 
   useEffect(() => {
     // Change message every 30 seconds
     const messageInterval = setInterval(() => {
-      fetchAIMessage();
+      getRandomAphorism();
     }, 30000);
 
     // Blink every few seconds
@@ -83,7 +48,7 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
       clearInterval(messageInterval);
       clearInterval(blinkInterval);
     };
-  }, [fetchAIMessage]);
+  }, []);
 
   return (
     <motion.div
@@ -103,10 +68,9 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
     >
       {/* Robot mascot SVG - Clickable */}
       <button
-        onClick={fetchAIMessage}
-        disabled={isLoading}
-        className="flex-shrink-0 relative cursor-pointer transition-transform hover:scale-105 active:scale-95 disabled:opacity-70 focus:outline-none"
-        title="Klicka för nytt meddelande!"
+        onClick={getRandomAphorism}
+        className="flex-shrink-0 relative cursor-pointer transition-transform hover:scale-105 active:scale-95 focus:outline-none"
+        title="Klicka för nytt citat!"
       >
         <svg width="60" height="70" viewBox="0 0 60 70" className="drop-shadow-lg">
           {/* Body - Calculator shape */}
@@ -163,14 +127,12 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
           <line x1="30" y1="20" x2="30" y2="8" stroke="#8B7355" strokeWidth="2"/>
           <motion.circle 
             cx="30" cy="6" r="4"
-            fill={isLoading ? "#FFD700" : "#FF6B6B"}
+            fill="#FF6B6B"
             animate={{
-              opacity: isLoading ? [0.3, 1, 0.3] : [0.5, 1, 0.5],
-              filter: isLoading 
-                ? ["drop-shadow(0 0 2px #FFD700)", "drop-shadow(0 0 8px #FFD700)", "drop-shadow(0 0 2px #FFD700)"]
-                : ["drop-shadow(0 0 2px #FF6B6B)", "drop-shadow(0 0 6px #FF6B6B)", "drop-shadow(0 0 2px #FF6B6B)"]
+              opacity: [0.5, 1, 0.5],
+              filter: ["drop-shadow(0 0 2px #FF6B6B)", "drop-shadow(0 0 6px #FF6B6B)", "drop-shadow(0 0 2px #FF6B6B)"]
             }}
-            transition={{ duration: isLoading ? 0.5 : 1.5, repeat: Infinity }}
+            transition={{ duration: 1.5, repeat: Infinity }}
           />
           
           {/* Arms */}
