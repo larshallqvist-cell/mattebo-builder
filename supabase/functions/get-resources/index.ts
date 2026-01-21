@@ -89,7 +89,8 @@ serve(async (req) => {
     
     // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links
     // This is necessary because Google Sheets rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:D1000`)}&includeGridData=true`;
+    // Extended to column E in case URLs are in a 5th column
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:E1000`)}&includeGridData=true`;
     
     console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
     
@@ -128,7 +129,30 @@ serve(async (req) => {
       hyperlink?: string;
     }
     
-    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{ formattedValue?: string; hyperlink?: string; userEnteredValue?: { formulaValue?: string } }> }) => {
+    // Helper to extract YouTube URL from various formats (video ID, short URL, smart chip text)
+    const extractYouTubeUrl = (text: string): string => {
+      if (!text) return '';
+      // Already a full URL
+      if (text.startsWith('http')) return text;
+      // YouTube video ID pattern (11 characters, alphanumeric + dash/underscore)
+      const videoIdMatch = text.match(/^[a-zA-Z0-9_-]{11}$/);
+      if (videoIdMatch) {
+        return `https://www.youtube.com/watch?v=${text}`;
+      }
+      // Pattern like "youtu.be/VIDEO_ID" or embedded in text
+      const shortUrlMatch = text.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+      if (shortUrlMatch) {
+        return `https://www.youtube.com/watch?v=${shortUrlMatch[1]}`;
+      }
+      // Pattern "youtube.com/watch?v=VIDEO_ID" embedded in text
+      const fullUrlMatch = text.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/);
+      if (fullUrlMatch) {
+        return `https://www.youtube.com/watch?v=${fullUrlMatch[1]}`;
+      }
+      return '';
+    };
+    
+    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{ formattedValue?: string; hyperlink?: string; userEnteredValue?: { formulaValue?: string; stringValue?: string } }> }) => {
       const cells = row.values || [];
       return cells.map((cell) => {
         const value = cell.formattedValue || '';
@@ -138,10 +162,13 @@ serve(async (req) => {
         const formula = cell.userEnteredValue?.formulaValue || '';
         const formulaMatch = formula.match(/^=HYPERLINK\s*\(\s*"([^"]+)"/i);
         const urlFromFormula = formulaMatch ? formulaMatch[1] : '';
+        // Check stringValue for raw URL that might not be formatted as hyperlink
+        const stringValue = cell.userEnteredValue?.stringValue || '';
+        const urlFromString = stringValue.startsWith('http') ? stringValue : extractYouTubeUrl(stringValue);
         
         return {
           value,
-          hyperlink: hyperlink || urlFromFormula
+          hyperlink: hyperlink || urlFromFormula || urlFromString || extractYouTubeUrl(value)
         };
       });
     });
@@ -183,17 +210,23 @@ serve(async (req) => {
           const category = (row[1]?.value || '').trim() || 'Övrigt';
           const cellC = row[2];
           const cellD = row[3];
+          const cellE = row[4]; // Check column E as well
           
-          // Try to get URL from column D first, then fall back to column C
+          // Try to get URL from columns D, E, then fall back to column C
           let url = '';
           let title = '';
           
+          // Check column E for URL (hyperlink or plain text URL)
+          if (cellE) {
+            url = cellE.hyperlink || (cellE.value?.startsWith('http') ? cellE.value : '');
+          }
+          
           // Check column D for URL (hyperlink or plain text URL)
-          if (cellD) {
+          if (!url && cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
           }
           
-          // If no URL in column D, check column C for hyperlink
+          // If no URL in column D/E, check column C for hyperlink
           if (!url && cellC?.hyperlink) {
             url = cellC.hyperlink;
           }
@@ -227,14 +260,28 @@ serve(async (req) => {
           const category = (row[1]?.value || '').trim() || 'Övrigt';
           const cellC = row[2];
           const cellD = row[3];
+          const cellE = row[4];
           let url = '';
-          if (cellD) {
+          if (cellE) {
+            url = cellE.hyperlink || (cellE.value?.startsWith('http') ? cellE.value : '');
+          }
+          if (!url && cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
           }
           if (!url && cellC?.hyperlink) {
             url = cellC.hyperlink;
           }
-          return { chapter, category, title: cellC?.value || '', url, hasHyperlink: !!cellC?.hyperlink, cellDValue: cellD?.value || '' };
+          return { 
+            chapter, 
+            category, 
+            title: cellC?.value || '', 
+            url, 
+            cellCHyperlink: cellC?.hyperlink || '',
+            cellDValue: cellD?.value || '',
+            cellDHyperlink: cellD?.hyperlink || '',
+            cellEValue: cellE?.value || '',
+            cellEHyperlink: cellE?.hyperlink || ''
+          };
         })
         .filter(r => !r.url && r.category === 'Videolektioner');
       
