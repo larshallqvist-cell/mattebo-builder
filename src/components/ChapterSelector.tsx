@@ -11,9 +11,9 @@ const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
   6: {
     1: "Tal och beräkningar",
     2: "Algebra",
-    3: "Geometri",
-    4: "Bråk och procent",
-    5: "Statistik",
+    3: "Samband och förändring",
+    4: "Algebra och mönster",
+    5: "Geometri",
   },
   7: {
     1: "Tal och beräkningar",
