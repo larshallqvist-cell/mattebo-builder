@@ -10,6 +10,7 @@ interface ResourceRow {
   category: string;
   title: string;
   url: string;
+  color?: string;
 }
 
 serve(async (req) => {
@@ -90,7 +91,8 @@ serve(async (req) => {
     // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links
     // This is necessary because Google Sheets rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA
     // Extended to column E in case URLs are in a 5th column
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:E1000`)}&includeGridData=true`;
+    // Extended to column F for optional color field
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:F1000`)}&includeGridData=true`;
     
     console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
     
@@ -211,6 +213,7 @@ serve(async (req) => {
           const cellC = row[2];
           const cellD = row[3];
           const cellE = row[4]; // Check column E as well
+          const cellF = row[5]; // Column F for optional color
           
           // Try to get URL from columns D, E, then fall back to column C
           let url = '';
@@ -243,7 +246,10 @@ serve(async (req) => {
             title = 'Länk';
           }
           
-          return { chapter, category, title, url };
+          // Get color from column F (supports: hex codes, CSS color names, or Tailwind-style classes)
+          const color = (cellF?.value || '').trim() || undefined;
+          
+          return { chapter, category, title, url, color };
         })
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
       
@@ -316,12 +322,12 @@ serve(async (req) => {
     console.log(`Returning ${filtered.length} filtered resources`);
 
     // Group by category
-    const grouped: Record<string, { title: string; url: string }[]> = {};
+    const grouped: Record<string, { title: string; url: string; color?: string }[]> = {};
     for (const r of filtered) {
       if (!grouped[r.category]) {
         grouped[r.category] = [];
       }
-      grouped[r.category].push({ title: r.title, url: r.url });
+      grouped[r.category].push({ title: r.title, url: r.url, color: r.color });
     }
 
     return new Response(
