@@ -180,6 +180,12 @@ serve(async (req) => {
     // DEBUG: Log first 5 rows to understand structure, including all columns
     if (rows.length > 0) {
       console.log('DEBUG - First 5 rows (full):', JSON.stringify(rows.slice(0, 5)));
+      // DEBUG: Log rows with color data (column F)
+      const rowsWithColor = rows.filter((row: CellInfo[]) => row[5]?.value);
+      console.log(`DEBUG - Rows with color in column F: ${rowsWithColor.length}`);
+      if (rowsWithColor.length > 0) {
+        console.log('DEBUG - First 3 rows with color:', JSON.stringify(rowsWithColor.slice(0, 3)));
+      }
     }
 
     // Helper to extract chapter number from title like "G 1.1 ...", "Z 1.1 ...", or "1.1 ..."
