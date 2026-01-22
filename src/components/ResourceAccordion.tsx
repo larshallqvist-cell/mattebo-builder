@@ -12,6 +12,7 @@ import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, Loader2,
 interface ResourceLink {
   title: string;
   url: string;
+  color?: string;
 }
 
 interface ResourceCategory {
@@ -185,12 +186,19 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                       // 1. Rensa URL:en från allt skräp
                       const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
                       const isExternal = cleanUrl.startsWith("http");
+                      
+                      // Determine link color - support hex codes, CSS colors, or Tailwind classes
+                      const linkColor = link.color || undefined;
+                      const isHexOrCss = linkColor && (linkColor.startsWith('#') || linkColor.startsWith('rgb') || linkColor.startsWith('hsl') || /^[a-z]+$/i.test(linkColor));
+                      const colorStyle = isHexOrCss ? { color: linkColor } : undefined;
+                      const colorClass = linkColor && !isHexOrCss ? linkColor : '';
 
                         return (
                           <button
                             key={index}
                             type="button"
-                            className="flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full"
+                            className={`flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full ${colorClass}`}
+                            style={colorStyle}
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -203,11 +211,11 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                             }}
                           >
                             {isExternal ? (
-                              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
+                              <ExternalLink className="w-4 h-4 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
                             ) : (
-                              <Link className="w-4 h-4 text-muted-foreground group-hover:text-neon-turquoise flex-shrink-0 transition-colors" />
+                              <Link className="w-4 h-4 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
                             )}
-                            <span className="text-base font-nunito leading-snug text-foreground/90 group-hover:text-foreground transition-colors">{link.title}</span>
+                            <span className={`text-base font-nunito leading-snug transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
                           </button>
                         );
                     })}
