@@ -187,20 +187,19 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   const content = nextEvent?.description || "";
   
-  // Format weekday in Swedish
-  const getSwedishWeekday = (date: Date) => {
-    const days = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
+  // Format short weekday in Swedish
+  const getShortSwedishWeekday = (date: Date) => {
+    const days = ['sö', 'må', 'ti', 'on', 'to', 'fr', 'lö'];
     return days[date.getDay()];
   };
   
-  // Format time as HH:MM
+  // Format time as HH.MM
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
   };
   
-  const weekday = nextEvent ? getSwedishWeekday(nextEvent.date) : '';
+  const shortWeekday = nextEvent ? getShortSwedishWeekday(nextEvent.date) : '';
   const time = nextEvent ? formatTime(nextEvent.date) : '';
-  const title = nextEvent ? `Nästa lektion ${weekday} ${time}` : "Nästa lektion";
   
   if (loading) {
     return <PostItSkeleton />;
@@ -208,9 +207,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   return (
     <div className="font-nunito text-foreground">
-      {/* Title with date/time */}
-      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30 text-primary">
-        {nextEvent ? `${weekday} ${time}` : "Ingen lektion planerad"}
+      {/* Title with date/time on the right */}
+      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30 text-primary flex items-center justify-between">
+        <span>Nästa lektion</span>
+        {nextEvent && (
+          <span className="text-sm font-medium text-foreground/70">{shortWeekday} {time}</span>
+        )}
       </h4>
       
       {/* Content */}
