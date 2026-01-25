@@ -122,10 +122,10 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                         {/* Day separator - show between different days */}
                         {isNewDay && eventIndex > 0 && (
                           <div 
-                            className="mx-3 my-1 h-[2px]"
+                            className="mx-3 my-2 h-[2px]"
                             style={{
-                              background: "linear-gradient(90deg, transparent, hsl(var(--neon-copper) / 0.5) 20%, hsl(var(--neon-copper) / 0.7) 50%, hsl(var(--neon-copper) / 0.5) 80%, transparent)",
-                              boxShadow: "0 0 6px hsl(var(--neon-copper) / 0.3)",
+                              background: "linear-gradient(90deg, transparent 5%, hsl(var(--neon-copper)) 25%, hsl(var(--neon-copper)) 75%, transparent 95%)",
+                              boxShadow: "0 0 10px hsl(var(--neon-copper) / 0.6), 0 0 20px hsl(var(--neon-copper) / 0.3)",
                             }}
                           />
                         )}
