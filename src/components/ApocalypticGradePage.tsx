@@ -16,6 +16,7 @@ import WebRadio from "@/components/WebRadio";
 import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 
 interface ApocalypticGradePageProps {
   grade: number;
@@ -30,7 +31,23 @@ const gradeNeonColors: Record<number, string> = {
 
 const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
+  const { nextEvent } = useCalendarEvents(grade);
   const glowColor = gradeNeonColors[grade] || "hsl(var(--neon-copper))";
+
+  // Format short weekday in Swedish
+  const getShortSwedishWeekday = (date: Date) => {
+    const days = ['sö', 'må', 'ti', 'on', 'to', 'fr', 'lö'];
+    return days[date.getDay()];
+  };
+  
+  // Format time as HH.MM
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+  };
+  
+  const nextLessonTitle = nextEvent 
+    ? `Nästa lektion: ${getShortSwedishWeekday(nextEvent.date)} ${formatTime(nextEvent.date)}`
+    : "Nästa lektion";
 
   return (
     <PageTransition>
@@ -128,7 +145,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               <div className="lg:col-span-3 flex flex-col gap-3 h-full min-h-0">
                 {/* Next Lesson - Takes more space */}
                 <MetalPanel 
-                  title="Nästa lektion" 
+                  title={nextLessonTitle}
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
                   className="flex-1 min-h-0 flex flex-col"
