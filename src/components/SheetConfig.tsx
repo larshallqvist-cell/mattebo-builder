@@ -4,22 +4,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+// Default Sheet-ID som alltid används om inget annat anges
+const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
+
 const SheetConfig = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sheetId, setSheetId] = useState('');
 
   useEffect(() => {
+    // Visa det sparade värdet eller default
     const stored = localStorage.getItem('mattebo_sheet_id');
-    if (stored) setSheetId(stored);
+    setSheetId(stored || DEFAULT_SHEET_ID);
   }, []);
 
   const handleSave = () => {
-    if (sheetId.trim()) {
-      localStorage.setItem('mattebo_sheet_id', sheetId.trim());
+    const trimmedId = sheetId.trim();
+    if (trimmedId && trimmedId !== DEFAULT_SHEET_ID) {
+      localStorage.setItem('mattebo_sheet_id', trimmedId);
       toast.success('Sheet-ID sparat! Ladda om sidan för att se ändringarna.');
     } else {
+      // Om samma som default, ta bort från localStorage
       localStorage.removeItem('mattebo_sheet_id');
-      toast.info('Sheet-ID borttaget. Fallback-data används.');
+      toast.info('Använder standard Sheet-ID.');
     }
     setIsOpen(false);
   };
@@ -34,14 +40,16 @@ const SheetConfig = () => {
     setSheetId(extractSheetId(value));
   };
 
+  const isUsingDefault = !localStorage.getItem('mattebo_sheet_id');
+
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-50 p-3 bg-secondary hover:bg-secondary/80 rounded-full shadow-lg transition-all hover:scale-110"
+        className="fixed bottom-20 md:bottom-4 right-4 z-40 p-2.5 bg-secondary/80 hover:bg-secondary rounded-full shadow-lg transition-all hover:scale-110"
         title="Konfigurera Google Sheet"
       >
-        <Settings className="w-5 h-5 text-secondary-foreground" />
+        <Settings className="w-4 h-4 text-secondary-foreground" />
       </button>
     );
   }
@@ -71,7 +79,11 @@ const SheetConfig = () => {
               className="w-full"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Sheet-ID:t är den långa koden i URL:en efter /d/
+              {isUsingDefault ? (
+                <span className="text-primary">✓ Använder standard Sheet-ID</span>
+              ) : (
+                <span>Eget Sheet-ID aktivt</span>
+              )}
             </p>
           </div>
 
