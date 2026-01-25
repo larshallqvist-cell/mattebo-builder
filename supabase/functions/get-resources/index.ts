@@ -154,7 +154,34 @@ serve(async (req) => {
       return '';
     };
     
-    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{ formattedValue?: string; hyperlink?: string; userEnteredValue?: { formulaValue?: string; stringValue?: string } }> }) => {
+    // DEBUG: Log raw cell data for Videolektioner to understand Smart Chip structure
+    const videolektionerRawRows = rowData
+      .filter((row: { values?: Array<unknown> }) => {
+        const cells = row.values || [];
+        const category = (cells[1] as { formattedValue?: string })?.formattedValue || '';
+        return category === 'Videolektioner';
+      })
+      .slice(0, 3);
+    
+    if (videolektionerRawRows.length > 0) {
+      console.log('DEBUG - Raw Videolektioner cell data (column D, first 3):', JSON.stringify(
+        videolektionerRawRows.map((row: { values?: Array<unknown> }) => {
+          const cells = row.values || [];
+          return cells[3]; // Column D
+        })
+      ));
+    }
+
+    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{ 
+      formattedValue?: string; 
+      hyperlink?: string; 
+      userEnteredValue?: { formulaValue?: string; stringValue?: string };
+      textFormatRuns?: Array<{ format?: { link?: { uri?: string } } }>;
+      // Smart Chip / chip runs data (YouTube videos, etc.)
+      chipRuns?: Array<{ chip?: { richLinkProperties?: { uri?: string } } }>;
+      richValue?: { link?: { uri?: string } };
+      effectiveValue?: { stringValue?: string };
+    }> }) => {
       const cells = row.values || [];
       return cells.map((cell) => {
         const value = cell.formattedValue || '';
@@ -168,9 +195,39 @@ serve(async (req) => {
         const stringValue = cell.userEnteredValue?.stringValue || '';
         const urlFromString = stringValue.startsWith('http') ? stringValue : extractYouTubeUrl(stringValue);
         
+        // Check chipRuns for Smart Chip links (YouTube videos, etc.)
+        // Smart Chips in Google Sheets store their URL in chipRuns[].chip.richLinkProperties.uri
+        let smartChipUrl = '';
+        if (cell.chipRuns && cell.chipRuns.length > 0) {
+          for (const run of cell.chipRuns) {
+            if (run.chip?.richLinkProperties?.uri) {
+              smartChipUrl = run.chip.richLinkProperties.uri;
+              break;
+            }
+          }
+        }
+        
+        // Also check textFormatRuns as fallback
+        if (!smartChipUrl && cell.textFormatRuns && cell.textFormatRuns.length > 0) {
+          for (const run of cell.textFormatRuns) {
+            if (run.format?.link?.uri) {
+              smartChipUrl = run.format.link.uri;
+              break;
+            }
+          }
+        }
+        
+        // Check richValue for embedded links (alternative Smart Chip format)
+        const richValueUrl = cell.richValue?.link?.uri || '';
+        
+        // Check effectiveValue for raw URL
+        const effectiveUrl = cell.effectiveValue?.stringValue?.startsWith('http') 
+          ? cell.effectiveValue.stringValue 
+          : '';
+        
         return {
           value,
-          hyperlink: hyperlink || urlFromFormula || urlFromString || extractYouTubeUrl(value)
+          hyperlink: hyperlink || urlFromFormula || smartChipUrl || richValueUrl || effectiveUrl || urlFromString || extractYouTubeUrl(value)
         };
       });
     });
