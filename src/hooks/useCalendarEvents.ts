@@ -142,9 +142,45 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
   }
 };
 
-// Simple cache to avoid refetching
-const cache: Record<number, { events: CalendarEvent[]; timestamp: number }> = {};
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// Improved cache with longer TTL and sessionStorage persistence
+const CACHE_TTL = 15 * 60 * 1000; // 15 minutes (increased from 5)
+const CACHE_KEY_PREFIX = 'mattebo_calendar_';
+
+interface CacheEntry {
+  events: CalendarEvent[];
+  timestamp: number;
+}
+
+// In-memory cache for instant access
+const memoryCache: Record<number, CacheEntry> = {};
+
+// Try to load from sessionStorage on startup
+const loadFromSessionStorage = (grade: number): CacheEntry | null => {
+  try {
+    const stored = sessionStorage.getItem(`${CACHE_KEY_PREFIX}${grade}`);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Restore Date objects
+      parsed.events = parsed.events.map((e: any) => ({
+        ...e,
+        date: new Date(e.date),
+        endDate: new Date(e.endDate),
+      }));
+      return parsed;
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return null;
+};
+
+const saveToSessionStorage = (grade: number, entry: CacheEntry) => {
+  try {
+    sessionStorage.setItem(`${CACHE_KEY_PREFIX}${grade}`, JSON.stringify(entry));
+  } catch {
+    // Ignore storage errors (quota, private mode, etc.)
+  }
+};
 
 export const useCalendarEvents = (grade: number) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -153,10 +189,20 @@ export const useCalendarEvents = (grade: number) => {
 
   useEffect(() => {
     const fetchCalendar = async () => {
-      // Check cache first
-      const cached = cache[grade];
-      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        setEvents(cached.events);
+      // Check memory cache first (instant)
+      const memoryCached = memoryCache[grade];
+      if (memoryCached && Date.now() - memoryCached.timestamp < CACHE_TTL) {
+        setEvents(memoryCached.events);
+        setLoading(false);
+        return;
+      }
+      
+      // Check sessionStorage (survives page refresh)
+      const storageCached = loadFromSessionStorage(grade);
+      if (storageCached && Date.now() - storageCached.timestamp < CACHE_TTL) {
+        // Restore to memory cache too
+        memoryCache[grade] = storageCached;
+        setEvents(storageCached.events);
         setLoading(false);
         return;
       }
@@ -185,8 +231,10 @@ export const useCalendarEvents = (grade: number) => {
         
         const parsedEvents = parseICSData(icsData);
         
-        // Update cache
-        cache[grade] = { events: parsedEvents, timestamp: Date.now() };
+        // Update both caches
+        const cacheEntry: CacheEntry = { events: parsedEvents, timestamp: Date.now() };
+        memoryCache[grade] = cacheEntry;
+        saveToSessionStorage(grade, cacheEntry);
         
         setEvents(parsedEvents);
       } catch (err) {

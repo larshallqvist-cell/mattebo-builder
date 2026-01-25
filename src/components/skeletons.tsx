@@ -1,10 +1,11 @@
+import { forwardRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
  * Skeleton loader for PostItNote / Next Lesson panel
  */
-export const PostItSkeleton = () => (
-  <div className="font-nunito">
+export const PostItSkeleton = forwardRef<HTMLDivElement>((_, ref) => (
+  <div ref={ref} className="font-nunito">
     {/* Title skeleton */}
     <div className="mb-3 pb-2 border-b border-primary/30">
       <Skeleton className="h-5 w-32 bg-primary/20" />
@@ -21,13 +22,15 @@ export const PostItSkeleton = () => (
       </div>
     </div>
   </div>
-);
+));
+
+PostItSkeleton.displayName = "PostItSkeleton";
 
 /**
  * Skeleton loader for LessonCalendar
  */
-export const CalendarSkeleton = () => (
-  <div className="space-y-2 p-2">
+export const CalendarSkeleton = forwardRef<HTMLDivElement>((_, ref) => (
+  <div ref={ref} className="space-y-2 p-2">
     {/* Week header skeleton */}
     <div 
       className="px-4 py-2.5 rounded-md"
@@ -68,13 +71,15 @@ export const CalendarSkeleton = () => (
       </div>
     ))}
   </div>
-);
+));
+
+CalendarSkeleton.displayName = "CalendarSkeleton";
 
 /**
  * Skeleton loader for ResourceAccordion
  */
-export const ResourceSkeleton = () => (
-  <div className="space-y-1 p-4">
+export const ResourceSkeleton = forwardRef<HTMLDivElement>((_, ref) => (
+  <div ref={ref} className="space-y-1 p-4">
     {/* Category skeletons */}
     {[1, 2, 3].map((i) => (
       <div 
@@ -104,19 +109,25 @@ export const ResourceSkeleton = () => (
       </div>
     </div>
   </div>
-);
+));
+
+ResourceSkeleton.displayName = "ResourceSkeleton";
 
 /**
  * Generic skeleton for cards
  */
-export const CardSkeleton = ({ lines = 3 }: { lines?: number }) => (
-  <div className="space-y-3 p-4">
-    {Array.from({ length: lines }).map((_, i) => (
-      <Skeleton 
-        key={i} 
-        className="h-4 bg-muted/50" 
-        style={{ width: `${100 - i * 15}%` }} 
-      />
-    ))}
-  </div>
+export const CardSkeleton = forwardRef<HTMLDivElement, { lines?: number }>(
+  ({ lines = 3 }, ref) => (
+    <div ref={ref} className="space-y-3 p-4">
+      {Array.from({ length: lines }).map((_, i) => (
+        <Skeleton 
+          key={i} 
+          className="h-4 bg-muted/50" 
+          style={{ width: `${100 - i * 15}%` }} 
+        />
+      ))}
+    </div>
+  )
 );
+
+CardSkeleton.displayName = "CardSkeleton";
