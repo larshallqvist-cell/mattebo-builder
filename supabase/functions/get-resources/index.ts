@@ -84,6 +84,15 @@ serve(async (req) => {
       );
     }
 
+    // Category mapping: normalize old category names to new ones
+    const categoryMapping: Record<string, string> = {
+      'Extrauppgifter': 'Övningsuppgifter',
+    };
+    
+    const normalizeCategory = (category: string): string => {
+      return categoryMapping[category] || category;
+    };
+
     // Use grade-specific tab: Åk6, Åk7, Åk8, Åk9
     // Grade is already validated to be one of ['6', '7', '8', '9']
     const tabName = `Åk${grade}`;
@@ -272,7 +281,8 @@ serve(async (req) => {
         .filter((row: CellInfo[]) => row.length >= 3)
         .map((row: CellInfo[]) => {
           const chapter = parseInt(row[0]?.value || '', 10);
-          const category = (row[1]?.value || '').trim() || 'Övrigt';
+          const rawCategory = (row[1]?.value || '').trim() || 'Övrigt';
+          const category = normalizeCategory(rawCategory);
           const cellC = row[2];
           const cellD = row[3];
           const cellE = row[4]; // Check column E as well
@@ -326,7 +336,8 @@ serve(async (req) => {
         .filter((row: CellInfo[]) => row.length >= 3)
         .map((row: CellInfo[]) => {
           const chapter = parseInt(row[0]?.value || '', 10);
-          const category = (row[1]?.value || '').trim() || 'Övrigt';
+          const rawCategory = (row[1]?.value || '').trim() || 'Övrigt';
+          const category = normalizeCategory(rawCategory);
           const cellC = row[2];
           const cellD = row[3];
           const cellE = row[4];
