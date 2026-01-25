@@ -6,6 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useMemo } from "react";
+import { CalendarSkeleton } from "@/components/skeletons";
 
 const formatTime = (date: Date): string => {
   const hours = date.getHours();
@@ -72,11 +73,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Scrollable event list */}
       <div className="flex-1 overflow-y-auto no-scrollbar">
-        {loading && (
-          <div className="p-8 text-center text-muted-foreground">
-            Laddar kalendern...
-          </div>
-        )}
+        {loading && <CalendarSkeleton />}
 
         {error && (
           <div className="p-8 text-center text-destructive">{error}</div>
