@@ -10,7 +10,6 @@ import Ak7 from "./pages/Ak7";
 import Ak8 from "./pages/Ak8";
 import Ak9 from "./pages/Ak9";
 import NotFound from "./pages/NotFound";
-import SheetConfig from "./components/SheetConfig";
 import ChalkDust from "./components/ChalkDust";
 
 const queryClient = new QueryClient();
@@ -41,7 +40,6 @@ const App = () => (
       <ChalkDust />
       <BrowserRouter>
         <AnimatedRoutes />
-        <SheetConfig />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
