@@ -207,12 +207,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   return (
     <div className="font-nunito text-foreground">
-      {/* Title with date/time on the right */}
-      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30 text-primary flex items-center justify-between">
-        <span>Nästa lektion</span>
-        {nextEvent && (
-          <span className="text-sm font-medium text-foreground/70">{shortWeekday} {time}</span>
-        )}
+      {/* Title with date/time */}
+      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30 text-primary">
+        {nextEvent ? `Nästa lektion: ${shortWeekday} ${time}` : "Ingen lektion planerad"}
       </h4>
       
       {/* Content */}
