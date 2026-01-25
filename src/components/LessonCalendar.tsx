@@ -110,50 +110,70 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="pb-0">
-                  {group.events.map((event) => (
-                    <div
-                      key={event.id}
-                      className="px-3 py-2.5 hover:bg-white/5 transition-colors cursor-pointer"
-                      style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
-                    >
-                      <div className="flex gap-3 items-center">
-                        {/* Date column - compact */}
-                        <div className="flex-shrink-0 w-14 text-center">
-                          <div className="text-sm font-nunito uppercase font-medium text-muted-foreground">
-                            {formatDay(event.date)}
-                          </div>
-                          <div
-                            className="text-2xl font-orbitron font-bold leading-tight"
+                  {group.events.map((event, eventIndex) => {
+                    // Check if this is a new day compared to previous event
+                    const prevEvent = eventIndex > 0 ? group.events[eventIndex - 1] : null;
+                    const isNewDay = !prevEvent || 
+                      event.date.getDate() !== prevEvent.date.getDate() ||
+                      event.date.getMonth() !== prevEvent.date.getMonth();
+                    
+                    return (
+                      <div key={event.id}>
+                        {/* Day separator - show between different days */}
+                        {isNewDay && eventIndex > 0 && (
+                          <div 
+                            className="mx-3 my-1 h-[2px]"
                             style={{
-                              color: "hsl(var(--neon-copper))",
-                              textShadow: "0 0 8px rgba(205, 127, 50, 0.4)",
+                              background: "linear-gradient(90deg, transparent, hsl(var(--neon-copper) / 0.5) 20%, hsl(var(--neon-copper) / 0.7) 50%, hsl(var(--neon-copper) / 0.5) 80%, transparent)",
+                              boxShadow: "0 0 6px hsl(var(--neon-copper) / 0.3)",
                             }}
-                          >
-                            {event.date.getDate()}
-                          </div>
-                        </div>
+                          />
+                        )}
+                        
+                        <div
+                          className="px-3 py-2.5 hover:bg-white/5 transition-colors cursor-pointer"
+                          style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+                        >
+                          <div className="flex gap-3 items-center">
+                            {/* Date column - compact */}
+                            <div className="flex-shrink-0 w-14 text-center">
+                              <div className="text-sm font-nunito uppercase font-medium text-muted-foreground">
+                                {formatDay(event.date)}
+                              </div>
+                              <div
+                                className="text-2xl font-orbitron font-bold leading-tight"
+                                style={{
+                                  color: "hsl(var(--neon-copper))",
+                                  textShadow: "0 0 8px rgba(205, 127, 50, 0.4)",
+                                }}
+                              >
+                                {event.date.getDate()}
+                              </div>
+                            </div>
 
-                        {/* Content column - time/location first, then title */}
-                        <div className="flex-1 min-w-0">
-                          {/* Time and Location */}
-                          <div className="flex gap-2 text-sm font-nunito font-medium text-muted-foreground">
-                            <span>
-                              {formatTime(event.date)}–{formatTime(event.endDate)}
-                            </span>
-                            {event.location && (
-                              <span style={{ color: "hsl(var(--neon-turquoise))" }}>
-                                {event.location}
-                              </span>
-                            )}
+                            {/* Content column - time/location first, then title */}
+                            <div className="flex-1 min-w-0">
+                              {/* Time and Location */}
+                              <div className="flex gap-2 text-sm font-nunito font-medium text-muted-foreground">
+                                <span>
+                                  {formatTime(event.date)}–{formatTime(event.endDate)}
+                                </span>
+                                {event.location && (
+                                  <span style={{ color: "hsl(var(--neon-turquoise))" }}>
+                                    {event.location}
+                                  </span>
+                                )}
+                              </div>
+                              {/* Title */}
+                              <h4 className="font-nunito font-normal text-foreground mt-0.5 line-clamp-2 text-base">
+                                {event.title}
+                              </h4>
+                            </div>
                           </div>
-                          {/* Title */}
-                          <h4 className="font-nunito font-normal text-foreground mt-0.5 line-clamp-2 text-base">
-                            {event.title}
-                          </h4>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </AccordionContent>
               </AccordionItem>
             ))}
