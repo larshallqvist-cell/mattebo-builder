@@ -15,6 +15,7 @@ import GeogebraLink from "@/components/GeogebraLink";
 import WebRadio from "@/components/WebRadio";
 import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 interface ApocalypticGradePageProps {
   grade: number;
@@ -193,55 +194,58 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               <MascotPanel />
             </div>
 
-            {/* Mobile: Single column */}
-            <div className="md:hidden space-y-4 pb-8">
-              {/* Quick info */}
-              <PostItNote grade={grade} />
+            {/* Mobile: Single column - optimized for touch */}
+            <div className="md:hidden space-y-3 pb-24">
+              {/* Quick info - compact */}
+              <div id="next-lesson">
+                <PostItNote grade={grade} />
+              </div>
 
-              {/* Calendar */}
-              <ScreenFrame title={`Planering Åk ${grade}`} className="h-[350px]">
-                <LessonCalendar grade={grade} />
-              </ScreenFrame>
+              {/* Calendar - compact height */}
+              <div id="calendar">
+                <ScreenFrame title={`Planering Åk ${grade}`} className="h-[280px]">
+                  <LessonCalendar grade={grade} />
+                </ScreenFrame>
+              </div>
 
-              {/* Tools */}
-              <MetalPanel glowColor="hsl(var(--neon-copper))">
-                <div className="flex items-center gap-4">
-                  <CalculatorThumbnail />
-                  <div className="flex-1">
-                    <WebRadio />
+              {/* Tools - horizontal scroll for touch */}
+              <div className="flex gap-3 overflow-x-auto no-scrollbar px-1 py-1 -mx-1">
+                <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0 min-w-[120px]">
+                  <div className="flex items-center justify-center">
+                    <CalculatorThumbnail compact />
                   </div>
-                </div>
-              </MetalPanel>
+                </MetalPanel>
+                <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-shrink-0 min-w-[120px]">
+                  <div className="flex items-center justify-center">
+                    <GeogebraLink compact />
+                  </div>
+                </MetalPanel>
+                <MetalPanel glowColor="hsl(var(--neon-blue))" className="flex-shrink-0 flex-1 min-w-[180px]">
+                  <WebRadio />
+                </MetalPanel>
+              </div>
 
-              {/* Resources */}
-              <MetalPanel 
-                title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
-                icon={<BookOpen className="w-5 h-5" />}
-                glowColor={glowColor}
-              >
-                <div className="-m-4">
-                  <ResourceAccordion grade={grade} chapter={selectedChapter} />
-                </div>
-              </MetalPanel>
+              {/* Resources - full width, touch optimized */}
+              <div id="resources">
+                <MetalPanel 
+                  title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
+                  icon={<BookOpen className="w-5 h-5" />}
+                  glowColor={glowColor}
+                >
+                  <div className="-m-4">
+                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                  </div>
+                </MetalPanel>
+              </div>
 
-              {/* Mascot */}
+              {/* Mascot - compact */}
               <MascotPanel />
-
-              {/* Home button for mobile */}
-              <Link 
-                to="/"
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-lg transition-all"
-                style={{
-                  background: "rgba(0,0,0,0.3)",
-                  border: `1px solid ${glowColor}40`,
-                }}
-              >
-                <Home className="w-5 h-5" style={{ color: glowColor }} />
-                <span className="font-nunito text-foreground/80">Tillbaka till startsidan</span>
-              </Link>
             </div>
           </div>
         </main>
+        
+        {/* Mobile bottom navigation */}
+        <MobileBottomNav grade={grade} />
       </div>
     </PageTransition>
   );
