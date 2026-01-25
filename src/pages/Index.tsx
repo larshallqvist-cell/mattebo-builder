@@ -4,6 +4,7 @@ import ApocalypticGradeCard from "@/components/ApocalypticGradeCard";
 import ApocalypticNav from "@/components/ApocalypticNav";
 import ApocalypticFooter from "@/components/ApocalypticFooter";
 import DustParticles from "@/components/DustParticles";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 const grades = [6, 7, 8, 9];
 
@@ -51,35 +52,40 @@ const Index = () => {
             Välj årskurs
           </motion.h2>
 
-          {/* Grade Cards Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10 justify-items-center">
+          {/* Grade Cards Grid - optimized for mobile touch */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 justify-items-center px-2">
             {grades.map((grade, index) => (
               <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
             ))}
           </div>
 
-          {/* Instruction hint */}
+          {/* Instruction hint - hidden on mobile (we have bottom nav) */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1 }}
-            className="text-center text-muted-foreground mt-12 text-sm font-nunito"
+            className="hidden md:block text-center text-muted-foreground mt-12 text-sm font-nunito"
           >
             Klicka på en panel för att se resurser och lektionsplaneringar
           </motion.p>
         </main>
 
-        {/* Decorative copper line */}
+        {/* Decorative copper line - hidden on mobile */}
         <div 
-          className="h-[2px] mx-6 relative z-20"
+          className="hidden md:block h-[2px] mx-6 relative z-20"
           style={{
             background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6) 20%, hsl(var(--primary) / 0.8) 50%, hsl(var(--primary) / 0.6) 80%, transparent)",
             boxShadow: "0 0 10px hsl(var(--primary) / 0.4)",
           }}
         />
 
-        {/* Footer */}
-        <ApocalypticFooter />
+        {/* Footer - hidden on mobile */}
+        <div className="hidden md:block">
+          <ApocalypticFooter />
+        </div>
+        
+        {/* Mobile bottom navigation */}
+        <MobileBottomNav />
       </div>
     </PageTransition>
   );
