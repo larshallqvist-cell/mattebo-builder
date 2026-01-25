@@ -1,4 +1,5 @@
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+import { PostItSkeleton } from "@/components/skeletons";
 
 interface PostItNoteProps {
   grade: number;
@@ -201,18 +202,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const time = nextEvent ? formatTime(nextEvent.date) : '';
   const title = nextEvent ? `Nästa lektion ${weekday} ${time}` : "Nästa lektion";
   
+  if (loading) {
+    return <PostItSkeleton />;
+  }
+
   return (
     <div className="font-nunito text-foreground">
       {/* Title with date/time */}
-      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30" style={{ color: 'hsl(var(--primary))' }}>
-        {loading ? "Laddar..." : (nextEvent ? `${weekday} ${time}` : "Ingen lektion planerad")}
+      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30 text-primary">
+        {nextEvent ? `${weekday} ${time}` : "Ingen lektion planerad"}
       </h4>
       
       {/* Content */}
       <div className="space-y-1 text-foreground/90">
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Hämtar lektionsinfo...</p>
-        ) : content ? (
+        {content ? (
           parseContent(content)
         ) : (
           <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>

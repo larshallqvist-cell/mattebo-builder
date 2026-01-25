@@ -7,8 +7,9 @@
 
 import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, Loader2, AlertTriangle } from "lucide-react";
+import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, AlertTriangle } from "lucide-react";
 import { hapticFeedback } from "@/hooks/useHaptic";
+import { ResourceSkeleton } from "@/components/skeletons";
 
 interface ResourceLink {
   title: string;
@@ -135,12 +136,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
       {/* Header removed - MetalPanel provides it */}
 
       <div className="flex-1 overflow-y-auto">
-        {loading && (
-          <div className="flex items-center justify-center py-8 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            <span className="font-nunito">Laddar resurser...</span>
-          </div>
-        )}
+        {loading && <ResourceSkeleton />}
 
         {error && !loading && (
           <div className="py-4 px-4 text-center text-muted-foreground font-nunito">
