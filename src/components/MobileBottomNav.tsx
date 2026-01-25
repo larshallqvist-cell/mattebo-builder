@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, Calculator, Radio } from "lucide-react";
+import { Home, BookOpen, Calendar, Calculator } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import CalculatorModal from "./CalculatorModal";
+import { hapticFeedback } from "@/hooks/useHaptic";
 
 interface MobileBottomNavProps {
   grade?: number;
@@ -55,12 +56,18 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {
+    hapticFeedback('light');
     if ('scrollTo' in item && item.scrollTo) {
       const element = document.getElementById(item.scrollTo);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
+  };
+  
+  const handleCalculatorClick = () => {
+    hapticFeedback('medium');
+    setShowCalculator(true);
   };
 
   return (
@@ -124,10 +131,9 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
             );
           })}
           
-          {/* Calculator button */}
           {grade && (
             <button
-              onClick={() => setShowCalculator(true)}
+              onClick={handleCalculatorClick}
               className="relative flex flex-col items-center justify-center min-w-[60px] py-2 px-3 rounded-xl transition-all duration-200 active:scale-95"
             >
               <motion.div

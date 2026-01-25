@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { hapticFeedback } from "@/hooks/useHaptic";
 
 interface ApocalypticGradeCardProps {
   grade: number;
@@ -34,7 +35,7 @@ const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) =
   const floatClass = delay % 2 === 0 ? "animate-float" : "animate-float-delayed";
 
   return (
-    <Link to={`/ak${grade}`} className="block touch-manipulation">
+    <Link to={`/ak${grade}`} className="block touch-manipulation" onClick={() => hapticFeedback('medium')}>
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

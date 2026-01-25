@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { hapticFeedback } from "@/hooks/useHaptic";
 
 interface ChapterSelectorProps {
   grade: number;
@@ -90,7 +91,10 @@ const ChapterSelector = ({ grade, onChapterChange }: ChapterSelectorProps) => {
           {chapters.map((chapter) => (
             <button
               key={chapter}
-              onClick={() => setSelectedChapter(chapter)}
+              onClick={() => {
+                hapticFeedback('light');
+                setSelectedChapter(chapter);
+              }}
               className={cn(
                 "w-8 h-8 sm:w-10 sm:h-10 rounded-full text-sm font-medium transition-all",
                 "border-2 hover:scale-105",

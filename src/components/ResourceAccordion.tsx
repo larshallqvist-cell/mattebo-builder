@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, Loader2, AlertTriangle } from "lucide-react";
+import { hapticFeedback } from "@/hooks/useHaptic";
 
 interface ResourceLink {
   title: string;
@@ -202,6 +203,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              hapticFeedback('light');
                               if (isExternal) {
                                 // Force open in new tab - bypasses iframe restrictions
                                 window.open(cleanUrl, '_blank', 'noopener,noreferrer');
