@@ -23,29 +23,29 @@
 /* Mattebo Design System - Post-Apocalyptic Recycled Technology Theme */
 @layer base {
   :root {
-    /* Main colors - Dark blue-gray metal */
-    --background: 215 30% 12%;
-    --foreground: 45 20% 91%;
+    /* Main colors - Lighter blue-gray metal */
+    --background: 215 25% 18%;
+    --foreground: 45 20% 93%;
 
     /* Card surfaces */
-    --card: 215 25% 16%;
-    --card-foreground: 45 20% 91%;
+    --card: 215 22% 22%;
+    --card-foreground: 45 20% 93%;
 
     /* Popover/dropdown */
-    --popover: 215 25% 14%;
-    --popover-foreground: 45 20% 91%;
+    --popover: 215 22% 20%;
+    --popover-foreground: 45 20% 93%;
 
     /* Primary - Warm copper/bronze */
     --primary: 30 70% 50%;
     --primary-foreground: 215 30% 10%;
 
     /* Secondary - Muted steel */
-    --secondary: 215 20% 25%;
-    --secondary-foreground: 45 20% 91%;
+    --secondary: 215 18% 30%;
+    --secondary-foreground: 45 20% 93%;
 
     /* Muted elements */
-    --muted: 215 15% 20%;
-    --muted-foreground: 45 15% 65%;
+    --muted: 215 15% 26%;
+    --muted-foreground: 45 15% 70%;
 
     /* Accent - Copper glow */
     --accent: 25 80% 55%;
@@ -72,10 +72,10 @@
     --rust-dark: 20 50% 20%;
     --rust-medium: 25 45% 35%;
     --rust-light: 30 40% 45%;
-    --metal-dark: 215 15% 30%;
-    --metal-light: 215 10% 50%;
-    --panel-inner: 215 25% 18%;
-    --panel-dark: 215 30% 10%;
+    --metal-dark: 215 15% 35%;
+    --metal-light: 215 10% 55%;
+    --panel-inner: 215 22% 24%;
+    --panel-dark: 215 28% 16%;
 
     /* Legacy colors for compatibility */
     --chalk-yellow: 45 100% 85%;
@@ -99,33 +99,33 @@
   }
 
   .dark {
-    /* Same as root - dark theme by default */
-    --background: 215 30% 12%;
-    --foreground: 45 20% 91%;
-    --card: 215 25% 16%;
-    --card-foreground: 45 20% 91%;
-    --popover: 215 25% 14%;
-    --popover-foreground: 45 20% 91%;
+    /* Same as root - lighter dark theme */
+    --background: 215 25% 18%;
+    --foreground: 45 20% 93%;
+    --card: 215 22% 22%;
+    --card-foreground: 45 20% 93%;
+    --popover: 215 22% 20%;
+    --popover-foreground: 45 20% 93%;
     --primary: 30 70% 50%;
     --primary-foreground: 215 30% 10%;
-    --secondary: 215 20% 25%;
-    --secondary-foreground: 45 20% 91%;
-    --muted: 215 15% 20%;
-    --muted-foreground: 45 15% 65%;
+    --secondary: 215 18% 30%;
+    --secondary-foreground: 45 20% 93%;
+    --muted: 215 15% 26%;
+    --muted-foreground: 45 15% 70%;
     --accent: 25 80% 55%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 215 20% 25%;
-    --input: 215 20% 22%;
+    --border: 215 18% 30%;
+    --input: 215 18% 28%;
     --ring: 30 70% 50%;
-    --sidebar-background: 215 30% 10%;
-    --sidebar-foreground: 45 20% 91%;
+    --sidebar-background: 215 25% 16%;
+    --sidebar-foreground: 45 20% 93%;
     --sidebar-primary: 30 70% 50%;
     --sidebar-primary-foreground: 215 30% 10%;
-    --sidebar-accent: 215 25% 20%;
-    --sidebar-accent-foreground: 45 20% 91%;
-    --sidebar-border: 215 20% 20%;
+    --sidebar-accent: 215 22% 26%;
+    --sidebar-accent-foreground: 45 20% 93%;
+    --sidebar-border: 215 18% 26%;
     --sidebar-ring: 30 70% 50%;
   }
 }
@@ -174,16 +174,17 @@
 
   .grade-card {
     @apply relative overflow-hidden rounded-xl cursor-pointer transition-all duration-500;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   }
 
   .grade-card::before {
     content: "";
-    @apply absolute inset-0 bg-black/40 transition-opacity duration-500;
+    @apply absolute inset-0 transition-opacity duration-500;
+    background: transparent;
   }
 
   .grade-card:hover::before {
-    @apply bg-black/10;
+    background: transparent;
   }
 
   .accordion-chapter {
@@ -377,7 +378,7 @@
   }
 }
 
-/* Metal texture background with copper reflection */
+/* Metal texture background with copper reflection - lighter */
 body::before {
   content: "";
   position: fixed;
@@ -385,12 +386,11 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background: 
-    radial-gradient(ellipse at 30% 20%, rgba(205, 127, 50, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(184, 115, 51, 0.06) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(30, 40, 55, 0.9) 0%, rgba(20, 28, 40, 0.95) 100%);
+    radial-gradient(ellipse at 30% 20%, rgba(205, 127, 50, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(184, 115, 51, 0.04) 0%, transparent 50%);
 }
 
-/* Light mist overlay */
+/* Light mist overlay - softening effect */
 body::after {
   content: "";
   position: fixed;
@@ -398,5 +398,6 @@ body::after {
   pointer-events: none;
   z-index: 1;
   background: 
-    radial-gradient(ellipse at 50% 100%, rgba(100, 120, 140, 0.1) 0%, transparent 60%);
+    radial-gradient(ellipse at 50% 0%, rgba(180, 190, 210, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(140, 160, 180, 0.06) 0%, transparent 40%);
 }
