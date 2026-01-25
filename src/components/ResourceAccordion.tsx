@@ -34,8 +34,9 @@ const categoryConfig: Record<
 > = {
   Videolektioner: { icon: <Video className="w-5 h-5" />, order: 1 },
   Spel: { icon: <Gamepad2 className="w-5 h-5" />, order: 2 },
-  Extrauppgifter: { icon: <FileText className="w-5 h-5" />, order: 3 },
-  Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 4 },
+  Övningsuppgifter: { icon: <FileText className="w-5 h-5" />, order: 3 },
+  Övningsprov: { icon: <FileText className="w-5 h-5" />, order: 4 },
+  Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 5 },
 };
 
 // Note: Previously had expected category validation, but removed as it caused
