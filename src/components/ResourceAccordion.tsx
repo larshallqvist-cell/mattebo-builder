@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link, AlertTriangle } from "lucide-react";
+import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link } from "lucide-react";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { ResourceSkeleton } from "@/components/skeletons";
 
@@ -38,8 +38,8 @@ const categoryConfig: Record<
   Övrigt: { icon: <MoreHorizontal className="w-5 h-5" />, order: 4 },
 };
 
-// Expected categories that should normally be present
-const expectedCategories = ["Videolektioner"];
+// Note: Previously had expected category validation, but removed as it caused
+// false positives when a specific chapter simply doesn't have video lessons
 
 const generateFallbackData = (chapter: number): ResourceCategory[] => {
   return [
@@ -146,25 +146,6 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
 
         {!loading && (
           <>
-            {/* Warning if expected categories are missing */}
-            {resources.length > 0 && (() => {
-              const presentCategories = resources.map(r => r.title);
-              const missingCategories = expectedCategories.filter(c => !presentCategories.includes(c));
-              if (missingCategories.length > 0) {
-                return (
-                  <div className="mx-4 mb-3 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-md flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm font-nunito text-amber-200/90">
-                      <span className="font-medium">Saknas:</span> {missingCategories.join(", ")}
-                      <span className="block text-xs text-amber-200/60 mt-0.5">
-                        Kontrollera att kategorin finns i kalkylbladet
-                      </span>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
             
             <Accordion type="single" collapsible className="w-full">
               {resources.map((category) => (
