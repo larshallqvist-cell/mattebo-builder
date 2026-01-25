@@ -7,9 +7,6 @@ import ApocalypticNav from "@/components/ApocalypticNav";
 import DustParticles from "@/components/DustParticles";
 import MetalPanel from "@/components/MetalPanel";
 import ScreenFrame from "@/components/ScreenFrame";
-import MascotPanel from "@/components/MascotPanel";
-import LessonCalendar from "@/components/LessonCalendar";
-import ResourceAccordion from "@/components/ResourceAccordion";
 import CalculatorThumbnail from "@/components/CalculatorThumbnail";
 import GeogebraLink from "@/components/GeogebraLink";
 import WebRadio from "@/components/WebRadio";
@@ -17,6 +14,12 @@ import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+// Lazy-loaded components for better initial load performance
+import { 
+  SuspenseResourceAccordion, 
+  SuspenseLessonCalendar, 
+  SuspenseMascotPanel 
+} from "@/components/LazyComponents";
 
 interface ApocalypticGradePageProps {
   grade: number;
@@ -133,12 +136,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   className="flex-1 min-h-0 flex flex-col"
                 >
                   <div className="flex-1 overflow-y-auto min-h-0 -mx-4 -mb-4 px-4 pb-4 industrial-scrollbar">
-                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                    <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
                   </div>
                 </MetalPanel>
 
                 {/* Mascot at bottom of left column */}
-                <MascotPanel className="flex-shrink-0" />
+                <SuspenseMascotPanel className="flex-shrink-0" />
               </div>
 
               {/* Column 2 - Next Lesson (expanded), Calculator, Radio */}
@@ -173,7 +176,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               <div className="lg:col-span-4 h-full min-h-0">
                 <ScreenFrame title={`Planering Åk ${grade}`} className="h-full flex flex-col">
                   <div className="flex-1 overflow-y-auto min-h-0">
-                    <LessonCalendar grade={grade} />
+                    <SuspenseLessonCalendar grade={grade} />
                   </div>
                 </ScreenFrame>
               </div>
@@ -183,7 +186,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4">
               {/* Left - Calendar */}
               <ScreenFrame title={`Planering Åk ${grade}`} className="h-[400px]">
-                <LessonCalendar grade={grade} />
+                <SuspenseLessonCalendar grade={grade} />
               </ScreenFrame>
 
               {/* Right - Resources */}
@@ -194,7 +197,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 className="h-[400px]"
               >
                 <div className="h-full overflow-hidden -m-4">
-                  <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                  <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
                 </div>
               </MetalPanel>
 
@@ -208,7 +211,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 </div>
               </MetalPanel>
 
-              <MascotPanel />
+              <SuspenseMascotPanel />
             </div>
 
             {/* Mobile: Single column - optimized for touch */}
@@ -221,7 +224,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               {/* Calendar - compact height */}
               <div id="calendar">
                 <ScreenFrame title={`Planering Åk ${grade}`} className="h-[280px]">
-                  <LessonCalendar grade={grade} />
+                  <SuspenseLessonCalendar grade={grade} />
                 </ScreenFrame>
               </div>
 
@@ -250,13 +253,13 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   glowColor={glowColor}
                 >
                   <div className="-m-4">
-                    <ResourceAccordion grade={grade} chapter={selectedChapter} />
+                    <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
                   </div>
                 </MetalPanel>
               </div>
 
               {/* Mascot - compact */}
-              <MascotPanel />
+              <SuspenseMascotPanel />
             </div>
           </div>
         </main>
