@@ -160,7 +160,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="bg-black/20">
-                  <div className="px-3 py-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0 max-h-[280px] overflow-y-auto industrial-scrollbar">
+                  <div className="px-3 py-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0 max-h-[260px] overflow-y-auto industrial-scrollbar">
                     {category.links.map((link, index) => {
                       // 1. Rensa URL:en från allt skräp
                       const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
@@ -176,7 +176,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                           <button
                             key={index}
                             type="button"
-                            className={`flex items-center gap-2 py-1 px-2 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full ${colorClass}`}
+                            className={`flex items-center gap-1.5 py-0.5 px-1.5 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full ${colorClass}`}
                             style={colorStyle}
                             onClick={(e) => {
                               e.preventDefault();
@@ -191,11 +191,11 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                             }}
                           >
                             {isExternal ? (
-                              <ExternalLink className="w-4 h-4 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
+                              <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
                             ) : (
-                              <Link className="w-4 h-4 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
+                              <Link className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
                             )}
-                            <span className={`text-sm font-nunito leading-snug transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
+                            <span className={`text-xs font-nunito leading-tight transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
                           </button>
                         );
                     })}
