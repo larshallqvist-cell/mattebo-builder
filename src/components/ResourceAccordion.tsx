@@ -195,7 +195,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                             ) : (
                               <Link className="w-4 h-4 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
                             )}
-                            <span className={`text-base font-nunito leading-snug transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
+                            <span className={`text-sm font-nunito leading-snug transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
                           </button>
                         );
                     })}
