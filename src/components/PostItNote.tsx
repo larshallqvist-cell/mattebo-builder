@@ -187,31 +187,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   const content = nextEvent?.description || "";
   
-  // Format short weekday in Swedish
-  const getShortSwedishWeekday = (date: Date) => {
-    const days = ['sö', 'må', 'ti', 'on', 'to', 'fr', 'lö'];
-    return days[date.getDay()];
-  };
-  
-  // Format time as HH.MM
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
-  };
-  
-  const shortWeekday = nextEvent ? getShortSwedishWeekday(nextEvent.date) : '';
-  const time = nextEvent ? formatTime(nextEvent.date) : '';
-  
   if (loading) {
     return <PostItSkeleton />;
   }
 
   return (
     <div className="font-nunito text-foreground">
-      {/* Title with date/time */}
-      <h4 className="font-orbitron font-bold text-base mb-3 pb-2 border-b border-primary/30 text-primary">
-        {nextEvent ? `Nästa lektion: ${shortWeekday} ${time}` : "Ingen lektion planerad"}
-      </h4>
-      
       {/* Content */}
       <div className="space-y-1 text-foreground/90">
         {content ? (
