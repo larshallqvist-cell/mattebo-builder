@@ -10,11 +10,11 @@ interface ChapterSelectorProps {
 // Chapter subtitles per grade - easily configurable
 const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
   6: {
-    1: "Tal",
-    2: "De fyra räknesätten",
-    3: "Bråk och procent",
+    1: "Taluppfattning och huvudräkning",
+    2: "Bråk och procent",
+    3: "Samband, uttryck och ekvationer",
     4: "Geometri",
-    5: "Samband och statistik",
+    5: "Med sikte på framtiden",
   },
   7: {
     1: "Taluppfattning och tals användning",
