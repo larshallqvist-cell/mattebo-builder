@@ -83,20 +83,20 @@ const MetalPanel = ({
       {/* Header with title */}
       {title && (
         <div 
-          className="relative px-4 py-3 border-b"
+          className="relative px-3 py-1.5 border-b"
           style={{
             background: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%)",
             borderColor: `${glowColor}40`,
           }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {icon && (
-              <span style={{ color: glowColor, filter: `drop-shadow(0 0 4px ${glowColor})` }}>
+              <span className="w-3.5 h-3.5" style={{ color: glowColor, filter: `drop-shadow(0 0 4px ${glowColor})` }}>
                 {icon}
               </span>
             )}
             <h3 
-              className="font-orbitron font-bold text-lg md:text-xl"
+              className="font-orbitron font-bold text-xs md:text-sm"
               style={{ 
                 color: glowColor,
                 textShadow: `0 0 10px ${glowColor}60`,

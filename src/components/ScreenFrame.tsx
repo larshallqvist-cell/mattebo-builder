@@ -81,14 +81,14 @@ const ScreenFrame = ({ children, title, className = "" }: ScreenFrameProps) => {
         {/* Title bar */}
         {title && (
           <div 
-            className="px-4 py-2 border-b flex-shrink-0"
+            className="px-3 py-1.5 border-b flex-shrink-0"
             style={{
               background: "linear-gradient(180deg, rgba(64, 224, 208, 0.15) 0%, rgba(64, 224, 208, 0.05) 100%)",
               borderColor: "rgba(64, 224, 208, 0.3)",
             }}
           >
             <h3 
-              className="font-orbitron font-bold text-lg"
+              className="font-orbitron font-bold text-xs md:text-sm"
               style={{ 
                 color: "hsl(var(--neon-turquoise))",
                 textShadow: "0 0 10px hsl(var(--neon-turquoise) / 0.6)",
