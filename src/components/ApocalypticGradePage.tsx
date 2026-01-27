@@ -82,7 +82,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               {/* Title + Chapter Selector combined */}
               <div className="flex items-center gap-6 flex-wrap">
                 <h1 
-                  className="text-2xl sm:text-3xl md:text-4xl font-orbitron font-bold"
+                  className="text-xl sm:text-2xl md:text-3xl font-orbitron font-bold"
                   style={{
                     color: glowColor,
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
@@ -144,32 +144,35 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <SuspenseMascotPanel className="flex-shrink-0" />
               </div>
 
-              {/* Column 2 - Next Lesson (expanded), Calculator, Radio */}
-              <div className="lg:col-span-3 flex flex-col gap-3 h-full min-h-0">
-                {/* Next Lesson - Takes more space */}
+              {/* Column 2 - Next Lesson (takes 50%), Calculator/Radio (bottom 50%) */}
+              <div className="lg:col-span-3 flex flex-col gap-2 h-full min-h-0">
+                {/* Next Lesson - Takes top half */}
                 <MetalPanel 
                   title={nextLessonTitle}
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-1 min-h-0 flex flex-col"
+                  className="flex-[0.5] min-h-0 flex flex-col"
                 >
                   <div className="flex-1 overflow-y-auto min-h-0 industrial-scrollbar">
                     <PostItNote grade={grade} />
                   </div>
                 </MetalPanel>
 
-                {/* Calculator + Geogebra side by side */}
-                <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0">
-                  <div className="flex items-center justify-center gap-2">
-                    <CalculatorThumbnail compact />
-                    <GeogebraLink compact />
-                  </div>
-                </MetalPanel>
+                {/* Bottom half: Calculator + Geogebra + Radio stacked */}
+                <div className="flex-[0.5] flex flex-col gap-2 min-h-0">
+                  {/* Calculator + Geogebra side by side */}
+                  <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0">
+                    <div className="flex items-center justify-center gap-2">
+                      <CalculatorThumbnail compact />
+                      <GeogebraLink compact />
+                    </div>
+                  </MetalPanel>
 
-                {/* Radio */}
-                <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-shrink-0">
-                  <WebRadio />
-                </MetalPanel>
+                  {/* Radio */}
+                  <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-1 min-h-0">
+                    <WebRadio />
+                  </MetalPanel>
+                </div>
               </div>
 
               {/* Column 3 - Calendar (scrollable, now narrower) */}
