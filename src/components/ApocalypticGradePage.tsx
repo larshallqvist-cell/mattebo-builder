@@ -80,15 +80,15 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               className="flex items-center justify-between gap-2"
             >
               {/* Title + Chapter Selector combined */}
-              <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-6 flex-wrap">
                 <h1 
-                  className="text-lg sm:text-xl md:text-2xl font-orbitron font-bold"
+                  className="text-xl sm:text-2xl md:text-3xl font-orbitron font-bold"
                   style={{
                     color: glowColor,
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
                   }}
                 >
-                  Åk {grade}
+                  Kontrollpanelen {grade}
                 </h1>
                 
                 {/* Chapter Selector inline */}
