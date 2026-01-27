@@ -71,24 +71,24 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         <ApocalypticNav />
 
         {/* Compact Hero Header with Chapter Selector */}
-        <header className="relative pt-16 pb-3 px-6 z-20">
+        <header className="relative pt-14 pb-2 px-4 z-20">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex items-center justify-between gap-4"
+              className="flex items-center justify-between gap-2"
             >
               {/* Title + Chapter Selector combined */}
-              <div className="flex items-center gap-6 flex-wrap">
+              <div className="flex items-center gap-4 flex-wrap">
                 <h1 
-                  className="text-xl sm:text-2xl md:text-3xl font-orbitron font-bold"
+                  className="text-lg sm:text-xl md:text-2xl font-orbitron font-bold"
                   style={{
                     color: glowColor,
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
                   }}
                 >
-                  Kontrollpanelen {grade}
+                  Åk {grade}
                 </h1>
                 
                 {/* Chapter Selector inline */}
@@ -123,9 +123,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         />
 
         {/* Main Content - Fixed to viewport, no external scroll */}
-        <main className="flex-1 px-4 lg:px-6 py-4 relative z-20 min-h-0">
+        <main className="flex-1 px-3 lg:px-4 py-2 relative z-20 min-h-0">
           <div className="max-w-7xl mx-auto h-full">
-            {/* Desktop: Three-column layout */}
+            {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
               {/* Column 1 - Resources with chapter headers + Mascot at bottom (now widest) */}
               <div className="lg:col-span-5 h-full flex flex-col gap-3 min-h-0">

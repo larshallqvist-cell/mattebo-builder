@@ -92,7 +92,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                 className="border-b-0"
               >
                 <AccordionTrigger
-                  className="px-4 py-1.5 hover:no-underline"
+                  className="px-3 py-1 hover:no-underline text-sm"
                   style={{
                     background:
                       "linear-gradient(90deg, rgba(64, 224, 208, 0.15) 0%, rgba(64, 224, 208, 0.05) 100%)",
@@ -131,7 +131,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                         )}
                         
                         <div
-                          className="px-3 py-1.5 hover:bg-white/5 transition-colors cursor-pointer"
+                          className="px-2 py-1 hover:bg-white/5 transition-colors cursor-pointer text-sm"
                           style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
                         >
                           <div className="flex gap-3 items-center">
