@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { useMemo } from "react";
 import { CalendarSkeleton } from "@/components/skeletons";
+import { CalendarEffect } from "@/components/CalendarEffects";
 
 const formatTime = (date: Date): string => {
   const hours = date.getHours();
@@ -131,10 +132,12 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                         )}
                         
                         <div
-                          className="px-2 py-1 hover:bg-white/5 transition-colors cursor-pointer text-sm"
+                          className="relative px-2 py-1 hover:bg-white/5 transition-colors cursor-pointer text-sm"
                           style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
                         >
-                          <div className="flex gap-3 items-center">
+                          {/* Special effect overlay */}
+                          {event.effect && <CalendarEffect type={event.effect} />}
+                          <div className="flex gap-3 items-center relative z-10">
                             {/* Date column - compact */}
                             <div className="flex-shrink-0 w-14 text-center">
                               <div className="text-sm font-nunito uppercase font-medium text-muted-foreground">
