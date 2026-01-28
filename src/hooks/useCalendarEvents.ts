@@ -22,27 +22,34 @@ const getWeekNumber = (date: Date): number => {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 };
 
-const parseEffectFromAttendee = (vevent: ICAL.Component): CalendarEffectType | undefined => {
-  const attendees = vevent.getAllProperties("attendee");
-  const effectKeywords: CalendarEffectType[] = ["fire", "smoke", "shimmer", "stars", "glow", "sparkle"];
+const parseEffectFromDescription = (description: string | undefined): CalendarEffectType | undefined => {
+  if (!description) return undefined;
   
-  for (const attendee of attendees) {
-    const value = attendee.getFirstValue()?.toString().toLowerCase() || "";
-    const cn = attendee.getParameter("cn")?.toString().toLowerCase() || "";
-    
-    for (const keyword of effectKeywords) {
-      if (value.includes(keyword) || cn.includes(keyword)) {
-        return keyword;
-      }
+  const effectKeywords: CalendarEffectType[] = ["fire", "smoke", "shimmer", "stars", "glow", "sparkle"];
+  const lowerDesc = description.toLowerCase();
+  
+  // Look for "effect:keyword" pattern or just the keyword
+  for (const keyword of effectKeywords) {
+    if (lowerDesc.includes(`effect:${keyword}`) || lowerDesc.includes(`effekt:${keyword}`)) {
+      return keyword;
     }
   }
+  
+  // Fallback: check if any keyword exists as standalone word
+  for (const keyword of effectKeywords) {
+    const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+    if (regex.test(description)) {
+      return keyword;
+    }
+  }
+  
   return undefined;
 };
 
 const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): CalendarEvent[] => {
   const start = event.startDate;
   const duration = event.duration;
-  const effect = parseEffectFromAttendee(vevent);
+  const effect = parseEffectFromDescription(event.description);
   
   // Expandera 6 månader framåt från idag
   const now = ICAL.Time.now();
@@ -101,7 +108,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
         const startDate = event.startDate.toJSDate();
         const endDate = event.endDate.toJSDate();
         const key = `${event.uid}-${recurrenceId.toString()}`;
-        const effect = parseEffectFromAttendee(vevent);
+        const effect = parseEffectFromDescription(event.description);
         
         recurrenceOverrides.set(key, {
           id: `${event.uid}-override-${index}`,
@@ -141,7 +148,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
       } else {
         const startDate = event.startDate.toJSDate();
         const endDate = event.endDate.toJSDate();
-        const effect = parseEffectFromAttendee(vevent);
+        const effect = parseEffectFromDescription(event.description);
         
         allEvents.push({
           id: event.uid || `event-${index}`,
