@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import ICAL from "ical.js";
 
+export type CalendarEffectType = "fire" | "smoke" | "shimmer" | "stars" | "glow" | "sparkle";
+
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -9,6 +11,7 @@ export interface CalendarEvent {
   location?: string;
   description?: string;
   week: number;
+  effect?: CalendarEffectType;
 }
 
 const getWeekNumber = (date: Date): number => {
@@ -19,9 +22,27 @@ const getWeekNumber = (date: Date): number => {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 };
 
+const parseEffectFromAttendee = (vevent: ICAL.Component): CalendarEffectType | undefined => {
+  const attendees = vevent.getAllProperties("attendee");
+  const effectKeywords: CalendarEffectType[] = ["fire", "smoke", "shimmer", "stars", "glow", "sparkle"];
+  
+  for (const attendee of attendees) {
+    const value = attendee.getFirstValue()?.toString().toLowerCase() || "";
+    const cn = attendee.getParameter("cn")?.toString().toLowerCase() || "";
+    
+    for (const keyword of effectKeywords) {
+      if (value.includes(keyword) || cn.includes(keyword)) {
+        return keyword;
+      }
+    }
+  }
+  return undefined;
+};
+
 const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): CalendarEvent[] => {
   const start = event.startDate;
   const duration = event.duration;
+  const effect = parseEffectFromAttendee(vevent);
   
   // Expandera 6 månader framåt från idag
   const now = ICAL.Time.now();
@@ -54,6 +75,7 @@ const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): Calend
       location: event.location || undefined,
       description: event.description || undefined,
       week: getWeekNumber(startDate),
+      effect,
     });
     count++;
   }
@@ -71,7 +93,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
     // Samla RECURRENCE-ID händelser för att ersätta expanderade instanser
     const recurrenceOverrides = new Map<string, CalendarEvent>();
     
-    // Första pass: samla alla RECURRENCE-ID händelser
+  // Första pass: samla alla RECURRENCE-ID händelser
     vevents.forEach((vevent, index) => {
       const recurrenceId = vevent.getFirstPropertyValue("recurrence-id");
       if (recurrenceId) {
@@ -79,6 +101,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
         const startDate = event.startDate.toJSDate();
         const endDate = event.endDate.toJSDate();
         const key = `${event.uid}-${recurrenceId.toString()}`;
+        const effect = parseEffectFromAttendee(vevent);
         
         recurrenceOverrides.set(key, {
           id: `${event.uid}-override-${index}`,
@@ -88,6 +111,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
           location: event.location || undefined,
           description: event.description || undefined,
           week: getWeekNumber(startDate),
+          effect,
         });
       }
     });
@@ -117,6 +141,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
       } else {
         const startDate = event.startDate.toJSDate();
         const endDate = event.endDate.toJSDate();
+        const effect = parseEffectFromAttendee(vevent);
         
         allEvents.push({
           id: event.uid || `event-${index}`,
@@ -126,6 +151,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
           location: event.location || undefined,
           description: event.description || undefined,
           week: getWeekNumber(startDate),
+          effect,
         });
       }
     });
