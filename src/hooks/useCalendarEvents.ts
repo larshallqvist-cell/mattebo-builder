@@ -175,8 +175,8 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
   }
 };
 
-// Improved cache with longer TTL and sessionStorage persistence
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes (increased from 5)
+// Cache with shorter TTL for faster updates
+const CACHE_TTL = 3 * 60 * 1000; // 3 minutes
 const CACHE_KEY_PREFIX = 'mattebo_calendar_';
 
 interface CacheEntry {
@@ -215,10 +215,27 @@ const saveToSessionStorage = (grade: number, entry: CacheEntry) => {
   }
 };
 
+// Clear cache for a specific grade
+const clearCache = (grade: number) => {
+  delete memoryCache[grade];
+  try {
+    sessionStorage.removeItem(`${CACHE_KEY_PREFIX}${grade}`);
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 export const useCalendarEvents = (grade: number) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Force refresh function
+  const refresh = () => {
+    clearCache(grade);
+    setRefreshKey(k => k + 1);
+  };
 
   useEffect(() => {
     const fetchCalendar = async () => {
@@ -279,7 +296,7 @@ export const useCalendarEvents = (grade: number) => {
     };
 
     fetchCalendar();
-  }, [grade]);
+  }, [grade, refreshKey]);
 
   const now = new Date();
   const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -291,5 +308,5 @@ export const useCalendarEvents = (grade: number) => {
   
   const nextEvent = events.filter(e => e.endDate > now)[0] || null;
 
-  return { events, upcomingEvents, nextEvent, loading, error };
+  return { events, upcomingEvents, nextEvent, loading, error, refresh };
 };

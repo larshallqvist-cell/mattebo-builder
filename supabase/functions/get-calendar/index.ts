@@ -15,7 +15,7 @@ const ICS_URLS: Record<number, string> = {
 
 // Simple in-memory cache
 const cache: Record<number, { data: string; timestamp: number }> = {};
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

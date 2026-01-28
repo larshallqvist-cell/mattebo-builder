@@ -8,6 +8,7 @@ import {
 import { useMemo } from "react";
 import { CalendarSkeleton } from "@/components/skeletons";
 import { CalendarEffect } from "@/components/CalendarEffects";
+import { RefreshCw } from "lucide-react";
 
 const formatTime = (date: Date): string => {
   const hours = date.getHours();
@@ -36,7 +37,7 @@ interface WeekGroup {
 }
 
 const LessonCalendar = ({ grade }: LessonCalendarProps) => {
-  const { upcomingEvents, loading, error } = useCalendarEvents(grade);
+  const { upcomingEvents, loading, error, refresh } = useCalendarEvents(grade);
 
   // Group events by week
   const weekGroups = useMemo(() => {
@@ -72,6 +73,19 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      {/* Refresh button */}
+      <div className="flex justify-end px-2 py-1">
+        <button
+          onClick={refresh}
+          disabled={loading}
+          className="p-1.5 rounded-md hover:bg-white/10 transition-colors disabled:opacity-50"
+          title="Uppdatera kalender"
+          style={{ color: "hsl(var(--neon-turquoise))" }}
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+        </button>
+      </div>
+      
       {/* Scrollable event list */}
       <div className="flex-1 overflow-y-auto no-scrollbar">
         {loading && <CalendarSkeleton />}
