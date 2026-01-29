@@ -12,28 +12,40 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const htmlToMarkdown = (html: string): string => {
     let text = html;
     
-    // Handle line breaks
+    // Handle line breaks first
     text = text.replace(/<br\s*\/?>/gi, '\n');
     
-    // Handle bold tags
-    text = text.replace(/<b>([^<]*)<\/b>/gi, '**$1**');
-    text = text.replace(/<strong>([^<]*)<\/strong>/gi, '**$1**');
+    // Handle links FIRST (before bold, since bold might wrap links)
+    text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, content) => {
+      // Clean any remaining tags from link content
+      const cleanContent = content.replace(/<[^>]+>/g, '').trim();
+      return `[${cleanContent}](${href})`;
+    });
+    
+    // Handle bold tags - use non-greedy match with [\s\S] to handle any content including newlines
+    text = text.replace(/<b>([\s\S]*?)<\/b>/gi, (_, content) => {
+      // Don't double-wrap if already has markdown bold
+      const cleanContent = content.replace(/^\*\*|\*\*$/g, '').trim();
+      return `**${cleanContent}**`;
+    });
+    text = text.replace(/<strong>([\s\S]*?)<\/strong>/gi, (_, content) => {
+      const cleanContent = content.replace(/^\*\*|\*\*$/g, '').trim();
+      return `**${cleanContent}**`;
+    });
     
     // Handle underline (convert to bold for simplicity)
-    text = text.replace(/<u>([^<]*)<\/u>/gi, '**$1**');
+    text = text.replace(/<u>([\s\S]*?)<\/u>/gi, (_, content) => {
+      const cleanContent = content.replace(/^\*\*|\*\*$/g, '').trim();
+      return `**${cleanContent}**`;
+    });
     
-    // Handle links
-    text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/gi, '[$2]($1)');
+    // Handle italic
+    text = text.replace(/<i>([\s\S]*?)<\/i>/gi, '*$1*');
+    text = text.replace(/<em>([\s\S]*?)<\/em>/gi, '*$1*');
     
-    // Handle list items - extract content
-    text = text.replace(/<li>([^<]*)<\/li>/gi, '- $1\n');
-    // Handle list items with nested content (like links)
-    text = text.replace(/<li>(.*?)<\/li>/gi, (match, content) => {
-      // If content already processed (has markdown link), just add bullet
-      if (content.includes('[') && content.includes('](')) {
-        return `- ${content}\n`;
-      }
-      return `- ${content}\n`;
+    // Handle list items with any content
+    text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
+      return `- ${content.trim()}\n`;
     });
     
     // Remove remaining list tags
@@ -45,8 +57,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     text = text.replace(/<\/?div>/gi, '\n');
     text = text.replace(/<\/?span>/gi, '');
     
-    // Clean up multiple newlines
+    // Clean up any remaining HTML tags
+    text = text.replace(/<[^>]+>/g, '');
+    
+    // Clean up multiple newlines and spaces
     text = text.replace(/\n{3,}/g, '\n\n');
+    text = text.replace(/[ \t]+/g, ' ');
     text = text.trim();
     
     return text;
