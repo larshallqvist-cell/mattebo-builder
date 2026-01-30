@@ -153,7 +153,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   glowColor={glowColor}
                   className="flex-[0.5] min-h-0 flex flex-col"
                 >
-                  <div className="flex-1 overflow-y-auto min-h-0 industrial-scrollbar">
+                  <div className="flex-1 min-h-0">
                     <PostItNote grade={grade} />
                   </div>
                 </MetalPanel>

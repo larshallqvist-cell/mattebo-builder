@@ -211,9 +211,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   }
 
   return (
-    <ScrollArea className="h-full max-h-[200px] font-nunito text-foreground">
+    <ScrollArea className="h-full font-nunito text-foreground">
       {/* Content */}
-      <div className="space-y-0.5 text-foreground/90 pr-2">
+      <div className="space-y-0.5 text-foreground/90 pr-3">
         {content ? (
           parseContent(content)
         ) : (
