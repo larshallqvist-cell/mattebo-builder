@@ -193,7 +193,7 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
             border: "1px solid rgba(64, 224, 208, 0.3)",
           }}
         >
-          <p className="text-xs font-orbitron font-semibold text-neon-turquoise mb-1">
+          <p className="text-sm font-orbitron font-semibold text-neon-turquoise mb-1">
             MAT-T-E
           </p>
           <motion.p 

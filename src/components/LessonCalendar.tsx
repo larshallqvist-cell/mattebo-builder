@@ -158,7 +158,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                                 {formatDay(event.date)}
                               </div>
                               <div
-                                className="text-2xl font-orbitron font-bold leading-tight"
+                                className="text-lg font-orbitron font-bold leading-tight"
                                 style={{
                                   color: "hsl(var(--neon-copper))",
                                   textShadow: "0 0 8px rgba(205, 127, 50, 0.4)",
@@ -182,7 +182,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                                 )}
                               </div>
                               {/* Title */}
-                              <h4 className="font-nunito font-normal text-foreground mt-0.5 line-clamp-2 text-base">
+                              <h4 className="font-nunito font-normal text-foreground mt-0.5 line-clamp-2 text-sm">
                                 {event.title}
                               </h4>
                             </div>

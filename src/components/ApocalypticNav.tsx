@@ -15,7 +15,7 @@ const ApocalypticNav = () => {
         {/* Logo / Site title */}
         <Link 
           to="/" 
-          className="font-orbitron text-lg md:text-xl font-bold text-primary hover:text-accent transition-colors"
+          className="font-orbitron text-lg font-bold text-primary hover:text-accent transition-colors"
           style={{
             textShadow: "0 0 10px hsl(var(--primary) / 0.5)",
           }}
