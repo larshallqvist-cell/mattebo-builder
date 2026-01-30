@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { hapticFeedback } from "@/hooks/useHaptic";
-
 interface ChapterSelectorProps {
   grade: number;
   onChapterChange?: (chapter: number) => void;
@@ -14,33 +13,31 @@ const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
     2: "Bråk och procent",
     3: "Samband, uttryck och ekvationer",
     4: "Geometri",
-    5: "Med sikte på framtiden",
+    5: "Med sikte på framtiden"
   },
   7: {
     1: "Taluppfattning och tals användning",
     2: "Algebra",
     3: "Geometri",
     4: "Samband och förändring",
-    5: "Sannolikhet och statistik",
+    5: "Sannolikhet och statistik"
   },
   8: {
     1: "Taluppfattning och tals användning",
     2: "Samband och förändring",
     3: "Geometri",
     4: "Algebra",
-    5: "Sannolikhet och statistik",
+    5: "Sannolikhet och statistik"
   },
   9: {
     1: "Taluppfattning och tals användning",
     2: "Samband och förändring",
     3: "Algebra",
     4: "Geometri",
-    5: "Med sikte på framtiden",
-  },
+    5: "Med sikte på framtiden"
+  }
 };
-
 const CHAPTER_COOKIE_PREFIX = "mattebo_chapter_grade_";
-
 const getChapterFromCookie = (grade: number): number => {
   const cookieName = `${CHAPTER_COOKIE_PREFIX}${grade}`;
   const cookies = document.cookie.split(";");
@@ -53,7 +50,6 @@ const getChapterFromCookie = (grade: number): number => {
   }
   return 1; // Default to chapter 1
 };
-
 const setChapterCookie = (grade: number, chapter: number) => {
   const cookieName = `${CHAPTER_COOKIE_PREFIX}${grade}`;
   // Set cookie to expire in 6 weeks (42 days)
@@ -61,14 +57,14 @@ const setChapterCookie = (grade: number, chapter: number) => {
   expires.setDate(expires.getDate() + 42);
   document.cookie = `${cookieName}=${chapter};expires=${expires.toUTCString()};path=/`;
 };
-
 const getChapterSubtitle = (grade: number, chapter: number): string => {
   return CHAPTER_SUBTITLES[grade]?.[chapter] || "";
 };
-
-const ChapterSelector = ({ grade, onChapterChange }: ChapterSelectorProps) => {
+const ChapterSelector = ({
+  grade,
+  onChapterChange
+}: ChapterSelectorProps) => {
   const [selectedChapter, setSelectedChapter] = useState<number>(() => getChapterFromCookie(grade));
-
   useEffect(() => {
     // Update cookie when chapter changes
     setChapterCookie(grade, selectedChapter);
@@ -79,39 +75,22 @@ const ChapterSelector = ({ grade, onChapterChange }: ChapterSelectorProps) => {
   useEffect(() => {
     setSelectedChapter(getChapterFromCookie(grade));
   }, [grade]);
-
   const chapters = [1, 2, 3, 4, 5];
   const currentSubtitle = getChapterSubtitle(grade, selectedChapter);
-
-  return (
-    <div className="flex flex-col items-center py-2 px-4">
+  return <div className="py-2 px-4 flex-col flex items-center justify-start">
       <div className="flex items-center justify-center gap-2">
         <span className="text-sm font-medium text-muted-foreground mr-2 hidden sm:inline">Kapitel:</span>
         <div className="flex gap-1 sm:gap-2">
-          {chapters.map((chapter) => (
-            <button
-              key={chapter}
-              onClick={() => {
-                hapticFeedback('light');
-                setSelectedChapter(chapter);
-              }}
-              className={cn(
-                "w-8 h-8 sm:w-10 sm:h-10 rounded-full text-base font-medium transition-all",
-                "border-2 hover:scale-105",
-                selectedChapter === chapter
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-foreground border-muted-foreground/30 hover:border-primary/50",
-              )}
-            >
+          {chapters.map(chapter => <button key={chapter} onClick={() => {
+          hapticFeedback('light');
+          setSelectedChapter(chapter);
+        }} className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-full text-base font-medium transition-all", "border-2 hover:scale-105", selectedChapter === chapter ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-muted-foreground/30 hover:border-primary/50")}>
               {chapter}
-            </button>
-          ))}
+            </button>)}
         </div>
       </div>
       {/* Subtitle removed - now shown in ResourceAccordion header */}
-    </div>
-  );
+    </div>;
 };
-
 export default ChapterSelector;
 export { getChapterFromCookie, getChapterSubtitle };
