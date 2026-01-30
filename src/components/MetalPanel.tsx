@@ -96,7 +96,7 @@ const MetalPanel = ({
               </span>
             )}
             <h3 
-              className="font-orbitron font-bold text-xs md:text-sm"
+              className="font-orbitron font-bold text-sm"
               style={{ 
                 color: glowColor,
                 textShadow: `0 0 10px ${glowColor}60`,

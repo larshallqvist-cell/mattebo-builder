@@ -40,7 +40,7 @@ const ApocalypticFooter = () => {
           </div>
 
           {/* Copyright */}
-          <p className="text-muted-foreground text-xs font-nunito">
+          <p className="text-muted-foreground text-sm font-nunito">
             © {currentYear} Leteboskolan. Alla rättigheter förbehållna.
           </p>
         </div>

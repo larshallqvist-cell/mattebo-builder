@@ -96,7 +96,7 @@ const ChapterSelector = ({ grade, onChapterChange }: ChapterSelectorProps) => {
                 setSelectedChapter(chapter);
               }}
               className={cn(
-                "w-8 h-8 sm:w-10 sm:h-10 rounded-full text-sm font-medium transition-all",
+                "w-8 h-8 sm:w-10 sm:h-10 rounded-full text-base font-medium transition-all",
                 "border-2 hover:scale-105",
                 selectedChapter === chapter
                   ? "bg-primary text-primary-foreground border-primary"
