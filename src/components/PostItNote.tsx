@@ -1,5 +1,6 @@
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { PostItSkeleton } from "@/components/skeletons";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PostItNoteProps {
   grade: number;
@@ -81,9 +82,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 font-body font-normal">
+          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-0.5 my-1 font-body font-normal">
             {bulletItems.map((item, i) => (
-              <li key={i} className="text-[15px]">{parseInline(item)}</li>
+              <li key={i} className="text-[14px] leading-tight">{parseInline(item)}</li>
             ))}
           </ul>
         );
@@ -94,9 +95,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushNumberedList = () => {
       if (numberedItems.length > 0) {
         elements.push(
-          <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 font-body font-normal">
+          <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-0.5 my-1 font-body font-normal">
             {numberedItems.map((item, i) => (
-              <li key={i} className="text-[15px]">{parseInline(item)}</li>
+              <li key={i} className="text-[14px] leading-tight">{parseInline(item)}</li>
             ))}
           </ol>
         );
@@ -106,7 +107,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     
     const parseInline = (text: string): (string | JSX.Element)[] => {
       const result: (string | JSX.Element)[] = [];
-      const pattern = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
+      // More robust pattern: allow any content inside ** and links
+      const pattern = /(\*\*[\s\S]*?\*\*|\[[^\]]+\]\([^)\s]+\))/g;
       let lastIndex = 0;
       let match;
       let keyIndex = 0;
@@ -119,9 +121,10 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         const token = match[0];
         
         if (token.startsWith('**') && token.endsWith('**')) {
-          result.push(<strong key={`b-${keyIndex++}`}>{token.slice(2, -2)}</strong>);
+          const boldContent = token.slice(2, -2);
+          result.push(<strong key={`b-${keyIndex++}`}>{boldContent}</strong>);
         } else if (token.startsWith('[')) {
-          const linkMatch = token.match(/\[([^\]]+)\]\(([^)]+)\)/);
+          const linkMatch = token.match(/\[([^\]]+)\]\(([^)\s]+)\)/);
           if (linkMatch) {
             let href = linkMatch[2];
             if (href.startsWith('www.')) {
@@ -168,7 +171,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushBulletList();
         flushNumberedList();
         elements.push(
-          <h5 key={`h5-${i}`} className="text-[15px] font-semibold mt-3 mb-1 font-body">
+          <h5 key={`h5-${i}`} className="text-[14px] font-semibold mt-2 mb-0.5 font-body leading-tight">
             {parseInline(trimmed.slice(3))}
           </h5>
         );
@@ -188,7 +191,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         flushNumberedList();
         if (trimmed) {
           elements.push(
-            <p key={`p-${i}`} className="text-[15px] my-1 font-body font-normal">
+            <p key={`p-${i}`} className="text-[14px] my-0.5 font-body font-normal leading-tight">
               {parseInline(trimmed)}
             </p>
           );
@@ -208,16 +211,16 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   }
 
   return (
-    <div className="font-nunito text-foreground">
+    <ScrollArea className="h-full max-h-[200px] font-nunito text-foreground">
       {/* Content */}
-      <div className="space-y-1 text-foreground/90">
+      <div className="space-y-0.5 text-foreground/90 pr-2">
         {content ? (
           parseContent(content)
         ) : (
           <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
         )}
       </div>
-    </div>
+    </ScrollArea>
   );
 };
 
