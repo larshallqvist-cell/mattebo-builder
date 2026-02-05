@@ -49,10 +49,9 @@ const MetalDoorTransition = ({ children }: MetalDoorTransitionProps) => {
     <div className="relative overflow-hidden">
       {/* Left Door */}
       <motion.div
-        initial={{ x: "-100%" }}
-        animate={{ x: doorsOpen ? "-100%" : 0 }}
+        animate={{ x: doorsOpen ? "-100%" : "0%" }}
         transition={{ 
-          duration: 0.5, 
+          duration: 0.6, 
           ease: [0.76, 0, 0.24, 1],
         }}
         className="fixed inset-y-0 left-0 w-1/2 z-50 pointer-events-none"
@@ -111,10 +110,9 @@ const MetalDoorTransition = ({ children }: MetalDoorTransitionProps) => {
 
       {/* Right Door */}
       <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: doorsOpen ? "100%" : 0 }}
+        animate={{ x: doorsOpen ? "100%" : "0%" }}
         transition={{ 
-          duration: 0.5, 
+          duration: 0.6, 
           ease: [0.76, 0, 0.24, 1],
         }}
         className="fixed inset-y-0 right-0 w-1/2 z-50 pointer-events-none"
