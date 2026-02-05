@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import SparkParticles from "./SparkParticles";
 
 interface MetalPanelProps {
   children: React.ReactNode;
@@ -6,6 +7,7 @@ interface MetalPanelProps {
   icon?: React.ReactNode;
   className?: string;
   glowColor?: string;
+  showSparks?: boolean;
 }
 
 const MetalPanel = ({ 
@@ -13,14 +15,15 @@ const MetalPanel = ({
   title, 
   icon, 
   className = "",
-  glowColor = "hsl(var(--neon-copper))"
+  glowColor = "hsl(var(--neon-copper))",
+  showSparks = false
 }: MetalPanelProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`relative rounded-lg overflow-hidden ${className}`}
+      className={`relative rounded-lg overflow-hidden group ${className}`}
       style={{
         background: `linear-gradient(145deg, 
           hsl(var(--rust-dark)) 0%, 
@@ -37,6 +40,12 @@ const MetalPanel = ({
         `,
       }}
     >
+      {/* Spark particles on hover */}
+      {showSparks && (
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <SparkParticles count={6} color={glowColor} />
+        </div>
+      )}
       {/* Corner screws */}
       {[
         { top: "6px", left: "6px" },
@@ -96,7 +105,7 @@ const MetalPanel = ({
               </span>
             )}
             <h3 
-              className="font-orbitron font-bold text-sm"
+              className="font-orbitron font-bold text-sm glitch-hover"
               style={{ 
                 color: glowColor,
                 textShadow: `0 0 10px ${glowColor}60`,
