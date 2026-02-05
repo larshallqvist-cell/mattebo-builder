@@ -161,7 +161,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 {/* Bottom half: Calculator + Geogebra + Radio stacked */}
                 <div className="flex-[0.5] flex flex-col gap-2 min-h-0">
                   {/* Calculator + Geogebra side by side */}
-                  <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0">
+                  <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0" showSparks>
                     <div className="flex items-center justify-center gap-2">
                       <CalculatorThumbnail compact />
                       <GeogebraLink compact />

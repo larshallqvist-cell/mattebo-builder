@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { hapticFeedback } from "@/hooks/useHaptic";
+import SparkParticles from "./SparkParticles";
 
 interface ApocalypticGradeCardProps {
   grade: number;
@@ -55,6 +56,11 @@ const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) =
         className={`relative w-[130px] h-[130px] sm:w-[160px] sm:h-[160px] md:w-[180px] md:h-[180px] lg:w-[200px] lg:h-[200px] cursor-pointer group ${floatClass}`}
         style={{ animationDelay: `${delay * 0.5}s` }}
       >
+        {/* Spark particles on hover */}
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <SparkParticles count={8} color={colors.neon} />
+        </div>
+
         {/* Outer rusty metal frame */}
         <div 
           className="absolute inset-0 rounded-lg"

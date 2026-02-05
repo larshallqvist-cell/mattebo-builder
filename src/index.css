@@ -307,6 +307,69 @@
     scrollbar-width: none;
   }
 
+  /* CRT Glitch effect */
+  @keyframes glitch {
+    0%, 100% {
+      text-shadow: 
+        0 0 10px currentColor,
+        0 0 20px currentColor;
+      transform: translate(0);
+    }
+    20% {
+      text-shadow: 
+        -2px 0 hsl(var(--neon-turquoise)),
+        2px 0 hsl(var(--neon-copper));
+      transform: translate(-1px, 1px);
+    }
+    40% {
+      text-shadow: 
+        2px 0 hsl(var(--neon-copper)),
+        -2px 0 hsl(var(--neon-turquoise));
+      transform: translate(1px, -1px);
+    }
+    60% {
+      text-shadow: 
+        0 2px hsl(var(--neon-blue)),
+        0 -2px hsl(var(--neon-violet));
+      transform: translate(0, 1px);
+    }
+    80% {
+      text-shadow: 
+        -1px -1px hsl(var(--neon-turquoise)),
+        1px 1px hsl(var(--neon-copper));
+      transform: translate(-1px, 0);
+    }
+  }
+
+  .glitch-hover:hover {
+    animation: glitch 0.3s ease-in-out;
+  }
+
+  /* Neon pulse effect */
+  @keyframes neon-pulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 5px hsl(var(--primary) / 0.5),
+        0 0 10px hsl(var(--primary) / 0.3),
+        inset 0 0 5px hsl(var(--primary) / 0.1);
+    }
+    50% {
+      box-shadow: 
+        0 0 10px hsl(var(--primary) / 0.8),
+        0 0 20px hsl(var(--primary) / 0.5),
+        0 0 30px hsl(var(--primary) / 0.3),
+        inset 0 0 10px hsl(var(--primary) / 0.2);
+    }
+  }
+
+  .neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
+  }
+
+  .neon-pulse-hover:hover {
+    animation: neon-pulse 1s ease-in-out infinite;
+  }
+
   /* Floating animation for grade cards */
   @keyframes float {
     0%, 100% {
