@@ -276,32 +276,22 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   return (
     <div className="h-full flex flex-col relative font-nunito text-foreground">
-      {/* Secret "screw" toggle in corner - looks like a decorative rivet/bolt */}
+      {/* Secret "screw" toggle - tiny, positioned at top-right corner like a panel rivet */}
       <button
         onClick={handleSecretToggle}
-        className="absolute top-0 right-0 w-4 h-4 rounded-full transition-all z-10"
+        className="absolute -top-2 -right-2 w-2.5 h-2.5 rounded-full transition-all z-20"
         style={{
           background: navigationUnlocked 
             ? "radial-gradient(circle at 35% 35%, hsl(var(--primary)), hsl(var(--primary) / 0.4))"
-            : "radial-gradient(circle at 35% 35%, hsl(var(--muted-foreground) / 0.4), hsl(var(--muted-foreground) / 0.15))",
+            : "radial-gradient(circle at 35% 35%, hsl(var(--muted-foreground) / 0.3), hsl(var(--muted-foreground) / 0.1))",
           boxShadow: navigationUnlocked 
-            ? "inset 1px 1px 2px rgba(255,255,255,0.2), inset -1px -1px 2px rgba(0,0,0,0.4), 0 0 8px hsl(var(--primary) / 0.5)"
-            : "inset 1px 1px 2px rgba(255,255,255,0.1), inset -1px -1px 2px rgba(0,0,0,0.3)",
-          opacity: navigationUnlocked ? 1 : 0.5,
+            ? "inset 0.5px 0.5px 1px rgba(255,255,255,0.3), 0 0 6px hsl(var(--primary) / 0.6)"
+            : "inset 0.5px 0.5px 1px rgba(255,255,255,0.15), inset -0.5px -0.5px 1px rgba(0,0,0,0.2)",
+          opacity: navigationUnlocked ? 1 : 0.4,
         }}
         title=""
         aria-label="Toggle navigation"
-      >
-        {/* Inner slot mark to look like a screw head */}
-        <span 
-          className="absolute inset-0 flex items-center justify-center text-[8px] font-bold"
-          style={{ 
-            color: navigationUnlocked ? "hsl(var(--primary-foreground))" : "rgba(0,0,0,0.3)",
-          }}
-        >
-          +
-        </span>
-      </button>
+      />
       
       {/* Navigation bar - only visible when unlocked */}
       {navigationUnlocked && sortedDates.length > 0 && (
