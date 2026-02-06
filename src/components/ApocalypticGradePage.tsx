@@ -79,7 +79,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               {/* Title + Chapter Selector combined */}
               <div className="flex items-center gap-6 flex-wrap">
                 <h1 
-                  className="text-2xl font-orbitron font-bold"
+                  className="text-3xl font-orbitron font-bold"
                   style={{
                     color: glowColor,
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,

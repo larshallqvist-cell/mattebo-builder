@@ -154,7 +154,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                 <AccordionTrigger 
                   className="px-4 py-3 hover:bg-white/5 text-left transition-colors"
                 >
-                  <span className="flex items-center gap-3 font-orbitron font-medium text-foreground text-xl">
+                  <span className="flex items-center gap-3 font-orbitron font-medium text-foreground text-lg">
                     <span style={{ color: "hsl(var(--neon-copper))" }}>{category.icon}</span> 
                     {category.title}
                   </span>

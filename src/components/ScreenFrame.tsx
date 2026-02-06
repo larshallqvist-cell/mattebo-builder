@@ -88,7 +88,7 @@ const ScreenFrame = ({ children, title, className = "" }: ScreenFrameProps) => {
             }}
           >
             <h3 
-              className="font-orbitron font-bold text-sm"
+              className="font-orbitron font-bold text-base"
               style={{ 
                 color: "hsl(var(--neon-turquoise))",
                 textShadow: "0 0 10px hsl(var(--neon-turquoise) / 0.6)",
