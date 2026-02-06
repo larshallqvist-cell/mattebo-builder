@@ -12,47 +12,200 @@ import { RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Sparkle component for accordion expand effect
-const Sparkle = ({ delay, x, y }: { delay: number; x: number; y: number }) => (
+const Sparkle = ({ delay, x, y, size, color, duration }: { 
+  delay: number; 
+  x: number; 
+  y: number; 
+  size: number;
+  color: string;
+  duration: number;
+}) => (
   <motion.div
     className="absolute pointer-events-none"
     style={{ left: `${x}%`, top: `${y}%` }}
-    initial={{ opacity: 0, scale: 0 }}
+    initial={{ opacity: 0, scale: 0, rotate: 0 }}
     animate={{ 
-      opacity: [0, 1, 0],
-      scale: [0, 1.2, 0],
+      opacity: [0, 1, 1, 0],
+      scale: [0, 1.5, 1, 0],
+      rotate: [0, 180],
+      y: [0, -10, 5],
     }}
     transition={{ 
-      duration: 0.6, 
+      duration, 
       delay,
       ease: "easeOut"
     }}
   >
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <path
         d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"
-        fill="hsl(var(--neon-turquoise))"
-        style={{ filter: "drop-shadow(0 0 4px hsl(var(--neon-turquoise)))" }}
+        fill={color}
+        style={{ filter: `drop-shadow(0 0 ${size/2}px ${color})` }}
       />
     </svg>
   </motion.div>
 );
 
+// Glowing orb that floats up
+const GlowOrb = ({ delay, x, size, color }: { delay: number; x: number; size: number; color: string }) => (
+  <motion.div
+    className="absolute pointer-events-none rounded-full"
+    style={{ 
+      left: `${x}%`, 
+      bottom: 0,
+      width: size,
+      height: size,
+      background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+      boxShadow: `0 0 ${size}px ${color}, 0 0 ${size * 2}px ${color}`,
+    }}
+    initial={{ opacity: 0, y: 0 }}
+    animate={{ 
+      opacity: [0, 0.8, 0.6, 0],
+      y: [-20, -80, -120],
+      scale: [0.5, 1.2, 0.3],
+    }}
+    transition={{ 
+      duration: 1.2, 
+      delay,
+      ease: "easeOut"
+    }}
+  />
+);
+
+// Shooting star that flies across
+const ShootingStar = ({ delay, startX, startY, angle }: { 
+  delay: number; 
+  startX: number; 
+  startY: number;
+  angle: number;
+}) => {
+  const distance = 150;
+  const endX = startX + Math.cos(angle) * distance;
+  const endY = startY + Math.sin(angle) * distance;
+  
+  return (
+    <motion.div
+      className="absolute pointer-events-none"
+      style={{ left: `${startX}%`, top: `${startY}%` }}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ 
+        opacity: [0, 1, 1, 0],
+        scale: [0.3, 1, 0.5],
+        x: [0, (endX - startX) * 2],
+        y: [0, (endY - startY) * 2],
+      }}
+      transition={{ 
+        duration: 0.6, 
+        delay,
+        ease: "easeOut"
+      }}
+    >
+      <div 
+        className="w-1 h-4 rounded-full"
+        style={{
+          background: "linear-gradient(to bottom, hsl(var(--neon-turquoise)), transparent)",
+          boxShadow: "0 0 8px hsl(var(--neon-turquoise))",
+          transform: `rotate(${angle * 180 / Math.PI + 90}deg)`,
+        }}
+      />
+    </motion.div>
+  );
+};
+
 const SparkleExplosion = ({ show }: { show: boolean }) => {
-  const sparkles = useMemo(() => 
-    Array.from({ length: 8 }, (_, i) => ({
-      id: i,
+  const particles = useMemo(() => {
+    const colors = [
+      "hsl(var(--neon-turquoise))",
+      "hsl(var(--neon-copper))",
+      "#FFD700",
+      "#FFFFFF",
+      "hsl(var(--primary))",
+    ];
+    
+    // Main sparkles - lots of them!
+    const sparkles = Array.from({ length: 25 }, (_, i) => ({
+      id: `sparkle-${i}`,
+      type: 'sparkle' as const,
+      x: 5 + Math.random() * 90,
+      y: 10 + Math.random() * 80,
+      delay: Math.random() * 0.4,
+      size: 8 + Math.random() * 16,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      duration: 0.6 + Math.random() * 0.4,
+    }));
+    
+    // Glowing orbs that float up
+    const orbs = Array.from({ length: 8 }, (_, i) => ({
+      id: `orb-${i}`,
+      type: 'orb' as const,
       x: 10 + Math.random() * 80,
-      y: 20 + Math.random() * 60,
+      delay: Math.random() * 0.3,
+      size: 12 + Math.random() * 20,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    }));
+    
+    // Shooting stars from center
+    const stars = Array.from({ length: 6 }, (_, i) => ({
+      id: `star-${i}`,
+      type: 'shooting' as const,
+      startX: 45 + Math.random() * 10,
+      startY: 40 + Math.random() * 20,
+      angle: (i / 6) * Math.PI * 2 + Math.random() * 0.5,
       delay: Math.random() * 0.2,
-    })), []);
+    }));
+    
+    return { sparkles, orbs, stars };
+  }, []);
 
   return (
     <AnimatePresence>
       {show && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-          {sparkles.map((s) => (
-            <Sparkle key={s.id} delay={s.delay} x={s.x} y={s.y} />
+          {/* Main sparkles */}
+          {particles.sparkles.map((s) => (
+            <Sparkle 
+              key={s.id} 
+              delay={s.delay} 
+              x={s.x} 
+              y={s.y} 
+              size={s.size}
+              color={s.color}
+              duration={s.duration}
+            />
           ))}
+          
+          {/* Floating orbs */}
+          {particles.orbs.map((o) => (
+            <GlowOrb
+              key={o.id}
+              delay={o.delay}
+              x={o.x}
+              size={o.size}
+              color={o.color}
+            />
+          ))}
+          
+          {/* Shooting stars */}
+          {particles.stars.map((s) => (
+            <ShootingStar
+              key={s.id}
+              delay={s.delay}
+              startX={s.startX}
+              startY={s.startY}
+              angle={s.angle}
+            />
+          ))}
+          
+          {/* Flash overlay */}
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              background: "radial-gradient(ellipse at center, hsl(var(--neon-turquoise) / 0.3) 0%, transparent 70%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.6, 0] }}
+            transition={{ duration: 0.5 }}
+          />
         </div>
       )}
     </AnimatePresence>
