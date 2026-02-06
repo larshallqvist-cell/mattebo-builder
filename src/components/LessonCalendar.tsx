@@ -11,6 +11,39 @@ import { CalendarEffect } from "@/components/CalendarEffects";
 import { RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Sparkle sound using Web Audio API
+const playSparkleSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Create multiple quick chime notes for sparkle effect
+    const notes = [800, 1200, 1600, 2000, 1400];
+    
+    notes.forEach((freq, i) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = freq;
+      oscillator.type = 'sine';
+      
+      const startTime = audioContext.currentTime + i * 0.05;
+      const duration = 0.15;
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.08, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    });
+  } catch (e) {
+    // Audio not supported, fail silently
+  }
+};
+
 // Sparkle component for accordion expand effect
 const Sparkle = ({ delay, x, y, size, color, duration }: { 
   delay: number; 
@@ -25,10 +58,10 @@ const Sparkle = ({ delay, x, y, size, color, duration }: {
     style={{ left: `${x}%`, top: `${y}%` }}
     initial={{ opacity: 0, scale: 0, rotate: 0 }}
     animate={{ 
-      opacity: [0, 1, 1, 0],
-      scale: [0, 1.5, 1, 0],
-      rotate: [0, 180],
-      y: [0, -10, 5],
+      opacity: [0, 1, 1, 0.8, 0.4, 0],
+      scale: [0, 1.5, 1.2, 1, 0.5, 0],
+      rotate: [0, 180, 360],
+      y: [0, -15, -5, 10],
     }}
     transition={{ 
       duration, 
@@ -60,12 +93,12 @@ const GlowOrb = ({ delay, x, size, color }: { delay: number; x: number; size: nu
     }}
     initial={{ opacity: 0, y: 0 }}
     animate={{ 
-      opacity: [0, 0.8, 0.6, 0],
-      y: [-20, -80, -120],
-      scale: [0.5, 1.2, 0.3],
+      opacity: [0, 0.8, 0.7, 0.5, 0.2, 0],
+      y: [-20, -60, -100, -140, -180],
+      scale: [0.5, 1.2, 1, 0.6, 0.2],
     }}
     transition={{ 
-      duration: 1.2, 
+      duration: 2, 
       delay,
       ease: "easeOut"
     }}
@@ -89,13 +122,13 @@ const ShootingStar = ({ delay, startX, startY, angle }: {
       style={{ left: `${startX}%`, top: `${startY}%` }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ 
-        opacity: [0, 1, 1, 0],
-        scale: [0.3, 1, 0.5],
-        x: [0, (endX - startX) * 2],
-        y: [0, (endY - startY) * 2],
+        opacity: [0, 1, 1, 0.5, 0],
+        scale: [0.3, 1, 0.7, 0.3],
+        x: [0, (endX - startX) * 2, (endX - startX) * 3],
+        y: [0, (endY - startY) * 2, (endY - startY) * 3],
       }}
       transition={{ 
-        duration: 0.6, 
+        duration: 1.2, 
         delay,
         ease: "easeOut"
       }}
@@ -112,7 +145,7 @@ const ShootingStar = ({ delay, startX, startY, angle }: {
   );
 };
 
-const SparkleExplosion = ({ show }: { show: boolean }) => {
+const SparkleExplosion = ({ show, onStart }: { show: boolean; onStart?: () => void }) => {
   const particles = useMemo(() => {
     const colors = [
       "hsl(var(--neon-turquoise))",
@@ -128,10 +161,10 @@ const SparkleExplosion = ({ show }: { show: boolean }) => {
       type: 'sparkle' as const,
       x: 5 + Math.random() * 90,
       y: 10 + Math.random() * 80,
-      delay: Math.random() * 0.4,
+      delay: Math.random() * 0.6,
       size: 8 + Math.random() * 16,
       color: colors[Math.floor(Math.random() * colors.length)],
-      duration: 0.6 + Math.random() * 0.4,
+      duration: 1.2 + Math.random() * 0.8, // Longer duration
     }));
     
     // Glowing orbs that float up
@@ -139,7 +172,7 @@ const SparkleExplosion = ({ show }: { show: boolean }) => {
       id: `orb-${i}`,
       type: 'orb' as const,
       x: 10 + Math.random() * 80,
-      delay: Math.random() * 0.3,
+      delay: Math.random() * 0.5,
       size: 12 + Math.random() * 20,
       color: colors[Math.floor(Math.random() * colors.length)],
     }));
@@ -151,11 +184,18 @@ const SparkleExplosion = ({ show }: { show: boolean }) => {
       startX: 45 + Math.random() * 10,
       startY: 40 + Math.random() * 20,
       angle: (i / 6) * Math.PI * 2 + Math.random() * 0.5,
-      delay: Math.random() * 0.2,
+      delay: Math.random() * 0.3,
     }));
     
     return { sparkles, orbs, stars };
   }, []);
+
+  // Trigger sound when showing
+  useMemo(() => {
+    if (show && onStart) {
+      onStart();
+    }
+  }, [show, onStart]);
 
   return (
     <AnimatePresence>
@@ -203,8 +243,8 @@ const SparkleExplosion = ({ show }: { show: boolean }) => {
               background: "radial-gradient(ellipse at center, hsl(var(--neon-turquoise) / 0.3) 0%, transparent 70%)",
             }}
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.6, 0] }}
-            transition={{ duration: 0.5 }}
+            animate={{ opacity: [0, 0.6, 0.3, 0] }}
+            transition={{ duration: 1 }}
           />
         </div>
       )}
@@ -275,7 +315,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
   // Default open: only the first week (set on first render)
   const defaultOpenWeek = weekGroups.length > 0 ? [`week-${weekGroups[0].week}`] : [];
   
-  // Handle accordion value change to trigger sparkles
+  // Handle accordion value change to trigger sparkles and sound
   const handleValueChange = (newValue: string[]) => {
     // Find newly opened weeks
     const newlyOpened = newValue.filter(v => !openWeeks.includes(v));
@@ -284,14 +324,17 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
       const weekNumbers = newlyOpened.map(v => parseInt(v.replace('week-', '')));
       setSparklingWeeks(prev => new Set([...prev, ...weekNumbers]));
       
-      // Clear sparkles after animation
+      // Play sparkle sound
+      playSparkleSound();
+      
+      // Clear sparkles after longer animation (2.5 seconds)
       setTimeout(() => {
         setSparklingWeeks(prev => {
           const next = new Set(prev);
           weekNumbers.forEach(w => next.delete(w));
           return next;
         });
-      }, 800);
+      }, 2500);
     }
     
     setOpenWeeks(newValue);
