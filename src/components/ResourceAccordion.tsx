@@ -160,7 +160,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="bg-black/20">
-                  <div className="px-2 py-0.5 grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-0 max-h-[180px] overflow-y-auto industrial-scrollbar">
+                  <div className="px-2 py-0.5 grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-0 max-h-[280px] overflow-y-auto industrial-scrollbar">
                     {category.links.map((link, index) => {
                       // 1. Rensa URL:en från allt skräp
                       const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
