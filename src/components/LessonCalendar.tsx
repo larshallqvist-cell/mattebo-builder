@@ -11,63 +11,6 @@ import { CalendarEffect } from "@/components/CalendarEffects";
 import { RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Magical chime sound using Web Audio API
-const playChimeSound = () => {
-  try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    // Bell/chime frequencies - these create a magical sparkle sound
-    const chimes = [
-      { freq: 523.25, delay: 0 },      // C5
-      { freq: 659.25, delay: 0.08 },   // E5
-      { freq: 783.99, delay: 0.16 },   // G5
-      { freq: 1046.50, delay: 0.24 },  // C6
-      { freq: 1318.51, delay: 0.32 },  // E6
-    ];
-    
-    chimes.forEach(({ freq, delay }) => {
-      // Main oscillator (sine for pure bell tone)
-      const osc1 = audioContext.createOscillator();
-      const osc2 = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      // Create a simple reverb-like effect with delay
-      const delayNode = audioContext.createDelay();
-      delayNode.delayTime.value = 0.1;
-      const feedbackGain = audioContext.createGain();
-      feedbackGain.gain.value = 0.2;
-      
-      osc1.connect(gainNode);
-      osc2.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      gainNode.connect(delayNode);
-      delayNode.connect(feedbackGain);
-      feedbackGain.connect(audioContext.destination);
-      
-      // Main frequency + slight detuned harmonic for richness
-      osc1.frequency.value = freq;
-      osc1.type = 'sine';
-      osc2.frequency.value = freq * 2.4; // Bell-like inharmonic partial
-      osc2.type = 'sine';
-      
-      const startTime = audioContext.currentTime + delay;
-      
-      // Bell envelope: quick attack, long decay
-      gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.12, startTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.8);
-      gainNode.gain.linearRampToValueAtTime(0, startTime + 1.0);
-      
-      osc1.start(startTime);
-      osc2.start(startTime);
-      osc1.stop(startTime + 1.0);
-      osc2.stop(startTime + 1.0);
-    });
-  } catch (e) {
-    // Audio not supported, fail silently
-  }
-};
-
 // Sparkle component for accordion expand effect
 const Sparkle = ({ delay, x, y, size, color, duration }: { 
   delay: number; 
@@ -339,7 +282,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
   // Default open: only the first week (set on first render)
   const defaultOpenWeek = weekGroups.length > 0 ? [`week-${weekGroups[0].week}`] : [];
   
-  // Handle accordion value change to trigger sparkles and sound
+  // Handle accordion value change to trigger sparkles
   const handleValueChange = (newValue: string[]) => {
     // Find newly opened weeks
     const newlyOpened = newValue.filter(v => !openWeeks.includes(v));
@@ -347,9 +290,6 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
     if (newlyOpened.length > 0) {
       const weekNumbers = newlyOpened.map(v => parseInt(v.replace('week-', '')));
       setSparklingWeeks(prev => new Set([...prev, ...weekNumbers]));
-      
-      // Play chime sound
-      playChimeSound();
       
       // Clear sparkles after longer animation (2.5 seconds)
       setTimeout(() => {
