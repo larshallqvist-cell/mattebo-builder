@@ -10,33 +10,19 @@ interface PostItNoteProps {
 
 const PostItNote = ({ grade }: PostItNoteProps) => {
   const { upcomingEvents, loading } = useCalendarEvents(grade);
-  const [dayOffset, setDayOffset] = useState(0);
+  const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
   
-  // Group events by date (YYYY-MM-DD)
-  const eventsByDate = upcomingEvents.reduce((acc, event) => {
-    const dateKey = event.date.toISOString().split('T')[0];
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(event);
-    return acc;
-  }, {} as Record<string, typeof upcomingEvents>);
-  
-  // Get sorted unique dates
-  const sortedDates = Object.keys(eventsByDate).sort();
-  
-  // Current date to display
-  const currentDateKey = sortedDates[dayOffset] || null;
-  const eventsForCurrentDay = currentDateKey ? eventsByDate[currentDateKey] : [];
+  // Current event to display
+  const currentEvent = upcomingEvents[eventIndex] || null;
   
   // Navigation handlers
-  const goToPreviousDay = () => {
-    if (dayOffset > 0) setDayOffset(dayOffset - 1);
+  const goToPrevious = () => {
+    if (eventIndex > 0) setEventIndex(eventIndex - 1);
   };
   
-  const goToNextDay = () => {
-    if (dayOffset < sortedDates.length - 1) setDayOffset(dayOffset + 1);
+  const goToNext = () => {
+    if (eventIndex < upcomingEvents.length - 1) setEventIndex(eventIndex + 1);
   };
   
   // Secret toggle
@@ -45,13 +31,17 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   };
   
   // Format date for display
-  const formatDayHeader = (dateStr: string) => {
-    const date = new Date(dateStr + 'T12:00:00');
+  const formatEventDate = (date: Date) => {
     return date.toLocaleDateString("sv-SE", { 
-      weekday: "long", 
+      weekday: "short", 
       day: "numeric", 
-      month: "long" 
+      month: "short" 
     });
+  };
+  
+  // Format time
+  const formatEventTime = (date: Date) => {
+    return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
   };
   // Convert HTML to Markdown-like format for consistent parsing
   const htmlToMarkdown = (html: string): string => {
@@ -248,27 +238,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return elements;
   };
 
-  // Combine all events for current day into content
-  const buildDayContent = () => {
-    if (eventsForCurrentDay.length === 0) {
-      return null;
-    }
-    
-    // If just one event, show its description
-    if (eventsForCurrentDay.length === 1) {
-      return eventsForCurrentDay[0].description || "";
-    }
-    
-    // Multiple events: show each with time header
-    return eventsForCurrentDay.map(event => {
-      const time = event.date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
-      const title = event.title || "Lektion";
-      const desc = event.description || "";
-      return `## ${time} — ${title}\n${desc}`;
-    }).join("\n\n");
-  };
-  
-  const content = buildDayContent();
+  const content = currentEvent?.description || "";
   
   if (loading) {
     return <PostItSkeleton />;
@@ -294,26 +264,30 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       />
       
       {/* Navigation bar - only visible when unlocked */}
-      {navigationUnlocked && sortedDates.length > 0 && (
+      {navigationUnlocked && upcomingEvents.length > 0 && (
         <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-primary/30">
           <button
-            onClick={goToPreviousDay}
-            disabled={dayOffset === 0}
+            onClick={goToPrevious}
+            disabled={eventIndex === 0}
             className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-primary" />
           </button>
           
           <span className="text-xs text-foreground/70 font-medium text-center">
-            {currentDateKey ? formatDayHeader(currentDateKey) : "Inga dagar"}
-            <span className="block text-muted-foreground text-[10px]">
-              Dag {dayOffset + 1} av {sortedDates.length}
-            </span>
+            {currentEvent ? (
+              <>
+                {formatEventDate(currentEvent.date)} {formatEventTime(currentEvent.date)}
+                <span className="block text-muted-foreground text-[10px]">
+                  {eventIndex + 1} av {upcomingEvents.length}
+                </span>
+              </>
+            ) : "Inga lektioner"}
           </span>
           
           <button
-            onClick={goToNextDay}
-            disabled={dayOffset === sortedDates.length - 1}
+            onClick={goToNext}
+            disabled={eventIndex === upcomingEvents.length - 1}
             className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight className="w-5 h-5 text-primary" />
