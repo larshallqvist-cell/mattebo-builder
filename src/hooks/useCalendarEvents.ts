@@ -299,12 +299,12 @@ export const useCalendarEvents = (grade: number) => {
   }, [grade, refreshKey]);
 
   const now = new Date();
-  const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
   
-  // Filter to upcoming events, limit to ~1 week for cleaner UI
+  // Filter to upcoming events, limit to ~2 weeks for day navigation
   const upcomingEvents = events
-    .filter(e => e.endDate > now && e.date < oneWeekFromNow)
-    .slice(0, 15); // Max 15 events for performance
+    .filter(e => e.endDate > now && e.date < twoWeeksFromNow)
+    .slice(0, 30); // Max 30 events for performance
   
   const nextEvent = events.filter(e => e.endDate > now)[0] || null;
 
