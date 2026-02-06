@@ -3,7 +3,6 @@ import PageTransition from "@/components/PageTransition";
 import ApocalypticGradeCard from "@/components/ApocalypticGradeCard";
 import ApocalypticNav from "@/components/ApocalypticNav";
 import ApocalypticFooter from "@/components/ApocalypticFooter";
-import DustParticles from "@/components/DustParticles";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
 const grades = [6, 7, 8, 9];
@@ -12,8 +11,7 @@ const Index = () => {
   return (
     <PageTransition>
       <div className="min-h-screen flex flex-col relative">
-        {/* Dust particles background */}
-        <DustParticles />
+        {/* Navigation */}
 
         {/* Navigation */}
         <ApocalypticNav />
