@@ -25,7 +25,7 @@ const Index = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-orbitron font-bold text-foreground glitch-hover"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-orbitron font-bold text-foreground glitch-hover"
             style={{
               textShadow: "0 2px 10px rgba(0,0,0,0.5), 0 0 30px hsl(var(--primary) / 0.2)",
             }}
@@ -45,7 +45,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-xl md:text-2xl font-orbitron font-medium text-foreground/80 mb-8 md:mb-12"
+            className="text-2xl md:text-3xl lg:text-4xl font-orbitron font-medium text-foreground/80 mb-8 md:mb-12"
             style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
           >
             Välj årskurs
