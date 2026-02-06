@@ -5,10 +5,59 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CalendarSkeleton } from "@/components/skeletons";
 import { CalendarEffect } from "@/components/CalendarEffects";
 import { RefreshCw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Sparkle component for accordion expand effect
+const Sparkle = ({ delay, x, y }: { delay: number; x: number; y: number }) => (
+  <motion.div
+    className="absolute pointer-events-none"
+    style={{ left: `${x}%`, top: `${y}%` }}
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{ 
+      opacity: [0, 1, 0],
+      scale: [0, 1.2, 0],
+    }}
+    transition={{ 
+      duration: 0.6, 
+      delay,
+      ease: "easeOut"
+    }}
+  >
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"
+        fill="hsl(var(--neon-turquoise))"
+        style={{ filter: "drop-shadow(0 0 4px hsl(var(--neon-turquoise)))" }}
+      />
+    </svg>
+  </motion.div>
+);
+
+const SparkleExplosion = ({ show }: { show: boolean }) => {
+  const sparkles = useMemo(() => 
+    Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      x: 10 + Math.random() * 80,
+      y: 20 + Math.random() * 60,
+      delay: Math.random() * 0.2,
+    })), []);
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+          {sparkles.map((s) => (
+            <Sparkle key={s.id} delay={s.delay} x={s.x} y={s.y} />
+          ))}
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const formatTime = (date: Date): string => {
   const hours = date.getHours();
@@ -38,6 +87,8 @@ interface WeekGroup {
 
 const LessonCalendar = ({ grade }: LessonCalendarProps) => {
   const { upcomingEvents, loading, error, refresh } = useCalendarEvents(grade);
+  const [sparklingWeeks, setSparklingWeeks] = useState<Set<number>>(new Set());
+  const [openWeeks, setOpenWeeks] = useState<string[]>([]);
 
   // Group events by week
   const weekGroups = useMemo(() => {
@@ -68,8 +119,30 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
     return groups;
   }, [upcomingEvents]);
 
-  // Default open: only the first week
+  // Default open: only the first week (set on first render)
   const defaultOpenWeek = weekGroups.length > 0 ? [`week-${weekGroups[0].week}`] : [];
+  
+  // Handle accordion value change to trigger sparkles
+  const handleValueChange = (newValue: string[]) => {
+    // Find newly opened weeks
+    const newlyOpened = newValue.filter(v => !openWeeks.includes(v));
+    
+    if (newlyOpened.length > 0) {
+      const weekNumbers = newlyOpened.map(v => parseInt(v.replace('week-', '')));
+      setSparklingWeeks(prev => new Set([...prev, ...weekNumbers]));
+      
+      // Clear sparkles after animation
+      setTimeout(() => {
+        setSparklingWeeks(prev => {
+          const next = new Set(prev);
+          weekNumbers.forEach(w => next.delete(w));
+          return next;
+        });
+      }, 800);
+    }
+    
+    setOpenWeeks(newValue);
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -98,6 +171,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
           <Accordion
             type="multiple"
             defaultValue={defaultOpenWeek}
+            onValueChange={handleValueChange}
             className="w-full"
           >
             {weekGroups.map((group) => (
@@ -124,7 +198,8 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                     VECKA {group.week} ({group.month})
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-0">
+                <AccordionContent className="pb-0 relative">
+                  <SparkleExplosion show={sparklingWeeks.has(group.week)} />
                   {group.events.map((event, eventIndex) => {
                     // Check if this is a new day compared to previous event
                     const prevEvent = eventIndex > 0 ? group.events[eventIndex - 1] : null;
