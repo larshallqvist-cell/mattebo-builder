@@ -51,7 +51,7 @@ serve(async (req) => {
 
     // Fetch from Google Calendar (no CORS issues from server)
     console.log(`Fetching fresh calendar for grade ${grade}`);
-    const response = await fetch(icsUrl);
+    const response = await fetch(icsUrl!);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch calendar: ${response.status}`);
