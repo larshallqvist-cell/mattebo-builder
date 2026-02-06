@@ -241,44 +241,55 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   return (
     <div className="h-full flex flex-col relative font-nunito text-foreground">
-      {/* Secret "screw" toggle in corner - looks like a decorative screw */}
+      {/* Secret "screw" toggle in corner - looks like a decorative rivet/bolt */}
       <button
         onClick={handleSecretToggle}
-        className="absolute -top-1 -right-1 w-3 h-3 rounded-full opacity-30 hover:opacity-50 transition-opacity z-10"
+        className="absolute top-0 right-0 w-4 h-4 rounded-full transition-all z-10"
         style={{
           background: navigationUnlocked 
-            ? "radial-gradient(circle at 30% 30%, hsl(var(--primary)), hsl(var(--primary) / 0.6))"
-            : "radial-gradient(circle at 30% 30%, hsl(var(--muted-foreground) / 0.5), hsl(var(--muted-foreground) / 0.2))",
+            ? "radial-gradient(circle at 35% 35%, hsl(var(--primary)), hsl(var(--primary) / 0.4))"
+            : "radial-gradient(circle at 35% 35%, hsl(var(--muted-foreground) / 0.4), hsl(var(--muted-foreground) / 0.15))",
           boxShadow: navigationUnlocked 
-            ? "inset 1px 1px 2px rgba(0,0,0,0.3), 0 0 4px hsl(var(--primary) / 0.4)"
-            : "inset 1px 1px 2px rgba(0,0,0,0.3)",
+            ? "inset 1px 1px 2px rgba(255,255,255,0.2), inset -1px -1px 2px rgba(0,0,0,0.4), 0 0 8px hsl(var(--primary) / 0.5)"
+            : "inset 1px 1px 2px rgba(255,255,255,0.1), inset -1px -1px 2px rgba(0,0,0,0.3)",
+          opacity: navigationUnlocked ? 1 : 0.5,
         }}
         title=""
         aria-label="Toggle navigation"
-      />
+      >
+        {/* Inner slot mark to look like a screw head */}
+        <span 
+          className="absolute inset-0 flex items-center justify-center text-[8px] font-bold"
+          style={{ 
+            color: navigationUnlocked ? "hsl(var(--primary-foreground))" : "rgba(0,0,0,0.3)",
+          }}
+        >
+          +
+        </span>
+      </button>
       
       {/* Navigation bar - only visible when unlocked */}
-      {navigationUnlocked && upcomingEvents.length > 1 && (
-        <div className="flex items-center justify-between mb-2 pb-1 border-b border-border/30">
+      {navigationUnlocked && upcomingEvents.length > 0 && (
+        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-primary/30">
           <button
             onClick={goToPrevious}
             disabled={eventIndex === 0}
-            className="p-0.5 rounded hover:bg-primary/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft className="w-4 h-4 text-primary" />
+            <ChevronLeft className="w-5 h-5 text-primary" />
           </button>
           
-          <span className="text-xs text-muted-foreground">
-            {currentEvent ? formatEventDate(currentEvent.date) : ""}
-            <span className="ml-1 opacity-50">({eventIndex + 1}/{upcomingEvents.length})</span>
+          <span className="text-xs text-foreground/70 font-medium">
+            {currentEvent ? formatEventDate(currentEvent.date) : "Inga lektioner"}
+            <span className="ml-1.5 text-muted-foreground">({eventIndex + 1}/{upcomingEvents.length})</span>
           </span>
           
           <button
             onClick={goToNext}
             disabled={eventIndex === upcomingEvents.length - 1}
-            className="p-0.5 rounded hover:bg-primary/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronRight className="w-4 h-4 text-primary" />
+            <ChevronRight className="w-5 h-5 text-primary" />
           </button>
         </div>
       )}
