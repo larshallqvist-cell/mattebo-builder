@@ -105,7 +105,7 @@ const MetalPanel = ({
               </span>
             )}
             <h3 
-              className="font-orbitron font-bold text-sm glitch-hover"
+              className="font-orbitron font-bold text-base glitch-hover"
               style={{ 
                 color: glowColor,
                 textShadow: `0 0 10px ${glowColor}60`,
