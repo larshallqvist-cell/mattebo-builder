@@ -150,7 +150,7 @@ const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) =
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-orbitron font-bold transition-transform duration-300 group-hover:scale-110"
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-orbitron font-bold transition-transform duration-300 group-hover:scale-110"
             style={{
               color: colors.neon,
               textShadow: `0 0 10px ${colors.neon}, 0 0 20px ${colors.neon}, 0 0 30px ${colors.neon}`,
