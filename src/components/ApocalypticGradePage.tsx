@@ -4,7 +4,6 @@ import { Home, Calendar, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
-import DustParticles from "@/components/DustParticles";
 import MetalPanel from "@/components/MetalPanel";
 import ScreenFrame from "@/components/ScreenFrame";
 import CalculatorThumbnail from "@/components/CalculatorThumbnail";
@@ -64,9 +63,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           `,
         }}
       >
-        {/* Dust particles */}
-        <DustParticles />
-
         {/* Navigation */}
         <ApocalypticNav />
 
