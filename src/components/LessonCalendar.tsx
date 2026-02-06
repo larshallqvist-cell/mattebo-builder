@@ -349,7 +349,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                   }}
                 >
                   <span
-                    className="text-base font-orbitron font-semibold tracking-wider"
+                    className="text-lg font-orbitron font-semibold tracking-wider"
                     style={{
                       color: "hsl(var(--neon-turquoise))",
                       textShadow: "0 0 8px rgba(64, 224, 208, 0.5)",
