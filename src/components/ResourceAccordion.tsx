@@ -163,7 +163,10 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                   <div className="px-2 py-0.5 grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-0 max-h-[280px] overflow-y-auto industrial-scrollbar">
                     {category.links.map((link, index) => {
                       // 1. Rensa URL:en från allt skräp
-                      const cleanUrl = link.url.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
+                      const cleanUrl = link.url?.trim().replace(/[\u200B-\u200D\uFEFF]/g, "") || "";
+                      
+                      // Check if this is a header/grouping text (empty URL or starts with #)
+                      const isHeader = !cleanUrl || cleanUrl === "#" || cleanUrl.startsWith("#header");
                       const isExternal = cleanUrl.startsWith("http");
                       
                       // Determine link color - support hex codes, CSS colors, or Tailwind classes
@@ -172,32 +175,53 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                       const colorStyle = isHexOrCss ? { color: linkColor } : undefined;
                       const colorClass = linkColor && !isHexOrCss ? linkColor : '';
 
+                      // Render as header/grouping text
+                      if (isHeader) {
                         return (
-                          <button
+                          <div
                             key={index}
-                            type="button"
-                            className={`flex items-center gap-1.5 py-0.5 px-1.5 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full ${colorClass}`}
-                            style={colorStyle}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              hapticFeedback('light');
-                              if (isExternal) {
-                                // Force open in new tab - bypasses iframe restrictions
-                                window.open(cleanUrl, '_blank', 'noopener,noreferrer');
-                              } else {
-                                window.location.href = cleanUrl;
-                              }
-                            }}
+                            className="col-span-full pt-2 pb-0.5 px-1.5"
                           >
-                            {isExternal ? (
-                              <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
-                            ) : (
-                              <Link className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
-                            )}
-                            <span className={`text-sm font-nunito leading-tight transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
-                          </button>
+                            <span 
+                              className="text-xs font-orbitron font-bold uppercase tracking-wider"
+                              style={{ 
+                                color: linkColor || "hsl(var(--neon-copper))",
+                                textShadow: `0 0 8px ${linkColor || "hsl(var(--neon-copper))"}40`
+                              }}
+                            >
+                              {link.title}
+                            </span>
+                          </div>
                         );
+                      }
+
+                      // Render as clickable link
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          className={`flex items-center gap-1.5 py-0.5 px-1.5 transition-all rounded-md hover:bg-white/10 cursor-pointer group text-left w-full ${colorClass}`}
+                          style={colorStyle}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            hapticFeedback('light');
+                            if (isExternal) {
+                              // Force open in new tab - bypasses iframe restrictions
+                              window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                            } else {
+                              window.location.href = cleanUrl;
+                            }
+                          }}
+                        >
+                          {isExternal ? (
+                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
+                          ) : (
+                            <Link className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
+                          )}
+                          <span className={`text-sm font-nunito leading-tight transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
+                        </button>
+                      );
                     })}
                   </div>
                 </AccordionContent>
