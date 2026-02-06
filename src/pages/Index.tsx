@@ -4,6 +4,7 @@ import ApocalypticGradeCard from "@/components/ApocalypticGradeCard";
 import ApocalypticNav from "@/components/ApocalypticNav";
 import ApocalypticFooter from "@/components/ApocalypticFooter";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import LunchMenu from "@/components/LunchMenu";
 
 const grades = [6, 7, 8, 9];
 
@@ -66,6 +67,11 @@ const Index = () => {
           >
             Klicka på en panel för att se resurser och lektionsplaneringar
           </motion.p>
+
+          {/* Lunch menu test */}
+          <div className="w-full max-w-sm mt-8">
+            <LunchMenu />
+          </div>
         </main>
 
         {/* Decorative copper line - hidden on mobile */}
