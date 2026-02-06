@@ -246,20 +246,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   return (
     <div className="h-full flex flex-col relative font-nunito text-foreground">
-      {/* Secret "screw" toggle - tiny, positioned at top-right corner like a panel rivet */}
+      {/* Secret "screw" toggle - small circle at top-right corner */}
       <button
         onClick={handleSecretToggle}
-        className="absolute -top-2 -right-2 w-2.5 h-2.5 rounded-full transition-all z-20"
+        className="absolute -top-1 -right-1 w-4 h-4 rounded-full transition-all z-20 flex items-center justify-center"
         style={{
           background: navigationUnlocked 
-            ? "radial-gradient(circle at 35% 35%, hsl(var(--primary)), hsl(var(--primary) / 0.4))"
-            : "radial-gradient(circle at 35% 35%, hsl(var(--muted-foreground) / 0.3), hsl(var(--muted-foreground) / 0.1))",
+            ? "radial-gradient(circle at 35% 35%, hsl(var(--primary)), hsl(var(--primary) / 0.6))"
+            : "radial-gradient(circle at 35% 35%, hsl(var(--muted-foreground) / 0.5), hsl(var(--muted-foreground) / 0.2))",
           boxShadow: navigationUnlocked 
-            ? "inset 0.5px 0.5px 1px rgba(255,255,255,0.3), 0 0 6px hsl(var(--primary) / 0.6)"
-            : "inset 0.5px 0.5px 1px rgba(255,255,255,0.15), inset -0.5px -0.5px 1px rgba(0,0,0,0.2)",
-          opacity: navigationUnlocked ? 1 : 0.4,
+            ? "inset 1px 1px 2px rgba(255,255,255,0.3), 0 0 8px hsl(var(--primary) / 0.6)"
+            : "inset 1px 1px 2px rgba(255,255,255,0.2), inset -1px -1px 2px rgba(0,0,0,0.3)",
+          opacity: navigationUnlocked ? 1 : 0.6,
         }}
-        title=""
+        title="Stega mellan lektioner"
         aria-label="Toggle navigation"
       />
       
