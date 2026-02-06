@@ -39,6 +39,9 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Check cache
+    const cached = cache[grade];
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       console.log(`Returning cached calendar for grade ${grade}`);
       return new Response(cached.data, {
@@ -48,7 +51,6 @@ serve(async (req) => {
 
     // Fetch from Google Calendar (no CORS issues from server)
     console.log(`Fetching fresh calendar for grade ${grade}`);
-    const icsUrl = ICS_URLS[grade];
     const response = await fetch(icsUrl);
 
     if (!response.ok) {
