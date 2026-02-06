@@ -1,14 +1,34 @@
+import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PostItNoteProps {
   grade: number;
 }
 
 const PostItNote = ({ grade }: PostItNoteProps) => {
-  const { nextEvent, loading } = useCalendarEvents(grade);
-
+  const { upcomingEvents, loading } = useCalendarEvents(grade);
+  const [eventIndex, setEventIndex] = useState(0);
+  const [navigationUnlocked, setNavigationUnlocked] = useState(false);
+  
+  // Current event to display
+  const currentEvent = upcomingEvents[eventIndex] || null;
+  
+  // Navigation handlers
+  const goToPrevious = () => {
+    if (eventIndex > 0) setEventIndex(eventIndex - 1);
+  };
+  
+  const goToNext = () => {
+    if (eventIndex < upcomingEvents.length - 1) setEventIndex(eventIndex + 1);
+  };
+  
+  // Secret toggle - triple click on the "screw" element
+  const handleSecretToggle = () => {
+    setNavigationUnlocked(!navigationUnlocked);
+  };
   // Convert HTML to Markdown-like format for consistent parsing
   const htmlToMarkdown = (html: string): string => {
     let text = html;
@@ -204,23 +224,76 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return elements;
   };
 
-  const content = nextEvent?.description || "";
+  const content = currentEvent?.description || "";
+  
+  // Format date for display
+  const formatEventDate = (date: Date) => {
+    return date.toLocaleDateString("sv-SE", { 
+      weekday: "short", 
+      day: "numeric", 
+      month: "short" 
+    });
+  };
   
   if (loading) {
     return <PostItSkeleton />;
   }
 
   return (
-    <ScrollArea className="h-full font-nunito text-foreground">
+    <div className="h-full flex flex-col relative font-nunito text-foreground">
+      {/* Secret "screw" toggle in corner - looks like a decorative screw */}
+      <button
+        onClick={handleSecretToggle}
+        className="absolute -top-1 -right-1 w-3 h-3 rounded-full opacity-30 hover:opacity-50 transition-opacity z-10"
+        style={{
+          background: navigationUnlocked 
+            ? "radial-gradient(circle at 30% 30%, hsl(var(--primary)), hsl(var(--primary) / 0.6))"
+            : "radial-gradient(circle at 30% 30%, hsl(var(--muted-foreground) / 0.5), hsl(var(--muted-foreground) / 0.2))",
+          boxShadow: navigationUnlocked 
+            ? "inset 1px 1px 2px rgba(0,0,0,0.3), 0 0 4px hsl(var(--primary) / 0.4)"
+            : "inset 1px 1px 2px rgba(0,0,0,0.3)",
+        }}
+        title=""
+        aria-label="Toggle navigation"
+      />
+      
+      {/* Navigation bar - only visible when unlocked */}
+      {navigationUnlocked && upcomingEvents.length > 1 && (
+        <div className="flex items-center justify-between mb-2 pb-1 border-b border-border/30">
+          <button
+            onClick={goToPrevious}
+            disabled={eventIndex === 0}
+            className="p-0.5 rounded hover:bg-primary/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4 text-primary" />
+          </button>
+          
+          <span className="text-xs text-muted-foreground">
+            {currentEvent ? formatEventDate(currentEvent.date) : ""}
+            <span className="ml-1 opacity-50">({eventIndex + 1}/{upcomingEvents.length})</span>
+          </span>
+          
+          <button
+            onClick={goToNext}
+            disabled={eventIndex === upcomingEvents.length - 1}
+            className="p-0.5 rounded hover:bg-primary/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight className="w-4 h-4 text-primary" />
+          </button>
+        </div>
+      )}
+      
       {/* Content */}
-      <div className="space-y-0.5 text-foreground/90 pr-3">
-        {content ? (
-          parseContent(content)
-        ) : (
-          <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
-        )}
-      </div>
-    </ScrollArea>
+      <ScrollArea className="flex-1">
+        <div className="space-y-0.5 text-foreground/90 pr-3">
+          {content ? (
+            parseContent(content)
+          ) : (
+            <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
 
