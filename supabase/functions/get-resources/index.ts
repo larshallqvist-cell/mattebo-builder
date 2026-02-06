@@ -300,6 +300,10 @@ serve(async (req) => {
           // Check column D for URL (hyperlink or plain text URL)
           if (!url && cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
+            // Also check for #header marker in column D
+            if (!url && cellD.value?.startsWith('#')) {
+              url = cellD.value.trim();
+            }
           }
           
           // If no URL in column D/E, check column C for hyperlink
@@ -307,9 +311,12 @@ serve(async (req) => {
             url = cellC.hyperlink;
           }
           
-          // If still no URL, check if column C's value itself is a URL
+          // If still no URL, check if column C's value itself is a URL or #header
           if (!url && cellC?.value?.startsWith('http')) {
             url = cellC.value;
+          }
+          if (!url && cellC?.value?.startsWith('#')) {
+            url = cellC.value.trim();
           }
           
           // Title comes from column C's display value, or use URL as title if value is empty
@@ -324,7 +331,8 @@ serve(async (req) => {
           
           return { chapter, category, title, url, color };
         })
-        .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
+        // Keep rows with valid http URLs OR #header markers (for grouping headers)
+        .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && (r.url.startsWith('http') || r.url.startsWith('#')));
       
       // DEBUG: Log categories found and sample of resources without URLs
       const categoriesFound = [...new Set(resources.map(r => r.category))];
