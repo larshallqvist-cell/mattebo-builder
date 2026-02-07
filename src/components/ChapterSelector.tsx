@@ -77,20 +77,33 @@ const ChapterSelector = ({
   }, [grade]);
   const chapters = [1, 2, 3, 4, 5];
   const currentSubtitle = getChapterSubtitle(grade, selectedChapter);
-  return <div className="py-2 px-4 flex-col flex items-center justify-start">
-      <div className="flex items-center justify-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground mr-2 hidden sm:inline">Kapitel:</span>
-        <div className="flex gap-1 sm:gap-2">
-          {chapters.map(chapter => <button key={chapter} onClick={() => {
-          hapticFeedback('light');
-          setSelectedChapter(chapter);
-        }} className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-full text-base font-medium transition-all", "border-2 hover:scale-105", selectedChapter === chapter ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-muted-foreground/30 hover:border-primary/50")}>
+  return (
+    <div className="py-1 md:py-2 px-2 md:px-4 flex items-center justify-center">
+      <div className="flex items-center justify-center gap-1 sm:gap-2">
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground mr-1 sm:mr-2">Kap:</span>
+        <div className="flex gap-1">
+          {chapters.map(chapter => (
+            <button 
+              key={chapter} 
+              onClick={() => {
+                hapticFeedback('light');
+                setSelectedChapter(chapter);
+              }} 
+              className={cn(
+                "w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full text-sm sm:text-base font-medium transition-all",
+                "border-2 hover:scale-105 active:scale-95",
+                selectedChapter === chapter 
+                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]" 
+                  : "bg-background/50 text-foreground border-muted-foreground/30 hover:border-primary/50"
+              )}
+            >
               {chapter}
-            </button>)}
+            </button>
+          ))}
         </div>
       </div>
-      {/* Subtitle removed - now shown in ResourceAccordion header */}
-    </div>;
+    </div>
+  );
 };
 export default ChapterSelector;
 export { getChapterFromCookie, getChapterSubtitle };
