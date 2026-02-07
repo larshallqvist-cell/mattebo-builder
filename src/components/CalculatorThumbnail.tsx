@@ -4,19 +4,27 @@ import CalculatorModal from "./CalculatorModal";
 
 interface CalculatorThumbnailProps {
   compact?: boolean;
+  fillSpace?: boolean;
 }
 
-const CalculatorThumbnail = ({ compact = false }: CalculatorThumbnailProps) => {
+const CalculatorThumbnail = ({ compact = false, fillSpace = false }: CalculatorThumbnailProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  const baseClasses = `group relative rounded-lg overflow-hidden 
+    shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105
+    border-2 border-secondary/30 hover:border-primary/50`;
+  
+  const sizeClasses = fillSpace 
+    ? 'w-full h-full' 
+    : compact 
+      ? 'w-[60px] aspect-[260/360] flex-shrink-0' 
+      : 'w-[100px] aspect-[260/360] flex-shrink-0';
   
   return (
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`group relative rounded-lg overflow-hidden 
-          shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105
-          border-2 border-secondary/30 hover:border-primary/50 flex-shrink-0
-          ${compact ? 'w-[60px] aspect-[260/360]' : 'w-[100px] aspect-[260/360]'}`}
+        className={`${baseClasses} ${sizeClasses}`}
         title="Öppna kalkylatorn"
       >
         <img 
