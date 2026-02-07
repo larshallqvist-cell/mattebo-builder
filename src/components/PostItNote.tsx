@@ -45,7 +45,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   };
   // Render rich text content directly from HTML
   const renderRichContent = (html: string): JSX.Element[] => {
-    console.log('[PostIt] Raw HTML:', html);
     const elements: JSX.Element[] = [];
     
     // First, normalize the HTML
@@ -54,11 +53,14 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     // Convert line breaks to markers
     text = text.replace(/<br\s*\/?>/gi, '{{BR}}');
     
+    // IMPORTANT: Handle consecutive </ul><ul> BEFORE extracting list items
+    // This is how Google Calendar represents "Enter" between bullet points
+    text = text.replace(/<\/ul>\s*<ul>/gi, '</ul>{{SPACING}}<ul>');
+    
     // Extract and process list items
     const listItems: string[] = [];
     text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
       const trimmed = content.trim();
-      console.log('[PostIt] List item content:', JSON.stringify(content), '-> trimmed:', JSON.stringify(trimmed));
       if (!trimmed || trimmed === '{{BR}}') {
         listItems.push('{{EMPTY}}');
       } else {
@@ -70,12 +72,16 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     // Remove list container tags
     text = text.replace(/<\/?ul>/gi, '');
     text = text.replace(/<\/?ol>/gi, '');
+    
+    // Remove list container tags
+    text = text.replace(/<\/?ul>/gi, '');
+    text = text.replace(/<\/?ol>/gi, '');
     text = text.replace(/<\/?p>/gi, '{{BR}}');
     text = text.replace(/<\/?div>/gi, '{{BR}}');
     text = text.replace(/<\/?span[^>]*>/gi, '');
     
     // Split by markers and list items
-    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\})/);
+    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\})/);
     let listIndex = 0;
     let bulletItems: string[] = [];
     
@@ -95,7 +101,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     parts.forEach((part, i) => {
       if (part === '{{BR}}') {
         flushBulletList();
-        // Only add spacing if there's actual content around it
+        return;
+      }
+      if (part === '{{SPACING}}') {
+        flushBulletList();
+        elements.push(<div key={`space-${i}`} className="h-3" />);
         return;
       }
       if (part === '{{LI}}') {
