@@ -160,7 +160,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className="flex-1 flex flex-col min-h-0" 
+                  className="flex-1 min-h-0" 
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
@@ -168,7 +168,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="grid grid-cols-3 grid-rows-3 gap-2 h-full">
+                  <div className="grid grid-cols-3 gap-2" style={{ gridTemplateRows: 'repeat(3, minmax(50px, 1fr))' }}>
                     {/* Row 1: 3 tools */}
                     <CalculatorThumbnail fillSpace />
                     <GeogebraLink fillSpace />
