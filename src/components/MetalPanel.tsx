@@ -112,7 +112,7 @@ const MetalPanel = ({
               }}
             >
               {title}
-            </h3>
+            </h2>
           </div>
         </div>
       )}
