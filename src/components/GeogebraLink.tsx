@@ -18,16 +18,16 @@ const GeogebraLink = ({ compact = false }: GeogebraLinkProps) => {
         shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105
         border-2 border-secondary/30 hover:border-primary/50 flex-shrink-0
         bg-gradient-to-b from-slate-800 to-slate-900
-        ${compact ? 'w-[50px] p-1.5' : 'w-[80px] p-2'}`}
+        ${compact ? 'w-[60px] p-1.5' : 'w-[80px] p-2'}`}
       title="Öppna Geogebra"
     >
       <img 
         src={geogebraLogo} 
         alt="Geogebra"
-        className={`object-contain ${compact ? 'w-8 h-8' : 'w-12 h-12'}`}
+        className={`object-contain ${compact ? 'w-10 h-10' : 'w-12 h-12'}`}
       />
       <span className={`text-foreground/80 font-bold mt-1 group-hover:text-primary transition-colors
-        ${compact ? 'text-[7px]' : 'text-[9px]'}`}>
+        ${compact ? 'text-[8px]' : 'text-[9px]'}`}>
         GEOGEBRA
       </span>
     </a>
