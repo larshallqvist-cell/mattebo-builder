@@ -277,6 +277,10 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   const content = currentEvent?.description || "";
   
+  // Debug: log content to see what we're getting
+  console.log('[PostIt] content:', JSON.stringify(content));
+  console.log('[PostIt] currentEvent:', currentEvent?.title);
+  
   if (loading) {
     return <PostItSkeleton />;
   }
