@@ -193,28 +193,29 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
-  // Compact mode - channel buttons in a row, same size as calculator module
+  // Compact mode - channel buttons in a row with names
   if (compact) {
     return (
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex items-center justify-center gap-2">
         <Radio className="w-5 h-5 text-primary flex-shrink-0" />
         {channels.map((channel) => (
           <button
             key={channel.id}
             onClick={() => handleChannelClick(channel)}
             disabled={isLoading}
-            title={`${channel.name} – ${channel.description}`}
+            title={channel.description}
             className={`
-              flex items-center justify-center w-10 h-10 rounded-lg
+              flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[48px]
               transition-all duration-200 
               ${activeChannel === channel.id 
-                ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-110` 
+                ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-105` 
                 : 'bg-secondary/50 hover:bg-secondary hover:scale-105 text-foreground'
               }
               ${isLoading ? 'opacity-70 cursor-wait' : ''}
             `}
           >
-            <span className="text-xl">{channel.emoji}</span>
+            <span className="text-lg">{channel.emoji}</span>
+            <span className="text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
           </button>
         ))}
         {activeChannel && (
