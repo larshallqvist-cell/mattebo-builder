@@ -43,102 +43,46 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const formatEventTime = (date: Date) => {
     return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
   };
-  // Convert HTML to Markdown-like format for consistent parsing
-  const htmlToMarkdown = (html: string): string => {
+  // Render rich text content directly from HTML
+  const renderRichContent = (html: string): JSX.Element[] => {
+    const elements: JSX.Element[] = [];
+    
+    // First, normalize the HTML
     let text = html;
     
-    // Handle line breaks first - convert to newlines
-    text = text.replace(/<br\s*\/?>/gi, '\n');
+    // Convert line breaks to markers
+    text = text.replace(/<br\s*\/?>/gi, '{{BR}}');
     
-    // Handle links FIRST (before bold/underline, since they might wrap links)
-    // Process nested tags inside links - extract href and clean content
-    text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, content) => {
-      // Clean any remaining tags from link content (bold, underline, etc.)
-      const cleanContent = content.replace(/<[^>]+>/g, '').trim();
-      return `[${cleanContent}](${href})`;
-    });
-    
-    // Handle bold tags
-    text = text.replace(/<b>([\s\S]*?)<\/b>/gi, (_, content) => {
-      // Skip if content is empty or just whitespace/newlines
-      if (!content.trim()) return content;
-      return `**${content}**`;
-    });
-    text = text.replace(/<strong>([\s\S]*?)<\/strong>/gi, (_, content) => {
-      if (!content.trim()) return content;
-      return `**${content}**`;
-    });
-    
-    // Handle underline - use __text__ syntax
-    text = text.replace(/<u>([\s\S]*?)<\/u>/gi, (_, content) => {
-      // Skip if content is empty or just whitespace/newlines
-      if (!content.trim()) return content;
-      return `__${content}__`;
-    });
-    
-    // Handle italic
-    text = text.replace(/<i>([\s\S]*?)<\/i>/gi, (_, content) => {
-      if (!content.trim()) return content;
-      return `*${content}*`;
-    });
-    text = text.replace(/<em>([\s\S]*?)<\/em>/gi, (_, content) => {
-      if (!content.trim()) return content;
-      return `*${content}*`;
-    });
-    
-    // Handle list items - preserve content with formatting markers
+    // Extract and process list items
+    const listItems: string[] = [];
     text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
       const trimmed = content.trim();
-      // Empty list items become empty lines (spacing)
-      if (!trimmed || trimmed === '\n') return '\n';
-      return `- ${trimmed}\n`;
+      if (!trimmed || trimmed === '{{BR}}') {
+        listItems.push('{{EMPTY}}');
+      } else {
+        listItems.push(trimmed);
+      }
+      return '{{LI}}';
     });
     
     // Remove list container tags
-    text = text.replace(/<\/?ul>/gi, '\n');
-    text = text.replace(/<\/?ol>/gi, '\n');
-    
-    // Remove other common tags
-    text = text.replace(/<\/?p>/gi, '\n');
-    text = text.replace(/<\/?div>/gi, '\n');
+    text = text.replace(/<\/?ul>/gi, '');
+    text = text.replace(/<\/?ol>/gi, '');
+    text = text.replace(/<\/?p>/gi, '{{BR}}');
+    text = text.replace(/<\/?div>/gi, '{{BR}}');
     text = text.replace(/<\/?span[^>]*>/gi, '');
     
-    // Clean up any remaining HTML tags
-    text = text.replace(/<[^>]+>/g, '');
-    
-    // Decode HTML entities
-    text = text.replace(/&nbsp;/gi, ' ');
-    text = text.replace(/&amp;/gi, '&');
-    text = text.replace(/&lt;/gi, '<');
-    text = text.replace(/&gt;/gi, '>');
-    text = text.replace(/&quot;/gi, '"');
-    
-    // Clean up excessive whitespace but preserve intentional line breaks
-    text = text.replace(/\n{3,}/g, '\n\n');
-    text = text.replace(/[ \t]+/g, ' ');
-    // Clean up lines that are just spaces
-    text = text.replace(/\n +\n/g, '\n\n');
-    text = text.trim();
-    
-    return text;
-  };
-
-  const parseContent = (text: string) => {
-    // Check if content contains HTML tags
-    const hasHtml = /<[^>]+>/g.test(text);
-    const processedText = hasHtml ? htmlToMarkdown(text) : text;
-    
-    const lines = processedText.split('\n');
-    const elements: JSX.Element[] = [];
+    // Split by markers and list items
+    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\})/);
+    let listIndex = 0;
     let bulletItems: string[] = [];
-    let numberedItems: string[] = [];
     
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
           <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-0.5 my-1 font-body font-normal">
             {bulletItems.map((item, i) => (
-              <li key={i} className="text-sm leading-tight">{parseInline(item)}</li>
+              <li key={i} className="text-sm leading-tight">{renderInlineHtml(item)}</li>
             ))}
           </ul>
         );
@@ -146,117 +90,168 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       }
     };
     
-    const flushNumberedList = () => {
-      if (numberedItems.length > 0) {
+    parts.forEach((part, i) => {
+      if (part === '{{BR}}') {
+        flushBulletList();
+        // Only add spacing if there's actual content around it
+        return;
+      }
+      if (part === '{{LI}}') {
+        const item = listItems[listIndex++];
+        if (item === '{{EMPTY}}') {
+          flushBulletList();
+          elements.push(<div key={`space-${i}`} className="h-2" />);
+        } else {
+          bulletItems.push(item);
+        }
+        return;
+      }
+      
+      const trimmed = part.trim();
+      if (trimmed) {
+        flushBulletList();
         elements.push(
-          <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-0.5 my-1 font-body font-normal">
-            {numberedItems.map((item, i) => (
-              <li key={i} className="text-sm leading-tight">{parseInline(item)}</li>
-            ))}
-          </ol>
+          <p key={`p-${i}`} className="text-sm my-0.5 font-body font-normal leading-tight">
+            {renderInlineHtml(trimmed)}
+          </p>
         );
-        numberedItems = [];
       }
-    };
+    });
     
-    const parseInline = (text: string): (string | JSX.Element)[] => {
-      const result: (string | JSX.Element)[] = [];
-      // Pattern for: **bold**, __underline__, *italic*, and [links](url)
-      // Order matters: ** and __ before single * to avoid conflicts
-      const pattern = /(\*\*[\s\S]*?\*\*|__[\s\S]*?__|\*[^*]+\*|\[[^\]]+\]\([^)\s]+\))/g;
-      let lastIndex = 0;
-      let match;
-      let keyIndex = 0;
-      
-      while ((match = pattern.exec(text)) !== null) {
-        if (match.index > lastIndex) {
-          result.push(text.slice(lastIndex, match.index));
-        }
-        
-        const token = match[0];
-        
-        if (token.startsWith('**') && token.endsWith('**')) {
-          // Bold: **text**
-          const boldContent = token.slice(2, -2);
-          result.push(<strong key={`b-${keyIndex++}`}>{boldContent}</strong>);
-        } else if (token.startsWith('__') && token.endsWith('__')) {
-          // Underline: __text__
-          const underlineContent = token.slice(2, -2);
-          result.push(<span key={`u-${keyIndex++}`} className="underline">{underlineContent}</span>);
-        } else if (token.startsWith('*') && token.endsWith('*') && !token.startsWith('**')) {
-          // Italic: *text*
-          const italicContent = token.slice(1, -1);
-          result.push(<em key={`i-${keyIndex++}`}>{italicContent}</em>);
-        } else if (token.startsWith('[')) {
-          const linkMatch = token.match(/\[([^\]]+)\]\(([^)\s]+)\)/);
-          if (linkMatch) {
-            let href = linkMatch[2];
-            if (href.startsWith('www.')) {
-              href = 'https://' + href;
-            }
-            result.push(
-              <a 
-                key={`a-${keyIndex++}`}
-                href={href} 
-                className="text-primary underline hover:text-primary/80"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {linkMatch[1]}
-              </a>
-            );
-          }
-        }
-        
-        lastIndex = pattern.lastIndex;
+    flushBulletList();
+    return elements;
+  };
+  
+  // Render inline HTML with bold, underline, italic, links
+  const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
+    const result: (string | JSX.Element)[] = [];
+    let keyIndex = 0;
+    
+    // Process HTML tags directly
+    // Pattern matches: <b>...</b>, <strong>...</strong>, <u>...</u>, <i>...</i>, <em>...</em>, <a>...</a>
+    const tagPattern = /<(b|strong|u|i|em|a)(\s[^>]*)?>[\s\S]*?<\/\1>/gi;
+    
+    let lastIndex = 0;
+    let match;
+    const htmlCopy = html;
+    
+    // Reset regex
+    const regex = /<(b|strong|u|i|em|a)(\s[^>]*)?>[\s\S]*?<\/\1>/gi;
+    
+    while ((match = regex.exec(htmlCopy)) !== null) {
+      // Add text before this match
+      if (match.index > lastIndex) {
+        const textBefore = htmlCopy.slice(lastIndex, match.index);
+        const decoded = decodeHtmlEntities(textBefore);
+        if (decoded) result.push(decoded);
       }
       
-      if (lastIndex < text.length) {
-        result.push(text.slice(lastIndex));
+      const fullMatch = match[0];
+      const tagName = match[1].toLowerCase();
+      
+      if (tagName === 'b' || tagName === 'strong') {
+        const content = fullMatch.replace(/<\/?(?:b|strong)[^>]*>/gi, '');
+        result.push(
+          <strong key={`b-${keyIndex++}`}>{renderInlineHtml(content)}</strong>
+        );
+      } else if (tagName === 'u') {
+        const content = fullMatch.replace(/<\/?u[^>]*>/gi, '');
+        result.push(
+          <span key={`u-${keyIndex++}`} className="underline">{renderInlineHtml(content)}</span>
+        );
+      } else if (tagName === 'i' || tagName === 'em') {
+        const content = fullMatch.replace(/<\/?(?:i|em)[^>]*>/gi, '');
+        result.push(
+          <em key={`i-${keyIndex++}`}>{renderInlineHtml(content)}</em>
+        );
+      } else if (tagName === 'a') {
+        const hrefMatch = fullMatch.match(/href="([^"]*)"/i);
+        const href = hrefMatch ? hrefMatch[1] : '#';
+        const content = fullMatch.replace(/<\/?a[^>]*>/gi, '');
+        const cleanContent = content.replace(/<[^>]+>/g, '').trim();
+        
+        let finalHref = href;
+        if (finalHref.startsWith('www.')) {
+          finalHref = 'https://' + finalHref;
+        }
+        
+        result.push(
+          <a
+            key={`a-${keyIndex++}`}
+            href={finalHref}
+            className="text-primary underline hover:text-primary/80"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {cleanContent}
+          </a>
+        );
       }
       
-      return result;
+      lastIndex = regex.lastIndex;
+    }
+    
+    // Add remaining text
+    if (lastIndex < htmlCopy.length) {
+      const remaining = htmlCopy.slice(lastIndex);
+      // Clean any remaining tags
+      const cleaned = remaining.replace(/<[^>]+>/g, '');
+      const decoded = decodeHtmlEntities(cleaned);
+      if (decoded) result.push(decoded);
+    }
+    
+    return result.length > 0 ? result : [decodeHtmlEntities(html.replace(/<[^>]+>/g, ''))];
+  };
+  
+  // Decode HTML entities
+  const decodeHtmlEntities = (text: string): string => {
+    return text
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'");
+  };
+
+  const parseContent = (text: string) => {
+    // Check if content contains HTML tags
+    const hasHtml = /<[^>]+>/g.test(text);
+    
+    if (hasHtml) {
+      // Use the new HTML renderer for HTML content
+      return renderRichContent(text);
+    }
+    
+    // Fallback for plain text/markdown content
+    const lines = text.split('\n');
+    const elements: JSX.Element[] = [];
+    let bulletItems: string[] = [];
+    
+    const flushBulletList = () => {
+      if (bulletItems.length > 0) {
+        elements.push(
+          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-0.5 my-1 font-body font-normal">
+            {bulletItems.map((item, i) => (
+              <li key={i} className="text-sm leading-tight">{item}</li>
+            ))}
+          </ul>
+        );
+        bulletItems = [];
+      }
     };
     
     lines.forEach((line, i) => {
       const trimmed = line.trim();
       
-      // Check for headings (## or ###)
-      if (trimmed.startsWith('### ')) {
-        flushBulletList();
-        flushNumberedList();
-        elements.push(
-          <h6 key={`h6-${i}`} className="text-sm font-semibold mt-3 mb-1 font-body">
-            {parseInline(trimmed.slice(4))}
-          </h6>
-        );
-      }
-      else if (trimmed.startsWith('## ')) {
-        flushBulletList();
-        flushNumberedList();
-        elements.push(
-          <h5 key={`h5-${i}`} className="text-sm font-semibold mt-2 mb-0.5 font-body leading-tight">
-            {parseInline(trimmed.slice(3))}
-          </h5>
-        );
-      }
-      // Check for bullet list items
-      else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
-        flushNumberedList();
+      if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
         bulletItems.push(trimmed.slice(2));
-      } 
-      // Check for numbered list items (1. 2. 3. etc)
-      else if (/^\d+\.\s/.test(trimmed)) {
+      } else {
         flushBulletList();
-        numberedItems.push(trimmed.replace(/^\d+\.\s/, ''));
-      } 
-      else {
-        flushBulletList();
-        flushNumberedList();
         if (trimmed) {
           elements.push(
             <p key={`p-${i}`} className="text-sm my-0.5 font-body font-normal leading-tight">
-              {parseInline(trimmed)}
+              {trimmed}
             </p>
           );
         }
@@ -264,7 +259,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     });
     
     flushBulletList();
-    flushNumberedList();
     return elements;
   };
 
