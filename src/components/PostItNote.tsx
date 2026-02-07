@@ -141,8 +141,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     
     const parseInline = (text: string): (string | JSX.Element)[] => {
       const result: (string | JSX.Element)[] = [];
-      // More robust pattern: allow any content inside ** and links
-      const pattern = /(\*\*[\s\S]*?\*\*|\[[^\]]+\]\([^)\s]+\))/g;
+      // Pattern for: **bold**, __underline__, *italic*, and [links](url)
+      // Order matters: ** and __ before single * to avoid conflicts
+      const pattern = /(\*\*[\s\S]*?\*\*|__[\s\S]*?__|\*[^*]+\*|\[[^\]]+\]\([^)\s]+\))/g;
       let lastIndex = 0;
       let match;
       let keyIndex = 0;
@@ -155,8 +156,17 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         const token = match[0];
         
         if (token.startsWith('**') && token.endsWith('**')) {
+          // Bold: **text**
           const boldContent = token.slice(2, -2);
           result.push(<strong key={`b-${keyIndex++}`}>{boldContent}</strong>);
+        } else if (token.startsWith('__') && token.endsWith('__')) {
+          // Underline: __text__
+          const underlineContent = token.slice(2, -2);
+          result.push(<span key={`u-${keyIndex++}`} className="underline">{underlineContent}</span>);
+        } else if (token.startsWith('*') && token.endsWith('*') && !token.startsWith('**')) {
+          // Italic: *text*
+          const italicContent = token.slice(1, -1);
+          result.push(<em key={`i-${keyIndex++}`}>{italicContent}</em>);
         } else if (token.startsWith('[')) {
           const linkMatch = token.match(/\[([^\]]+)\]\(([^)\s]+)\)/);
           if (linkMatch) {
@@ -168,7 +178,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               <a 
                 key={`a-${keyIndex++}`}
                 href={href} 
-                className="text-yellow-400 underline hover:text-yellow-300"
+                className="text-primary underline hover:text-primary/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
