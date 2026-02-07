@@ -125,7 +125,7 @@ const MetalPanel = ({
       )}
 
       {/* Content */}
-      <div className="relative p-4">
+      <div className="relative p-4 flex-1 flex flex-col min-h-0">
         {children}
       </div>
     </motion.div>
