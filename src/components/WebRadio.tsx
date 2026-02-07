@@ -193,11 +193,11 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
-  // Compact mode - channel buttons in a row with names
+  // Compact mode - channel buttons in a row with names, larger size
   if (compact) {
     return (
-      <div className="flex items-center justify-center gap-2">
-        <Radio className="w-5 h-5 text-primary flex-shrink-0" />
+      <div className="flex items-center justify-center gap-3">
+        <Radio className="w-6 h-6 text-primary flex-shrink-0" />
         {channels.map((channel) => (
           <button
             key={channel.id}
@@ -205,7 +205,7 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
             disabled={isLoading}
             title={channel.description}
             className={`
-              flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[48px]
+              flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg min-w-[56px]
               transition-all duration-200 
               ${activeChannel === channel.id 
                 ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-105` 
@@ -214,20 +214,20 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
               ${isLoading ? 'opacity-70 cursor-wait' : ''}
             `}
           >
-            <span className="text-lg">{channel.emoji}</span>
-            <span className="text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
+            <span className="text-2xl">{channel.emoji}</span>
+            <span className="text-[10px] font-medium leading-none opacity-80">{channel.name}</span>
           </button>
         ))}
         {activeChannel && (
           <button 
             onClick={toggleMute}
-            className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
+            className="p-2 hover:bg-secondary rounded-lg transition-colors"
             title={isMuted ? "Ljud av" : "Ljud på"}
           >
             {isMuted || volume === 0 ? (
-              <VolumeX className="w-5 h-5 text-muted-foreground" />
+              <VolumeX className="w-6 h-6 text-muted-foreground" />
             ) : (
-              <Volume2 className="w-5 h-5 text-primary animate-pulse" />
+              <Volume2 className="w-6 h-6 text-primary animate-pulse" />
             )}
           </button>
         )}
