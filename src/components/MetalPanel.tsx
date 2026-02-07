@@ -25,7 +25,7 @@ const MetalPanel = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`relative rounded-lg overflow-hidden group ${className}`}
+      className={`relative rounded-lg overflow-hidden group flex flex-col ${className}`}
       style={{
         background: `linear-gradient(145deg, 
           hsl(var(--rust-dark)) 0%, 
