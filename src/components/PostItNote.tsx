@@ -47,57 +47,77 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const htmlToMarkdown = (html: string): string => {
     let text = html;
     
-    // Handle line breaks first
+    // Handle line breaks first - convert to newlines
     text = text.replace(/<br\s*\/?>/gi, '\n');
     
-    // Handle links FIRST (before bold, since bold might wrap links)
+    // Handle links FIRST (before bold/underline, since they might wrap links)
+    // Process nested tags inside links - extract href and clean content
     text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, content) => {
-      // Clean any remaining tags from link content
+      // Clean any remaining tags from link content (bold, underline, etc.)
       const cleanContent = content.replace(/<[^>]+>/g, '').trim();
       return `[${cleanContent}](${href})`;
     });
     
-    // Handle bold tags - use non-greedy match with [\s\S] to handle any content including newlines
+    // Handle bold tags
     text = text.replace(/<b>([\s\S]*?)<\/b>/gi, (_, content) => {
-      // Don't double-wrap if already has markdown bold
-      const cleanContent = content.replace(/^\*\*|\*\*$/g, '').trim();
-      return `**${cleanContent}**`;
+      // Skip if content is empty or just whitespace/newlines
+      if (!content.trim()) return content;
+      return `**${content}**`;
     });
     text = text.replace(/<strong>([\s\S]*?)<\/strong>/gi, (_, content) => {
-      const cleanContent = content.replace(/^\*\*|\*\*$/g, '').trim();
-      return `**${cleanContent}**`;
+      if (!content.trim()) return content;
+      return `**${content}**`;
     });
     
-    // Handle underline (convert to bold for simplicity)
+    // Handle underline - use __text__ syntax
     text = text.replace(/<u>([\s\S]*?)<\/u>/gi, (_, content) => {
-      const cleanContent = content.replace(/^\*\*|\*\*$/g, '').trim();
-      return `**${cleanContent}**`;
+      // Skip if content is empty or just whitespace/newlines
+      if (!content.trim()) return content;
+      return `__${content}__`;
     });
     
     // Handle italic
-    text = text.replace(/<i>([\s\S]*?)<\/i>/gi, '*$1*');
-    text = text.replace(/<em>([\s\S]*?)<\/em>/gi, '*$1*');
-    
-    // Handle list items with any content
-    text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
-      return `- ${content.trim()}\n`;
+    text = text.replace(/<i>([\s\S]*?)<\/i>/gi, (_, content) => {
+      if (!content.trim()) return content;
+      return `*${content}*`;
+    });
+    text = text.replace(/<em>([\s\S]*?)<\/em>/gi, (_, content) => {
+      if (!content.trim()) return content;
+      return `*${content}*`;
     });
     
-    // Remove remaining list tags
+    // Handle list items - preserve content with formatting markers
+    text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
+      const trimmed = content.trim();
+      // Skip empty list items (just newlines)
+      if (!trimmed || trimmed === '\n') return '';
+      return `- ${trimmed}\n`;
+    });
+    
+    // Remove list container tags
     text = text.replace(/<\/?ul>/gi, '\n');
     text = text.replace(/<\/?ol>/gi, '\n');
     
     // Remove other common tags
     text = text.replace(/<\/?p>/gi, '\n');
     text = text.replace(/<\/?div>/gi, '\n');
-    text = text.replace(/<\/?span>/gi, '');
+    text = text.replace(/<\/?span[^>]*>/gi, '');
     
     // Clean up any remaining HTML tags
     text = text.replace(/<[^>]+>/g, '');
     
-    // Clean up multiple newlines and spaces
+    // Decode HTML entities
+    text = text.replace(/&nbsp;/gi, ' ');
+    text = text.replace(/&amp;/gi, '&');
+    text = text.replace(/&lt;/gi, '<');
+    text = text.replace(/&gt;/gi, '>');
+    text = text.replace(/&quot;/gi, '"');
+    
+    // Clean up excessive whitespace but preserve intentional line breaks
     text = text.replace(/\n{3,}/g, '\n\n');
     text = text.replace(/[ \t]+/g, ' ');
+    // Clean up lines that are just spaces
+    text = text.replace(/\n +\n/g, '\n\n');
     text = text.trim();
     
     return text;
