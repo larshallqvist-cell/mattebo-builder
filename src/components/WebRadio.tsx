@@ -193,39 +193,40 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
-  // Compact mode - just channel buttons in a row
+  // Compact mode - channel buttons in a row, same size as calculator module
   if (compact) {
     return (
-      <div className="flex items-center gap-1.5">
-        <Radio className="w-4 h-4 text-primary flex-shrink-0" />
+      <div className="flex items-center justify-center gap-3">
+        <Radio className="w-5 h-5 text-primary flex-shrink-0" />
         {channels.map((channel) => (
           <button
             key={channel.id}
             onClick={() => handleChannelClick(channel)}
             disabled={isLoading}
-            title={channel.description}
+            title={`${channel.name} – ${channel.description}`}
             className={`
-              flex items-center justify-center w-7 h-7 rounded-md
+              flex items-center justify-center w-10 h-10 rounded-lg
               transition-all duration-200 
               ${activeChannel === channel.id 
-                ? `bg-gradient-to-br ${channel.color} text-white shadow-md` 
-                : 'bg-secondary/50 hover:bg-secondary text-foreground'
+                ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-110` 
+                : 'bg-secondary/50 hover:bg-secondary hover:scale-105 text-foreground'
               }
               ${isLoading ? 'opacity-70 cursor-wait' : ''}
             `}
           >
-            <span className="text-sm">{channel.emoji}</span>
+            <span className="text-xl">{channel.emoji}</span>
           </button>
         ))}
         {activeChannel && (
           <button 
             onClick={toggleMute}
-            className="p-1 hover:bg-secondary rounded transition-colors ml-1"
+            className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
+            title={isMuted ? "Ljud av" : "Ljud på"}
           >
             {isMuted || volume === 0 ? (
-              <VolumeX className="w-3.5 h-3.5 text-muted-foreground" />
+              <VolumeX className="w-5 h-5 text-muted-foreground" />
             ) : (
-              <Volume2 className="w-3.5 h-3.5 text-primary animate-pulse" />
+              <Volume2 className="w-5 h-5 text-primary animate-pulse" />
             )}
           </button>
         )}
