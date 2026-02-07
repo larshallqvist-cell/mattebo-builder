@@ -193,35 +193,52 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             </div>
 
             {/* Tablet: Two-column layout */}
-            <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4">
-              {/* Left - Calendar */}
-              <ScreenFrame title={`Planering Åk ${grade}`} className="h-[400px]">
-                <SuspenseLessonCalendar grade={grade} />
-              </ScreenFrame>
+            <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4 h-full">
+              {/* Left column - Calendar + Tools */}
+              <div className="flex flex-col gap-4">
+                <ScreenFrame title={`Planering Åk ${grade}`} className="flex-1 min-h-[300px]">
+                  <SuspenseLessonCalendar grade={grade} />
+                </ScreenFrame>
 
-              {/* Right - Resources */}
-              <MetalPanel 
-                title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
-                icon={<BookOpen className="w-5 h-5" />}
-                glowColor={glowColor}
-                className="h-[400px]"
-              >
-                <div className="h-full overflow-hidden -m-4">
-                  <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
-                </div>
-              </MetalPanel>
-
-              {/* Bottom row */}
-              <MetalPanel glowColor="hsl(var(--neon-copper))">
-                <div className="flex items-center gap-4">
-                  <CalculatorThumbnail />
-                  <div className="flex-1">
-                    <WebRadio />
+                {/* Tools - 3x3 grid */}
+                <MetalPanel 
+                  title="Verktyg" 
+                  glowColor="hsl(var(--neon-copper))" 
+                  className="min-h-[200px]"
+                  showSparks
+                  titleExtra={
+                    activeRadioChannel && (
+                      <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                    )
+                  }
+                >
+                  <div 
+                    className="grid grid-cols-3 gap-2 h-full"
+                    style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '150px' }}
+                  >
+                    <CalculatorThumbnail fillSpace />
+                    <GeogebraLink fillSpace />
+                    <MattebokenLink fillSpace />
+                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                   </div>
-                </div>
-              </MetalPanel>
+                </MetalPanel>
+              </div>
 
-              <SuspenseMascotPanel />
+              {/* Right column - Resources + Mascot */}
+              <div className="flex flex-col gap-4">
+                <MetalPanel 
+                  title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
+                  icon={<BookOpen className="w-5 h-5" />}
+                  glowColor={glowColor}
+                  className="flex-1"
+                >
+                  <div className="h-full overflow-y-auto -m-4 px-4 py-4">
+                    <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
+                  </div>
+                </MetalPanel>
+
+                <SuspenseMascotPanel />
+              </div>
             </div>
 
             {/* Mobile: Single column - optimized for touch */}
@@ -238,27 +255,27 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 </ScreenFrame>
               </div>
 
-              {/* Tools - horizontal scroll for touch */}
-              <div className="flex gap-3 overflow-x-auto no-scrollbar px-1 py-1 -mx-1">
-                <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0 min-w-[100px]">
-                  <div className="flex items-center justify-center">
-                    <CalculatorThumbnail compact />
-                  </div>
-                </MetalPanel>
-                <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-shrink-0 min-w-[100px]">
-                  <div className="flex items-center justify-center">
-                    <GeogebraLink compact />
-                  </div>
-                </MetalPanel>
-                <MetalPanel glowColor="hsl(var(--neon-green))" className="flex-shrink-0 min-w-[100px]">
-                  <div className="flex items-center justify-center">
-                    <MattebokenLink compact />
-                  </div>
-                </MetalPanel>
-                <MetalPanel glowColor="hsl(var(--neon-blue))" className="flex-shrink-0 flex-1 min-w-[160px]">
-                  <WebRadio />
-                </MetalPanel>
-              </div>
+              {/* Tools - 3x3 grid for mobile */}
+              <MetalPanel 
+                title="Verktyg" 
+                glowColor="hsl(var(--neon-copper))" 
+                showSparks
+                titleExtra={
+                  activeRadioChannel && (
+                    <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                  )
+                }
+              >
+                <div 
+                  className="grid grid-cols-3 gap-2"
+                  style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '180px' }}
+                >
+                  <CalculatorThumbnail fillSpace />
+                  <GeogebraLink fillSpace />
+                  <MattebokenLink fillSpace />
+                  <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                </div>
+              </MetalPanel>
 
               {/* Resources - full width, touch optimized */}
               <div id="resources">
