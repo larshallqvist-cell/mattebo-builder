@@ -208,7 +208,7 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
-  // fillSpace mode - returns fragments for parent grid integration
+  // fillSpace mode - returns fragments for parent grid integration (6 radio buttons only)
   if (fillSpace) {
     return (
       <>
@@ -232,30 +232,12 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
             <span className="text-[8px] md:text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
           </button>
         ))}
-        {/* Volume control in last cell */}
-        <button 
-          onClick={toggleMute}
-          className={`
-            flex items-center justify-center rounded-xl w-full h-full
-            transition-colors
-            ${activeChannel 
-              ? 'bg-primary/20 hover:bg-primary/30' 
-              : 'bg-secondary/30 hover:bg-secondary/50'
-            }
-          `}
-          title={isMuted ? "Ljud av" : "Ljud på"}
-        >
-          {isMuted || volume === 0 ? (
-            <VolumeX className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
-          ) : activeChannel ? (
-            <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-primary animate-pulse" />
-          ) : (
-            <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground/50" />
-          )}
-        </button>
       </>
     );
   }
+
+  // fillSpaceWithVolume mode - returns volume control as a separate exportable component
+  // (Used when parent wants to place volume control separately)
 
   // Compact mode - tall rectangular buttons in 2 rows of 3
   if (compact) {
