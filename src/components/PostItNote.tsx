@@ -80,7 +80,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-0.5 my-1 font-body font-normal">
+          <ul key={`ul-${elements.length}`} className="list-disc pl-5 space-y-0.5 my-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="text-sm leading-tight">{renderInlineHtml(item)}</li>
             ))}
@@ -100,7 +100,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         const item = listItems[listIndex++];
         if (item === '{{EMPTY}}') {
           flushBulletList();
-          elements.push(<div key={`space-${i}`} className="h-2" />);
+          elements.push(<div key={`space-${i}`} className="h-4" />);
         } else {
           bulletItems.push(item);
         }
@@ -231,7 +231,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-0.5 my-1 font-body font-normal">
+          <ul key={`ul-${elements.length}`} className="list-disc pl-5 space-y-0.5 my-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="text-sm leading-tight">{item}</li>
             ))}
