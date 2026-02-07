@@ -89,8 +89,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     // Handle list items - preserve content with formatting markers
     text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
       const trimmed = content.trim();
-      // Skip empty list items (just newlines)
-      if (!trimmed || trimmed === '\n') return '';
+      // Empty list items become empty lines (spacing)
+      if (!trimmed || trimmed === '\n') return '\n';
       return `- ${trimmed}\n`;
     });
     
