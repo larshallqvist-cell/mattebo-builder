@@ -155,11 +155,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </div>
                 </MetalPanel>
 
-                {/* Tools row: Icons + Radio side by side */}
-                <div className="flex gap-2 flex-shrink-0">
+                {/* Tools stacked: Icons above Radio */}
+                <div className="flex flex-col gap-2 flex-shrink-0">
                   {/* Calculator + Geogebra + Matteboken */}
-                  <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0" showSparks>
-                    <div className="flex items-center gap-2">
+                  <MetalPanel glowColor="hsl(var(--neon-copper))" showSparks>
+                    <div className="flex items-center justify-center gap-3">
                       <CalculatorThumbnail compact />
                       <GeogebraLink compact />
                       <MattebokenLink compact />
@@ -167,7 +167,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </MetalPanel>
 
                   {/* Radio */}
-                  <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-1">
+                  <MetalPanel glowColor="hsl(var(--neon-turquoise))">
                     <WebRadio compact />
                   </MetalPanel>
                 </div>
