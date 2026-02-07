@@ -1,101 +1,126 @@
 
-# Plan: Förbättrad layout med större verktygsikoner och fler radiokanaler
+# Plan: Dynamiskt skalande verktygsrutnät
 
 ## Sammanfattning
-Slå ihop verktygsmodulen och radiomodulen till EN enhetlig panel med två rader: verktygsikoner överst och radiokanaler under. Detta skapar en visuellt balanserad och sammanhängande "Verktyg"-sektion som kompletterar "Nästa lektion"-panelen.
+Omstrukturera "Verktyg"-panelen så att alla 9 element (3 verktygsikoner + 6 radiokanaler) placeras i ett CSS Grid med 2 rader som fyller hela det tillgängliga utrymmet. Elementen skalas dynamiskt baserat på panelens storlek.
 
-## Ändringar
+## Layout-koncept
 
-### 1. Uppdatera ApocalypticGradePage - Kombinerad verktygspanel
+```text
+┌─────────────────────────────────────────┐
+│ 🧮 Verktyg                              │
+├─────────────────────────────────────────┤
+│                                         │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌────┐│  <- Rad 1: Fyller hela bredden
+│  │Calc │ │Geo  │ │Matte│ │ 🧘  │ │ 🎸 ││
+│  │     │ │     │ │     │ │ Spa │ │Rock││
+│  └─────┘ └─────┘ └─────┘ └─────┘ └────┘│
+│                                         │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐  🔊   │  <- Rad 2: 4 radiokanaler + volym
+│  │ 🎧  │ │ ✌🏼  │ │ 🎵  │ │ 📻  │       │
+│  │ Pop │ │Faith│ │ NRJ │ │ P3  │       │
+│  └─────┘ └─────┘ └─────┘ └─────┘       │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+Alternativt med alla 9 element i ett 5+4-rutnät:
+
+```text
+Rad 1: [Calc] [Geo] [Matte] [🧘 Spa] [🎸 Rock]
+Rad 2: [🎧 Pop] [✌🏼 Faith] [🎵 NRJ] [📻 P3] [🔊]
+```
+
+## Tekniska ändringar
+
+### 1. ApocalypticGradePage - Integrerat grid
 **Fil:** `src/components/ApocalypticGradePage.tsx`
 
-Slå ihop de två separata MetalPanel-komponenterna (verktyg + radio) till en enda panel:
+Ersätt den nuvarande layouten i "Verktyg"-panelen med ett enhetligt CSS Grid:
 
-```text
-┌─────────────────────────────┐
-│     🧮 Verktyg             │  <- En panel med titel
-├─────────────────────────────┤
-│  [Calc]  [Geogebra] [Matte] │  <- Rad 1: Verktyg, större
-├─────────────────────────────┤
-│  🧘 🎸 🎧 ✌🏼 🎵 📻 🔊      │  <- Rad 2: Radio, 6 kanaler
-│  Spa Rock Pop Faith NRJ P3  │
-└─────────────────────────────┘
-```
+- Använd `grid grid-cols-5 grid-rows-2` för att skapa ett 5x2 rutnät
+- Sätt `h-full` på grid-containern så den fyller panelen
+- Låt varje cell ha `flex-1` och `aspect-auto` för att skalas proportionellt
+- Integrera CalculatorThumbnail, GeogebraLink, MattebokenLink direkt i griden
+- Skicka en ny prop `fillSpace` till WebRadio för att indikera att kanaler ska fylla celler
 
-- Ändra `max-h-[60%]` till `max-h-[50%]` på "Nästa lektion"-panelen
-- Ta bort de två separata MetalPanel-komponenterna för verktyg och radio
-- Skapa en kombinerad MetalPanel med titel "Verktyg"
+### 2. WebRadio - Ny "fillSpace" prop
+**Fil:** `src/components/WebRadio.tsx`
 
-### 2. Större verktygsikoner med tightare spacing
+Lägg till ett nytt läge `fillSpace` som:
+
+- Returnerar enbart kanalknapparna som en React Fragment (utan wrapper-div)
+- Varje knapp får `flex-1` och `h-full` för att fylla sin grid-cell
+- Tar bort min-width och fasta storlekar, låter CSS Grid styra
+- Volymknappen placeras i sista cellen
+
+### 3. Verktygskomponenter - fillSpace-stöd
 **Filer:** `CalculatorThumbnail.tsx`, `GeogebraLink.tsx`, `MattebokenLink.tsx`
 
-Öka storlek för compact-läget:
-- **CalculatorThumbnail:** `w-[50px]` → `w-[60px]`
-- **GeogebraLink/MattebokenLink:** `w-[50px]` → `w-[60px]`, ikoner `w-8 h-8` → `w-10 h-10`, text `text-[7px]` → `text-[8px]`
-- Minska gap i ApocalypticGradePage från `gap-3` till `gap-2` för tightare spacing
+Lägg till `fillSpace` prop som:
 
-### 3. Lägg till två nya radiokanaler
-**Fil:** `src/components/WebRadio.tsx`
+- Använder `h-full w-full` istället för fasta dimensioner
+- Sätter `aspect-square` eller låter höjden styras av grid-raden
+- Centrerar innehållet med flex
 
-Lägg till NRJ och P3 i channels-arrayen:
+## Förväntad CSS-struktur
 
-```typescript
-{ 
-  id: "nrj", 
-  name: "NRJ", 
-  emoji: "🎵", 
-  description: "NRJ Sverige", 
-  color: "from-red-500 to-yellow-500",
-  streamUrl: "https://stream.nrj.se/nrj_se_mp3"
-},
-{ 
-  id: "p3", 
-  name: "P3", 
-  emoji: "📻", 
-  description: "Sveriges Radio P3", 
-  color: "from-green-500 to-emerald-600",
-  streamUrl: "https://sverigesradio.se/topsy/direkt/164-hi-mp3.m3u"
-}
+```tsx
+// I ApocalypticGradePage:
+<MetalPanel title="Verktyg" className="flex-1 flex flex-col min-h-0">
+  <div className="grid grid-cols-5 grid-rows-2 gap-2 h-full">
+    {/* Rad 1 */}
+    <CalculatorThumbnail fillSpace />
+    <GeogebraLink fillSpace />
+    <MattebokenLink fillSpace />
+    <WebRadioButton channel="spa" fillSpace />
+    <WebRadioButton channel="rock" fillSpace />
+    
+    {/* Rad 2 */}
+    <WebRadioButton channel="pop" fillSpace />
+    <WebRadioButton channel="christian" fillSpace />
+    <WebRadioButton channel="nrj" fillSpace />
+    <WebRadioButton channel="p3" fillSpace />
+    <VolumeControl />
+  </div>
+</MetalPanel>
 ```
 
-### 4. Kompaktare radioknappar för 6 kanaler
-**Fil:** `src/components/WebRadio.tsx`
+## Alternativ approach: Enkel flex-lösning
 
-Justera compact-läget för att rymma 6 kanaler:
-- Minska `min-w-[68px]` → `min-w-[52px]`
-- Minska `text-3xl` → `text-2xl` för emojis
-- Minska `text-xs` → `text-[9px]` för kanalnamn
-- Minska `px-4 py-3` → `px-2 py-2`
-- Minska `gap-4` → `gap-2`
-- Ta bort den separata Radio-ikonen (sparar plats)
+Om CSS Grid blir för komplext kan vi använda:
 
-## Resulterande layout
-
-```text
-┌────────────────────────────────────────────────────────────────────────────┐
-│  Kapitel X — Titel  │  Nästa lektion (max 50%)  │  Planering Åk X         │
-│  ─────────────────  │  ──────────────────────   │  ───────────────        │
-│  Resurser           │  [Post-it innehåll]       │  [Kalender]             │
-│  ...                │                           │                         │
-│  ...                │  ──────────────────────   │                         │
-│  ...                │  🧮 Verktyg               │                         │
-│  ...                │  [Calc][Geo][Matte]       │                         │
-│  ...                │  🧘🎸🎧✌🏼🎵📻 + 🔊      │                         │
-│  ─────────────────  │                           │                         │
-│  [Mascot]           │                           │                         │
-└────────────────────────────────────────────────────────────────────────────┘
+```tsx
+<div className="flex flex-col h-full gap-2">
+  <div className="flex-1 flex gap-2">
+    {/* 5 element som delar raden */}
+    <CalculatorThumbnail className="flex-1" />
+    <GeogebraLink className="flex-1" />
+    <MattebokenLink className="flex-1" />
+    <RadioButton className="flex-1" />
+    <RadioButton className="flex-1" />
+  </div>
+  <div className="flex-1 flex gap-2">
+    {/* 5 element som delar raden */}
+    <RadioButton className="flex-1" />
+    <RadioButton className="flex-1" />
+    <RadioButton className="flex-1" />
+    <RadioButton className="flex-1" />
+    <VolumeButton className="flex-1" />
+  </div>
+</div>
 ```
 
 ## Tekniska detaljer
 
-### Nya stream-URLer
-- **NRJ:** `https://stream.nrj.se/nrj_se_mp3` (direkt MP3-stream)
-- **P3:** `https://sverigesradio.se/topsy/direkt/164-hi-mp3.m3u` (M3U, men kan behöva testas)
+### Varför detta fungerar
+- `flex-1` gör att varje element tar lika mycket av tillgängligt utrymme
+- `h-full` på raderna och containern säkerställer att höjden fylls
+- `gap-2` ger konsekvent avstånd mellan elementen
+- Elementen skalas proportionellt när panelen växer/krymper
 
-Alternativ P3-stream om M3U inte fungerar: `https://sverigesradio.se/topsy/direkt/164-hi-aac`
-
-### Förväntade fördelar
-1. Bättre visuell balans - en stor verktygsmodul vs en "Nästa lektion"-panel
-2. Konsekvent stil med gemensam MetalPanel
-3. Mer kompakt och effektiv användning av utrymmet
-4. Verktyg och radio logiskt grupperade tillsammans
+### Fördelar
+1. Alla 9 element fyller hela det tillgängliga utrymmet
+2. Dynamisk skalning - större panel = större knappar
+3. Visuellt balanserat mot "Nästa lektion"-panelen
+4. Bibehåller tillgänglighet med rimliga touch-targets
