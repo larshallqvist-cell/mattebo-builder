@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, Calendar, BookOpen } from "lucide-react";
+import { Home, Calendar, BookOpen, Volume2, VolumeX } from "lucide-react";
 import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
@@ -34,6 +34,7 @@ const gradeNeonColors: Record<number, string> = {
 
 const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
+  const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
   const { nextEvent } = useCalendarEvents(grade);
   const glowColor = gradeNeonColors[grade] || "hsl(var(--neon-copper))";
 
@@ -155,20 +156,25 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </div>
                 </MetalPanel>
 
-                {/* Combined Tools Panel - 5x2 grid that fills available space */}
+                {/* Combined Tools Panel - 3x3 grid that fills available space */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
                   className="flex-1 flex flex-col min-h-0" 
                   showSparks
+                  titleExtra={
+                    activeRadioChannel && (
+                      <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                    )
+                  }
                 >
-                  <div className="grid grid-cols-5 grid-rows-2 gap-2 h-full">
-                    {/* Row 1: 3 tools + 2 radio channels */}
+                  <div className="grid grid-cols-3 grid-rows-3 gap-2 h-full">
+                    {/* Row 1: 3 tools */}
                     <CalculatorThumbnail fillSpace />
                     <GeogebraLink fillSpace />
                     <MattebokenLink fillSpace />
-                    {/* Radio channels + volume control (6 channels + 1 volume = 7 cells) */}
-                    <WebRadio fillSpace />
+                    {/* Row 2-3: 6 radio channels */}
+                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                   </div>
                 </MetalPanel>
               </div>

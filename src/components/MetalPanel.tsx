@@ -5,6 +5,7 @@ interface MetalPanelProps {
   children: React.ReactNode;
   title?: string;
   icon?: React.ReactNode;
+  titleExtra?: React.ReactNode;
   className?: string;
   glowColor?: string;
   showSparks?: boolean;
@@ -13,7 +14,8 @@ interface MetalPanelProps {
 const MetalPanel = ({ 
   children, 
   title, 
-  icon, 
+  icon,
+  titleExtra,
   className = "",
   glowColor = "hsl(var(--neon-copper))",
   showSparks = false
@@ -98,7 +100,7 @@ const MetalPanel = ({
             borderColor: `${glowColor}40`,
           }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             {icon && (
               <span className="w-3.5 h-3.5" style={{ color: glowColor, filter: `drop-shadow(0 0 4px ${glowColor})` }}>
                 {icon}
@@ -114,6 +116,11 @@ const MetalPanel = ({
               {title}
             </h2>
           </div>
+          {titleExtra && (
+            <div className="flex items-center">
+              {titleExtra}
+            </div>
+          )}
         </div>
       )}
 
