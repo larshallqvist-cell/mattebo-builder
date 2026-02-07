@@ -43,7 +43,7 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
     },
     { 
       id: "rock", 
-      name: "Klassisk Rock", 
+      name: "Rock", 
       emoji: "🎸", 
       description: "70-tals klassiker", 
       color: "from-amber-500 to-orange-600",
@@ -57,7 +57,6 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
       description: "Aktuella hits (OnlyHit)", 
       color: "from-purple-500 to-pink-600",
       streamUrl: "https://cdn.onlyhitsradio.net/onlyhits"
-      // No metadataId - OnlyHit doesn't have SomaFM API
     },
     { 
       id: "christian", 
@@ -66,7 +65,22 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
       description: "Kristen pop (WJTL)", 
       color: "from-sky-500 to-blue-600",
       streamUrl: "https://us9.maindigitalstream.com/ssl/WJTL"
-      // No metadataId - WJTL doesn't have SomaFM API
+    },
+    { 
+      id: "nrj", 
+      name: "NRJ", 
+      emoji: "🎵", 
+      description: "NRJ Sverige", 
+      color: "from-red-500 to-yellow-500",
+      streamUrl: "https://stream.nrj.se/nrj_se_mp3"
+    },
+    { 
+      id: "p3", 
+      name: "P3", 
+      emoji: "📻", 
+      description: "Sveriges Radio P3", 
+      color: "from-green-500 to-emerald-600",
+      streamUrl: "https://sverigesradio.se/topsy/direkt/164-hi-aac"
     },
   ];
 
@@ -193,11 +207,10 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
-  // Compact mode - channel buttons in a row with names, large size
+  // Compact mode - channel buttons in a row with names, optimized for 6 channels
   if (compact) {
     return (
-      <div className="flex items-center justify-center gap-4">
-        <Radio className="w-7 h-7 text-primary flex-shrink-0" />
+      <div className="flex items-center justify-center gap-2 flex-wrap">
         {channels.map((channel) => (
           <button
             key={channel.id}
@@ -205,7 +218,7 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
             disabled={isLoading}
             title={channel.description}
             className={`
-              flex flex-col items-center justify-center gap-1.5 px-4 py-3 rounded-xl min-w-[68px]
+              flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg min-w-[48px]
               transition-all duration-200 
               ${activeChannel === channel.id 
                 ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-105` 
@@ -214,20 +227,20 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
               ${isLoading ? 'opacity-70 cursor-wait' : ''}
             `}
           >
-            <span className="text-3xl">{channel.emoji}</span>
-            <span className="text-xs font-medium leading-none opacity-80">{channel.name}</span>
+            <span className="text-2xl">{channel.emoji}</span>
+            <span className="text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
           </button>
         ))}
         {activeChannel && (
           <button 
             onClick={toggleMute}
-            className="p-2.5 hover:bg-secondary rounded-xl transition-colors"
+            className="p-2 hover:bg-secondary rounded-lg transition-colors"
             title={isMuted ? "Ljud av" : "Ljud på"}
           >
             {isMuted || volume === 0 ? (
-              <VolumeX className="w-7 h-7 text-muted-foreground" />
+              <VolumeX className="w-6 h-6 text-muted-foreground" />
             ) : (
-              <Volume2 className="w-7 h-7 text-primary animate-pulse" />
+              <Volume2 className="w-6 h-6 text-primary animate-pulse" />
             )}
           </button>
         )}
