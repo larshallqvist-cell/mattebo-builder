@@ -69,31 +69,31 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         <ApocalypticNav />
 
         {/* Compact Hero Header with Chapter Selector */}
-        <header className="relative pt-14 pb-2 px-4 z-20">
+        <header className="relative pt-14 md:pt-14 pb-2 px-3 md:px-4 z-20">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex items-center justify-between gap-2"
+              className="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
             >
-              {/* Title + Chapter Selector combined */}
-              <div className="flex items-center gap-6 flex-wrap">
+              {/* Title + Chapter Selector - stacked on mobile, inline on desktop */}
+              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                 <h1 
-                  className="text-3xl font-orbitron font-bold"
+                  className="text-2xl md:text-3xl font-orbitron font-bold text-center md:text-left"
                   style={{
                     color: glowColor,
                     textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
                   }}
                 >
-                  Kontrollpanelen {grade}
+                  Åk {grade}
                 </h1>
                 
-                {/* Chapter Selector inline */}
+                {/* Chapter Selector - horizontal centered on mobile */}
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               </div>
 
-              {/* Quick actions */}
+              {/* Quick actions - hidden on mobile */}
               <div className="hidden md:flex items-center gap-3">
                 <Link 
                   to="/"
@@ -242,33 +242,27 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             </div>
 
             {/* Mobile: Single column - optimized for touch */}
-            <div className="md:hidden space-y-3 pb-24">
+            <div className="md:hidden space-y-4 pb-24 px-1">
               {/* Quick info - compact */}
               <div id="next-lesson">
                 <PostItNote grade={grade} />
               </div>
 
-              {/* Calendar - compact height */}
-              <div id="calendar">
-                <ScreenFrame title={`Planering Åk ${grade}`} className="h-[280px]">
-                  <SuspenseLessonCalendar grade={grade} />
-                </ScreenFrame>
-              </div>
-
-              {/* Tools - 3x3 grid for mobile */}
+              {/* Tools - 3x3 grid for mobile - LARGER and more prominent */}
               <MetalPanel 
                 title="Verktyg" 
                 glowColor="hsl(var(--neon-copper))" 
                 showSparks
+                className="border border-primary/20"
                 titleExtra={
                   activeRadioChannel && (
-                    <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                    <Volume2 className="w-5 h-5 text-primary animate-pulse" />
                   )
                 }
               >
                 <div 
-                  className="grid grid-cols-3 gap-2"
-                  style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '180px' }}
+                  className="grid grid-cols-3 gap-3"
+                  style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '220px' }}
                 >
                   <CalculatorThumbnail fillSpace />
                   <GeogebraLink fillSpace />
@@ -277,10 +271,17 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 </div>
               </MetalPanel>
 
+              {/* Calendar - compact height */}
+              <div id="calendar">
+                <ScreenFrame title={`Planering Åk ${grade}`} className="h-[260px]">
+                  <SuspenseLessonCalendar grade={grade} />
+                </ScreenFrame>
+              </div>
+
               {/* Resources - full width, touch optimized */}
               <div id="resources">
                 <MetalPanel 
-                  title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
+                  title={`Kap ${selectedChapter}: ${getChapterSubtitle(grade, selectedChapter)}`}
                   icon={<BookOpen className="w-5 h-5" />}
                   glowColor={glowColor}
                 >
