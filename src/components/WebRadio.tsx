@@ -19,9 +19,10 @@ interface TrackInfo {
 
 interface WebRadioProps {
   onChannelChange?: (channel: string | null) => void;
+  compact?: boolean;
 }
 
-const WebRadio = ({ onChannelChange }: WebRadioProps) => {
+const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<TrackInfo | null>(null);
@@ -191,6 +192,46 @@ const WebRadio = ({ onChannelChange }: WebRadioProps) => {
   };
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
+  
+  // Compact mode - just channel buttons in a row
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <Radio className="w-4 h-4 text-primary flex-shrink-0" />
+        {channels.map((channel) => (
+          <button
+            key={channel.id}
+            onClick={() => handleChannelClick(channel)}
+            disabled={isLoading}
+            title={channel.description}
+            className={`
+              flex items-center justify-center w-7 h-7 rounded-md
+              transition-all duration-200 
+              ${activeChannel === channel.id 
+                ? `bg-gradient-to-br ${channel.color} text-white shadow-md` 
+                : 'bg-secondary/50 hover:bg-secondary text-foreground'
+              }
+              ${isLoading ? 'opacity-70 cursor-wait' : ''}
+            `}
+          >
+            <span className="text-sm">{channel.emoji}</span>
+          </button>
+        ))}
+        {activeChannel && (
+          <button 
+            onClick={toggleMute}
+            className="p-1 hover:bg-secondary rounded transition-colors ml-1"
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX className="w-3.5 h-3.5 text-muted-foreground" />
+            ) : (
+              <Volume2 className="w-3.5 h-3.5 text-primary animate-pulse" />
+            )}
+          </button>
+        )}
+      </div>
+    );
+  }
   
   return (
     <div className="bg-card/80 backdrop-blur-sm rounded-xl border border-border p-4 shadow-lg">
