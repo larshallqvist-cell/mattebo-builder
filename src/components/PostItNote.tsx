@@ -50,7 +50,10 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     // First, normalize the HTML
     let text = html;
     
-    // Convert line breaks to markers
+    // Convert double line breaks to spacing markers (this is Enter after non-list content)
+    text = text.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '{{SPACING}}');
+    
+    // Convert remaining single line breaks to markers
     text = text.replace(/<br\s*\/?>/gi, '{{BR}}');
     
     // IMPORTANT: Handle consecutive </ul><ul> BEFORE extracting list items
