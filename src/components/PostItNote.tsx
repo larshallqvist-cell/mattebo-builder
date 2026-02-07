@@ -45,6 +45,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   };
   // Render rich text content directly from HTML
   const renderRichContent = (html: string): JSX.Element[] => {
+    console.log('[PostIt] Raw HTML:', html);
     const elements: JSX.Element[] = [];
     
     // First, normalize the HTML
@@ -57,6 +58,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const listItems: string[] = [];
     text = text.replace(/<li>([\s\S]*?)<\/li>/gi, (_, content) => {
       const trimmed = content.trim();
+      console.log('[PostIt] List item content:', JSON.stringify(content), '-> trimmed:', JSON.stringify(trimmed));
       if (!trimmed || trimmed === '{{BR}}') {
         listItems.push('{{EMPTY}}');
       } else {
