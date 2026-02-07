@@ -81,10 +81,12 @@ const GradePage = ({ grade }: GradePageProps) => {
             </div>
           </div>
           
-          {/* Mobile: Vertical stack */}
-          <div className="md:hidden space-y-4 overflow-y-auto h-full pb-8">
-            {/* Post-it first on mobile */}
-            <PostItNote grade={grade} />
+         {/* Mobile: Vertical stack */}
+           <div className="md:hidden flex flex-col space-y-4 overflow-y-auto h-full pb-8">
+             {/* Post-it first on mobile - expands when needed */}
+             <div className="min-h-0 flex-shrink-0">
+               <PostItNote grade={grade} />
+             </div>
             
             {/* Calendar */}
             <div className="h-[400px]">
