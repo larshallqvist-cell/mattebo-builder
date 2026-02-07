@@ -45,6 +45,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   };
   // Render rich text content directly from HTML
   const renderRichContent = (html: string): JSX.Element[] => {
+    console.log('[PostIt] Raw HTML:', JSON.stringify(html));
     const elements: JSX.Element[] = [];
     
     // First, normalize the HTML
