@@ -165,32 +165,119 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                       // 1. Rensa URL:en från allt skräp
                       const cleanUrl = link.url?.trim().replace(/[\u200B-\u200D\uFEFF]/g, "") || "";
                       
-                      // Check if this is a header/grouping text (empty URL or starts with #)
+                      // Parse special commands from URL
                       const isHeader = !cleanUrl || cleanUrl === "#" || cleanUrl.startsWith("#header");
+                      const isDivider = cleanUrl.startsWith("#divider");
+                      const isSpacer = cleanUrl.startsWith("#spacer");
+                      const isNote = cleanUrl.startsWith("#note");
                       const isExternal = cleanUrl.startsWith("http");
                       
-                      // Determine link color - support hex codes, CSS colors, or Tailwind classes
+                      // Parse text formatting from title (supports **bold**, *italic*, __underline__)
+                      const parseFormattedText = (text: string) => {
+                        // Process in order: bold (**), underline (__), italic (*)
+                        const parts: { text: string; bold?: boolean; italic?: boolean; underline?: boolean }[] = [];
+                        let remaining = text;
+                        
+                        // Simple regex-based parsing
+                        const regex = /(\*\*(.+?)\*\*)|(__(.+?)__)|(\*(.+?)\*)/g;
+                        let lastIndex = 0;
+                        let match;
+                        
+                        while ((match = regex.exec(text)) !== null) {
+                          // Add text before match
+                          if (match.index > lastIndex) {
+                            parts.push({ text: text.slice(lastIndex, match.index) });
+                          }
+                          
+                          if (match[1]) {
+                            // Bold **text**
+                            parts.push({ text: match[2], bold: true });
+                          } else if (match[3]) {
+                            // Underline __text__
+                            parts.push({ text: match[4], underline: true });
+                          } else if (match[5]) {
+                            // Italic *text*
+                            parts.push({ text: match[6], italic: true });
+                          }
+                          
+                          lastIndex = match.index + match[0].length;
+                        }
+                        
+                        // Add remaining text
+                        if (lastIndex < text.length) {
+                          parts.push({ text: text.slice(lastIndex) });
+                        }
+                        
+                        return parts.length > 0 ? parts : [{ text }];
+                      };
+                      
+                      const renderFormattedText = (text: string, baseClass: string, style?: React.CSSProperties) => {
+                        const parts = parseFormattedText(text);
+                        return (
+                          <span className={baseClass} style={style}>
+                            {parts.map((part, i) => {
+                              let className = "";
+                              if (part.bold) className += " font-bold";
+                              if (part.italic) className += " italic";
+                              if (part.underline) className += " underline";
+                              return <span key={i} className={className}>{part.text}</span>;
+                            })}
+                          </span>
+                        );
+                      };
+                      
+                      // Determine link color
                       const linkColor = link.color || undefined;
                       const isHexOrCss = linkColor && (linkColor.startsWith('#') || linkColor.startsWith('rgb') || linkColor.startsWith('hsl') || /^[a-z]+$/i.test(linkColor));
                       const colorStyle = isHexOrCss ? { color: linkColor } : undefined;
                       const colorClass = linkColor && !isHexOrCss ? linkColor : '';
 
-                      // Render as header/grouping text
-                      if (isHeader) {
+                      // Render #divider - horizontal line
+                      if (isDivider) {
                         return (
-                          <div
-                            key={index}
-                            className="col-span-full pt-2 pb-0.5 px-1.5"
-                          >
-                            <span 
-                              className="text-xs font-orbitron font-bold uppercase tracking-wider"
+                          <div key={index} className="col-span-full py-2 px-1.5">
+                            <div 
+                              className="h-px w-full"
                               style={{ 
-                                color: linkColor || "hsl(var(--neon-copper))",
-                                textShadow: `0 0 8px ${linkColor || "hsl(var(--neon-copper))"}40`
+                                background: `linear-gradient(90deg, transparent, ${linkColor || "hsl(var(--neon-copper))"}, transparent)`,
+                                boxShadow: `0 0 4px ${linkColor || "hsl(var(--neon-copper))"}40`
                               }}
+                            />
+                          </div>
+                        );
+                      }
+                      
+                      // Render #spacer - extra vertical space
+                      if (isSpacer) {
+                        return <div key={index} className="col-span-full h-3" />;
+                      }
+                      
+                      // Render #note:text - info text
+                      if (isNote) {
+                        return (
+                          <div key={index} className="col-span-full py-1 px-1.5">
+                            <span 
+                              className="text-xs font-nunito italic opacity-70"
+                              style={{ color: linkColor || "hsl(var(--foreground))" }}
                             >
                               {link.title}
                             </span>
+                          </div>
+                        );
+                      }
+
+                      // Render #header - grouping text
+                      if (isHeader) {
+                        return (
+                          <div key={index} className="col-span-full pt-2 pb-0.5 px-1.5">
+                            {renderFormattedText(
+                              link.title,
+                              "text-xs font-orbitron font-bold uppercase tracking-wider",
+                              { 
+                                color: linkColor || "hsl(var(--neon-copper))",
+                                textShadow: `0 0 8px ${linkColor || "hsl(var(--neon-copper))"}40`
+                              }
+                            )}
                           </div>
                         );
                       }
@@ -207,7 +294,6 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                             e.stopPropagation();
                             hapticFeedback('light');
                             if (isExternal) {
-                              // Force open in new tab - bypasses iframe restrictions
                               window.open(cleanUrl, '_blank', 'noopener,noreferrer');
                             } else {
                               window.location.href = cleanUrl;
@@ -219,7 +305,11 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                           ) : (
                             <Link className="w-3.5 h-3.5 flex-shrink-0 transition-colors" style={colorStyle ? { color: colorStyle.color } : undefined} />
                           )}
-                          <span className={`text-sm font-nunito leading-tight transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`} style={colorStyle}>{link.title}</span>
+                          {renderFormattedText(
+                            link.title,
+                            `text-sm font-nunito leading-tight transition-colors ${colorClass || 'text-foreground/90 group-hover:text-foreground'}`,
+                            colorStyle
+                          )}
                         </button>
                       );
                     })}
