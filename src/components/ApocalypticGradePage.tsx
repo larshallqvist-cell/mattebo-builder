@@ -141,9 +141,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <SuspenseMascotPanel className="flex-shrink-0" />
               </div>
 
-              {/* Column 2 - Next Lesson (larger) + Tools (compact) */}
+              {/* Column 2 - Next Lesson + Tools */}
               <div className="lg:col-span-4 flex flex-col gap-2 h-full min-h-0">
-                {/* Next Lesson - Takes most space */}
+                {/* Next Lesson */}
                 <MetalPanel 
                   title={nextLessonTitle}
                   icon={<Calendar className="w-4 h-4" />}
@@ -155,19 +155,22 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </div>
                 </MetalPanel>
 
-                {/* Tools: Calculator + Geogebra + Matteboken + Radio - compact row */}
-                <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0" showSparks>
-                  <div className="flex items-center justify-between gap-2">
+                {/* Tools row: Icons + Radio side by side */}
+                <div className="flex gap-2 flex-shrink-0">
+                  {/* Calculator + Geogebra + Matteboken */}
+                  <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0" showSparks>
                     <div className="flex items-center gap-2">
                       <CalculatorThumbnail compact />
                       <GeogebraLink compact />
                       <MattebokenLink compact />
                     </div>
-                    <div className="flex-1 min-w-[120px]">
-                      <WebRadio compact />
-                    </div>
-                  </div>
-                </MetalPanel>
+                  </MetalPanel>
+
+                  {/* Radio */}
+                  <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-1">
+                    <WebRadio compact />
+                  </MetalPanel>
+                </div>
               </div>
 
               {/* Column 3 - Calendar (narrower) */}
