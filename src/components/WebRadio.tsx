@@ -228,8 +228,8 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
               ${isLoading ? 'opacity-70 cursor-wait' : ''}
             `}
           >
-            <span className="text-xl md:text-2xl">{channel.emoji}</span>
-            <span className="text-[8px] md:text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
+            <span className="text-2xl md:text-3xl lg:text-4xl">{channel.emoji}</span>
+            <span className="text-[9px] md:text-[10px] font-medium leading-none opacity-80">{channel.name}</span>
           </button>
         ))}
       </>
