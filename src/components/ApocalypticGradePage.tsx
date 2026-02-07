@@ -141,24 +141,24 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <SuspenseMascotPanel className="flex-shrink-0" />
               </div>
 
-              {/* Column 2 - Next Lesson + Tools */}
+              {/* Column 2 - Next Lesson + Tools - flexible sizing */}
               <div className="lg:col-span-4 flex flex-col gap-2 h-full min-h-0">
-                {/* Next Lesson */}
+                {/* Next Lesson - sizes to content, max height ~60% */}
                 <MetalPanel 
                   title={nextLessonTitle}
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-1 min-h-0 flex flex-col"
+                  className="flex-shrink min-h-0 max-h-[60%] flex flex-col"
                 >
                   <div className="flex-1 min-h-0 overflow-y-auto industrial-scrollbar">
                     <PostItNote grade={grade} />
                   </div>
                 </MetalPanel>
 
-                {/* Tools stacked: Icons above Radio */}
-                <div className="flex flex-col gap-2 flex-shrink-0">
+                {/* Tools stacked: Icons above Radio - can grow if Post-it is small */}
+                <div className="flex flex-col gap-2 flex-1 min-h-0">
                   {/* Calculator + Geogebra + Matteboken */}
-                  <MetalPanel glowColor="hsl(var(--neon-copper))" showSparks>
+                  <MetalPanel glowColor="hsl(var(--neon-copper))" className="flex-shrink-0" showSparks>
                     <div className="flex items-center justify-center gap-3">
                       <CalculatorThumbnail compact />
                       <GeogebraLink compact />
@@ -166,9 +166,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     </div>
                   </MetalPanel>
 
-                  {/* Radio */}
-                  <MetalPanel glowColor="hsl(var(--neon-turquoise))">
-                    <WebRadio compact />
+                  {/* Radio - can expand */}
+                  <MetalPanel glowColor="hsl(var(--neon-turquoise))" className="flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center justify-center h-full">
+                      <WebRadio compact />
+                    </div>
                   </MetalPanel>
                 </div>
               </div>
