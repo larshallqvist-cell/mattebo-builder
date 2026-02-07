@@ -207,40 +207,44 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
-  // Compact mode - channel buttons in a row with names, optimized for 6 channels
+  // Compact mode - tall rectangular buttons in 2 rows of 3
   if (compact) {
     return (
-      <div className="flex items-center justify-center gap-2 flex-wrap">
-        {channels.map((channel) => (
-          <button
-            key={channel.id}
-            onClick={() => handleChannelClick(channel)}
-            disabled={isLoading}
-            title={channel.description}
-            className={`
-              flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg min-w-[48px]
-              transition-all duration-200 
-              ${activeChannel === channel.id 
-                ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-105` 
-                : 'bg-secondary/50 hover:bg-secondary hover:scale-105 text-foreground'
-              }
-              ${isLoading ? 'opacity-70 cursor-wait' : ''}
-            `}
-          >
-            <span className="text-2xl">{channel.emoji}</span>
-            <span className="text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
-          </button>
-        ))}
+      <div className="flex flex-col items-center gap-2">
+        {/* 2 rows of 3 channel buttons */}
+        <div className="grid grid-cols-3 gap-2">
+          {channels.map((channel) => (
+            <button
+              key={channel.id}
+              onClick={() => handleChannelClick(channel)}
+              disabled={isLoading}
+              title={channel.description}
+              className={`
+                flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl min-w-[56px]
+                transition-all duration-200 
+                ${activeChannel === channel.id 
+                  ? `bg-gradient-to-br ${channel.color} text-white shadow-lg scale-105` 
+                  : 'bg-secondary/50 hover:bg-secondary hover:scale-105 text-foreground'
+                }
+                ${isLoading ? 'opacity-70 cursor-wait' : ''}
+              `}
+            >
+              <span className="text-2xl">{channel.emoji}</span>
+              <span className="text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
+            </button>
+          ))}
+        </div>
+        {/* Volume control when playing */}
         {activeChannel && (
           <button 
             onClick={toggleMute}
-            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+            className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
             title={isMuted ? "Ljud av" : "Ljud på"}
           >
             {isMuted || volume === 0 ? (
-              <VolumeX className="w-6 h-6 text-muted-foreground" />
+              <VolumeX className="w-5 h-5 text-muted-foreground" />
             ) : (
-              <Volume2 className="w-6 h-6 text-primary animate-pulse" />
+              <Volume2 className="w-5 h-5 text-primary animate-pulse" />
             )}
           </button>
         )}
