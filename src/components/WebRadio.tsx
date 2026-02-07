@@ -20,9 +20,10 @@ interface TrackInfo {
 interface WebRadioProps {
   onChannelChange?: (channel: string | null) => void;
   compact?: boolean;
+  fillSpace?: boolean;
 }
 
-const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
+const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRadioProps) => {
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<TrackInfo | null>(null);
@@ -207,6 +208,55 @@ const WebRadio = ({ onChannelChange, compact = false }: WebRadioProps) => {
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
+  // fillSpace mode - returns fragments for parent grid integration
+  if (fillSpace) {
+    return (
+      <>
+        {channels.map((channel) => (
+          <button
+            key={channel.id}
+            onClick={() => handleChannelClick(channel)}
+            disabled={isLoading}
+            title={channel.description}
+            className={`
+              flex flex-col items-center justify-center gap-1 rounded-xl w-full h-full
+              transition-all duration-200 
+              ${activeChannel === channel.id 
+                ? `bg-gradient-to-br ${channel.color} text-white shadow-lg` 
+                : 'bg-secondary/50 hover:bg-secondary hover:scale-105 text-foreground'
+              }
+              ${isLoading ? 'opacity-70 cursor-wait' : ''}
+            `}
+          >
+            <span className="text-xl md:text-2xl">{channel.emoji}</span>
+            <span className="text-[8px] md:text-[9px] font-medium leading-none opacity-80">{channel.name}</span>
+          </button>
+        ))}
+        {/* Volume control in last cell */}
+        <button 
+          onClick={toggleMute}
+          className={`
+            flex items-center justify-center rounded-xl w-full h-full
+            transition-colors
+            ${activeChannel 
+              ? 'bg-primary/20 hover:bg-primary/30' 
+              : 'bg-secondary/30 hover:bg-secondary/50'
+            }
+          `}
+          title={isMuted ? "Ljud av" : "Ljud på"}
+        >
+          {isMuted || volume === 0 ? (
+            <VolumeX className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
+          ) : activeChannel ? (
+            <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-primary animate-pulse" />
+          ) : (
+            <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground/50" />
+          )}
+        </button>
+      </>
+    );
+  }
+
   // Compact mode - tall rectangular buttons in 2 rows of 3
   if (compact) {
     return (

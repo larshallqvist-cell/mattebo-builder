@@ -155,22 +155,20 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </div>
                 </MetalPanel>
 
-                {/* Combined Tools Panel - Calculator, Geogebra, Matteboken + Radio */}
+                {/* Combined Tools Panel - 5x2 grid that fills available space */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
                   className="flex-1 flex flex-col min-h-0" 
                   showSparks
                 >
-                  <div className="flex flex-col gap-3 items-center justify-center h-full">
-                    {/* Row 1: Tool icons */}
-                    <div className="flex items-center justify-center gap-2">
-                      <CalculatorThumbnail compact />
-                      <GeogebraLink compact />
-                      <MattebokenLink compact />
-                    </div>
-                    {/* Row 2: Radio channels */}
-                    <WebRadio compact />
+                  <div className="grid grid-cols-5 grid-rows-2 gap-2 h-full">
+                    {/* Row 1: 3 tools + 2 radio channels */}
+                    <CalculatorThumbnail fillSpace />
+                    <GeogebraLink fillSpace />
+                    <MattebokenLink fillSpace />
+                    {/* Radio channels + volume control (6 channels + 1 volume = 7 cells) */}
+                    <WebRadio fillSpace />
                   </div>
                 </MetalPanel>
               </div>
