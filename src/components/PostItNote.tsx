@@ -45,7 +45,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   };
   // Render rich text content directly from HTML
   const renderRichContent = (html: string): JSX.Element[] => {
-    console.log('[PostIt] Raw HTML:', JSON.stringify(html));
     const elements: JSX.Element[] = [];
     
     // First, normalize the HTML
@@ -56,7 +55,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     
     // IMPORTANT: Handle consecutive </ul><ul> BEFORE extracting list items
     // This is how Google Calendar represents "Enter" between bullet points
-    text = text.replace(/<\/ul>\s*<ul>/gi, '</ul>{{SPACING}}<ul>');
+    // Note: No whitespace between </ul> and <ul> in Google Calendar HTML
+    text = text.replace(/<\/ul><ul>/gi, '{{SPACING}}');
     
     // Extract and process list items
     const listItems: string[] = [];
@@ -276,10 +276,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   };
 
   const content = currentEvent?.description || "";
-  
-  // Debug: log content to see what we're getting
-  console.log('[PostIt] content:', JSON.stringify(content));
-  console.log('[PostIt] currentEvent:', currentEvent?.title);
   
   if (loading) {
     return <PostItSkeleton />;
