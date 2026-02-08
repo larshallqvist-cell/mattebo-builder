@@ -144,16 +144,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
               {/* Column 2 - Next Lesson + Tools - flexible sizing */}
               <div className="lg:col-span-4 flex flex-col gap-2 h-full min-h-0">
-                {/* Next Lesson - sizes to content, max height ~50% */}
+                {/* Next Lesson - elastic, expands with content */}
                 <MetalPanel 
                   title={nextLessonTitle}
                   icon={<Calendar className="w-4 h-4" />}
                   glowColor={glowColor}
-                  className="flex-shrink min-h-0 max-h-[50%] flex flex-col"
+                  className="flex-shrink-0"
                 >
-                  <div className="flex-1 min-h-0 overflow-y-auto industrial-scrollbar">
-                    <PostItNote grade={grade} />
-                  </div>
+                  <PostItNote grade={grade} />
                 </MetalPanel>
 
                 {/* Combined Tools Panel - 3x3 grid that fills available space */}
