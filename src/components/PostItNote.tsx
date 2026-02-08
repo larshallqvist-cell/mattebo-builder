@@ -287,7 +287,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   }
 
   return (
-    <div className="h-full flex flex-col relative font-nunito text-foreground">
+    <div className="flex flex-col relative font-nunito text-foreground md:max-h-[50vh]">
       {/* Secret "screw" toggle - small circle at top-right corner */}
       <button
         onClick={handleSecretToggle}
