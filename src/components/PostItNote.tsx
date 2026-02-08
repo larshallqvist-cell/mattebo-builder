@@ -3,6 +3,7 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PostItNoteProps {
   grade: number;
@@ -12,6 +13,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const { upcomingEvents, loading } = useCalendarEvents(grade);
   const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
+  const isMobile = useIsMobile();
   
   // Current event to display
   const currentEvent = upcomingEvents[eventIndex] || null;
@@ -335,16 +337,26 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         </div>
       )}
       
-      {/* Content */}
-      <ScrollArea className="flex-1">
-        <div className="space-y-0.5 text-foreground/90 pr-3">
+      {/* Content - no scroll on mobile for natural expansion */}
+      {isMobile ? (
+        <div className="space-y-0.5 text-foreground/90">
           {content ? (
             parseContent(content)
           ) : (
             <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
           )}
         </div>
-      </ScrollArea>
+      ) : (
+        <ScrollArea className="flex-1">
+          <div className="space-y-0.5 text-foreground/90 pr-3">
+            {content ? (
+              parseContent(content)
+            ) : (
+              <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
+            )}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 };
