@@ -58,7 +58,7 @@ interface MascotPanelProps {
   className?: string;
 }
 
-const SparkleEffect = () => {
+const SparkleEffect = forwardRef<HTMLDivElement>((_, ref) => {
   const particles = useMemo(() => 
     Array.from({ length: 8 }, (_, i) => ({
       id: i,
@@ -70,7 +70,12 @@ const SparkleEffect = () => {
   );
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+    <motion.div
+      ref={ref}
+      className="absolute inset-0 pointer-events-none overflow-hidden z-10"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       {particles.map((p) => (
         <motion.div
           key={p.id}
@@ -85,13 +90,13 @@ const SparkleEffect = () => {
           }}
           initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
           animate={{ x: p.x, y: p.y, opacity: 0, scale: 1 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 0.5, delay: p.delay, ease: "easeOut" }}
         />
       ))}
-    </div>
+    </motion.div>
   );
-};
+});
+SparkleEffect.displayName = "SparkleEffect";
 
 const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className }, ref) => {
   const [message, setMessage] = useState(aphorisms[Math.floor(Math.random() * aphorisms.length)]);
