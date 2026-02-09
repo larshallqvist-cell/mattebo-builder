@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState, useEffect, forwardRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useCallback, useMemo, forwardRef } from "react";
 
 const aphorisms = [
   '"Jag har missat mer än 9 000 skott i min karriär. Jag har förlorat nästan 300 matcher. 26 gånger har jag fått förtroendet att ta det avgörande skottet och missat. Jag har misslyckats om och om igen i mitt liv. Och det är därför jag lyckas." - Michael Jordan 🏀',
@@ -58,17 +58,58 @@ interface MascotPanelProps {
   className?: string;
 }
 
+const SparkleEffect = () => {
+  const particles = useMemo(() => 
+    Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 80,
+      y: (Math.random() - 0.5) * 40,
+      size: 3 + Math.random() * 4,
+      delay: Math.random() * 0.15,
+    })), []
+  );
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: "50%",
+            top: "50%",
+            width: p.size,
+            height: p.size,
+            background: "hsl(36 70% 55%)",
+            boxShadow: `0 0 ${p.size * 2}px hsl(36 70% 55%), 0 0 ${p.size * 4}px hsl(36 70% 45%)`,
+          }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
+          animate={{ x: p.x, y: p.y, opacity: 0, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, delay: p.delay, ease: "easeOut" }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className }, ref) => {
   const [message, setMessage] = useState(aphorisms[Math.floor(Math.random() * aphorisms.length)]);
   const [isBlinking, setIsBlinking] = useState(false);
+  const [showSparkle, setShowSparkle] = useState(false);
 
-  const getRandomAphorism = () => {
+  const triggerSparkle = useCallback(() => {
+    setShowSparkle(true);
+    setTimeout(() => setShowSparkle(false), 600);
+  }, []);
+
+  const getRandomAphorism = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * aphorisms.length);
     setMessage(aphorisms[randomIndex]);
-  };
+    triggerSparkle();
+  }, [triggerSparkle]);
 
   useEffect(() => {
-    // Change message every 30 seconds
     const messageInterval = setInterval(() => {
       getRandomAphorism();
     }, 30000);
@@ -198,12 +239,15 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
         />
         
         <div 
-          className="rounded-lg px-3 py-2"
+          className="relative rounded-lg px-3 py-2"
           style={{
             background: "rgba(64, 224, 208, 0.1)",
             border: "1px solid rgba(64, 224, 208, 0.3)",
           }}
         >
+          <AnimatePresence>
+            {showSparkle && <SparkleEffect />}
+          </AnimatePresence>
           <p className="text-sm font-orbitron font-semibold text-neon-turquoise mb-1">
             MAT-T-E
           </p>
