@@ -101,11 +101,10 @@ SparkleEffect.displayName = "SparkleEffect";
 const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className }, ref) => {
   const [message, setMessage] = useState(aphorisms[Math.floor(Math.random() * aphorisms.length)]);
   const [isBlinking, setIsBlinking] = useState(false);
-  const [showSparkle, setShowSparkle] = useState(false);
+  const [sparkleKey, setSparkleKey] = useState(0);
 
   const triggerSparkle = useCallback(() => {
-    setShowSparkle(true);
-    setTimeout(() => setShowSparkle(false), 600);
+    setSparkleKey(k => k + 1);
   }, []);
 
   const getRandomAphorism = useCallback(() => {
@@ -250,8 +249,8 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
             border: "1px solid rgba(64, 224, 208, 0.3)",
           }}
         >
-          <AnimatePresence>
-            {showSparkle && <SparkleEffect />}
+          <AnimatePresence mode="wait">
+            <SparkleEffect key={sparkleKey} />
           </AnimatePresence>
           <p className="text-sm font-orbitron font-semibold text-neon-turquoise mb-1">
             MAT-T-E
