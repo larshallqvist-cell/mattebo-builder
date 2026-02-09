@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginButton from "./LoginButton";
+import UserMenu from "./UserMenu";
+
 const ApocalypticNav = () => {
+  const { user, loading } = useAuth();
+
   return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between rounded-lg px-6 py-[8px]" style={{
       background: "linear-gradient(180deg, rgba(30, 40, 55, 0.95) 0%, rgba(20, 28, 40, 0.9) 100%)",
@@ -14,7 +20,7 @@ const ApocalypticNav = () => {
           Leteboskolan
         </Link>
 
-        {/* Navigation links */}
+        {/* Navigation links and auth */}
         <div className="flex items-center gap-6 text-sm font-nunito">
           <Link to="/" className="nav-link">
             Hem
@@ -27,6 +33,10 @@ const ApocalypticNav = () => {
           <a href="#contact" className="nav-link">
             Kontakt
           </a>
+          <span className="text-muted-foreground/30">|</span>
+          {!loading && (
+            user ? <UserMenu /> : <LoginButton variant="ghost" size="sm" />
+          )}
         </div>
       </div>
     </nav>;

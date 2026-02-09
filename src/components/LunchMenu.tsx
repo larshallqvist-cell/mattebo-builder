@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import MetalPanel from "./MetalPanel";
-import { UtensilsCrossed, Edit2, Save, X, ExternalLink } from "lucide-react";
+import { UtensilsCrossed, Edit2, Save, X, ExternalLink, Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // LocalStorage key for persisting menu
 const STORAGE_KEY = "mattebo_lunch_menu";
@@ -22,6 +23,7 @@ const LunchMenu = () => {
   const [menuItems, setMenuItems] = useState<DayMenu[]>(DEFAULT_MENU);
   const [isEditing, setIsEditing] = useState(false);
   const [editBuffer, setEditBuffer] = useState<DayMenu[]>(DEFAULT_MENU);
+  const { user } = useAuth();
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -92,22 +94,30 @@ const LunchMenu = () => {
             </>
           ) : (
             <>
-              <button
-                onClick={handleEdit}
-                className="p-1.5 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
-                title="Redigera meny"
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-              </button>
-              <a
-                href="https://sms.schoolsoft.se/letebo/jsp/teacher/right_teacher_lunchmenu.jsp?requestid=6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
-                title="Öppna Schoolsoft"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              {user ? (
+                <>
+                  <button
+                    onClick={handleEdit}
+                    className="p-1.5 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
+                    title="Redigera meny"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <a
+                    href="https://sms.schoolsoft.se/letebo/jsp/teacher/right_teacher_lunchmenu.jsp?requestid=6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
+                    title="Öppna Schoolsoft"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </>
+              ) : (
+                <div className="flex items-center gap-1 text-muted-foreground/50" title="Logga in för att redigera">
+                  <Lock className="w-3.5 h-3.5" />
+                </div>
+              )}
             </>
           )}
         </div>
@@ -160,12 +170,18 @@ const LunchMenu = () => {
       ) : (
         <div className="flex flex-col items-center justify-center h-24 text-muted-foreground text-xs text-center gap-2">
           <p>Ingen meny inlagd</p>
-          <button
-            onClick={handleEdit}
-            className="text-primary hover:underline"
-          >
-            Lägg in veckans meny →
-          </button>
+          {user ? (
+            <button
+              onClick={handleEdit}
+              className="text-primary hover:underline"
+            >
+              Lägg in veckans meny →
+            </button>
+          ) : (
+            <p className="text-muted-foreground/60">
+              Logga in för att lägga in meny
+            </p>
+          )}
         </div>
       )}
     </MetalPanel>
