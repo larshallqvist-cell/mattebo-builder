@@ -62,15 +62,39 @@ Rekommenderade tjänster som stöder automatisk deploy från GitHub:
 - **Tailwind CSS** - Utility-first CSS
 - **shadcn/ui** - UI-komponenter
 - **Framer Motion** - Animationer
+- **Supabase** - Backend och autentisering
+
+## Funktioner
+
+- 📚 Matematikresurser för årskurs 6-9
+- 🔐 Google OAuth-inloggning via Supabase
+- 📱 Responsiv design för mobil och desktop
+- 🍽️ Skyddad lunchmeny-redigering
+- 🎨 Modern UI med Shadcn-komponenter
+- ⚡ Snabb och optimerad med Vite
+
+## Autentisering
+
+Applikationen använder Supabase Auth med Google OAuth för inloggning. För att konfigurera autentisering, se [AUTHENTICATION.md](./docs/AUTHENTICATION.md).
+
+### Snabbstart autentisering:
+1. Konfigurera Google OAuth i Google Cloud Console
+2. Aktivera Google provider i Supabase Dashboard
+3. Sätt miljövariabler i `.env`:
+   ```
+   VITE_SUPABASE_URL=your-supabase-url
+   VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+   ```
 
 ## Projektstruktur
 
 ```
 src/
 ├── components/     # React-komponenter
+├── contexts/       # React contexts (auth, etc.)
 ├── pages/          # Sidkomponenter
 ├── hooks/          # Custom React hooks
 ├── assets/         # Bilder och resurser
 ├── lib/            # Hjälpfunktioner
-└── integrations/   # API-integrationer
+└── integrations/   # API-integrationer (Supabase)
 ```

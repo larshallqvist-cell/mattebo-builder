@@ -16,7 +16,8 @@ const UserMenu = () => {
   if (!user) return null;
 
   const userEmail = user.email || "";
-  const userName = user.user_metadata?.full_name || userEmail.split("@")[0];
+  const userName = user.user_metadata?.full_name || 
+    (userEmail ? userEmail.split("@")[0] : "Användare");
   const userAvatar = user.user_metadata?.avatar_url || "";
   const userInitials = userName
     .split(" ")

@@ -68,10 +68,10 @@ const Index = () => {
             Klicka på en panel för att se resurser och lektionsplaneringar
           </motion.p>
 
-          {/* Lunch menu - hidden until February menu is available */}
-          {/* <div className="w-full max-w-sm mt-8">
+          {/* Lunch menu */}
+          <div className="w-full max-w-sm mt-8">
             <LunchMenu />
-          </div> */}
+          </div>
         </main>
 
         {/* Decorative copper line - hidden on mobile */}
