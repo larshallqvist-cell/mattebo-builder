@@ -167,16 +167,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="flex flex-col gap-2 h-full" style={{ minHeight: '200px' }}>
-                    {/* Rows 1-2: 3 columns (3+3 = 6 items) */}
-                    <div className="grid grid-cols-3 gap-2 flex-1">
+                  <div className="flex flex-col gap-2 h-full">
+                    <div className="grid grid-cols-3 gap-2 flex-1" style={{ gridTemplateRows: 'repeat(3, 1fr)' }}>
                       <CalculatorThumbnail fillSpace />
                       <GeogebraLink fillSpace />
                       <MattebokenLink fillSpace />
                       <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                     </div>
-                    {/* Row 3: timer centered below -->  visible only during lesson */}
-                    <div className="flex justify-center">
+                    <div className="flex justify-center flex-shrink-0">
                       <LessonTimer grade={grade} />
                     </div>
                   </div>
