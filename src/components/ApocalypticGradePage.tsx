@@ -159,7 +159,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className="flex-1 min-h-[200px]" 
+                  className="flex-shrink-0" 
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
