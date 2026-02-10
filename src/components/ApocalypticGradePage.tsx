@@ -167,18 +167,18 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div 
-                    className="grid grid-cols-3 gap-2 h-full"
-                    style={{ gridTemplateRows: 'repeat(4, 1fr)', minHeight: '240px' }}
-                  >
-                    {/* Row 1: 3 tools */}
-                    <CalculatorThumbnail fillSpace />
-                    <GeogebraLink fillSpace />
-                    <MattebokenLink fillSpace />
-                    {/* Row 2-3: 6 radio channels */}
-                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                    {/* Row 4: timer */}
-                    <LessonTimer grade={grade} />
+                  <div className="flex flex-col gap-2 h-full" style={{ minHeight: '200px' }}>
+                    {/* Rows 1-2: 3 columns (3+3 = 6 items) */}
+                    <div className="grid grid-cols-3 gap-2 flex-1">
+                      <CalculatorThumbnail fillSpace />
+                      <GeogebraLink fillSpace />
+                      <MattebokenLink fillSpace />
+                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    </div>
+                    {/* Row 3: timer centered below -->  visible only during lesson */}
+                    <div className="flex justify-center">
+                      <LessonTimer grade={grade} />
+                    </div>
                   </div>
                 </MetalPanel>
               </div>
@@ -213,15 +213,16 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div 
-                    className="grid grid-cols-3 gap-2 h-full"
-                    style={{ gridTemplateRows: 'repeat(4, 1fr)', minHeight: '200px' }}
-                  >
-                    <CalculatorThumbnail fillSpace />
-                    <GeogebraLink fillSpace />
-                    <MattebokenLink fillSpace />
-                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                    <LessonTimer grade={grade} />
+                  <div className="flex flex-col gap-2 h-full" style={{ minHeight: '180px' }}>
+                    <div className="grid grid-cols-3 gap-2 flex-1">
+                      <CalculatorThumbnail fillSpace />
+                      <GeogebraLink fillSpace />
+                      <MattebokenLink fillSpace />
+                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    </div>
+                    <div className="flex justify-center">
+                      <LessonTimer grade={grade} />
+                    </div>
                   </div>
                 </MetalPanel>
               </div>
@@ -262,15 +263,16 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   )
                 }
               >
-                <div 
-                  className="grid grid-cols-3 gap-3"
-                  style={{ gridTemplateRows: 'repeat(4, 1fr)', minHeight: '280px' }}
-                >
-                  <CalculatorThumbnail fillSpace />
-                  <GeogebraLink fillSpace />
-                  <MattebokenLink fillSpace />
-                  <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                  <LessonTimer grade={grade} />
+                <div className="flex flex-col gap-3" style={{ minHeight: '240px' }}>
+                  <div className="grid grid-cols-3 gap-3 flex-1">
+                    <CalculatorThumbnail fillSpace />
+                    <GeogebraLink fillSpace />
+                    <MattebokenLink fillSpace />
+                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                  </div>
+                  <div className="flex justify-center">
+                    <LessonTimer grade={grade} />
+                  </div>
                 </div>
               </MetalPanel>
 
