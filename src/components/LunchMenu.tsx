@@ -66,10 +66,12 @@ const LunchMenu = () => {
   // Get today's day name in Swedish
   const today = new Date().toLocaleDateString("sv-SE", { weekday: "long" });
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);
+  const isWeekend = !["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"].includes(todayCapitalized);
+  const todayMenu = menuItems.find((item) => item.day === todayCapitalized);
 
   return (
     <MetalPanel className="h-full">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <UtensilsCrossed className="w-4 h-4 text-neon-copper" />
           <h3 className="font-display text-sm text-foreground">Skollunch</h3>
@@ -145,42 +147,20 @@ const LunchMenu = () => {
             Tips: Klistra in från Schoolsoft
           </p>
         </div>
-      ) : hasContent ? (
-        <div className="space-y-1.5">
-          {menuItems.map((item) => (
-            <div
-              key={item.day}
-              className={`flex gap-2 text-xs ${
-                item.day === todayCapitalized
-                  ? "text-primary font-medium"
-                  : "text-foreground/80"
-              }`}
-            >
-              <span className="w-14 shrink-0 text-muted-foreground">
-                {item.day.slice(0, 3)}
-              </span>
-              <span className="flex-1">
-                {item.menu || (
-                  <span className="text-muted-foreground/40">–</span>
-                )}
-              </span>
-            </div>
-          ))}
+      ) : isWeekend ? (
+        <p className="text-xs text-muted-foreground/60 py-1">Ingen skollunch idag 🌙</p>
+      ) : hasContent && todayMenu?.menu.trim() ? (
+        <div className="flex gap-2 text-xs text-primary font-medium">
+          <span className="shrink-0 text-muted-foreground">{todayCapitalized.slice(0, 3)}</span>
+          <span>{todayMenu.menu}</span>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-24 text-muted-foreground text-xs text-center gap-2">
-          <p>Ingen meny inlagd</p>
-          {user ? (
-            <button
-              onClick={handleEdit}
-              className="text-primary hover:underline"
-            >
-              Lägg in veckans meny →
+        <div className="flex items-center gap-2 text-muted-foreground text-xs">
+          <p>Ingen meny inlagd för idag</p>
+          {user && (
+            <button onClick={handleEdit} className="text-primary hover:underline">
+              Lägg in →
             </button>
-          ) : (
-            <p className="text-muted-foreground/60">
-              Logga in för att lägga in meny
-            </p>
           )}
         </div>
       )}
