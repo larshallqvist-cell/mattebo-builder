@@ -7,6 +7,7 @@ import PageTransition from "@/components/PageTransition";
 import LessonCalendar from "@/components/LessonCalendar";
 import CalculatorThumbnail from "@/components/CalculatorThumbnail";
 import WebRadio from "@/components/WebRadio";
+import LessonTimer from "@/components/LessonTimer";
 import ResourceAccordion from "@/components/ResourceAccordion";
 import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie } from "@/components/ChapterSelector";
@@ -72,6 +73,7 @@ const GradePage = ({ grade }: GradePageProps) => {
                 <div className="flex-1">
                   <WebRadio />
                 </div>
+                <LessonTimer grade={grade} />
               </div>
             </div>
             
@@ -99,6 +101,7 @@ const GradePage = ({ grade }: GradePageProps) => {
               <div className="flex-1">
                 <WebRadio />
               </div>
+              <LessonTimer grade={grade} />
             </div>
             
             {/* Resources */}
