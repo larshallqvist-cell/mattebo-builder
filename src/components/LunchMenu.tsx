@@ -2,41 +2,65 @@ import { useState, useEffect } from "react";
 import MetalPanel from "./MetalPanel";
 import { UtensilsCrossed, Edit2, Save, X, ExternalLink, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
-// LocalStorage key for persisting menu
-const STORAGE_KEY = "mattebo_lunch_menu";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DayMenu {
   day: string;
+  date: string; // ISO date string
   menu: string;
 }
 
-const DEFAULT_MENU: DayMenu[] = [
-  { day: "Måndag", menu: "" },
-  { day: "Tisdag", menu: "" },
-  { day: "Onsdag", menu: "" },
-  { day: "Torsdag", menu: "" },
-  { day: "Fredag", menu: "" },
-];
+const WEEKDAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
+
+// Get the current week's dates (Mon-Fri)
+const getCurrentWeekDates = (): { day: string; date: string }[] => {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+
+  return WEEKDAYS.map((day, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return { day, date: d.toISOString().split("T")[0] };
+  });
+};
 
 const LunchMenu = () => {
-  const [menuItems, setMenuItems] = useState<DayMenu[]>(DEFAULT_MENU);
+  const [menuItems, setMenuItems] = useState<DayMenu[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [editBuffer, setEditBuffer] = useState<DayMenu[]>(DEFAULT_MENU);
+  const [editBuffer, setEditBuffer] = useState<DayMenu[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Load from localStorage on mount
+  const weekDates = getCurrentWeekDates();
+
+  // Fetch this week's menu from database
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setMenuItems(parsed);
-        setEditBuffer(parsed);
-      } catch {
-        // Invalid data, use defaults
+    const fetchMenu = async () => {
+      const dates = weekDates.map((d) => d.date);
+      const { data, error } = await supabase
+        .from("lunch_menu")
+        .select("date, menu_text")
+        .in("date", dates);
+
+      if (error) {
+        console.error("Error fetching lunch menu:", error);
+        setLoading(false);
+        return;
       }
-    }
+
+      const items: DayMenu[] = weekDates.map((wd) => {
+        const found = data?.find((row) => row.date === wd.date);
+        return { day: wd.day, date: wd.date, menu: found?.menu_text || "" };
+      });
+
+      setMenuItems(items);
+      setEditBuffer(items);
+      setLoading(false);
+    };
+
+    fetchMenu();
   }, []);
 
   const handleEdit = () => {
@@ -44,9 +68,42 @@ const LunchMenu = () => {
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Upsert all days that have content
+    const upserts = editBuffer
+      .filter((item) => item.menu.trim() !== "")
+      .map((item) => ({
+        date: item.date,
+        menu_text: item.menu.trim(),
+      }));
+
+    // Delete days that were cleared
+    const deletes = editBuffer
+      .filter((item) => item.menu.trim() === "")
+      .map((item) => item.date);
+
+    if (upserts.length > 0) {
+      const { error } = await supabase
+        .from("lunch_menu")
+        .upsert(upserts, { onConflict: "date" });
+      if (error) {
+        console.error("Error saving lunch menu:", error);
+        return;
+      }
+    }
+
+    if (deletes.length > 0) {
+      const { error } = await supabase
+        .from("lunch_menu")
+        .delete()
+        .in("date", deletes);
+      if (error) {
+        console.error("Error deleting lunch menu:", error);
+        return;
+      }
+    }
+
     setMenuItems(editBuffer);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(editBuffer));
     setIsEditing(false);
   };
 
@@ -66,7 +123,7 @@ const LunchMenu = () => {
   // Get today's day name in Swedish
   const today = new Date().toLocaleDateString("sv-SE", { weekday: "long" });
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);
-  const isWeekend = !["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"].includes(todayCapitalized);
+  const isWeekend = !WEEKDAYS.includes(todayCapitalized);
   const todayMenu = menuItems.find((item) => item.day === todayCapitalized);
 
   return (
@@ -125,10 +182,12 @@ const LunchMenu = () => {
         </div>
       </div>
 
-      {isEditing ? (
+      {loading ? (
+        <p className="text-xs text-muted-foreground/60 py-1">Laddar meny...</p>
+      ) : isEditing ? (
         <div className="space-y-2">
           {editBuffer.map((item, index) => (
-            <div key={item.day} className="flex gap-2 items-start">
+            <div key={item.date} className="flex gap-2 items-start">
               <span className="text-xs font-medium text-muted-foreground w-14 pt-1.5 shrink-0">
                 {item.day.slice(0, 3)}
               </span>
