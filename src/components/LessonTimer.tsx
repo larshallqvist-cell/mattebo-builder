@@ -3,10 +3,12 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 
 interface LessonTimerProps {
   grade: number;
+  size?: number;
 }
 
-const SIZE = 60;
-const CENTER = SIZE / 2;
+const DEFAULT_SIZE = 60;
+const SVG_SIZE = 60;
+const CENTER = SVG_SIZE / 2;
 const RADIUS = 24;
 
 /** Build an SVG arc/pie-slice path from 12-o'clock, going clockwise */
@@ -28,7 +30,7 @@ function piePath(fraction: number): string {
           Z`;
 }
 
-const LessonTimer = ({ grade }: LessonTimerProps) => {
+const LessonTimer = ({ grade, size = DEFAULT_SIZE }: LessonTimerProps) => {
   const { upcomingEvents } = useCalendarEvents(grade);
   const [now, setNow] = useState(() => Date.now());
 
@@ -70,11 +72,12 @@ const LessonTimer = ({ grade }: LessonTimerProps) => {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center gap-0.5">
+    <div className="flex flex-col items-center justify-center gap-1">
       <div
-        className={`relative w-[60px] h-[60px] ${isUrgent ? "animate-pulse" : ""}`}
+        className={`relative ${isUrgent ? "animate-pulse" : ""}`}
+        style={{ width: size, height: size }}
       >
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-full">
+        <svg viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`} className="w-full h-full">
           {/* White background circle */}
           <circle
             cx={CENTER}
@@ -97,14 +100,16 @@ const LessonTimer = ({ grade }: LessonTimerProps) => {
         </svg>
         {/* Time digits in center */}
         <span
-          className={`absolute inset-0 flex items-center justify-center text-xs font-bold tabular-nums ${
+          className={`absolute inset-0 flex items-center justify-center font-bold tabular-nums ${
+            size >= 100 ? 'text-base' : 'text-xs'
+          } ${
             isDone || isUrgent ? "text-white drop-shadow-md" : "text-foreground"
           }`}
         >
           {timeDisplay}
         </span>
       </div>
-      <span className="text-[10px] text-muted-foreground font-mono leading-tight">
+      <span className={`${size >= 100 ? 'text-xs' : 'text-[10px]'} text-muted-foreground font-mono leading-tight`}>
         {clockStr}
       </span>
     </div>
