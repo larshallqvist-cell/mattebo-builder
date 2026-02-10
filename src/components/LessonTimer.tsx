@@ -102,9 +102,8 @@ const LessonTimer = ({ grade, size = DEFAULT_SIZE }: LessonTimerProps) => {
         <span
           className={`absolute inset-0 flex items-center justify-center font-bold tabular-nums ${
             size >= 100 ? 'text-base' : 'text-xs'
-          } ${
-            isDone || isUrgent ? "text-white drop-shadow-md" : "text-foreground"
-          }`}
+          } text-white`}
+          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.7), 0 0 6px rgba(0,0,0,0.4)' }}
         >
           {timeDisplay}
         </span>
