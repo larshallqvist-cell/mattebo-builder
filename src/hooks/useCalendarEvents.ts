@@ -68,7 +68,10 @@ const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): Calend
   
   while ((next = expand.next()) && count < maxOccurrences) {
     if (next.compare(rangeEnd) > 0) break;
-    if (next.compare(now) < 0) continue;
+    // Skip occurrences that have already ended (not just started)
+    const occEnd = next.clone();
+    occEnd.addDuration(duration);
+    if (occEnd.compare(now) < 0) continue;
     
     const startDate = next.toJSDate();
     const endDate = next.clone();
