@@ -5,20 +5,38 @@ interface LessonTimerProps {
   grade: number;
 }
 
-const CIRCLE_RADIUS = 24;
-const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+const SIZE = 60;
+const CENTER = SIZE / 2;
+const RADIUS = 24;
+
+/** Build an SVG arc/pie-slice path from 12-o'clock, going clockwise */
+function piePath(fraction: number): string {
+  if (fraction <= 0) return "";
+  if (fraction >= 1) {
+    // Full circle
+    return `M ${CENTER},${CENTER - RADIUS}
+            A ${RADIUS},${RADIUS} 0 1,1 ${CENTER},${CENTER + RADIUS}
+            A ${RADIUS},${RADIUS} 0 1,1 ${CENTER},${CENTER - RADIUS} Z`;
+  }
+  const angle = fraction * 2 * Math.PI;
+  const x = CENTER + RADIUS * Math.sin(angle);
+  const y = CENTER - RADIUS * Math.cos(angle);
+  const largeArc = fraction > 0.5 ? 1 : 0;
+  return `M ${CENTER},${CENTER}
+          L ${CENTER},${CENTER - RADIUS}
+          A ${RADIUS},${RADIUS} 0 ${largeArc},1 ${x},${y}
+          Z`;
+}
 
 const LessonTimer = ({ grade }: LessonTimerProps) => {
   const { upcomingEvents } = useCalendarEvents(grade);
   const [now, setNow] = useState(() => Date.now());
 
-  // Tick every second
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // Find the currently active lesson
   const currentLesson = useMemo(() => {
     return upcomingEvents.find(
       (e) => e.date.getTime() <= now && e.endDate.getTime() > now
@@ -33,72 +51,61 @@ const LessonTimer = ({ grade }: LessonTimerProps) => {
   const remaining = Math.max(0, end - now);
   const fraction = total > 0 ? remaining / total : 0;
 
-  // SVG arc offset — full dash = full circle, offset shrinks the visible red arc
-  const dashOffset = CIRCUMFERENCE * (1 - fraction);
-
   const remainingSec = Math.ceil(remaining / 1000);
   const mins = Math.floor(remainingSec / 60);
   const secs = remainingSec % 60;
   const isUrgent = mins < 5 && remaining > 0;
   const isDone = remaining <= 0;
 
-  // Format display
   const timeDisplay = isDone
     ? "Slut!"
     : mins >= 10
       ? `${mins} min`
       : `${mins}:${secs.toString().padStart(2, "0")}`;
 
+  // Current clock time
+  const clockStr = new Date(now).toLocaleTimeString("sv-SE", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center justify-center gap-0.5">
       <div
         className={`relative w-[60px] h-[60px] ${isUrgent ? "animate-pulse" : ""}`}
       >
-        <svg
-          viewBox="0 0 60 60"
-          className="w-full h-full -rotate-90"
-        >
-          {/* Background circle */}
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-full">
+          {/* White background circle */}
           <circle
-            cx="30"
-            cy="30"
-            r={CIRCLE_RADIUS}
+            cx={CENTER}
+            cy={CENTER}
+            r={RADIUS}
             fill="white"
             stroke="hsl(var(--border))"
-            strokeWidth="2"
+            strokeWidth="1.5"
           />
-          {/* Red decreasing arc */}
-          <circle
-            cx="30"
-            cy="30"
-            r={CIRCLE_RADIUS}
-            fill="none"
-            stroke={isUrgent ? "hsl(0 80% 50%)" : "hsl(0 70% 55%)"}
-            strokeWidth="6"
-            strokeDasharray={CIRCUMFERENCE}
-            strokeDashoffset={dashOffset}
-            strokeLinecap="round"
-            className="transition-[stroke-dashoffset] duration-1000 ease-linear"
+          {/* Red pie wedge */}
+          <path
+            d={piePath(fraction)}
+            fill={isUrgent ? "hsl(0 80% 50%)" : "hsl(0 70% 55%)"}
             style={{
-              filter: isUrgent ? "drop-shadow(0 0 6px hsl(0 80% 50% / 0.6))" : undefined,
+              filter: isUrgent
+                ? "drop-shadow(0 0 6px hsl(0 80% 50% / 0.6))"
+                : undefined,
             }}
           />
         </svg>
         {/* Time digits in center */}
         <span
-          className={`absolute inset-0 flex items-center justify-center rotate-0 text-xs font-bold tabular-nums ${
-            isDone
-              ? "text-destructive"
-              : isUrgent
-                ? "text-destructive"
-                : "text-foreground"
+          className={`absolute inset-0 flex items-center justify-center text-xs font-bold tabular-nums ${
+            isDone || isUrgent ? "text-white drop-shadow-md" : "text-foreground"
           }`}
         >
           {timeDisplay}
         </span>
       </div>
-      <span className="text-[10px] text-muted-foreground truncate max-w-[80px] text-center leading-tight">
-        {currentLesson.title}
+      <span className="text-[10px] text-muted-foreground font-mono leading-tight">
+        {clockStr}
       </span>
     </div>
   );
