@@ -1,33 +1,46 @@
 
-# Uppdatera MAT-T-E:s AI-tema och lagg till glitteranimation vid citatbyte
 
-## 1. Uppdatera edge-funktionen (mascot-message)
+# Fix: Google-inloggning - "provider is not enabled"
 
-**Fil:** `supabase/functions/mascot-message/index.ts`
+## Problem
+Koden anropar `supabase.auth.signInWithOAuth({ provider: "google" })` direkt, men Google-providern ar inte konfigurerad i backend. Lovable Cloud hanterar Google OAuth automatiskt via sin egen modul.
 
-Byter ut systempromptens tema fran "klassiska aforismer fran filosofer" till det nya temat: citat fran idrottare, historiska personer och andra som kampat mot motgangar och lyckats. Uppdaterar aven exemplen i prompten sa att AI:n genererar citat i ratt stil.
+## Losning
 
-Andringar i system-prompten:
-- Uppgift: "Dela ett inspirerande citat om kamp, traningsgladje, motgangar och framgang"
-- Kallor: "idrottare, historiska personer, entreprenorer och andra som overvunnit motgangar"
-- Exempelen byts till nagra av de nya citaten (t.ex. Michael Jordan, Usain Bolt, Nelson Mandela)
-- Max-ord hojs till 30 for att rymma de langre citaten i det nya temat
+### Steg 1: Konfigurera Google OAuth via Lovable Cloud
+Anvand verktyget `configure-social-auth` for att aktivera Google-inloggning. Detta genererar automatiskt modulen `src/integrations/lovable/` med ratt konfiguration.
 
-## 2. Lagg till glitteranimation vid citatbyte
+### Steg 2: Uppdatera AuthContext.tsx
+Byt ut det nuvarande Supabase-anropet mot Lovable Clouds autentiseringsmodul:
 
-**Fil:** `src/components/MascotPanel.tsx`
+**Fore:**
+```typescript
+import { supabase } from "@/integrations/supabase/client";
+// ...
+const { error } = await supabase.auth.signInWithOAuth({
+  provider: "google",
+  options: { redirectTo: `${window.location.origin}/` },
+});
+```
 
-Nar citatet byts (bade vid 30-sekundersintervall och vid klick) visas en kort glitterexplosion i pratbubblan. Implementeras med framer-motion AnimatePresence:
+**Efter:**
+```typescript
+import { lovable } from "@/integrations/lovable/index";
+// ...
+const { error } = await lovable.auth.signInWithOAuth("google", {
+  redirect_uri: window.location.origin,
+});
+```
 
-- Lagg till en `showSparkle`-state som satts till `true` vid citatbyte och atergar till `false` efter ~600ms
-- Rendera 6-8 sma glitterpartiklar (guldiga/kopparpunkter) som sprids utifran mitten av pratbubblan med framer-motion `animate` (skala fran 0 till 1, opacity fran 1 till 0, slumpvis x/y-forflyttning)
-- Partiklarna renderas ovanpa texten med `pointer-events-none` och `absolute` positionering
-- Textens befintliga fade-in-animation (opacity 0 till 1) behalles
+Resten av AuthContext (session-hantering, signOut, onAuthStateChange) behalles som det ar -- de anvander Supabase-klienten korrekt.
 
-Visuell effekt: Nar citatet byter syns ett kort "starburst" av guldiga glitterprickar som tinar bort pa ~500ms, samtidigt som det nya citatet fadar in.
+### Steg 3: Verifiera
+Testa inloggningsknappen i forhandsgranskningsfonstret for att bekrafta att Google OAuth-flodet fungerar.
 
-## Tekniska detaljer
+## Paverkade filer
+- `src/contexts/AuthContext.tsx` -- byt signInWithOAuth-anropet
+- `src/integrations/lovable/` -- genereras automatiskt av verktyget
 
-- Inga nya beroenden behovs (framer-motion finns redan)
-- Edge-funktionen deployas automatiskt
-- Glittereffekten ar handelsestyrd (inte kontinuerlig) vilket foljer den befintliga animationsstrategin for Chromebook-prestanda
+## Inga andra andringar behovs
+LoginButton, UserMenu och ovriga komponenter anvander `useAuth()` och paverkas inte.
+
