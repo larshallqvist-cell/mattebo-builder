@@ -10,6 +10,7 @@ import CalculatorThumbnail from "@/components/CalculatorThumbnail";
 import GeogebraLink from "@/components/GeogebraLink";
 import MattebokenLink from "@/components/MattebokenLink";
 import WebRadio from "@/components/WebRadio";
+import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
@@ -168,7 +169,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 >
                   <div 
                     className="grid grid-cols-3 gap-2 h-full"
-                    style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '180px' }}
+                    style={{ gridTemplateRows: 'repeat(4, 1fr)', minHeight: '240px' }}
                   >
                     {/* Row 1: 3 tools */}
                     <CalculatorThumbnail fillSpace />
@@ -176,6 +177,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     <MattebokenLink fillSpace />
                     {/* Row 2-3: 6 radio channels */}
                     <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    {/* Row 4: timer */}
+                    <LessonTimer grade={grade} />
                   </div>
                 </MetalPanel>
               </div>
@@ -212,12 +215,13 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 >
                   <div 
                     className="grid grid-cols-3 gap-2 h-full"
-                    style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '150px' }}
+                    style={{ gridTemplateRows: 'repeat(4, 1fr)', minHeight: '200px' }}
                   >
                     <CalculatorThumbnail fillSpace />
                     <GeogebraLink fillSpace />
                     <MattebokenLink fillSpace />
                     <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    <LessonTimer grade={grade} />
                   </div>
                 </MetalPanel>
               </div>
@@ -260,12 +264,13 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               >
                 <div 
                   className="grid grid-cols-3 gap-3"
-                  style={{ gridTemplateRows: 'repeat(3, 1fr)', minHeight: '220px' }}
+                  style={{ gridTemplateRows: 'repeat(4, 1fr)', minHeight: '280px' }}
                 >
                   <CalculatorThumbnail fillSpace />
                   <GeogebraLink fillSpace />
                   <MattebokenLink fillSpace />
                   <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                  <LessonTimer grade={grade} />
                 </div>
               </MetalPanel>
 
