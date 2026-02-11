@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          chapter: number | null
+          created_at: string
+          grade: number
+          id: string
+          resource_title: string | null
+          resource_url: string | null
+          user_id: string
+        }
+        Insert: {
+          chapter?: number | null
+          created_at?: string
+          grade: number
+          id?: string
+          resource_title?: string | null
+          resource_url?: string | null
+          user_id: string
+        }
+        Update: {
+          chapter?: number | null
+          created_at?: string
+          grade?: number
+          id?: string
+          resource_title?: string | null
+          resource_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lunch_menu: {
         Row: {
           created_at: string
