@@ -1,39 +1,36 @@
 
 
-# Nedräkningstimer -- "Time Timer" till lektionens slut
+# Plan: Inloggningsskylt och användaröversikt
 
-## Koncept
-En liten rund "time timer"-klocka med en röd minskande cirkelsektor som visar hur mycket tid som ar kvar av pagaende lektion. Nar ingen lektion pagar visas timern inte alls (helt diskret). Placeras i verktygssektionen bredvid kalkylatorn och radion.
+## Vad som ska göras
 
-## Dataflode
-Komponenten anvander `useCalendarEvents(grade)` som redan finns. Fran `upcomingEvents` identifieras den handelse dar `date <= nu <= endDate` -- det ar den pagaende lektionen. Om ingen sadan finns: timern doljs.
+### 1. "Logga in med ditt skolkonto"-skylt
+En liten ledtext visas bredvid login-knappen i navigeringen, så att elever forstår att de ska använda sitt skolkonto. Texten syns bara när man inte är inloggad.
 
-## Ny komponent: `src/components/LessonTimer.tsx`
+### 2. Spara inloggade användare i databasen
+En ny tabell skapas som automatiskt sparar namn och e-post for varje ny användare som loggar in. Du kan sedan se alla som loggat in via databasen i Lovable Cloud.
 
-**Visuellt:**
-- En rund SVG-cirkel (~60px) med vit bakgrund och tunn gra kant.
-- En rod cirkelsektor (arc) som borjar fran kl 12-positionen och minskar medsols, precis som en fysisk Time Timer.
-- I mitten visas aterstaende tid som siffror (t.ex. "23:45" for minuter:sekunder, eller "23 min" om mer an 5 minuter kvar).
-- Under cirkeln: en liten etikett "Tid kvar" eller lektionens titel, i dammad text.
-
-**Logik:**
-- `useEffect` med `setInterval` (var sekund) rakar ut proportion kvar: `(endDate - now) / (endDate - startDate)`.
-- SVG `stroke-dasharray` + `stroke-dashoffset` pa en cirkel for den roda sektorn.
-- Nar mindre an 5 minuter kvar: pulsande rod glow-animation.
-- Nar lektionen slutar: kort "Slut!"-animation, sedan forsvinner timern.
-
-## Placering i `src/components/GradePage.tsx`
-
-**Desktop (vänsterkolumnen):** Laggs till i raden med kalkylator och radio -- en tredje liten widget.
-
-**Mobil:** Laggs till i verktygssektionen, samma rad som kalkylator och radio.
-
-Komponenten tar `grade` som prop och hanterar resten internt.
+---
 
 ## Tekniska detaljer
 
-- Inga nya beroenden behovs -- ren SVG + React state + `useCalendarEvents`.
-- Uppdatering sker via `setInterval(1000)` -- lagen CPU-last, bara en simpel rakning.
-- Cirkelsektorn implementeras med SVG `circle` och `stroke-dasharray/stroke-dashoffset` (standard-teknik for cirkulara progress-indikatorer).
-- Liten pulsanimation under sista 5 minuterna via Tailwind `animate-pulse` eller en enkel CSS keyframe.
+### Databasändring (migration)
+Skapa en `profiles`-tabell:
+- `id` (uuid, kopplad till auth.users)
+- `email` (text)
+- `full_name` (text)
+- `avatar_url` (text)
+- `created_at` / `updated_at` (timestamps)
+
+En databas-trigger skapas som automatiskt lägger till en rad i `profiles` varje gång en ny användare loggar in for forsta gången. Trigger-funktionen läser metadata från Google OAuth (namn, bild, e-post).
+
+RLS-policy: Alla autentiserade användare kan läsa profiler, men bara sin egen kan uppdateras.
+
+### UI-ändring i `ApocalypticNav.tsx`
+Nar användaren inte är inloggad visas texten "Logga in med ditt skolkonto" bredvid login-knappen. På mobil kan texten kortas eller doljas for att spara plats.
+
+### Filer som ändras
+- `supabase/migrations/` — ny migration for `profiles`-tabell + trigger
+- `src/components/ApocalypticNav.tsx` — lägga till ledtext vid login-knappen
+- `src/integrations/supabase/types.ts` — uppdateras automatiskt
 
