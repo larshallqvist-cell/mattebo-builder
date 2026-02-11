@@ -68,12 +68,13 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
       streamUrl: "https://us9.maindigitalstream.com/ssl/WJTL"
     },
     { 
-      id: "nrj", 
-      name: "NRJ", 
+      id: "indie", 
+      name: "Indie", 
       emoji: "🎵", 
-      description: "NRJ Sverige", 
+      description: "Indie pop (SomaFM)", 
       color: "from-red-500 to-yellow-500",
-      streamUrl: "https://live-bauerse.sharp-stream.com/nrj_se_mp3"
+      streamUrl: "https://ice1.somafm.com/indiepop-128-mp3",
+      metadataId: "indiepop"
     },
     { 
       id: "p3", 
