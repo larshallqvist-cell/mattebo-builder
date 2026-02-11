@@ -44,6 +44,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
+        extraParams: {
+          hd: "leteboskolan.se",
+        },
       });
 
       if (error) {
