@@ -51,25 +51,25 @@ const WelcomeFlash = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-md"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92vw] max-w-lg"
           onClick={() => setVisible(false)}
         >
           <div
-            className="rounded-xl px-5 py-4 shadow-2xl border border-primary/30 backdrop-blur-md cursor-pointer"
+            className="rounded-2xl px-7 py-6 shadow-2xl border border-primary/30 backdrop-blur-md cursor-pointer"
             style={{
               background:
                 "linear-gradient(135deg, hsl(var(--background) / 0.92), hsl(var(--muted) / 0.85))",
               boxShadow:
-                "0 0 30px hsl(var(--primary) / 0.15), 0 8px 32px rgba(0,0,0,0.4)",
+                "0 0 40px hsl(var(--primary) / 0.2), 0 12px 40px rgba(0,0,0,0.5)",
             }}
           >
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Sparkles
-                className="w-6 h-6 flex-shrink-0 mt-0.5"
+                className="w-8 h-8 flex-shrink-0 mt-0.5"
                 style={{ color: "hsl(var(--neon-copper))" }}
               />
-              <div className="space-y-1 font-nunito">
-                <p className="text-base font-bold text-foreground">
+              <div className="space-y-2 font-nunito">
+                <p className="text-lg font-bold text-foreground">
                   Kul att du är här, {displayName}!
                 </p>
                 {activityCount !== null && activityCount > 0 ? (
