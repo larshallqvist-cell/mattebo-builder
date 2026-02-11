@@ -73,7 +73,7 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
       emoji: "🎵", 
       description: "NRJ Sverige", 
       color: "from-red-500 to-yellow-500",
-      streamUrl: "https://nrj.radiocdn.se/nrj"
+      streamUrl: "https://live-bauerse.sharp-stream.com/nrj_se_mp3"
     },
     { 
       id: "p3", 
