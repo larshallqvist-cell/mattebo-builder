@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Home, Calendar, BookOpen, Volume2, VolumeX } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import WelcomeFlash from "@/components/WelcomeFlash";
 import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
@@ -37,6 +39,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
   const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
   const { nextEvent } = useCalendarEvents(grade);
+  const { user } = useAuth();
   const glowColor = gradeNeonColors[grade] || "hsl(var(--neon-copper))";
 
   // Format short weekday in Swedish
@@ -66,6 +69,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           `,
         }}
       >
+        {/* Welcome Flash for logged-in users */}
+        {user && <WelcomeFlash />}
+
         {/* Navigation */}
         <ApocalypticNav />
 

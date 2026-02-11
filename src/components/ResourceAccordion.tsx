@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link } from "lucide-react";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { ResourceSkeleton } from "@/components/skeletons";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ResourceLink {
   title: string;
@@ -293,6 +294,18 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                             e.preventDefault();
                             e.stopPropagation();
                             hapticFeedback('light');
+                            // Log activity for authenticated users (fire-and-forget)
+                            supabase.auth.getSession().then(({ data: { session } }) => {
+                              if (session?.user) {
+                                supabase.from("activity_logs").insert({
+                                  user_id: session.user.id,
+                                  grade,
+                                  chapter,
+                                  resource_title: link.title,
+                                  resource_url: cleanUrl,
+                                }).then(() => {});
+                              }
+                            });
                             if (isExternal) {
                               window.open(cleanUrl, '_blank', 'noopener,noreferrer');
                             } else {

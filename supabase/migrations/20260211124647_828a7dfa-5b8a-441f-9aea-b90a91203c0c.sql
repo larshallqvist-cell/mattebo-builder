@@ -1,0 +1,22 @@
+
+CREATE TABLE public.activity_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  grade integer NOT NULL,
+  chapter integer,
+  resource_title text,
+  resource_url text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read own activity"
+  ON public.activity_logs FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own activity"
+  ON public.activity_logs FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
