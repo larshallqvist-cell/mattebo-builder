@@ -35,7 +35,14 @@ const ApocalypticNav = () => {
           </a>
           <span className="text-muted-foreground/30">|</span>
           {!loading && (
-            user ? <UserMenu /> : <LoginButton variant="ghost" size="sm" />
+            user ? <UserMenu /> : (
+              <div className="flex items-center gap-2">
+                <span className="hidden md:inline text-xs text-muted-foreground/70 font-nunito">
+                  Logga in med ditt skolkonto →
+                </span>
+                <LoginButton variant="ghost" size="sm" />
+              </div>
+            )
           )}
         </div>
       </div>
