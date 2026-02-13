@@ -38,7 +38,7 @@ const ApocalypticNav = () => {
             user ? <UserMenu /> : (
               <div className="flex items-center gap-2">
                 <span className="hidden md:inline text-xs text-muted-foreground/70 font-nunito">
-                  Logga in med ditt skolkonto →
+                  Logga in med Google →
                 </span>
                 <LoginButton variant="ghost" size="sm" />
               </div>

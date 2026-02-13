@@ -1,13 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session, AuthError } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
+
+type AccessStatus = "loading" | "approved" | "pending" | "denied" | null;
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  accessStatus: AccessStatus;
+  isAdmin: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -18,22 +22,68 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessStatus, setAccessStatus] = useState<AccessStatus>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
+  const fetchAccessStatus = async (userId: string, email: string) => {
+    setAccessStatus("loading");
+
+    // Check admin role
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    
+    const admin = roleData?.some((r: any) => r.role === "admin") ?? false;
+    setIsAdmin(admin);
+
+    // Check access request
+    const { data, error } = await supabase
+      .from("access_requests")
+      .select("status")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (data) {
+      setAccessStatus(data.status as AccessStatus);
+    } else {
+      // No row yet — create one (for users who signed up before trigger existed)
+      const isSchool = email.endsWith("@leteboskolan.se");
+      const newStatus = isSchool ? "approved" : "pending";
+
+      await supabase.from("access_requests").insert({
+        user_id: userId,
+        email,
+        full_name: "",
+        status: newStatus,
+      });
+
+      setAccessStatus(newStatus);
+    }
+  };
+
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchAccessStatus(session.user.id, session.user.email ?? "");
+      }
       setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchAccessStatus(session.user.id, session.user.email ?? "");
+      } else {
+        setAccessStatus(null);
+        setIsAdmin(false);
+      }
       setLoading(false);
     });
 
@@ -44,9 +94,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
-        extraParams: {
-          hd: "leteboskolan.se",
-        },
       });
 
       if (error) {
@@ -89,15 +136,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const value = {
-    user,
-    session,
-    loading,
-    signInWithGoogle,
-    signOut,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{ user, session, loading, accessStatus, isAdmin, signInWithGoogle, signOut }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
