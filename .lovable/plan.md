@@ -1,87 +1,101 @@
 
 
-# Valkomstflash med aktivitetssparning
+# Tillgångsförfrågan -- "Be om lov att komma in"
 
-## Oversikt
-
-Nar en inloggad elev besöker sidan visas en kort välkomstanimation med deras namn och hur aktiva de har varit. Aktivitet mäts genom **resurslänksklick** (videor, övningar, spel) -- inte bara inloggningstid. Det betyder att man faktiskt måste jobba för att samla poäng.
-
-## Vad som räknas som aktivitet
-
-Varje gång en elev klickar på en resurslänk (video, övningsuppgift, spel etc.) i ResourceAccordion loggas det som en aktivitetshändelse i databasen. Det här är svårt att fuska med -- man måste faktiskt öppna material för att det ska räknas.
-
-Välkomstmeddelandet visar sedan:
-- "Kul att du är här, **Anna**!"
-- "Du har öppnat **47 resurser** hittills. Bra jobbat, du blir säkrare för varje gång!"
-
-(Alternativt kan vi kalla det "aktivitetspoäng" istället för "resurser" om du vill.)
+## Sammanfattning
+Just nu kan bara konton med `@leteboskolan.se` logga in. Vi bygger ett system där vem som helst kan logga in med Google, men om deras e-postadress inte är godkänd hamnar de i ett "vänterum". Du (Lars) ser en lista med väntande förfrågningar och kan godkänna eller neka dem.
 
 ## Hur det fungerar
 
-1. Eleven loggar in och besöker en årskurssida
-2. En animerad välkomstruta glider in (auto-stängs efter ca 5 sekunder)
-3. Varje klick på en resurslänk sparas i bakgrunden
-4. Nästa gång eleven besöker sidan visas det uppdaterade antalet
+1. **Inloggning öppnas för alla Google-konton** -- vi tar bort `hd`-begränsningen.
+2. **Efter inloggning** kontrolleras om användaren är godkänd:
+   - `@leteboskolan.se`-konton godkänns automatiskt.
+   - Andra konton hamnar i status "pending" (väntar på godkännande).
+3. **Väntande användare** ser ett meddelande: "Din förfrågan har skickats. Du får tillgång när en administratör godkänner dig."
+4. **Du som admin** ser en enkel admin-vy (ny sida `/admin`) där du kan godkänna eller neka väntande användare.
 
-## Eventuell topplista
+## Teknisk plan
 
-Eftersom vi räknar faktiska klick på lärresurser blir en topplista meningsfull -- man kan inte bara logga in och vänta. Den som klickar mest på videor och övningar hamnar högst. (Topplistan kan byggas som ett separat steg senare.)
-
----
-
-## Tekniska detaljer
-
-### 1. Ny databastabell: `activity_logs`
+### 1. Ny databastabell: `access_requests`
 
 ```sql
-CREATE TABLE public.activity_logs (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  grade integer NOT NULL,
-  chapter integer,
-  resource_title text,
-  resource_url text,
-  created_at timestamptz NOT NULL DEFAULT now()
+create table public.access_requests (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  email text not null,
+  full_name text,
+  status text not null default 'pending', -- 'pending', 'approved', 'denied'
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid,
+  unique(user_id)
 );
 
-ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
-
--- Användare kan läsa sina egna loggar
-CREATE POLICY "Users can read own activity"
-  ON public.activity_logs FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
--- Användare kan logga sin egen aktivitet
-CREATE POLICY "Users can insert own activity"
-  ON public.activity_logs FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+alter table public.access_requests enable row level security;
 ```
 
-### 2. Ny komponent: `WelcomeFlash.tsx`
+RLS-policyer:
+- Alla autentiserade kan se sin egen rad (för att veta sin status).
+- Admins kan läsa alla rader och uppdatera status.
 
-- Visas som en animerad overlay/toast vid sidladdning (framer-motion)
-- Hämtar användarens namn från `useAuth()` och totalantal från `activity_logs`
-- Visar meddelandet i ca 5 sekunder, sedan glider den bort
-- Visas max en gång per session (sparas i sessionStorage)
+### 2. Admin-roller via `user_roles`-tabell
 
-### 3. Ändring i `ResourceAccordion.tsx`
+```sql
+create type public.app_role as enum ('admin', 'user');
 
-- I onClick-hanteraren för resurslänkar: anropa en funktion som skriver en rad till `activity_logs` (med user_id, grade, chapter, resource_title, resource_url)
-- Bara för inloggade användare -- anonyma besökare loggas inte
+create table public.user_roles (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  role app_role not null,
+  unique(user_id, role)
+);
 
-### 4. Ändring i `ApocalypticGradePage.tsx`
+alter table public.user_roles enable row level security;
+```
 
-- Importera och rendera `WelcomeFlash` inuti sidan, villkorat på att användaren är inloggad
+En `has_role`-funktion (security definer) för att använda i RLS-policyer.
 
-### Filer som skapas/ändras
+Du (Lars) läggs till som admin via en migration baserat på din befintliga user-id.
 
-| Fil | Aktion |
-|---|---|
-| `src/components/WelcomeFlash.tsx` | Ny |
-| `src/components/ResourceAccordion.tsx` | Ändra onClick för att logga aktivitet |
-| `src/components/ApocalypticGradePage.tsx` | Lägg till WelcomeFlash |
-| Databasmigration | Ny tabell `activity_logs` |
-| `src/integrations/supabase/types.ts` | Uppdateras automatiskt |
+### 3. Databaslogik: automatisk hantering vid inloggning
+
+En databasfunktion/trigger eller klientlogik som:
+- Vid inloggning kollar om e-posten slutar på `@leteboskolan.se` -- sätter automatiskt status `approved`.
+- Annars skapar en rad med status `pending`.
+
+### 4. AuthContext-ändringar
+
+- Ta bort `hd: "leteboskolan.se"` från OAuth-anropet så alla Google-konton kan logga in.
+- Efter inloggning: hämta användarens `access_requests`-status.
+- Exponera `accessStatus` (`approved` / `pending` / `denied` / `loading`) i kontexten.
+
+### 5. Ny komponent: `PendingAccessPage`
+
+En sida/vy som visas för användare med `pending`-status:
+- "Tack! Din förfrågan om åtkomst har skickats."
+- "Du får tillgång så snart en administratör godkänner dig."
+- Knapp för att logga ut.
+
+### 6. Skydd i appen
+
+I navigeringen och på skyddade sidor: om `accessStatus !== 'approved'`, visa `PendingAccessPage` istället för det skyddade innehållet. Publikt innehåll (startsidan, åk-sidorna) förblir tillgängligt för alla.
+
+### 7. Admin-sida (`/admin`)
+
+En enkel sida (bara synlig för admin-rollen) som visar:
+- Lista med väntande förfrågningar (namn, e-post, datum).
+- Knappar för "Godkänn" och "Neka".
+- Lista med redan godkända användare.
+
+### 8. Filöversikt
+
+| Fil | Ändring |
+|-----|---------|
+| `src/contexts/AuthContext.tsx` | Ta bort `hd`-param, lägg till accessStatus-logik |
+| `src/components/LoginButton.tsx` | Eventuellt uppdatera hjälptext |
+| `src/components/ApocalypticNav.tsx` | Uppdatera texten "skolkonto" till mer generell |
+| `src/components/PendingAccessPage.tsx` | Ny -- väntesida |
+| `src/pages/Admin.tsx` | Ny -- admin-panel för godkännande |
+| `src/App.tsx` | Lägg till `/admin`-rutt |
+| Databasmigration | `access_requests`, `user_roles`, `has_role`-funktion, RLS-policyer, seed admin-roll |
 
