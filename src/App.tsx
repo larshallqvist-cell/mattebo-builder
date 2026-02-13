@@ -10,6 +10,7 @@ import Ak6 from "./pages/Ak6";
 import Ak7 from "./pages/Ak7";
 import Ak8 from "./pages/Ak8";
 import Ak9 from "./pages/Ak9";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ChalkDust from "./components/ChalkDust";
 
@@ -26,6 +27,7 @@ const AnimatedRoutes = () => {
         <Route path="/ak7" element={<Ak7 />} />
         <Route path="/ak8" element={<Ak8 />} />
         <Route path="/ak9" element={<Ak9 />} />
+        <Route path="/admin" element={<Admin />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
