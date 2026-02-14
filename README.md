@@ -2,6 +2,14 @@
 
 En modern webbresurs för matematikundervisning byggd med React, TypeScript och Tailwind CSS.
 
+## 📋 Utvärdera ändringar
+
+För att granska och utvärdera ändringar i projektet, se [UTVÄRDERA_ÄNDRINGAR.md](./UTVÄRDERA_ÄNDRINGAR.md) som innehåller:
+- Hur man visar senaste ändringar med Git
+- Hur man testar applikationen lokalt
+- Checklist för utvärdering av ändringarna
+- Användbara Git-kommandon för granskning
+
 ## Kom igång lokalt
 
 ### Förutsättningar
