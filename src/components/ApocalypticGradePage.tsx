@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Home, Calendar, BookOpen, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import LoginGate from "@/components/LoginGate";
 import WelcomeFlash from "@/components/WelcomeFlash";
 import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
@@ -58,6 +59,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
     : "Nästa lektion";
 
   return (
+    <LoginGate>
     <PageTransition>
       <div 
         className="h-screen flex flex-col relative overflow-hidden"
@@ -310,6 +312,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         <MobileBottomNav grade={grade} />
       </div>
     </PageTransition>
+    </LoginGate>
   );
 };
 
