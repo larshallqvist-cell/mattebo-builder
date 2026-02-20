@@ -29,7 +29,7 @@ const getCurrentWeekDates = (): { day: string; date: string }[] => {
 const LunchMenu = () => {
   const [menuItems, setMenuItems] = useState<DayMenu[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  // editBuffer removed — using bulkText + parseTextToItems instead
+  const [editBuffer, setEditBuffer] = useState<DayMenu[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -56,46 +56,29 @@ const LunchMenu = () => {
       });
 
       setMenuItems(items);
-      // menu loaded
+      setEditBuffer(items);
       setLoading(false);
     };
 
     fetchMenu();
   }, []);
 
-  // Convert menu items to bulk text (one line per day)
-  const menuItemsToText = (items: DayMenu[]): string => {
-    return items.map((item) => item.menu).join("\n");
-  };
-
-  // Parse bulk text into menu items
-  const parseTextToItems = (text: string): DayMenu[] => {
-    const lines = text.split("\n");
-    return weekDates.map((wd, i) => ({
-      day: wd.day,
-      date: wd.date,
-      menu: (lines[i] || "").trim(),
-    }));
-  };
-
-  const [bulkText, setBulkText] = useState("");
-
   const handleEdit = () => {
-    setBulkText(menuItemsToText(menuItems));
+    setEditBuffer([...menuItems]);
     setIsEditing(true);
   };
 
   const handleSave = async () => {
-    const parsed = parseTextToItems(bulkText);
-
-    const upserts = parsed
+    // Upsert all days that have content
+    const upserts = editBuffer
       .filter((item) => item.menu.trim() !== "")
       .map((item) => ({
         date: item.date,
         menu_text: item.menu.trim(),
       }));
 
-    const deletes = parsed
+    // Delete days that were cleared
+    const deletes = editBuffer
       .filter((item) => item.menu.trim() === "")
       .map((item) => item.date);
 
@@ -120,15 +103,20 @@ const LunchMenu = () => {
       }
     }
 
-    setMenuItems(parsed);
+    setMenuItems(editBuffer);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
+    setEditBuffer([...menuItems]);
     setIsEditing(false);
   };
 
-  const parsedPreview = parseTextToItems(bulkText);
+  const updateDay = (index: number, menu: string) => {
+    const updated = [...editBuffer];
+    updated[index] = { ...updated[index], menu };
+    setEditBuffer(updated);
+  };
 
   const hasContent = menuItems.some((item) => item.menu.trim() !== "");
 
@@ -198,27 +186,22 @@ const LunchMenu = () => {
         <p className="text-xs text-muted-foreground/60 py-1">Laddar meny...</p>
       ) : isEditing ? (
         <div className="space-y-2">
-          <textarea
-            value={bulkText}
-            onChange={(e) => setBulkText(e.target.value)}
-            placeholder={"Köttbullar med potatis\nFiskpinnar med mos\nPasta bolognese\nKycklinggryta med ris\nPizza"}
-            rows={5}
-            className="w-full text-xs bg-background/50 border border-border/50 rounded px-2 py-1.5 
-                       text-foreground placeholder:text-muted-foreground/50
-                       focus:outline-none focus:border-primary/50 transition-colors resize-none"
-          />
-          {bulkText.trim() && (
-            <div className="space-y-0.5">
-              {parsedPreview.map((item) =>
-                item.menu.trim() ? (
-                  <div key={item.date} className="flex gap-2 text-[11px]">
-                    <span className="text-muted-foreground w-8 shrink-0">{item.day.slice(0, 3)}</span>
-                    <span className="text-foreground">{item.menu}</span>
-                  </div>
-                ) : null
-              )}
+          {editBuffer.map((item, index) => (
+            <div key={item.date} className="flex gap-2 items-start">
+              <span className="text-xs font-medium text-muted-foreground w-14 pt-1.5 shrink-0">
+                {item.day.slice(0, 3)}
+              </span>
+              <input
+                type="text"
+                value={item.menu}
+                onChange={(e) => updateDay(index, e.target.value)}
+                placeholder="Skriv dagens rätt..."
+                className="flex-1 text-xs bg-background/50 border border-border/50 rounded px-2 py-1.5 
+                         text-foreground placeholder:text-muted-foreground/50
+                         focus:outline-none focus:border-primary/50 transition-colors"
+              />
             </div>
-          )}
+          ))}
           <p className="text-[10px] text-muted-foreground/60 mt-2">
             Tips: Klistra in från Schoolsoft
           </p>
