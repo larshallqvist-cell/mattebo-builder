@@ -30,7 +30,7 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
   const [volume, setVolume] = useState(70);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const metadataIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const metadataIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   const channels: RadioChannel[] = [
     { 
