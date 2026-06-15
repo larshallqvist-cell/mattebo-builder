@@ -101,7 +101,8 @@ serve(async (req) => {
     // This is necessary because Google Sheets rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA
     // Extended to column E in case URLs are in a 5th column
     // Extended to column F for optional color field
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:F1000`)}&includeGridData=true`;
+    // Keep the row range generous so special rows copied further down still load.
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:F5000`)}&includeGridData=true`;
     
     console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
     
