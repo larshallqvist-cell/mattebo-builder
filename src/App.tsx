@@ -44,6 +44,7 @@ const App = () => (
         <Sonner />
         <ChalkDust />
         <BrowserRouter>
+          <SheetConfig />
           <AnimatedRoutes />
         </BrowserRouter>
       </TooltipProvider>
