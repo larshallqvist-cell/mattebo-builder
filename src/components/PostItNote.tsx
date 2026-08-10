@@ -296,6 +296,17 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return <PostItSkeleton />;
   }
 
+  if (upcomingEvents.length === 0) {
+    return (
+      <div className="flex flex-col gap-1 font-nunito text-foreground">
+        <p className="text-sm font-semibold">Inga kommande lektioner</p>
+        <p className="text-xs text-muted-foreground">
+          Terminens schema verkar inte vara inlagt i kalendern än.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col relative font-nunito text-foreground md:max-h-[50vh]">
       {/* Secret "screw" toggle - small circle at top-right corner */}

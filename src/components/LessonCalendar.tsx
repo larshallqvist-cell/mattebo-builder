@@ -324,7 +324,16 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
         {loading && <CalendarSkeleton />}
 
         {error && (
-          <div className="p-8 text-center text-destructive">{error}</div>
+          <div className="p-8 text-center flex flex-col items-center gap-3">
+            <p className="text-destructive text-sm">{error}</p>
+            <button
+              onClick={refresh}
+              className="px-3 py-1.5 rounded-md text-sm border border-white/20 hover:bg-white/10 transition-colors"
+              style={{ color: "hsl(var(--neon-turquoise))" }}
+            >
+              Försök igen
+            </button>
+          </div>
         )}
 
         {!loading && !error && weekGroups.length > 0 && (
@@ -433,8 +442,11 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
         )}
 
         {!loading && !error && upcomingEvents.length === 0 && (
-          <div className="p-8 text-center text-muted-foreground text-base">
-            Inga kommande lektioner
+          <div className="p-8 text-center text-muted-foreground flex flex-col gap-1">
+            <span className="text-base">Inga kommande lektioner inlagda</span>
+            <span className="text-xs">
+              Terminens schema verkar inte vara publicerat i kalendern än.
+            </span>
           </div>
         )}
       </div>
