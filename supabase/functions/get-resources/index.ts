@@ -313,7 +313,7 @@ serve(async (req) => {
           if (!url && cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
             // Also check for #header marker in column D
-            if (!url && cellD.value?.startsWith('#')) {
+            if (!url && cellD.value?.trim().startsWith('#')) {
               url = cellD.value.trim();
             }
           }
