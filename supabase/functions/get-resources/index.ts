@@ -272,9 +272,16 @@ serve(async (req) => {
     // Detect sheet format based on first row
     // Format A (Åk6): [Title with chapter, URL] - 2 columns
     // Format B (Åk7-9): [Chapter number, Category, Title, URL] - 4 columns
-    const firstRow = rows[0] || [];
-    const firstCellValue = firstRow[0]?.value || '';
-    const firstCellIsNumber = !isNaN(parseInt(firstCellValue, 10)) && firstCellValue.length <= 2;
+    // Look at the first non-empty rows so a stray blank/comment row at the top
+    // doesn't make us misdetect the sheet format.
+    const sampleRows = rows
+      .filter((row: CellInfo[]) => row.some((c) => (c?.value || '').trim()))
+      .slice(0, 10);
+    const numericFirstCells = sampleRows.filter((row: CellInfo[]) => {
+      const v = (row[0]?.value || '').trim();
+      return v.length > 0 && v.length <= 2 && !isNaN(parseInt(v, 10));
+    }).length;
+    const firstCellIsNumber = numericFirstCells > 0;
     
     console.log(`Detected format: ${firstCellIsNumber ? 'B (Chapter|Category|Title|URL)' : 'A (Title|URL)'}`);
 
