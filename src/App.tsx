@@ -13,6 +13,7 @@ import Ak9 from "./pages/Ak9";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ChalkDust from "./components/ChalkDust";
+import SheetConfig from "./components/SheetConfig";
 
 const queryClient = new QueryClient();
 
