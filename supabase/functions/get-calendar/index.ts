@@ -81,8 +81,15 @@ serve(async (req) => {
       );
     }
 
-    // Check cache
-    const cached = cache[grade];
+    // Check cache (in-memory first, then persistent DB cache)
+    let cached = cache[grade] ?? null;
+    if (!cached || Date.now() - cached.timestamp >= CACHE_TTL) {
+      const dbCached = await readDbCache(grade);
+      if (dbCached && (!cached || dbCached.timestamp > cached.timestamp)) {
+        cached = dbCached;
+        cache[grade] = dbCached;
+      }
+    }
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       console.log(`Returning cached calendar for grade ${grade}`);
       return new Response(cached.data, {
@@ -111,8 +118,9 @@ serve(async (req) => {
 
     const icsData = await response.text();
 
-    // Update cache
+    // Update caches
     cache[grade] = { data: icsData, timestamp: Date.now() };
+    await writeDbCache(grade, icsData);
 
     return new Response(icsData, {
       headers: { ...corsHeaders, "Content-Type": "text/calendar" },
