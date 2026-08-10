@@ -46,16 +46,32 @@ async function writeDbCache(grade: number, ics: string) {
   if (error) console.error("Failed to persist calendar cache:", error.message);
 }
 
-async function fetchWithRetry(url: string, attempts = 3): Promise<Response> {
+function urlVariants(url: string): string[] {
+  const variants = new Set<string>([url]);
+  // Google Calendar ICS comes in two shapes; try both if one 404s
+  if (url.includes("/public/basic.ics")) variants.add(url.replace("/public/basic.ics", "/basic.ics"));
+  else if (url.endsWith("/basic.ics")) variants.add(url.replace(/\/basic\.ics$/, "/public/basic.ics"));
+  if (url.includes("calendar.google.com/calendar/ical/")) {
+    variants.add(url.replace("/calendar/ical/", "/calendar/u/0/ical/"));
+  }
+  return [...variants];
+}
+
+async function fetchWithRetry(rawUrl: string, attempts = 3): Promise<Response> {
   let last: Response | null = null;
-  for (let i = 0; i < attempts; i++) {
-    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; MatteboCalendar/1.0)" } });
-    if (res.ok) return res;
-    last = res;
-    // Only retry on rate limit / transient server errors
-    if (res.status !== 429 && res.status < 500) break;
-    await res.body?.cancel();
-    await sleep(500 * Math.pow(2, i));
+  for (const url of urlVariants(rawUrl)) {
+    for (let i = 0; i < attempts; i++) {
+      const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; MatteboCalendar/1.0)" } });
+      if (res.ok) return res;
+      last = res;
+      // Only retry on rate limit / transient server errors
+      if (res.status !== 429 && res.status < 500) {
+        await res.body?.cancel();
+        break;
+      }
+      await res.body?.cancel();
+      await sleep(800 * Math.pow(2, i));
+    }
   }
   return last!;
 }
@@ -104,7 +120,7 @@ serve(async (req) => {
     if (!response.ok) {
       console.error(`Upstream calendar fetch failed: ${response.status}`);
       // Serve stale cache rather than breaking the page
-      if (cached && Date.now() - cached.timestamp < STALE_TTL) {
+      if (cached) {
         console.log(`Serving stale calendar for grade ${grade}`);
         return new Response(cached.data, {
           headers: { ...corsHeaders, "Content-Type": "text/calendar", "X-Cache": "stale" },
