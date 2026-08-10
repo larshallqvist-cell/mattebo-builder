@@ -198,7 +198,7 @@ serve(async (req) => {
     }> }) => {
       const cells = row.values || [];
       return cells.map((cell) => {
-        const value = cell.formattedValue || '';
+        const value = (cell.formattedValue || '').replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ');
         // Check for hyperlink in cell metadata (rich links)
         const hyperlink = cell.hyperlink || '';
         // Also check for HYPERLINK formula
