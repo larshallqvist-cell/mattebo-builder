@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ICAL from "ical.js";
+import { supabase } from "@/integrations/supabase/client";
 
 export type CalendarEffectType = "fire" | "smoke" | "shimmer" | "stars" | "glow" | "sparkle";
 
