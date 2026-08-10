@@ -192,6 +192,16 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         if (finalHref.startsWith('www.')) {
           finalHref = 'https://' + finalHref;
         }
+        // Only allow safe URL schemes (blocks javascript:, data:, vbscript:, ...)
+        const isSafeHref =
+          /^(https?:|mailto:)/i.test(finalHref) ||
+          finalHref.startsWith('/') ||
+          finalHref.startsWith('#');
+        if (!isSafeHref) {
+          result.push(<span key={`a-${keyIndex++}`}>{cleanContent}</span>);
+          lastIndex = regex.lastIndex;
+          continue;
+        }
         
         result.push(
           <a

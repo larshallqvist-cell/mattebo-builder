@@ -266,9 +266,17 @@ export const useCalendarEvents = (grade: number) => {
       try {
         // Use edge function to fetch calendar (faster, no CORS issues)
         const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-calendar?grade=${grade}`;
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          setError("Kunde inte ladda kalendern");
+          setLoading(false);
+          return;
+        }
         const response = await fetch(functionUrl, {
           headers: {
             "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 
