@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireApprovedUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +21,9 @@ serve(async (req) => {
   }
 
   try {
+    const auth = await requireApprovedUser(req, corsHeaders);
+    if (auth.error) return auth.error;
+
     const url = new URL(req.url);
     const grade = url.searchParams.get('grade');
     const chapter = url.searchParams.get('chapter');
