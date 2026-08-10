@@ -327,13 +327,20 @@ serve(async (req) => {
           if (!url && cellC?.value?.startsWith('http')) {
             url = cellC.value;
           }
-          if (!url && cellC?.value?.startsWith('#')) {
+          if (!url && cellC?.value?.trim().startsWith('#')) {
             url = cellC.value.trim();
+          }
+          if (!url && cellE?.value?.trim().startsWith('#')) {
+            url = cellE.value.trim();
+          }
+          // Normalize command urls (#divider, #spacer, #header, #note)
+          if (url.startsWith('#')) {
+            url = url.trim();
           }
           
           // Title comes from column C's display value, or use URL as title if value is empty
           title = (cellC?.value || '').trim();
-          if (!title && url) {
+          if (!title && url && !url.startsWith('#')) {
             // If title is empty but we have a URL, use a generic title
             title = 'Länk';
           }
@@ -344,7 +351,12 @@ serve(async (req) => {
           return { chapter, category, title, url, color };
         })
         // Keep rows with valid http URLs OR #header markers (for grouping headers)
-        .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && (r.url.startsWith('http') || r.url.startsWith('#')));
+        // Keep rows with valid http URLs, or command rows (#divider/#spacer/#header/#note)
+        // Command rows are allowed to have an empty title.
+        .filter((r: ResourceRow) =>
+          !isNaN(r.chapter) &&
+          ((r.url.startsWith('http') && r.title) || r.url.startsWith('#')),
+        );
       
       // DEBUG: Log categories found and sample of resources without URLs
       const categoriesFound = [...new Set(resources.map(r => r.category))];
