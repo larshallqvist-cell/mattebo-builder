@@ -77,6 +77,24 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_cache: {
+        Row: {
+          fetched_at: string
+          grade: number
+          ics_data: string
+        }
+        Insert: {
+          fetched_at?: string
+          grade: number
+          ics_data: string
+        }
+        Update: {
+          fetched_at?: string
+          grade?: number
+          ics_data?: string
+        }
+        Relationships: []
+      }
       lunch_menu: {
         Row: {
           created_at: string

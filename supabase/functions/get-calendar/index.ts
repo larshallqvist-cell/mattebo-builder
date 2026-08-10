@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,6 +22,29 @@ const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 const STALE_TTL = 24 * 60 * 60 * 1000; // serve stale up to 24h if upstream fails
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const admin = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  { auth: { persistSession: false } }
+);
+
+async function readDbCache(grade: number): Promise<{ data: string; timestamp: number } | null> {
+  const { data, error } = await admin
+    .from("calendar_cache")
+    .select("ics_data, fetched_at")
+    .eq("grade", grade)
+    .maybeSingle();
+  if (error || !data) return null;
+  return { data: data.ics_data as string, timestamp: new Date(data.fetched_at as string).getTime() };
+}
+
+async function writeDbCache(grade: number, ics: string) {
+  const { error } = await admin
+    .from("calendar_cache")
+    .upsert({ grade, ics_data: ics, fetched_at: new Date().toISOString() }, { onConflict: "grade" });
+  if (error) console.error("Failed to persist calendar cache:", error.message);
+}
 
 async function fetchWithRetry(url: string, attempts = 3): Promise<Response> {
   let last: Response | null = null;
@@ -57,8 +81,15 @@ serve(async (req) => {
       );
     }
 
-    // Check cache
-    const cached = cache[grade];
+    // Check cache (in-memory first, then persistent DB cache)
+    let cached = cache[grade] ?? null;
+    if (!cached || Date.now() - cached.timestamp >= CACHE_TTL) {
+      const dbCached = await readDbCache(grade);
+      if (dbCached && (!cached || dbCached.timestamp > cached.timestamp)) {
+        cached = dbCached;
+        cache[grade] = dbCached;
+      }
+    }
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       console.log(`Returning cached calendar for grade ${grade}`);
       return new Response(cached.data, {
@@ -87,8 +118,9 @@ serve(async (req) => {
 
     const icsData = await response.text();
 
-    // Update cache
+    // Update caches
     cache[grade] = { data: icsData, timestamp: Date.now() };
+    await writeDbCache(grade, icsData);
 
     return new Response(icsData, {
       headers: { ...corsHeaders, "Content-Type": "text/calendar" },
