@@ -198,7 +198,7 @@ serve(async (req) => {
     }> }) => {
       const cells = row.values || [];
       return cells.map((cell) => {
-        const value = cell.formattedValue || '';
+        const value = (cell.formattedValue || '').replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ');
         // Check for hyperlink in cell metadata (rich links)
         const hyperlink = cell.hyperlink || '';
         // Also check for HYPERLINK formula
@@ -272,9 +272,16 @@ serve(async (req) => {
     // Detect sheet format based on first row
     // Format A (Åk6): [Title with chapter, URL] - 2 columns
     // Format B (Åk7-9): [Chapter number, Category, Title, URL] - 4 columns
-    const firstRow = rows[0] || [];
-    const firstCellValue = firstRow[0]?.value || '';
-    const firstCellIsNumber = !isNaN(parseInt(firstCellValue, 10)) && firstCellValue.length <= 2;
+    // Look at the first non-empty rows so a stray blank/comment row at the top
+    // doesn't make us misdetect the sheet format.
+    const sampleRows = rows
+      .filter((row: CellInfo[]) => row.some((c) => (c?.value || '').trim()))
+      .slice(0, 10);
+    const numericFirstCells = sampleRows.filter((row: CellInfo[]) => {
+      const v = (row[0]?.value || '').trim();
+      return v.length > 0 && v.length <= 2 && !isNaN(parseInt(v, 10));
+    }).length;
+    const firstCellIsNumber = numericFirstCells > 0;
     
     console.log(`Detected format: ${firstCellIsNumber ? 'B (Chapter|Category|Title|URL)' : 'A (Title|URL)'}`);
 
@@ -306,7 +313,7 @@ serve(async (req) => {
           if (!url && cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
             // Also check for #header marker in column D
-            if (!url && cellD.value?.startsWith('#')) {
+            if (!url && cellD.value?.trim().startsWith('#')) {
               url = cellD.value.trim();
             }
           }
@@ -320,13 +327,20 @@ serve(async (req) => {
           if (!url && cellC?.value?.startsWith('http')) {
             url = cellC.value;
           }
-          if (!url && cellC?.value?.startsWith('#')) {
+          if (!url && cellC?.value?.trim().startsWith('#')) {
             url = cellC.value.trim();
+          }
+          if (!url && cellE?.value?.trim().startsWith('#')) {
+            url = cellE.value.trim();
+          }
+          // Normalize command urls (#divider, #spacer, #header, #note)
+          if (url.startsWith('#')) {
+            url = url.trim();
           }
           
           // Title comes from column C's display value, or use URL as title if value is empty
           title = (cellC?.value || '').trim();
-          if (!title && url) {
+          if (!title && url && !url.startsWith('#')) {
             // If title is empty but we have a URL, use a generic title
             title = 'Länk';
           }
@@ -337,7 +351,12 @@ serve(async (req) => {
           return { chapter, category, title, url, color };
         })
         // Keep rows with valid http URLs OR #header markers (for grouping headers)
-        .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && (r.url.startsWith('http') || r.url.startsWith('#')));
+        // Keep rows with valid http URLs, or command rows (#divider/#spacer/#header/#note)
+        // Command rows are allowed to have an empty title.
+        .filter((r: ResourceRow) =>
+          !isNaN(r.chapter) &&
+          ((r.url.startsWith('http') && r.title) || r.url.startsWith('#')),
+        );
       
       // DEBUG: Log categories found and sample of resources without URLs
       const categoriesFound = [...new Set(resources.map(r => r.category))];
