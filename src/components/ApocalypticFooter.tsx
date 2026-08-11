@@ -1,3 +1,5 @@
+import { APP_VERSION, APP_VERSION_DATE } from "@/lib/version";
+
 const ApocalypticFooter = () => {
   const currentYear = new Date().getFullYear();
 
@@ -40,9 +42,14 @@ const ApocalypticFooter = () => {
           </div>
 
           {/* Copyright */}
-          <p className="text-muted-foreground text-sm font-nunito">
-            © {currentYear} Leteboskolan. Alla rättigheter förbehållna.
-          </p>
+          <div className="text-center md:text-right">
+            <p className="text-muted-foreground text-sm font-nunito">
+              © {currentYear} Leteboskolan. Alla rättigheter förbehållna.
+            </p>
+            <p className="text-muted-foreground/60 text-xs font-nunito mt-1">
+              v{APP_VERSION} · {APP_VERSION_DATE}
+            </p>
+          </div>
         </div>
 
         {/* Decorative line */}
