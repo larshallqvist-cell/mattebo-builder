@@ -3,9 +3,8 @@ import { Settings, X, Save, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY } from "@/config/app";
 
-// Default Sheet-ID som alltid används om inget annat anges
-const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
 
 const SheetConfig = () => {
   const [isOpen, setIsOpen] = useState(false);
