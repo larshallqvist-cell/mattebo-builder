@@ -3,7 +3,7 @@ import { Settings, X, Save, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY } from "@/config/app";
+import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY, SUPPORTED_GRADES } from "@/config/app";
 
 
 const SheetConfig = () => {
