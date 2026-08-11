@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import { deduplicateCalendarEvents, parseICSData, type CalendarEvent } from "./useCalendarEvents";
 
 const makeEvent = (overrides: Partial<CalendarEvent> = {}): CalendarEvent => ({
@@ -17,9 +18,9 @@ describe("calendar event deduplication", () => {
       makeEvent({ id: "event-with-room", location: "H3" }),
     ]);
 
-    expect(events).toHaveLength(1);
-    expect(events[0]?.id).toBe("event-with-room");
-    expect(events[0]?.location).toBe("H3");
+    assert.equal(events.length, 1);
+    assert.equal(events[0]?.id, "event-with-room");
+    assert.equal(events[0]?.location, "H3");
   });
 
   test("keeps genuinely different lessons", () => {
@@ -28,7 +29,7 @@ describe("calendar event deduplication", () => {
       makeEvent({ id: "later-event", date: new Date("2026-08-18T09:00:00.000Z") }),
     ]);
 
-    expect(events).toHaveLength(2);
+    assert.equal(events.length, 2);
   });
 
   test("merges a UTC event with an equivalent floating local-time event", () => {
@@ -53,7 +54,7 @@ describe("calendar event deduplication", () => {
 
     const events = parseICSData(ics);
 
-    expect(events).toHaveLength(1);
-    expect(events[0]?.location).toBe("H3");
+    assert.equal(events.length, 1);
+    assert.equal(events[0]?.location, "H3");
   });
 });
