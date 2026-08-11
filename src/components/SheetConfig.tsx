@@ -3,9 +3,8 @@ import { Settings, X, Save, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY, SUPPORTED_GRADES } from "@/config/app";
 
-// Default Sheet-ID som alltid används om inget annat anges
-const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
 
 const SheetConfig = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,18 +12,18 @@ const SheetConfig = () => {
 
   useEffect(() => {
     // Visa det sparade värdet eller default
-    const stored = localStorage.getItem('mattebo_sheet_id');
+    const stored = localStorage.getItem(SHEET_STORAGE_KEY);
     setSheetId(stored || DEFAULT_SHEET_ID);
   }, []);
 
   const handleSave = () => {
     const trimmedId = sheetId.trim();
     if (trimmedId && trimmedId !== DEFAULT_SHEET_ID) {
-      localStorage.setItem('mattebo_sheet_id', trimmedId);
+      localStorage.setItem(SHEET_STORAGE_KEY, trimmedId);
       toast.success('Sheet-ID sparat! Ladda om sidan för att se ändringarna.');
     } else {
       // Om samma som default, ta bort från localStorage
-      localStorage.removeItem('mattebo_sheet_id');
+      localStorage.removeItem(SHEET_STORAGE_KEY);
       toast.info('Använder standard Sheet-ID.');
     }
     setIsOpen(false);
@@ -40,7 +39,7 @@ const SheetConfig = () => {
     setSheetId(extractSheetId(value));
   };
 
-  const isUsingDefault = !localStorage.getItem('mattebo_sheet_id');
+  const isUsingDefault = !localStorage.getItem(SHEET_STORAGE_KEY);
 
   if (!isOpen) {
     return (
@@ -90,7 +89,8 @@ const SheetConfig = () => {
           <div className="bg-muted/50 rounded-lg p-3 text-sm">
             <p className="font-medium text-foreground mb-2">Sheet-struktur:</p>
             <p className="text-xs text-muted-foreground mb-2">
-              Skapa en flik per årskurs: <strong>Åk6</strong>, <strong>Åk7</strong>, <strong>Åk8</strong>, <strong>Åk9</strong>
+              Skapa en flik per årskurs:{" "}
+              {SUPPORTED_GRADES.map((g) => `Åk${g}`).join(", ")}
             </p>
             <ul className="text-muted-foreground space-y-1 text-xs">
               <li><strong>Kolumn A:</strong> Kapitel (1-5)</li>

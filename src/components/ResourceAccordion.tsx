@@ -1,16 +1,11 @@
-/**
- * Filnamn: ResourceAccordion.tsx
- * Timestamp: 2026-01-15 20:15
- * Beskrivning: Kraftfull länkhantering som tvingar webbläsaren att lämna
- * applikationen för att undvika 404-fel i inbäddade miljöer.
- */
-
 import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link } from "lucide-react";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { ResourceSkeleton } from "@/components/skeletons";
 import { supabase } from "@/integrations/supabase/client";
+import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY } from "@/config/app";
+
 
 interface ResourceLink {
   title: string;
@@ -71,12 +66,9 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef<Map<string, ResourceCategory[]>>(new Map());
 
-  // Standard Sheet-ID för resurser (kan överskrivas via SheetConfig)
-  const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
-
   const fetchResources = useCallback(async () => {
     const cacheKey = `${grade}-${chapter}`;
-    
+
     // Return cached data immediately if available
     if (cacheRef.current.has(cacheKey)) {
       setResources(cacheRef.current.get(cacheKey)!);
@@ -89,7 +81,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
     }
     abortControllerRef.current = new AbortController();
 
-    const sheetId = localStorage.getItem("mattebo_sheet_id") || DEFAULT_SHEET_ID;
+    const sheetId = localStorage.getItem(SHEET_STORAGE_KEY) || DEFAULT_SHEET_ID;
     setLoading(true);
     
     try {

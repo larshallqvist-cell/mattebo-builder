@@ -18,6 +18,7 @@ import PostItNote from "@/components/PostItNote";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+import { GRADE_NEON_COLORS } from "@/config/app";
 // Lazy-loaded components for better initial load performance
 import { 
   SuspenseResourceAccordion, 
@@ -25,23 +26,18 @@ import {
   SuspenseMascotPanel 
 } from "@/components/LazyComponents";
 
+
 interface ApocalypticGradePageProps {
   grade: number;
 }
-
-const gradeNeonColors: Record<number, string> = {
-  6: "hsl(var(--neon-turquoise))",
-  7: "hsl(var(--neon-copper))",
-  8: "hsl(var(--neon-blue))",
-  9: "hsl(var(--neon-violet))",
-};
 
 const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
   const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
   const { nextEvent } = useCalendarEvents(grade);
   const { user } = useAuth();
-  const glowColor = gradeNeonColors[grade] || "hsl(var(--neon-copper))";
+  const glowColor = GRADE_NEON_COLORS[grade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--neon-copper))";
+
 
   // Format short weekday in Swedish
   const getShortSwedishWeekday = (date: Date) => {

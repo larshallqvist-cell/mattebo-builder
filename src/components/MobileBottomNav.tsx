@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import CalculatorModal from "./CalculatorModal";
 import { hapticFeedback } from "@/hooks/useHaptic";
+import { DEFAULT_GRADE, GRADE_LABELS, GRADE_NEON_COLORS, SUPPORTED_GRADES } from "@/config/app";
+
 
 interface MobileBottomNavProps {
   grade?: number;
@@ -14,16 +16,9 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
   const [showCalculator, setShowCalculator] = useState(false);
   
   const isHome = location.pathname === "/";
-  const currentGrade = grade || parseInt(location.pathname.replace("/ak", "")) || 6;
-  
-  const glowColors: Record<number, string> = {
-    6: "hsl(var(--neon-turquoise))",
-    7: "hsl(var(--neon-copper))",
-    8: "hsl(var(--neon-blue))",
-    9: "hsl(var(--neon-violet))",
-  };
-  
-  const glowColor = glowColors[currentGrade] || "hsl(var(--primary))";
+  const currentGrade = grade || parseInt(location.pathname.replace("/ak", "")) || DEFAULT_GRADE;
+
+  const glowColor = GRADE_NEON_COLORS[currentGrade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--primary))";
 
   const navItems = [
     { 
@@ -47,12 +42,12 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
         active: false,
         scrollTo: "calendar"
       },
-    ] : [
-      { icon: BookOpen, label: "Åk 6", to: "/ak6", active: location.pathname === "/ak6" },
-      { icon: BookOpen, label: "Åk 7", to: "/ak7", active: location.pathname === "/ak7" },
-      { icon: BookOpen, label: "Åk 8", to: "/ak8", active: location.pathname === "/ak8" },
-      { icon: BookOpen, label: "Åk 9", to: "/ak9", active: location.pathname === "/ak9" },
-    ]),
+    ] : SUPPORTED_GRADES.map((g) => ({
+      icon: BookOpen,
+      label: GRADE_LABELS[g],
+      to: `/ak${g}`,
+      active: location.pathname === `/ak${g}`,
+    }))),
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {

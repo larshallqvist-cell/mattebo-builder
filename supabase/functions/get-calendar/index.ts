@@ -1,6 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireApprovedUser } from "../_shared/auth.ts";
+import {
+  CALENDAR_CACHE_TTL_MS,
+  CALENDAR_ENV_URL_KEYS,
+  CALENDAR_STALE_TTL_MS,
+  DEFAULT_GRADE,
+  FETCH_RETRY_ATTEMPTS,
+  FETCH_RETRY_BASE_MS,
+  FETCH_RETRY_MULTIPLIER,
+  SUPPORTED_GRADES,
+  type Grade,
+} from "../_shared/config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,19 +19,16 @@ const corsHeaders = {
 };
 
 // ICS URLs per grade - loaded from environment variables for security
-const getCalendarUrls = (): Record<number, string> => {
-  return {
-    6: Deno.env.get('CALENDAR_URL_GRADE_6') || '',
-    7: Deno.env.get('CALENDAR_URL_GRADE_7') || '',
-    8: Deno.env.get('CALENDAR_URL_GRADE_8') || '',
-    9: Deno.env.get('CALENDAR_URL_GRADE_9') || '',
-  };
+const getCalendarUrls = (): Record<Grade, string> => {
+  const urls = {} as Record<Grade, string>;
+  for (const grade of SUPPORTED_GRADES) {
+    urls[grade] = Deno.env.get(CALENDAR_ENV_URL_KEYS[grade]) || "";
+  }
+  return urls;
 };
 
 // Simple in-memory cache
 const cache: Record<number, { data: string; timestamp: number }> = {};
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-const STALE_TTL = 24 * 60 * 60 * 1000; // serve stale up to 24h if upstream fails
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -58,10 +66,10 @@ function urlVariants(url: string): string[] {
   return [...variants];
 }
 
-async function fetchWithRetry(rawUrl: string, attempts = 3): Promise<Response> {
+async function fetchWithRetry(rawUrl: string): Promise<Response> {
   let last: Response | null = null;
   for (const url of urlVariants(rawUrl)) {
-    for (let i = 0; i < attempts; i++) {
+    for (let i = 0; i < FETCH_RETRY_ATTEMPTS; i++) {
       const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; MatteboCalendar/1.0)" } });
       if (res.ok) return res;
       last = res;
@@ -71,7 +79,7 @@ async function fetchWithRetry(rawUrl: string, attempts = 3): Promise<Response> {
         break;
       }
       await res.body?.cancel();
-      await sleep(800 * Math.pow(2, i));
+      await sleep(FETCH_RETRY_BASE_MS * Math.pow(FETCH_RETRY_MULTIPLIER, i));
     }
   }
   return last!;
@@ -88,10 +96,10 @@ serve(async (req) => {
 
     const url = new URL(req.url);
     const gradeParam = url.searchParams.get("grade");
-    const grade = gradeParam ? parseInt(gradeParam, 10) : 9;
+    const grade = gradeParam ? parseInt(gradeParam, 10) : DEFAULT_GRADE;
 
     const ICS_URLS = getCalendarUrls();
-    const icsUrl = ICS_URLS[grade];
+    const icsUrl = ICS_URLS[grade as Grade];
 
     if (!icsUrl) {
       console.error(`Calendar URL not configured for grade ${grade}`);
@@ -103,29 +111,26 @@ serve(async (req) => {
 
     // Check cache (in-memory first, then persistent DB cache)
     let cached = cache[grade] ?? null;
-    if (!cached || Date.now() - cached.timestamp >= CACHE_TTL) {
+    if (!cached || Date.now() - cached.timestamp >= CALENDAR_CACHE_TTL_MS) {
       const dbCached = await readDbCache(grade);
       if (dbCached && (!cached || dbCached.timestamp > cached.timestamp)) {
         cached = dbCached;
         cache[grade] = dbCached;
       }
     }
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      console.log(`Returning cached calendar for grade ${grade}`);
+    if (cached && Date.now() - cached.timestamp < CALENDAR_CACHE_TTL_MS) {
       return new Response(cached.data, {
         headers: { ...corsHeaders, "Content-Type": "text/calendar" },
       });
     }
 
     // Fetch from Google Calendar (no CORS issues from server)
-    console.log(`Fetching fresh calendar for grade ${grade}`);
     const response = await fetchWithRetry(icsUrl!);
 
     if (!response.ok) {
       console.error(`Upstream calendar fetch failed: ${response.status}`);
       // Serve stale cache rather than breaking the page
       if (cached) {
-        console.log(`Serving stale calendar for grade ${grade}`);
         return new Response(cached.data, {
           headers: { ...corsHeaders, "Content-Type": "text/calendar", "X-Cache": "stale" },
         });

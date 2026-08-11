@@ -1,43 +1,13 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { hapticFeedback } from "@/hooks/useHaptic";
+import { CHAPTER_SUBTITLES, CHAPTER_COOKIE_PREFIX, CHAPTER_COOKIE_DAYS, MIN_CHAPTER, MAX_CHAPTER } from "@/config/app";
+
 interface ChapterSelectorProps {
   grade: number;
   onChapterChange?: (chapter: number) => void;
 }
 
-// Chapter subtitles per grade - easily configurable
-const CHAPTER_SUBTITLES: Record<number, Record<number, string>> = {
-  6: {
-    1: "Taluppfattning och huvudräkning",
-    2: "Bråk och procent",
-    3: "Samband, uttryck och ekvationer",
-    4: "Geometri",
-    5: "Med sikte på framtiden"
-  },
-  7: {
-    1: "Taluppfattning och tals användning",
-    2: "Algebra",
-    3: "Geometri",
-    4: "Samband och förändring",
-    5: "Sannolikhet och statistik"
-  },
-  8: {
-    1: "Taluppfattning och tals användning",
-    2: "Samband och förändring",
-    3: "Geometri",
-    4: "Algebra",
-    5: "Sannolikhet och statistik"
-  },
-  9: {
-    1: "Taluppfattning och tals användning",
-    2: "Samband och förändring",
-    3: "Algebra",
-    4: "Geometri",
-    5: "Med sikte på framtiden"
-  }
-};
-const CHAPTER_COOKIE_PREFIX = "mattebo_chapter_grade_";
 const getChapterFromCookie = (grade: number): number => {
   const cookieName = `${CHAPTER_COOKIE_PREFIX}${grade}`;
   const cookies = document.cookie.split(";");
@@ -45,16 +15,15 @@ const getChapterFromCookie = (grade: number): number => {
     const [name, value] = cookie.trim().split("=");
     if (name === cookieName) {
       const parsed = parseInt(value, 10);
-      if (parsed >= 1 && parsed <= 5) return parsed;
+      if (parsed >= MIN_CHAPTER && parsed <= MAX_CHAPTER) return parsed;
     }
   }
   return 1; // Default to chapter 1
 };
 const setChapterCookie = (grade: number, chapter: number) => {
   const cookieName = `${CHAPTER_COOKIE_PREFIX}${grade}`;
-  // Set cookie to expire in 6 weeks (42 days)
   const expires = new Date();
-  expires.setDate(expires.getDate() + 42);
+  expires.setDate(expires.getDate() + CHAPTER_COOKIE_DAYS);
   document.cookie = `${cookieName}=${chapter};expires=${expires.toUTCString()};path=/`;
 };
 const getChapterSubtitle = (grade: number, chapter: number): string => {

@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireApprovedUser } from "../_shared/auth.ts";
+import {
+  MAX_CHAPTER,
+  MIN_CHAPTER,
+  normalizeCategory,
+  SHEET_ID_PATTERN,
+  SHEET_RANGE,
+  SHEET_TAB_NAME,
+  VALID_GRADES_STRINGS,
+} from "../_shared/config.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,18 +40,13 @@ serve(async (req) => {
 
     // Validate sheetId parameter - must be present and match Google Sheet ID format
     if (!sheetId) {
-      console.error('Missing sheetId parameter');
       return new Response(
         JSON.stringify({ error: 'sheetId parameter is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Google Sheet IDs are typically 44 characters, but can vary between 20-100 characters
-    // They contain only alphanumeric characters, hyphens, and underscores
-    const sheetIdPattern = /^[a-zA-Z0-9-_]{20,100}$/;
-    if (!sheetIdPattern.test(sheetId)) {
-      console.error('Invalid sheetId format');
+    if (!SHEET_ID_PATTERN.test(sheetId)) {
       return new Response(
         JSON.stringify({ error: 'Invalid sheetId format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -51,16 +55,13 @@ serve(async (req) => {
 
     // Validate grade parameter - must be present and one of the valid grades
     if (!grade) {
-      console.error('Missing grade parameter');
       return new Response(
         JSON.stringify({ error: 'grade parameter is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const validGrades = ['6', '7', '8', '9'];
-    if (!validGrades.includes(grade)) {
-      console.error('Invalid grade parameter:', grade);
+    if (!VALID_GRADES_STRINGS.includes(grade)) {
       return new Response(
         JSON.stringify({ error: 'Invalid grade parameter. Must be 6, 7, 8, or 9' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -70,10 +71,9 @@ serve(async (req) => {
     // Validate chapter parameter if provided - must be a positive integer within reasonable range
     if (chapter) {
       const chapterNum = parseInt(chapter, 10);
-      if (isNaN(chapterNum) || chapterNum < 1 || chapterNum > 50) {
-        console.error('Invalid chapter parameter:', chapter);
+      if (isNaN(chapterNum) || chapterNum < MIN_CHAPTER || chapterNum > MAX_CHAPTER) {
         return new Response(
-          JSON.stringify({ error: 'Invalid chapter parameter. Must be a number between 1 and 50' }),
+          JSON.stringify({ error: `Invalid chapter parameter. Must be a number between ${MIN_CHAPTER} and ${MAX_CHAPTER}` }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -81,42 +81,25 @@ serve(async (req) => {
 
     const apiKey = Deno.env.get('GOOGLE_SHEETS_API_KEY');
     if (!apiKey) {
-      console.error('GOOGLE_SHEETS_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Category mapping: normalize old category names to new ones
-    const categoryMapping: Record<string, string> = {
-      'Extrauppgifter': 'Övningsuppgifter',
-    };
-    
-    const normalizeCategory = (category: string): string => {
-      return categoryMapping[category] || category;
-    };
+    const tabName = SHEET_TAB_NAME(grade);
 
-    // Use grade-specific tab: Åk6, Åk7, Åk8, Åk9
-    // Grade is already validated to be one of ['6', '7', '8', '9']
-    const tabName = `Åk${grade}`;
-    
-    // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links
-    // This is necessary because Google Sheets rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA
-    // Extended to column E in case URLs are in a 5th column
-    // Extended to column F for optional color field
+    // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links.
+    // Rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA.
+    // Extended to column E/F so URLs/colors copied further across still load.
     // Keep the row range generous so special rows copied further down still load.
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!A2:F5000`)}&includeGridData=true`;
-    
-    console.log(`Fetching from Google Sheets: ${sheetId}, tab: ${tabName}`);
-    
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!${SHEET_RANGE}`)}&includeGridData=true`;
+
     const response = await fetch(sheetsUrl);
-    
+
     if (!response.ok) {
       const errorText = await response.text();
-      // Log detailed error server-side only
-      console.error('Google Sheets API error:', response.status, errorText);
-      
+
       // Check if it's a tab not found error - return user-friendly message
       if (response.status === 400 && errorText.includes('Unable to parse range')) {
         return new Response(
@@ -124,7 +107,7 @@ serve(async (req) => {
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
+
       // Return generic error without exposing internal details
       return new Response(
         JSON.stringify({ error: 'Kunde inte hämta resurser. Försök igen senare.' }),
@@ -133,18 +116,18 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    
+
     // Extract rows from the grid data structure
     const sheet = data.sheets?.[0];
     const gridData = sheet?.data?.[0];
     const rowData = gridData?.rowData || [];
-    
+
     // Convert grid data to simple row arrays with hyperlink info
     interface CellInfo {
       value: string;
       hyperlink?: string;
     }
-    
+
     // Helper to extract YouTube URL from various formats (video ID, short URL, smart chip text)
     const extractYouTubeUrl = (text: string): string => {
       if (!text) return '';
@@ -167,31 +150,12 @@ serve(async (req) => {
       }
       return '';
     };
-    
-    // DEBUG: Log raw cell data for Videolektioner to understand Smart Chip structure
-    const videolektionerRawRows = rowData
-      .filter((row: { values?: Array<unknown> }) => {
-        const cells = row.values || [];
-        const category = (cells[1] as { formattedValue?: string })?.formattedValue || '';
-        return category === 'Videolektioner';
-      })
-      .slice(0, 3);
-    
-    if (videolektionerRawRows.length > 0) {
-      console.log('DEBUG - Raw Videolektioner cell data (column D, first 3):', JSON.stringify(
-        videolektionerRawRows.map((row: { values?: Array<unknown> }) => {
-          const cells = row.values || [];
-          return cells[3]; // Column D
-        })
-      ));
-    }
 
-    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{ 
-      formattedValue?: string; 
-      hyperlink?: string; 
+    const rows: CellInfo[][] = rowData.map((row: { values?: Array<{
+      formattedValue?: string;
+      hyperlink?: string;
       userEnteredValue?: { formulaValue?: string; stringValue?: string };
       textFormatRuns?: Array<{ format?: { link?: { uri?: string } } }>;
-      // Smart Chip / chip runs data (YouTube videos, etc.)
       chipRuns?: Array<{ chip?: { richLinkProperties?: { uri?: string } } }>;
       richValue?: { link?: { uri?: string } };
       effectiveValue?: { stringValue?: string };
@@ -208,9 +172,8 @@ serve(async (req) => {
         // Check stringValue for raw URL that might not be formatted as hyperlink
         const stringValue = cell.userEnteredValue?.stringValue || '';
         const urlFromString = stringValue.startsWith('http') ? stringValue : extractYouTubeUrl(stringValue);
-        
+
         // Check chipRuns for Smart Chip links (YouTube videos, etc.)
-        // Smart Chips in Google Sheets store their URL in chipRuns[].chip.richLinkProperties.uri
         let smartChipUrl = '';
         if (cell.chipRuns && cell.chipRuns.length > 0) {
           for (const run of cell.chipRuns) {
@@ -220,7 +183,7 @@ serve(async (req) => {
             }
           }
         }
-        
+
         // Also check textFormatRuns as fallback
         if (!smartChipUrl && cell.textFormatRuns && cell.textFormatRuns.length > 0) {
           for (const run of cell.textFormatRuns) {
@@ -230,15 +193,15 @@ serve(async (req) => {
             }
           }
         }
-        
+
         // Check richValue for embedded links (alternative Smart Chip format)
         const richValueUrl = cell.richValue?.link?.uri || '';
-        
+
         // Check effectiveValue for raw URL
-        const effectiveUrl = cell.effectiveValue?.stringValue?.startsWith('http') 
-          ? cell.effectiveValue.stringValue 
+        const effectiveUrl = cell.effectiveValue?.stringValue?.startsWith('http')
+          ? cell.effectiveValue.stringValue
           : '';
-        
+
         return {
           value,
           hyperlink: hyperlink || urlFromFormula || smartChipUrl || richValueUrl || effectiveUrl || urlFromString || extractYouTubeUrl(value)
@@ -246,22 +209,8 @@ serve(async (req) => {
       });
     });
 
-    console.log(`Fetched ${rows.length} rows from tab ${tabName}`);
-    
-    // DEBUG: Log first 5 rows to understand structure, including all columns
-    if (rows.length > 0) {
-      console.log('DEBUG - First 5 rows (full):', JSON.stringify(rows.slice(0, 5)));
-      // DEBUG: Log rows with color data (column F)
-      const rowsWithColor = rows.filter((row: CellInfo[]) => row[5]?.value);
-      console.log(`DEBUG - Rows with color in column F: ${rowsWithColor.length}`);
-      if (rowsWithColor.length > 0) {
-        console.log('DEBUG - First 3 rows with color:', JSON.stringify(rowsWithColor.slice(0, 3)));
-      }
-    }
-
     // Helper to extract chapter number from title like "G 1.1 ...", "Z 1.1 ...", or "1.1 ..."
     const extractChapterFromTitle = (title: string): number => {
-      // Match patterns like "G 1.1", "Z 1.1", "1.1", "G 2.3", etc.
       const match = title.match(/(?:[A-Z]\s*)?(\d+)\.\d+/i);
       if (match) {
         return parseInt(match[1], 10);
@@ -282,8 +231,6 @@ serve(async (req) => {
       return v.length > 0 && v.length <= 2 && !isNaN(parseInt(v, 10));
     }).length;
     const firstCellIsNumber = numericFirstCells > 0;
-    
-    console.log(`Detected format: ${firstCellIsNumber ? 'B (Chapter|Category|Title|URL)' : 'A (Title|URL)'}`);
 
     let resources: ResourceRow[];
 
@@ -299,16 +246,16 @@ serve(async (req) => {
           const cellD = row[3];
           const cellE = row[4]; // Check column E as well
           const cellF = row[5]; // Column F for optional color
-          
+
           // Try to get URL from columns D, E, then fall back to column C
           let url = '';
           let title = '';
-          
+
           // Check column E for URL (hyperlink or plain text URL)
           if (cellE) {
             url = cellE.hyperlink || (cellE.value?.startsWith('http') ? cellE.value : '');
           }
-          
+
           // Check column D for URL (hyperlink or plain text URL)
           if (!url && cellD) {
             url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
@@ -317,12 +264,12 @@ serve(async (req) => {
               url = cellD.value.trim();
             }
           }
-          
+
           // If no URL in column D/E, check column C for hyperlink
           if (!url && cellC?.hyperlink) {
             url = cellC.hyperlink;
           }
-          
+
           // If still no URL, check if column C's value itself is a URL or #header
           if (!url && cellC?.value?.startsWith('http')) {
             url = cellC.value;
@@ -337,69 +284,22 @@ serve(async (req) => {
           if (url.startsWith('#')) {
             url = url.trim();
           }
-          
+
           // Title comes from column C's display value, or use URL as title if value is empty
           title = (cellC?.value || '').trim();
           if (!title && url && !url.startsWith('#')) {
-            // If title is empty but we have a URL, use a generic title
             title = 'Länk';
           }
-          
+
           // Get color from column F (supports: hex codes, CSS color names, or Tailwind-style classes)
           const color = (cellF?.value || '').trim() || undefined;
-          
+
           return { chapter, category, title, url, color };
         })
-        // Keep rows with valid http URLs OR #header markers (for grouping headers)
-        // Keep rows with valid http URLs, or command rows (#divider/#spacer/#header/#note)
-        // Command rows are allowed to have an empty title.
         .filter((r: ResourceRow) =>
           !isNaN(r.chapter) &&
           ((r.url.startsWith('http') && r.title) || r.url.startsWith('#')),
         );
-      
-      // DEBUG: Log categories found and sample of resources without URLs
-      const categoriesFound = [...new Set(resources.map(r => r.category))];
-      console.log(`DEBUG - Categories found: ${JSON.stringify(categoriesFound)}`);
-      console.log(`DEBUG - Valid resources found: ${resources.length} out of ${rows.length} rows`);
-      
-      // DEBUG: Log rows that were filtered out due to missing URLs (first 5)
-      const filteredOut = rows
-        .filter((row: CellInfo[]) => row.length >= 3)
-        .map((row: CellInfo[]) => {
-          const chapter = parseInt(row[0]?.value || '', 10);
-          const rawCategory = (row[1]?.value || '').trim() || 'Övrigt';
-          const category = normalizeCategory(rawCategory);
-          const cellC = row[2];
-          const cellD = row[3];
-          const cellE = row[4];
-          let url = '';
-          if (cellE) {
-            url = cellE.hyperlink || (cellE.value?.startsWith('http') ? cellE.value : '');
-          }
-          if (!url && cellD) {
-            url = cellD.hyperlink || (cellD.value?.startsWith('http') ? cellD.value : '');
-          }
-          if (!url && cellC?.hyperlink) {
-            url = cellC.hyperlink;
-          }
-          return { 
-            chapter, 
-            category, 
-            title: cellC?.value || '', 
-            url, 
-            cellCHyperlink: cellC?.hyperlink || '',
-            cellDValue: cellD?.value || '',
-            cellDHyperlink: cellD?.hyperlink || '',
-            cellEValue: cellE?.value || '',
-            cellEHyperlink: cellE?.hyperlink || ''
-          };
-        })
-        .filter(r => !r.url && r.category === 'Videolektioner');
-      
-      if (filteredOut.length > 0) {
-        console.log(`DEBUG - Videolektioner rows missing URLs (first 5): ${JSON.stringify(filteredOut.slice(0, 5))}`);
-      }
     } else {
       // Format A: Title (with chapter embedded) | URL
       resources = rows
@@ -415,17 +315,13 @@ serve(async (req) => {
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
     }
 
-    console.log(`Parsed ${resources.length} valid resources`);
-
     // Filter by chapter if provided
     let filtered = resources;
-    
+
     if (chapter) {
       const chapterNum = parseInt(chapter, 10);
       filtered = filtered.filter(r => r.chapter === chapterNum);
     }
-
-    console.log(`Returning ${filtered.length} filtered resources`);
 
     // Group by category
     const grouped: Record<string, { title: string; url: string; color?: string }[]> = {};
@@ -442,8 +338,6 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    // Log detailed error server-side only
-    console.error('Error in get-resources function:', error);
     // Return generic error without exposing internal details
     return new Response(
       JSON.stringify({ error: 'Ett fel uppstod. Försök igen senare.' }),
