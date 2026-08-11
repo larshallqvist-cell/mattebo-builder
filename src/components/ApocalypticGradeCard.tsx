@@ -11,7 +11,7 @@ interface ApocalypticGradeCardProps {
 
 
 const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) => {
-  const colors = gradeColors[grade];
+  const colors = GRADE_CARD_COLORS[grade as keyof typeof GRADE_CARD_COLORS];
   const floatClass = delay % 2 === 0 ? "animate-float" : "animate-float-delayed";
 
   return (
