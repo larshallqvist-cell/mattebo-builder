@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import CalculatorModal from "./CalculatorModal";
 import { hapticFeedback } from "@/hooks/useHaptic";
+import { DEFAULT_GRADE, GRADE_LABELS, GRADE_NEON_COLORS, SUPPORTED_GRADES } from "@/config/app";
+
 
 interface MobileBottomNavProps {
   grade?: number;
