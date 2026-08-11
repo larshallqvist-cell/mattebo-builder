@@ -94,9 +94,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc pl-5 space-y-0.5 my-1 font-body font-normal">
+          <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
-              <li key={i} className="text-sm leading-tight">{renderInlineHtml(item)}</li>
+              <li key={i} className="relative pl-4 text-sm leading-snug">
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.8)]" />
+                {renderInlineHtml(item)}
+              </li>
             ))}
           </ul>
         );
@@ -128,11 +131,23 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       const trimmed = part.trim();
       if (trimmed) {
         flushBulletList();
-        elements.push(
-          <p key={`p-${i}`} className="text-sm my-0.5 font-body font-normal leading-tight">
-            {renderInlineHtml(trimmed)}
-          </p>
-        );
+        const isHeading = /^<(b|strong)(\s[^>]*)?>[\s\S]*<\/\1>$/i.test(trimmed);
+        if (isHeading) {
+          elements.push(
+            <h4
+              key={`h-${i}`}
+              className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-primary border-b border-primary/25 pb-0.5"
+            >
+              {renderInlineHtml(trimmed.replace(/<\/?(?:b|strong)[^>]*>/gi, ""))}
+            </h4>
+          );
+        } else {
+          elements.push(
+            <p key={`p-${i}`} className="text-sm my-1 font-body font-normal leading-snug">
+              {renderInlineHtml(trimmed)}
+            </p>
+          );
+        }
       }
     });
     
