@@ -1,16 +1,11 @@
-/**
- * Filnamn: ResourceAccordion.tsx
- * Timestamp: 2026-01-15 20:15
- * Beskrivning: Kraftfull länkhantering som tvingar webbläsaren att lämna
- * applikationen för att undvika 404-fel i inbäddade miljöer.
- */
-
 import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link } from "lucide-react";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { ResourceSkeleton } from "@/components/skeletons";
 import { supabase } from "@/integrations/supabase/client";
+import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY } from "@/config/app";
+
 
 interface ResourceLink {
   title: string;
