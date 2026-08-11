@@ -90,9 +90,7 @@ const SheetConfig = () => {
             <p className="font-medium text-foreground mb-2">Sheet-struktur:</p>
             <p className="text-xs text-muted-foreground mb-2">
               Skapa en flik per årskurs:{" "}
-              {SUPPORTED_GRADES.map((g) => (
-                <strong key={g}>Åk{g}</strong>
-              )).reduce((prev, curr) => [prev, ", ", curr] as unknown as React.ReactNode)}
+              {SUPPORTED_GRADES.map((g) => `Åk${g}`).join(", ")}
             </p>
             <ul className="text-muted-foreground space-y-1 text-xs">
               <li><strong>Kolumn A:</strong> Kapitel (1-5)</li>
