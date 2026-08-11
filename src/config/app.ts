@@ -82,3 +82,5 @@ export const CHAPTER_COOKIE_PREFIX = "mattebo_chapter_grade_";
 export const CHAPTER_COOKIE_DAYS = 42;
 export const MIN_CHAPTER = 1;
 export const MAX_CHAPTER = 5;
+export const DEFAULT_GRADE = 9;
+
