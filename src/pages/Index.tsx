@@ -5,8 +5,8 @@ import ApocalypticNav from "@/components/ApocalypticNav";
 import ApocalypticFooter from "@/components/ApocalypticFooter";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import LunchMenu from "@/components/LunchMenu";
+import { SUPPORTED_GRADES } from "@/config/app";
 
-const grades = [6, 7, 8, 9];
 
 const Index = () => {
   return (
@@ -53,7 +53,7 @@ const Index = () => {
 
           {/* Grade Cards Grid - optimized for mobile touch */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 justify-items-center px-2">
-            {grades.map((grade, index) => (
+            {SUPPORTED_GRADES.map((grade, index) => (
               <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
             ))}
           </div>
