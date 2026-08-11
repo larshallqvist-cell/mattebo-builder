@@ -66,12 +66,9 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef<Map<string, ResourceCategory[]>>(new Map());
 
-  // Standard Sheet-ID för resurser (kan överskrivas via SheetConfig)
-  const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
-
   const fetchResources = useCallback(async () => {
     const cacheKey = `${grade}-${chapter}`;
-    
+
     // Return cached data immediately if available
     if (cacheRef.current.has(cacheKey)) {
       setResources(cacheRef.current.get(cacheKey)!);
@@ -84,7 +81,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
     }
     abortControllerRef.current = new AbortController();
 
-    const sheetId = localStorage.getItem("mattebo_sheet_id") || DEFAULT_SHEET_ID;
+    const sheetId = localStorage.getItem(SHEET_STORAGE_KEY) || DEFAULT_SHEET_ID;
     setLoading(true);
     
     try {

@@ -12,18 +12,18 @@ const SheetConfig = () => {
 
   useEffect(() => {
     // Visa det sparade värdet eller default
-    const stored = localStorage.getItem('mattebo_sheet_id');
+    const stored = localStorage.getItem(SHEET_STORAGE_KEY);
     setSheetId(stored || DEFAULT_SHEET_ID);
   }, []);
 
   const handleSave = () => {
     const trimmedId = sheetId.trim();
     if (trimmedId && trimmedId !== DEFAULT_SHEET_ID) {
-      localStorage.setItem('mattebo_sheet_id', trimmedId);
+      localStorage.setItem(SHEET_STORAGE_KEY, trimmedId);
       toast.success('Sheet-ID sparat! Ladda om sidan för att se ändringarna.');
     } else {
       // Om samma som default, ta bort från localStorage
-      localStorage.removeItem('mattebo_sheet_id');
+      localStorage.removeItem(SHEET_STORAGE_KEY);
       toast.info('Använder standard Sheet-ID.');
     }
     setIsOpen(false);
@@ -39,7 +39,7 @@ const SheetConfig = () => {
     setSheetId(extractSheetId(value));
   };
 
-  const isUsingDefault = !localStorage.getItem('mattebo_sheet_id');
+  const isUsingDefault = !localStorage.getItem(SHEET_STORAGE_KEY);
 
   if (!isOpen) {
     return (
