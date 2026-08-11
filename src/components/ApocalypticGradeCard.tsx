@@ -2,34 +2,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import SparkParticles from "./SparkParticles";
+import { GRADE_CARD_COLORS } from "@/config/app";
 
 interface ApocalypticGradeCardProps {
   grade: number;
   delay?: number;
 }
 
-const gradeColors: Record<number, { neon: string; glow: string; border: string }> = {
-  6: { 
-    neon: "hsl(var(--neon-turquoise))", 
-    glow: "0 0 20px hsl(var(--neon-turquoise) / 0.6), 0 0 40px hsl(var(--neon-turquoise) / 0.4), 0 0 60px hsl(var(--neon-turquoise) / 0.2)",
-    border: "hsl(var(--neon-turquoise) / 0.5)"
-  },
-  7: { 
-    neon: "hsl(var(--neon-copper))", 
-    glow: "0 0 20px hsl(var(--neon-copper) / 0.6), 0 0 40px hsl(var(--neon-copper) / 0.4), 0 0 60px hsl(var(--neon-copper) / 0.2)",
-    border: "hsl(var(--neon-copper) / 0.5)"
-  },
-  8: { 
-    neon: "hsl(var(--neon-blue))", 
-    glow: "0 0 20px hsl(var(--neon-blue) / 0.6), 0 0 40px hsl(var(--neon-blue) / 0.4), 0 0 60px hsl(var(--neon-blue) / 0.2)",
-    border: "hsl(var(--neon-blue) / 0.5)"
-  },
-  9: { 
-    neon: "hsl(var(--neon-violet))", 
-    glow: "0 0 20px hsl(var(--neon-violet) / 0.6), 0 0 40px hsl(var(--neon-violet) / 0.4), 0 0 60px hsl(var(--neon-violet) / 0.2)",
-    border: "hsl(var(--neon-violet) / 0.5)"
-  },
-};
 
 const ApocalypticGradeCard = ({ grade, delay = 0 }: ApocalypticGradeCardProps) => {
   const colors = gradeColors[grade];
