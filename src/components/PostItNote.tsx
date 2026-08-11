@@ -222,11 +222,16 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <a
             key={`a-${keyIndex++}`}
             href={finalHref}
-            className="text-primary underline hover:text-primary/80"
+            onClick={(e) => {
+              e.preventDefault();
+              window.open(finalHref, "_blank", "noopener,noreferrer");
+            }}
+            className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
             target="_blank"
             rel="noopener noreferrer"
           >
             {cleanContent}
+            <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
           </a>
         );
       }
