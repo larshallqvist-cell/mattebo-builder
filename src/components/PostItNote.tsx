@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, CalendarDays, Clock, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PostItNoteProps {
