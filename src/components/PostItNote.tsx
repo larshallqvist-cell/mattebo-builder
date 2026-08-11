@@ -272,6 +272,36 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     }
     
     // Fallback for plain text/markdown content
+    const renderPlainInline = (line: string): (string | JSX.Element)[] => {
+      // **bold** and bare URLs
+      const parts = line.split(/(\*\*[^*]+\*\*|https?:\/\/\S+|www\.\S+)/g);
+      return parts.filter(Boolean).map((part, i) => {
+        if (/^\*\*[^*]+\*\*$/.test(part)) {
+          return <strong key={i}>{part.slice(2, -2)}</strong>;
+        }
+        if (/^(https?:\/\/|www\.)/i.test(part)) {
+          const href = part.startsWith("www.") ? `https://${part}` : part;
+          return (
+            <a
+              key={i}
+              href={href}
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(href, "_blank", "noopener,noreferrer");
+              }}
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {part.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+              <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
+            </a>
+          );
+        }
+        return part;
+      });
+    };
+
     const lines = text.split('\n');
     const elements: JSX.Element[] = [];
     let bulletItems: string[] = [];
@@ -279,9 +309,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc pl-5 space-y-0.5 my-1 font-body font-normal">
+          <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
-              <li key={i} className="text-sm leading-tight">{item}</li>
+              <li key={i} className="relative pl-4 text-sm leading-snug">
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.8)]" />
+                {renderPlainInline(item)}
+              </li>
             ))}
           </ul>
         );
@@ -297,11 +330,25 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       } else {
         flushBulletList();
         if (trimmed) {
-          elements.push(
-            <p key={`p-${i}`} className="text-sm my-0.5 font-body font-normal leading-tight">
-              {trimmed}
-            </p>
-          );
+          const isHeading =
+            /^\*\*[^*]+\*\*$/.test(trimmed) ||
+            (trimmed.endsWith(":") && trimmed.length < 40);
+          if (isHeading) {
+            elements.push(
+              <h4
+                key={`h-${i}`}
+                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-primary border-b border-primary/25 pb-0.5"
+              >
+                {trimmed.replace(/\*\*/g, "").replace(/:$/, "")}
+              </h4>
+            );
+          } else {
+            elements.push(
+              <p key={`p-${i}`} className="text-sm my-1 font-body font-normal leading-snug">
+                {renderPlainInline(trimmed)}
+              </p>
+            );
+          }
         }
       }
     });
