@@ -1,65 +1,26 @@
-Prestandaförbättringar för Mattebo-appen
+# Versionsnummer i script och app
 
-Mål
-Göra appen snabbare att ladda, flera årskurssidor att växla mellan, och animationer att rendera — utan att ändra utseende eller funktioner.
+Ett tydligt versionsnummer med datum på båda ställena, så det alltid går att se vilken version som ligger i Google Sheets respektive i webbappen.
 
-Bakgrund: vad som är långsamt idag
-- Kalender-ICS-parsning sker i webbläsaren vid varje laddning. Varje gång en användare öppnar Åk 6–9 parsas iCal-strängen, veckonummer räknas och dubbletter slås ihop på nytt.
-- Resource-accordion hämtar rå Google Sheets-grid-data (`includeGridData=true`) varje gång och bearbetar 5000 rader i klienten.
-- Tung animation: `ChalkDust` skapar nya Framer Motion-partiklar vid varje klick, `CalendarEffects` har 5–12 animerade element per händelse, och `LessonCalendar` skjuter upp 39 animerade partiklar varje gång en vecka vecklas ut.
-- Bara tre komponenter är lazy-laddade. Stora bibliotek som `recharts`, `embla-carousel-react` och hela shadcn/ui-biblioteket riskerar att hamna i initiala bundeln.
-- `QueryClient` skapas med standardinställningar, ingen global staleTime, vilket ger onödiga nätverksanrop.
-- `tailwind.config.lov.json` är 205 kB, vilket kan försämra byggtiden och dev-serverns svarstid.
+Format: `1.2.0 (2026-08-11)` — semver som jag höjer manuellt vid varje ändring, plus datumet för ändringen.
 
-Plan
+## Apps Script-filen
 
-1. Flytta kalenderparsningen till backend
-   - Edge-funktionen `get-calendar` ska returnera färdig JSON med redan expanderade, deduplicerade och sorterade händelser (istället för rå ICS).
-   - Cachen i `public.calendar_cache` sparar redan parsad JSON, så framtida anrop returnerar direkt från cache.
-   - Frontend: `useCalendarEvents` tar bort `ICAL.parse`, `expandRecurringEvent` och `deduplicateCalendarEvents` — den får bara visa och filtrera datum.
+- En konstant överst i filen: `const VERSION = "1.2.0"; const VERSION_DATUM = "2026-08-11";`
+- Menyn "Mattebo" får en icke-klickbar rad längst ned som visar `v1.2.0 (2026-08-11)`.
+- Ett nytt menyval "Om / version" som visar en dialog med version, datum och kort ändringslogg.
+- Versionen loggas också vid Generera/Synka/Rensa, så körningsloggen visar vilken version som kördes.
 
-2. Sätt aggressiv cachning med React Query
-   - Konfigurera global `staleTime` och `gcTime` på QueryClient (t.ex. 10 minuter för kalender, 30 minuter för resurser).
-   - Dela kalenderdata mellan sidorna via `queryKey` så att Åk 6–9 inte hämtar separat mer än nödvändigt.
-   - `useCalendarEvents` ersätts med `useQuery`.
+## Webbappen
 
-3. Tunna ut animationerna
-   - `ChalkDust`: minska antalet partiklar från 8 till 4 per klick, och använd ren CSS-animation istället för Framer Motion där det går.
-   - `CalendarEffects`: begränsa antalet rörliga element (`fire` 8→4, `smoke` 5→3, `stars` 12→6, `sparkle` 8→4) och föredra CSS keyframes.
-   - `LessonCalendar.SparkleExplosion`: minska 25+8+6 till 12+4+3, och stäng av helt på enheter med `prefers-reduced-motion`.
+- Versionen samlas på ett ställe i koden (en liten `src/lib/version.ts` med nummer och datum).
+- Sidfoten visar `v1.2.0 · 2026-08-11` diskret bredvid copyright-raden, i samma stil som övrig sidfotstext (inga hårdkodade färger, befintliga tokens används).
+- `package.json` sätts till samma version, så alla tre källor stämmer överens.
 
-4. Lazy-ladda mer
-   - Lägg `Calculator`, `WebRadio`, `LessonTimer`, `LunchMenu`, `CalendarEffects` och stora shadcn-komponenter (`sidebar`, `chart`, `menubar`) bakom `React.lazy()` och `Suspense`.
-   - Dela upp routes med `React.lazy()` i `App.tsx` så att startsidan inte laddar allt.
+## Rutin framåt
 
-5. Memoera och undvik onödiga omberäkningar
-   - `LessonCalendar`: `weekGroups` och `defaultOpenWeek` redan memoiserade, men accordion-items och `CalendarEffect` ska wrappas med `React.memo` för att inte renderas om när inget ändras.
-   - `PostItNote`, `ResourceAccordion` och `ApocalypticGradePage` granskas och memoeras där det behövs.
+Vid varje ändring jag gör åt dig höjer jag versionen (patch för småfix, minor för ny funktion) och uppdaterar datumet på alla ställen samtidigt.
 
-6. Optimera resurshämtningen
-   - `get-resources` kan minska sitt område beroende på vilket kapitel som efterfrågas, eller spara en förenklad tabellcache (`includeGridData=false` är tyvärr nödvändig för hyperlänkar, så vi cachar istället).
-   - Lägg till en 10-minuters backend-cache för resurser i Supabase eller i funktionsminnet.
-   - Möjligtvis indexera rader i kalkylbladet så att endast aktuellt kapitel hämtas.
+## Teknisk detalj
 
-7. Mät innan och efter
-   - Kör en build och kontrollera att den fortfarande går igenom.
-   - Använd Chrome DevTools Performance-flik och Lighthouse för att jämföra TTI, LCP och JS-executionstid.
-   - Mät edge-funktionernas svarstid med `curl`/Supabase-loggar.
-
-Uteslutningar
-- Ingen ändring av visuell design eller UX.
-- Ingen borttagning av funktioner (bara färre partiklar och snabbare data).
-- Ingen ändring av Google-kalendrarna eller kalkylbladets format.
-
-Tekniska detaljer
-- Backend: Deno + `ical.js`, JSON-svar istället för `text/calendar`.
-- Frontend: `React.lazy`, `React.memo`, `useQuery` från `@tanstack/react-query`, preferens för CSS keyframes över Framer Motion-partiklar.
-- Cache: `staleTime`/`gcTime` på QueryClient; backend-cache i `public.calendar_cache` och eventuellt en ny `public.resource_cache`.
-
-Ordning
-1. Backend-kalender: JSON-svar + cache.
-2. Frontend: React Query + förenklad `useCalendarEvents`.
-3. Animationer: minska partiklar och byt till CSS.
-4. Lazy loading av stora komponenter/routes.
-5. Memoization och resurscache.
-6. Mätning och justering.
+Version och datum definieras en gång per artefakt (`VERSION`-konstanter i .gs-filen, `APP_VERSION`/`APP_VERSION_DATE` i `src/lib/version.ts`) och importeras där de visas — ingen dubblering i komponenterna.
