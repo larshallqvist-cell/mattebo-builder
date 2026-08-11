@@ -425,6 +425,33 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         </div>
       )}
       
+      {/* Lesson header */}
+      {currentEvent && (
+        <div className="mb-2 pb-2 border-b border-primary/25">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="font-orbitron text-sm font-bold text-primary leading-tight">
+              {currentEvent.title}
+            </span>
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-foreground/70">
+            <span className="inline-flex items-center gap-1">
+              <CalendarDays className="h-3 w-3 text-primary/80" />
+              {formatEventDate(currentEvent.date)}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3 text-primary/80" />
+              {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
+            </span>
+            {currentEvent.location && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-primary/80" />
+                {currentEvent.location}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Content - no scroll on mobile for natural expansion */}
       {isMobile ? (
         <div className="space-y-0.5 text-foreground/90">
