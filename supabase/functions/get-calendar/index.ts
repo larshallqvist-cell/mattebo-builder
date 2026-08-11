@@ -28,7 +28,7 @@ const getCalendarUrls = (): Record<Grade, string> => {
 };
 
 // Simple in-memory cache
-const cache: Record<number, { data: string; timestamp: number }> {};
+const cache: Record<number, { data: string; timestamp: number }> = {};
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
