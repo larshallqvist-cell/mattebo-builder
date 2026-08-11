@@ -94,7 +94,39 @@ const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): Calend
   return occurrences;
 };
 
-const parseICSData = (icsData: string): CalendarEvent[] => {
+const eventMinute = (date: Date): number => Math.round(date.getTime() / 60000);
+
+const eventCompleteness = (event: CalendarEvent): number =>
+  (event.location ? 4 : 0) + (event.description ? 2 : 0) + (event.effect ? 1 : 0);
+
+export const deduplicateCalendarEvents = (events: CalendarEvent[]): CalendarEvent[] => {
+  const uniqueEvents = new Map<string, CalendarEvent>();
+
+  events.forEach((event) => {
+    const normalizedTitle = event.title.trim().toLocaleLowerCase("sv-SE");
+    const key = `${normalizedTitle}|${eventMinute(event.date)}|${eventMinute(event.endDate)}`;
+    const existing = uniqueEvents.get(key);
+
+    if (!existing) {
+      uniqueEvents.set(key, event);
+      return;
+    }
+
+    const preferred = eventCompleteness(event) > eventCompleteness(existing) ? event : existing;
+    const fallback = preferred === event ? existing : event;
+
+    uniqueEvents.set(key, {
+      ...preferred,
+      location: preferred.location || fallback.location,
+      description: preferred.description || fallback.description,
+      effect: preferred.effect || fallback.effect,
+    });
+  });
+
+  return Array.from(uniqueEvents.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+};
+
+export const parseICSData = (icsData: string): CalendarEvent[] => {
   try {
     const jcalData = ICAL.parse(icsData);
     const vcalendar = new ICAL.Component(jcalData);
@@ -141,10 +173,12 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
         // Filtrera bort instanser som har en override
         expanded.forEach(e => {
           // Kolla om det finns en override för denna instans
-          const overrideKey = Array.from(recurrenceOverrides.keys()).find(key => 
-            key.startsWith(event.uid) && 
-            Math.abs(recurrenceOverrides.get(key)!.date.getTime() - e.date.getTime()) < 60000
-          );
+          const overrideKey = Array.from(recurrenceOverrides.keys()).find(key => {
+            const override = recurrenceOverrides.get(key);
+            return key.startsWith(event.uid) &&
+              override !== undefined &&
+              Math.abs(override.date.getTime() - e.date.getTime()) < 60000;
+          });
           if (!overrideKey) {
             allEvents.push(e);
           }
@@ -172,7 +206,7 @@ const parseICSData = (icsData: string): CalendarEvent[] => {
       allEvents.push(override);
     });
     
-    return allEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return deduplicateCalendarEvents(allEvents);
   } catch (error) {
     console.error("Error parsing ICS data:", error);
     return [];
