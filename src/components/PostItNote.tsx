@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, ExternalLink, CalendarDays, Clock, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Clock, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 
 interface PostItNoteProps {
   grade: number;
@@ -428,27 +429,18 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Lesson header */}
       {currentEvent && (
         <div className="mb-2 pb-2 border-b border-primary/25">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="font-orbitron text-sm font-bold text-primary leading-tight">
-              {currentEvent.title}
-            </span>
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.75rem] text-foreground/80">
-            <span className="inline-flex items-center gap-1 underline underline-offset-4 decoration-primary/60">
-              <CalendarDays className="h-3 w-3 text-primary/80" />
-              {formatEventDate(currentEvent.date)}
-              {currentEvent.location && (
-                <>
-                  <span className="mx-0.5">·</span>
-                  <MapPin className="h-3 w-3 text-primary/80" />
-                  {currentEvent.location}
-                </>
-              )}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[0.7rem] text-foreground/70">
-              <Clock className="h-3 w-3 text-primary/80" />
-              {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
-            </span>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.75rem] text-foreground/80 underline underline-offset-4 decoration-primary/60">
+            <Clock className="h-3 w-3 text-primary/80" />
+            {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
+            <span className="mx-0.5">·</span>
+            {Math.round((currentEvent.endDate.getTime() - currentEvent.date.getTime()) / 60000)} min
+            {currentEvent.location && (
+              <>
+                <span className="mx-0.5">·</span>
+                <MapPin className="h-3 w-3 text-primary/80" />
+                {currentEvent.location}
+              </>
+            )}
           </div>
         </div>
       )}
