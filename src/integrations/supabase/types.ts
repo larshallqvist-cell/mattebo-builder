@@ -95,6 +95,33 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_plans: {
+        Row: {
+          content: string
+          created_at: string
+          grade: number
+          id: string
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          grade: number
+          id?: string
+          starts_at: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          grade?: number
+          id?: string
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lunch_menu: {
         Row: {
           created_at: string
