@@ -434,8 +434,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             <span className="mx-0.5">·</span>
             <Clock className="h-3 w-3 text-primary/80" />
             {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
-            <span className="mx-0.5">·</span>
-            {Math.round((currentEvent.endDate.getTime() - currentEvent.date.getTime()) / 60000)} min
             {currentEvent.location && (
               <>
                 <span className="mx-0.5">·</span>
