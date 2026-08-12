@@ -35,7 +35,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   // Format date for display
   const formatEventDate = (date: Date) => {
     return date.toLocaleDateString("sv-SE", { 
-      weekday: "short", 
+      weekday: "long", 
       day: "numeric", 
       month: "short" 
     });
