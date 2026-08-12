@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+import { useLessonPlans, lessonPlanKey } from "@/hooks/useLessonPlans";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
@@ -12,6 +13,7 @@ interface PostItNoteProps {
 
 const PostItNote = ({ grade }: PostItNoteProps) => {
   const { upcomingEvents, loading } = useCalendarEvents(grade);
+  const { plans } = useLessonPlans(grade);
   const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
   const isMobile = useIsMobile();
@@ -274,11 +276,34 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     
     // Fallback for plain text/markdown content
     const renderPlainInline = (line: string): (string | JSX.Element)[] => {
-      // **bold** and bare URLs
-      const parts = line.split(/(\*\*[^*]+\*\*|https?:\/\/\S+|www\.\S+)/g);
+      // **bold**, [text](url) and bare URLs
+      const parts = line.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\((?:https?:\/\/|www\.|mailto:)[^)\s]+\)|https?:\/\/\S+|www\.\S+)/g);
       return parts.filter(Boolean).map((part, i) => {
         if (/^\*\*[^*]+\*\*$/.test(part)) {
           return <strong key={i}>{part.slice(2, -2)}</strong>;
+        }
+        const linkMatch = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+        if (linkMatch) {
+          const label = linkMatch[1];
+          const raw = linkMatch[2];
+          const href = raw.startsWith("www.") ? `https://${raw}` : raw;
+          if (!/^(https?:|mailto:)/i.test(href)) return label;
+          return (
+            <a
+              key={i}
+              href={href}
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(href, "_blank", "noopener,noreferrer");
+              }}
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {label}
+              <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
+            </a>
+          );
         }
         if (/^(https?:\/\/|www\.)/i.test(part)) {
           const href = part.startsWith("www.") ? `https://${part}` : part;
@@ -358,7 +383,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return elements;
   };
 
-  const content = currentEvent?.description || "";
+  const planContent = currentEvent ? plans[lessonPlanKey(currentEvent.date)] : undefined;
+  const content = (planContent && planContent.trim()) || currentEvent?.description || "";
   
   if (loading) {
     return <PostItSkeleton />;
