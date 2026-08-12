@@ -13,7 +13,9 @@ export const useLessonPlans = (grade: number) => {
     const { data, error } = await supabase
       .from("lesson_plans")
       .select("starts_at, content")
-      .eq("grade", grade);
+      .eq("grade", grade)
+      // Cache-buster: iOS Safari happily serves stale GET responses otherwise.
+      .neq("id", crypto.randomUUID());
 
     if (!error && data) {
       const map: Record<string, string> = {};
@@ -36,6 +38,8 @@ export const useLessonPlans = (grade: number) => {
     };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
+    // Fallback for iOS/PWA where realtime websockets can be dropped in the background.
+    const poll = window.setInterval(onFocus, 60_000);
 
     const channel = supabase
       .channel(`lesson_plans_${grade}`)
@@ -47,6 +51,7 @@ export const useLessonPlans = (grade: number) => {
       .subscribe();
 
     return () => {
+      window.clearInterval(poll);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
       supabase.removeChannel(channel);
