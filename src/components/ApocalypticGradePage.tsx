@@ -39,20 +39,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const glowColor = GRADE_NEON_COLORS[grade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--neon-copper))";
 
 
-  // Format short weekday in Swedish
-  const getShortSwedishWeekday = (date: Date) => {
-    const days = ['sö', 'må', 'ti', 'on', 'to', 'fr', 'lö'];
-    return days[date.getDay()];
-  };
-  
-  // Format time as HH.MM
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
-  };
-  
-  const nextLessonTitle = nextEvent 
-    ? `Nästa lektion: ${getShortSwedishWeekday(nextEvent.date)} ${formatTime(nextEvent.date)}`
-    : "Nästa lektion";
+  const nextLessonTitle = "NÄSTA LEKTION";
+
 
   return (
     <LoginGate>
