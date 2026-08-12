@@ -29,6 +29,30 @@ export const useLessonPlans = (grade: number) => {
     load();
   }, [load]);
 
+  // Keep plans fresh: refetch when the tab regains focus and when rows change
+  useEffect(() => {
+    const onFocus = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+
+    const channel = supabase
+      .channel(`lesson_plans_${grade}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "lesson_plans", filter: `grade=eq.${grade}` },
+        () => load(),
+      )
+      .subscribe();
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+      supabase.removeChannel(channel);
+    };
+  }, [grade, load]);
+
   const savePlan = useCallback(
     async (startsAt: Date, content: string) => {
       const { error } = await supabase
