@@ -33,6 +33,7 @@ const LessonPlanEditor = () => {
   const [linkText, setLinkText] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const upcoming = useMemo(() => {
     const now = new Date();
@@ -53,6 +54,11 @@ const LessonPlanEditor = () => {
     setSelectedKey(key);
     const event = upcoming.find((e) => lessonPlanKey(e.date) === key);
     setDraft(plans[key] ?? event?.description ?? "");
+    // On narrow screens the editor sits below the list — bring it into view.
+    requestAnimationFrame(() => {
+      editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      textareaRef.current?.focus();
+    });
   };
 
   const insertAtCursor = (before: string, after = "", placeholder = "") => {
@@ -127,7 +133,7 @@ const LessonPlanEditor = () => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-[minmax(0,18rem)_1fr]">
-          <div className="max-h-[26rem] overflow-y-auto rounded-md border border-border divide-y divide-border">
+          <div className="max-h-[14rem] md:max-h-[26rem] overflow-y-auto rounded-md border border-border divide-y divide-border">
             {eventsLoading ? (
               <p className="p-3 text-sm text-muted-foreground">Laddar lektioner…</p>
             ) : upcoming.length === 0 ? (
@@ -152,7 +158,7 @@ const LessonPlanEditor = () => {
             )}
           </div>
 
-          <div className="space-y-3">
+          <div ref={editorRef} className="space-y-3 scroll-mt-24">
             {selectedEvent ? (
               <>
                 <p className="text-sm font-semibold text-foreground">
