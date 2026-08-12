@@ -433,21 +433,22 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               {currentEvent.title}
             </span>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-foreground/70">
-            <span className="inline-flex items-center gap-1">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.75rem] text-foreground/80">
+            <span className="inline-flex items-center gap-1 underline underline-offset-4 decoration-primary/60">
               <CalendarDays className="h-3 w-3 text-primary/80" />
               {formatEventDate(currentEvent.date)}
+              {currentEvent.location && (
+                <>
+                  <span className="mx-0.5">·</span>
+                  <MapPin className="h-3 w-3 text-primary/80" />
+                  {currentEvent.location}
+                </>
+              )}
             </span>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 text-[0.7rem] text-foreground/70">
               <Clock className="h-3 w-3 text-primary/80" />
               {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
             </span>
-            {currentEvent.location && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-primary/80" />
-                {currentEvent.location}
-              </span>
-            )}
           </div>
         </div>
       )}
