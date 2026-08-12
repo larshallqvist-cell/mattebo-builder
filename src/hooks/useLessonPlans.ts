@@ -13,7 +13,9 @@ export const useLessonPlans = (grade: number) => {
     const { data, error } = await supabase
       .from("lesson_plans")
       .select("starts_at, content")
-      .eq("grade", grade);
+      .eq("grade", grade)
+      // Cache-buster: iOS Safari happily serves stale GET responses otherwise.
+      .neq("id", crypto.randomUUID());
 
     if (!error && data) {
       const map: Record<string, string> = {};
