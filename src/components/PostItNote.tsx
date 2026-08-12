@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, ExternalLink, Clock, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 
@@ -429,18 +429,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Lesson header */}
       {currentEvent && (
         <div className="mb-2 pb-2 border-b border-primary/25">
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.75rem] text-foreground/80 underline underline-offset-4 decoration-primary/60">
-            <span className="font-medium capitalize">{formatEventDate(currentEvent.date)}</span>
-            <span className="mx-0.5">·</span>
-            <Clock className="h-3 w-3 text-primary/80" />
-            {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
-            {currentEvent.location && (
-              <>
-                <span className="mx-0.5">·</span>
-                <MapPin className="h-3 w-3 text-primary/80" />
-                {currentEvent.location}
-              </>
-            )}
+          <div className="text-sm font-semibold text-foreground underline underline-offset-4 decoration-primary/60">
+            {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
+            {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
         </div>
       )}
