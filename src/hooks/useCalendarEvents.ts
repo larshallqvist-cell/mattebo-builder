@@ -6,6 +6,8 @@ export type CalendarEffectType = "fire" | "smoke" | "shimmer" | "stars" | "glow"
 
 export interface CalendarEvent {
   id: string;
+  /** Stable calendar UID (per occurrence) — survives schedule changes. */
+  uid: string;
   title: string;
   date: Date;
   endDate: Date;
@@ -80,6 +82,7 @@ const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): Calend
     
     occurrences.push({
       id: `${event.uid}-${next.toString()}`,
+      uid: `${event.uid}::${next.toString()}`,
       title: event.summary || "Ingen titel",
       date: startDate,
       endDate: endDate.toJSDate(),
@@ -148,6 +151,7 @@ export const parseICSData = (icsData: string): CalendarEvent[] => {
         
         recurrenceOverrides.set(key, {
           id: `${event.uid}-override-${index}`,
+          uid: `${event.uid}::${recurrenceId.toString()}`,
           title: event.summary || "Ingen titel",
           date: startDate,
           endDate: endDate,
@@ -190,6 +194,7 @@ export const parseICSData = (icsData: string): CalendarEvent[] => {
         
         allEvents.push({
           id: event.uid || `event-${index}`,
+          uid: event.uid || `event-${index}`,
           title: event.summary || "Ingen titel",
           date: startDate,
           endDate: endDate,
