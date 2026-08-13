@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { useLessonPlans, lessonPlanKey } from "@/hooks/useLessonPlans";
+import { useLessonPlans, getLessonPlan } from "@/hooks/useLessonPlans";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
@@ -383,7 +383,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     return elements;
   };
 
-  const planContent = currentEvent ? plans[lessonPlanKey(currentEvent.date)] : undefined;
+  const planContent = currentEvent ? getLessonPlan(plans, currentEvent) : undefined;
   const content = (planContent && planContent.trim()) || currentEvent?.description || "";
   
   if (loading) {

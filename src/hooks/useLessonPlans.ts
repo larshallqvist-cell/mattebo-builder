@@ -1,8 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-/** Lesson plans are keyed by the lesson's exact start time (ISO string). */
-export const lessonPlanKey = (date: Date) => date.toISOString();
+export interface PlanTarget {
+  uid: string;
+  date: Date;
+}
+
+/** Plans are keyed by the calendar event's stable UID, so they survive schedule changes. */
+export const lessonPlanKey = (event: PlanTarget) => event.uid;
+
+/** Rows created before UID-keying were keyed by start time. */
+export const legacyLessonPlanKey = (date: Date) => `legacy:${date.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
+
+export const getLessonPlan = (plans: Record<string, string>, event: PlanTarget) =>
+  plans[lessonPlanKey(event)] ?? plans[legacyLessonPlanKey(event.date)];
 
 export const useLessonPlans = (grade: number) => {
   const [plans, setPlans] = useState<Record<string, string>>({});
@@ -12,7 +23,7 @@ export const useLessonPlans = (grade: number) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("lesson_plans")
-      .select("starts_at, content")
+      .select("event_uid, starts_at, content")
       .eq("grade", grade)
       // Cache-buster: iOS Safari happily serves stale GET responses otherwise.
       .neq("id", crypto.randomUUID());
@@ -20,7 +31,7 @@ export const useLessonPlans = (grade: number) => {
     if (!error && data) {
       const map: Record<string, string> = {};
       data.forEach((row) => {
-        map[new Date(row.starts_at as string).toISOString()] = (row.content as string) ?? "";
+        map[row.event_uid as string] = (row.content as string) ?? "";
       });
       setPlans(map);
     }
@@ -59,15 +70,15 @@ export const useLessonPlans = (grade: number) => {
   }, [grade, load]);
 
   const savePlan = useCallback(
-    async (startsAt: Date, content: string) => {
+    async (event: PlanTarget, content: string) => {
       const { error } = await supabase
         .from("lesson_plans")
         .upsert(
-          { grade, starts_at: startsAt.toISOString(), content },
-          { onConflict: "grade,starts_at" },
+          { grade, event_uid: event.uid, starts_at: event.date.toISOString(), content },
+          { onConflict: "grade,event_uid" },
         );
       if (error) throw error;
-      setPlans((prev) => ({ ...prev, [lessonPlanKey(startsAt)]: content }));
+      setPlans((prev) => ({ ...prev, [lessonPlanKey(event)]: content }));
     },
     [grade],
   );
