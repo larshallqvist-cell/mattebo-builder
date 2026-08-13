@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'script-defer',
+      injectRegister: null,
       includeAssets: ['favicon.ico', 'robots.txt', 'fonts/*.otf', 'fonts/*.ttf'],
       manifest: {
         name: 'Mattebo - Lasses mattegrejor',
@@ -47,6 +47,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,otf,ttf,jpg,jpeg}'],
         runtimeCaching: [
