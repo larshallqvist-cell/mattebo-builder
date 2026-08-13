@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { useLessonPlans, lessonPlanKey } from "@/hooks/useLessonPlans";
+import { useLessonPlans, lessonPlanKey, getLessonPlan } from "@/hooks/useLessonPlans";
 import { SUPPORTED_GRADES } from "@/config/app";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,7 +41,7 @@ const LessonPlanEditor = () => {
   }, [events]);
 
   const selectedEvent = useMemo(
-    () => upcoming.find((e) => lessonPlanKey(e.date) === selectedKey) || null,
+    () => upcoming.find((e) => lessonPlanKey(e) === selectedKey) || null,
     [upcoming, selectedKey],
   );
 
@@ -52,8 +52,8 @@ const LessonPlanEditor = () => {
 
   const selectLesson = (key: string) => {
     setSelectedKey(key);
-    const event = upcoming.find((e) => lessonPlanKey(e.date) === key);
-    setDraft(plans[key] ?? event?.description ?? "");
+    const event = upcoming.find((e) => lessonPlanKey(e) === key);
+    setDraft((event ? getLessonPlan(plans, event) : undefined) ?? event?.description ?? "");
     // On narrow screens the editor sits below the list — bring it into view.
     requestAnimationFrame(() => {
       editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -100,7 +100,7 @@ const LessonPlanEditor = () => {
     if (!selectedEvent) return;
     setSaving(true);
     try {
-      await savePlan(selectedEvent.date, draft.slice(0, MAX_CONTENT_LENGTH));
+      await savePlan(selectedEvent, draft.slice(0, MAX_CONTENT_LENGTH));
       toast({ title: "Sparat!", description: "Lektionsplaneringen är uppdaterad." });
     } catch (err) {
       toast({
@@ -140,8 +140,8 @@ const LessonPlanEditor = () => {
               <p className="p-3 text-sm text-muted-foreground">Inga kommande lektioner.</p>
             ) : (
               upcoming.map((e) => {
-                const key = lessonPlanKey(e.date);
-                const hasPlan = Boolean((plans[key] ?? "").trim());
+                const key = lessonPlanKey(e);
+                const hasPlan = Boolean((getLessonPlan(plans, e) ?? "").trim());
                 return (
                   <button
                     key={e.id}
