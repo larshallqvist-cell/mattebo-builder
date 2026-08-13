@@ -99,6 +99,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          event_uid: string
           grade: number
           id: string
           starts_at: string
@@ -107,6 +108,7 @@ export type Database = {
         Insert: {
           content?: string
           created_at?: string
+          event_uid: string
           grade: number
           id?: string
           starts_at: string
@@ -115,6 +117,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          event_uid?: string
           grade?: number
           id?: string
           starts_at?: string
