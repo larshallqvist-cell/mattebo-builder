@@ -105,7 +105,9 @@ const LessonPlanEditor = () => {
     } catch (err) {
       toast({
         title: "Kunde inte spara",
-        description: err instanceof Error ? err.message : "Okänt fel",
+        description:
+          (err as { message?: string })?.message ??
+          (typeof err === "string" ? err : "Okänt fel"),
         variant: "destructive",
       });
     } finally {
