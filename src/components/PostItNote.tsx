@@ -390,9 +390,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   if (upcomingEvents.length === 0) {
     return (
-      <div className="flex flex-col gap-1 font-nunito text-foreground">
+      <div className="flex flex-col gap-1 font-nunito text-slate-800">
         <p className="text-sm font-semibold">Inga kommande lektioner</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-slate-500">
           Terminens schema verkar inte vara inlagt i kalendern än.
         </p>
       </div>
