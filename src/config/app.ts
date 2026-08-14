@@ -24,23 +24,23 @@ export const GRADE_CARD_COLORS: Record<
 > = {
   6: {
     neon: "hsl(var(--neon-turquoise))",
-    glow: "0 0 20px hsl(var(--neon-turquoise) / 0.6), 0 0 40px hsl(var(--neon-turquoise) / 0.4), 0 0 60px hsl(var(--neon-turquoise) / 0.2)",
-    border: "hsl(var(--neon-turquoise) / 0.5)",
+    glow: "0 18px 30px -12px hsl(var(--neon-turquoise) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--neon-turquoise) / 0.6)",
   },
   7: {
     neon: "hsl(var(--neon-copper))",
-    glow: "0 0 20px hsl(var(--neon-copper) / 0.6), 0 0 40px hsl(var(--neon-copper) / 0.4), 0 0 60px hsl(var(--neon-copper) / 0.2)",
-    border: "hsl(var(--neon-copper) / 0.5)",
+    glow: "0 18px 30px -12px hsl(var(--neon-copper) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--neon-copper) / 0.6)",
   },
   8: {
     neon: "hsl(var(--neon-blue))",
-    glow: "0 0 20px hsl(var(--neon-blue) / 0.6), 0 0 40px hsl(var(--neon-blue) / 0.4), 0 0 60px hsl(var(--neon-blue) / 0.2)",
-    border: "hsl(var(--neon-blue) / 0.5)",
+    glow: "0 18px 30px -12px hsl(var(--neon-blue) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--neon-blue) / 0.6)",
   },
   9: {
     neon: "hsl(var(--neon-violet))",
-    glow: "0 0 20px hsl(var(--neon-violet) / 0.6), 0 0 40px hsl(var(--neon-violet) / 0.4), 0 0 60px hsl(var(--neon-violet) / 0.2)",
-    border: "hsl(var(--neon-violet) / 0.5)",
+    glow: "0 18px 30px -12px hsl(var(--neon-violet) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--neon-violet) / 0.6)",
   },
 };
 
