@@ -462,20 +462,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
       {/* Content - no scroll on mobile for natural expansion */}
       {isMobile ? (
-        <div className="space-y-0.5 text-foreground/90">
+        <div className="space-y-0.5 text-black">
           {content ? (
             parseContent(content)
           ) : (
-            <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
+            <p className="text-sm text-slate-500 italic">Ingen beskrivning tillgänglig</p>
           )}
         </div>
       ) : (
         <ScrollArea className="flex-1">
-          <div className="space-y-0.5 text-foreground/90 pr-3">
+          <div className="space-y-0.5 text-black pr-3">
             {content ? (
               parseContent(content)
             ) : (
-              <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
+              <p className="text-sm text-slate-500 italic">Ingen beskrivning tillgänglig</p>
             )}
           </div>
         </ScrollArea>
