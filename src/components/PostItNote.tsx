@@ -98,7 +98,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_hsl(var(--postit-text)/0.8)]" />
                 {renderInlineHtml(item)}
               </li>
             ))}
@@ -139,7 +139,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           elements.push(
             <h4
               key={`h-${i}`}
-              className={`${headingMargin} mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-blue-900 border-b border-blue-900/25 pb-0.5`}
+              className={`${headingMargin} mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))] border-b border-[hsl(var(--postit-text))/25] pb-0.5`}
             >
               {renderInlineHtml(trimmed.replace(/<\/?(?:b|strong)[^>]*>/gi, ""))}
             </h4>
@@ -229,7 +229,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               e.preventDefault();
               window.open(finalHref, "_blank", "noopener,noreferrer");
             }}
-            className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
+            className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--postit-text))/40] bg-[hsl(var(--postit-text))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/20] hover:border-[hsl(var(--postit-text))/70]"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -296,7 +296,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--postit-text))/40] bg-[hsl(var(--postit-text))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/20] hover:border-[hsl(var(--postit-text))/70]"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -315,7 +315,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--postit-text))/40] bg-[hsl(var(--postit-text))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/20] hover:border-[hsl(var(--postit-text))/70]"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -338,7 +338,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_hsl(var(--postit-text)/0.8)]" />
                 {renderPlainInline(item)}
               </li>
             ))}
@@ -363,7 +363,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             elements.push(
               <h4
                 key={`h-${i}`}
-                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-blue-900 border-b border-blue-900/25 pb-0.5"
+                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))] border-b border-[hsl(var(--postit-text))/25] pb-0.5"
               >
                 {trimmed.replace(/\*\*/g, "").replace(/:$/, "")}
               </h4>
@@ -402,7 +402,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   }
 
   return (
-    <div className="flex flex-col relative font-nunito bg-gray-100 text-black rounded-md p-4 md:max-h-[50vh]">
+    <div className="flex flex-col relative font-nunito bg-[hsl(var(--postit-light))] text-[hsl(var(--postit-text))] rounded-md p-4 md:max-h-[50vh]">
       {/* Secret "screw" toggle - small circle at top-right corner */}
       <button
         onClick={handleSecretToggle}
@@ -422,13 +422,13 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       
       {/* Navigation bar - only visible when unlocked */}
       {navigationUnlocked && upcomingEvents.length > 0 && (
-        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-blue-900/30">
+        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-[hsl(var(--postit-text))/30]">
           <button
             onClick={goToPrevious}
             disabled={eventIndex === 0}
-            className="p-1 rounded hover:bg-blue-900/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-[hsl(var(--postit-text))/10] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft className="w-5 h-5 text-blue-900" />
+            <ChevronLeft className="w-5 h-5 text-[hsl(var(--postit-text))]" />
           </button>
           
           <span className="text-xs text-slate-700 font-medium text-center">
@@ -445,17 +445,17 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <button
             onClick={goToNext}
             disabled={eventIndex === upcomingEvents.length - 1}
-            className="p-1 rounded hover:bg-blue-900/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-[hsl(var(--postit-text))/10] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-blue-900" />
+            <ChevronRight className="w-5 h-5 text-[hsl(var(--postit-text))]" />
           </button>
         </div>
       )}
       
       {/* Lesson header */}
       {currentEvent && (
-        <div className="pb-2 border-b border-blue-900/25">
-          <div className="text-sm font-semibold text-blue-900 underline underline-offset-4 decoration-blue-900/60">
+        <div className="pb-2 border-b border-[hsl(var(--postit-text))/25]">
+          <div className="text-sm font-semibold text-[hsl(var(--postit-text))] underline underline-offset-4 decoration-[hsl(var(--postit-text))/60]">
             {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
             {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
