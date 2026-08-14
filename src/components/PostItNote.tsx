@@ -37,11 +37,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   
   // Format date for display
   const formatEventDate = (date: Date) => {
-    return date.toLocaleDateString("sv-SE", { 
-      weekday: "long", 
-      day: "numeric", 
-      month: "short" 
-    });
+    return date
+      .toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "short" })
+      .replace(/^./, (c) => c.toUpperCase());
   };
   
   // Format time
@@ -100,7 +98,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
                 {renderInlineHtml(item)}
               </li>
             ))}
@@ -139,7 +137,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           elements.push(
             <h4
               key={`h-${i}`}
-              className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-primary border-b border-primary/25 pb-0.5"
+              className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-blue-900 border-b border-blue-900/25 pb-0.5"
             >
               {renderInlineHtml(trimmed.replace(/<\/?(?:b|strong)[^>]*>/gi, ""))}
             </h4>
@@ -229,7 +227,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               e.preventDefault();
               window.open(finalHref, "_blank", "noopener,noreferrer");
             }}
-            className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+            className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -296,7 +294,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -315,7 +313,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -338,7 +336,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
                 {renderPlainInline(item)}
               </li>
             ))}
@@ -363,7 +361,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             elements.push(
               <h4
                 key={`h-${i}`}
-                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-primary border-b border-primary/25 pb-0.5"
+                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-blue-900 border-b border-blue-900/25 pb-0.5"
               >
                 {trimmed.replace(/\*\*/g, "").replace(/:$/, "")}
               </h4>
@@ -392,9 +390,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   if (upcomingEvents.length === 0) {
     return (
-      <div className="flex flex-col gap-1 font-nunito text-foreground">
+      <div className="flex flex-col gap-1 font-nunito bg-gray-100 text-slate-800 rounded-md p-4">
         <p className="text-sm font-semibold">Inga kommande lektioner</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-slate-500">
           Terminens schema verkar inte vara inlagt i kalendern än.
         </p>
       </div>
@@ -402,7 +400,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   }
 
   return (
-    <div className="flex flex-col relative font-nunito text-foreground md:max-h-[50vh]">
+    <div className="flex flex-col relative font-nunito bg-gray-100 text-black rounded-md p-4 md:max-h-[50vh]">
       {/* Secret "screw" toggle - small circle at top-right corner */}
       <button
         onClick={handleSecretToggle}
@@ -422,20 +420,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       
       {/* Navigation bar - only visible when unlocked */}
       {navigationUnlocked && upcomingEvents.length > 0 && (
-        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-primary/30">
+        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-blue-900/30">
           <button
             onClick={goToPrevious}
             disabled={eventIndex === 0}
-            className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-blue-900/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft className="w-5 h-5 text-primary" />
+            <ChevronLeft className="w-5 h-5 text-blue-900" />
           </button>
           
-          <span className="text-xs text-foreground/70 font-medium text-center">
+          <span className="text-xs text-slate-700 font-medium text-center">
             {currentEvent ? (
               <>
                 {formatEventDate(currentEvent.date)} {formatEventTime(currentEvent.date)}
-                <span className="block text-muted-foreground text-[10px]">
+                <span className="block text-slate-500 text-[10px]">
                   {eventIndex + 1} av {upcomingEvents.length}
                 </span>
               </>
@@ -445,17 +443,17 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <button
             onClick={goToNext}
             disabled={eventIndex === upcomingEvents.length - 1}
-            className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-blue-900/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-primary" />
+            <ChevronRight className="w-5 h-5 text-blue-900" />
           </button>
         </div>
       )}
       
       {/* Lesson header */}
       {currentEvent && (
-        <div className="mb-2 pb-2 border-b border-primary/25">
-          <div className="text-sm font-semibold text-foreground underline underline-offset-4 decoration-primary/60">
+        <div className="mb-2 pb-2 border-b border-blue-900/25">
+          <div className="text-sm font-semibold text-blue-900 underline underline-offset-4 decoration-blue-900/60">
             {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
             {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
@@ -464,20 +462,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
       {/* Content - no scroll on mobile for natural expansion */}
       {isMobile ? (
-        <div className="space-y-0.5 text-foreground/90">
+        <div className="space-y-0.5 text-black">
           {content ? (
             parseContent(content)
           ) : (
-            <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
+            <p className="text-sm text-slate-500 italic">Ingen beskrivning tillgänglig</p>
           )}
         </div>
       ) : (
         <ScrollArea className="flex-1">
-          <div className="space-y-0.5 text-foreground/90 pr-3">
+          <div className="space-y-0.5 text-black pr-3">
             {content ? (
               parseContent(content)
             ) : (
-              <p className="text-sm text-muted-foreground italic">Ingen beskrivning tillgänglig</p>
+              <p className="text-sm text-slate-500 italic">Ingen beskrivning tillgänglig</p>
             )}
           </div>
         </ScrollArea>
