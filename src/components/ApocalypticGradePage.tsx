@@ -98,7 +98,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         />
 
         {/* Main Content - Fixed to viewport, no external scroll */}
-        <main className="flex-1 px-3 lg:px-4 py-2 relative z-20 min-h-0">
+        <main className="flex-1 px-3 lg:px-4 py-1 relative z-20 min-h-0">
           <div className="max-w-7xl mx-auto h-full">
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
