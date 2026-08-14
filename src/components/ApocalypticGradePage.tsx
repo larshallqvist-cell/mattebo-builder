@@ -57,11 +57,26 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         {/* Welcome Flash for logged-in users */}
         {user && <WelcomeFlash />}
 
-        {/* Navigation */}
-        <ApocalypticNav />
+        {/* Navigation - grade title + chapter selector live in the nav bar on desktop */}
+        <ApocalypticNav
+          centerContent={
+            <div className="flex items-center gap-4">
+              <h1
+                className="text-xl font-orbitron font-bold whitespace-nowrap"
+                style={{
+                  color: glowColor,
+                  textShadow: `0 0 16px ${glowColor}60`,
+                }}
+              >
+                Åk {grade}
+              </h1>
+              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+            </div>
+          }
+        />
 
-        {/* Compact Hero Header with Chapter Selector */}
-        <header className="relative pt-20 pb-2 px-3 md:px-6 z-20">
+        {/* Compact Hero Header with Chapter Selector - mobile/tablet only */}
+        <header className="relative pt-20 pb-2 px-3 md:px-6 z-20 lg:hidden">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -90,7 +105,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
         {/* Glowing divider */}
         <div 
-          className="h-[2px] mx-6 relative z-20"
+          className="h-[2px] mx-6 relative z-20 lg:hidden"
           style={{
             background: `linear-gradient(90deg, transparent, ${glowColor}80 20%, ${glowColor} 50%, ${glowColor}80 80%, transparent)`,
             boxShadow: `0 0 15px ${glowColor}60`,
@@ -98,7 +113,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         />
 
         {/* Main Content - Fixed to viewport, no external scroll */}
-        <main className="flex-1 px-3 lg:px-4 py-1 relative z-20 min-h-0">
+        <main className="flex-1 px-3 lg:px-4 py-1 lg:pt-24 lg:pb-3 relative z-20 min-h-0">
           <div className="max-w-7xl mx-auto h-full">
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
