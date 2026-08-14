@@ -392,9 +392,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
 
   if (upcomingEvents.length === 0) {
     return (
-      <div className="flex flex-col gap-1 font-nunito bg-gray-100 text-slate-800 rounded-md p-4">
+      <div className="flex flex-col gap-1 font-nunito bg-[hsl(var(--postit-light))] text-[hsl(var(--postit-text))] rounded-md p-4">
         <p className="text-sm font-semibold">Inga kommande lektioner</p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[hsl(var(--postit-text))/70]">
           Terminens schema verkar inte vara inlagt i kalendern än.
         </p>
       </div>
@@ -435,7 +435,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             {currentEvent ? (
               <>
                 {formatEventDate(currentEvent.date)} {formatEventTime(currentEvent.date)}
-                <span className="block text-slate-500 text-[10px]">
+                <span className="block text-[hsl(var(--postit-text))/70] text-[10px]">
                   {eventIndex + 1} av {upcomingEvents.length}
                 </span>
               </>
@@ -468,7 +468,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           {content ? (
             parseContent(content)
           ) : (
-            <p className="text-sm text-slate-500 italic">Ingen beskrivning tillgänglig</p>
+            <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
           )}
         </div>
       ) : (
@@ -477,7 +477,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             {content ? (
               parseContent(content)
             ) : (
-              <p className="text-sm text-slate-500 italic">Ingen beskrivning tillgänglig</p>
+              <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
             )}
           </div>
         </ScrollArea>
