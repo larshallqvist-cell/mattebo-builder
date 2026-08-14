@@ -61,7 +61,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         <ApocalypticNav />
 
         {/* Compact Hero Header with Chapter Selector */}
-        <header className="relative pt-24 md:pt-24 pb-3 px-3 md:px-6 z-20">
+        <header className="relative pt-20 pb-2 px-3 md:px-6 z-20">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -83,21 +83,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 
                 {/* Chapter Selector - horizontal centered on mobile */}
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
-              </div>
-
-              {/* Quick actions - hidden on mobile */}
-              <div className="hidden md:flex items-center gap-3">
-                <Link 
-                  to="/"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all hover:scale-105"
-                  style={{
-                    background: "rgba(0,0,0,0.3)",
-                    border: `1px solid ${glowColor}40`,
-                  }}
-                >
-                  <Home className="w-4 h-4" style={{ color: glowColor }} />
-                  <span className="text-sm font-nunito text-foreground/80">Hem</span>
-                </Link>
               </div>
             </motion.div>
           </div>
