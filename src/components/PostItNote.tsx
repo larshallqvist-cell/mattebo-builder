@@ -98,7 +98,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
                 {renderInlineHtml(item)}
               </li>
             ))}
@@ -137,7 +137,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           elements.push(
             <h4
               key={`h-${i}`}
-              className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-primary border-b border-primary/25 pb-0.5"
+              className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-blue-900 border-b border-blue-900/25 pb-0.5"
             >
               {renderInlineHtml(trimmed.replace(/<\/?(?:b|strong)[^>]*>/gi, ""))}
             </h4>
@@ -227,7 +227,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               e.preventDefault();
               window.open(finalHref, "_blank", "noopener,noreferrer");
             }}
-            className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+            className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -294,7 +294,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -313,7 +313,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-blue-900/40 bg-blue-900/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-blue-900 transition-colors hover:bg-blue-900/20 hover:border-blue-900/70"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -336,7 +336,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
                 {renderPlainInline(item)}
               </li>
             ))}
@@ -361,7 +361,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             elements.push(
               <h4
                 key={`h-${i}`}
-                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-primary border-b border-primary/25 pb-0.5"
+                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-blue-900 border-b border-blue-900/25 pb-0.5"
               >
                 {trimmed.replace(/\*\*/g, "").replace(/:$/, "")}
               </h4>
