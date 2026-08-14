@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { hapticFeedback } from "@/hooks/useHaptic";
-import SparkParticles from "./SparkParticles";
 import { GRADE_CARD_COLORS } from "@/config/app";
 
 interface ApocalypticGradeCardProps {
