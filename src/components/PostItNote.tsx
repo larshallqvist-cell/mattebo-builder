@@ -420,20 +420,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       
       {/* Navigation bar - only visible when unlocked */}
       {navigationUnlocked && upcomingEvents.length > 0 && (
-        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-primary/30">
+        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-blue-900/30">
           <button
             onClick={goToPrevious}
             disabled={eventIndex === 0}
-            className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-blue-900/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft className="w-5 h-5 text-primary" />
+            <ChevronLeft className="w-5 h-5 text-blue-900" />
           </button>
           
-          <span className="text-xs text-foreground/70 font-medium text-center">
+          <span className="text-xs text-slate-700 font-medium text-center">
             {currentEvent ? (
               <>
                 {formatEventDate(currentEvent.date)} {formatEventTime(currentEvent.date)}
-                <span className="block text-muted-foreground text-[10px]">
+                <span className="block text-slate-500 text-[10px]">
                   {eventIndex + 1} av {upcomingEvents.length}
                 </span>
               </>
@@ -443,9 +443,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <button
             onClick={goToNext}
             disabled={eventIndex === upcomingEvents.length - 1}
-            className="p-1 rounded hover:bg-primary/20 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            className="p-1 rounded hover:bg-blue-900/10 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-primary" />
+            <ChevronRight className="w-5 h-5 text-blue-900" />
           </button>
         </div>
       )}
