@@ -15,112 +15,68 @@ const ScreenFrame = ({ children, title, className = "" }: ScreenFrameProps) => {
       className={`relative rounded-lg overflow-hidden h-full flex flex-col ${className}`}
       style={{
         background: `linear-gradient(145deg, 
-          hsl(20 45% 22%) 0%, 
-          hsl(25 40% 28%) 20%, 
-          hsl(20 35% 25%) 50%, 
-          hsl(25 40% 28%) 80%, 
-          hsl(20 45% 22%) 100%
+          hsl(var(--rust-dark)) 0%, 
+          hsl(var(--rust-medium)) 15%, 
+          hsl(215 25% 20%) 50%, 
+          hsl(var(--rust-medium)) 85%, 
+          hsl(var(--rust-dark)) 100%
         )`,
         boxShadow: `
-          inset 0 2px 4px rgba(255,255,255,0.1),
-          inset 0 -2px 4px rgba(0,0,0,0.3),
-          0 8px 30px rgba(0,0,0,0.5),
-          0 0 20px rgba(205, 127, 50, 0.15)
+          inset 0 1px 0 rgba(255,255,255,0.1),
+          inset 0 -1px 0 rgba(0,0,0,0.3),
+          0 4px 20px rgba(0,0,0,0.4),
+          0 0 15px hsl(var(--accent) / 0.13)
         `,
       }}
     >
-      {/* Outer frame with rivets */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Top rivets */}
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={`top-${i}`}
-            className="absolute w-2 h-2 rounded-full top-2"
-            style={{
-              left: `${15 + i * 18}%`,
-              background: "linear-gradient(145deg, #8b7355, #5c4d3d)",
-              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.4)",
-            }}
-          />
-        ))}
-        {/* Bottom rivets */}
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={`bottom-${i}`}
-            className="absolute w-2 h-2 rounded-full bottom-2"
-            style={{
-              left: `${15 + i * 18}%`,
-              background: "linear-gradient(145deg, #8b7355, #5c4d3d)",
-              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.4)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Screen bezel */}
-      <div 
-        className="m-3 flex-1 rounded-md overflow-hidden flex flex-col"
-        style={{
-          background: "linear-gradient(180deg, hsl(215 30% 8%) 0%, hsl(215 25% 12%) 100%)",
-          boxShadow: `
-            inset 0 0 30px rgba(0,0,0,0.8),
-            inset 0 0 60px rgba(0,0,0,0.4),
-            0 0 10px rgba(64, 224, 208, 0.1)
-          `,
-          border: "2px solid hsl(var(--rust-dark))",
-        }}
-      >
-        {/* Scanline effect */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.03]"
+      {/* Corner screws - same as MetalPanel */}
+      {[
+        { top: "6px", left: "6px" },
+        { top: "6px", right: "6px" },
+        { bottom: "6px", left: "6px" },
+        { bottom: "6px", right: "6px" },
+      ].map((pos, i) => (
+        <div
+          key={i}
+          className="absolute w-2.5 h-2.5 rounded-full z-10"
           style={{
-            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.5) 2px, rgba(0,0,0,0.5) 4px)",
+            ...pos,
+            background: "linear-gradient(145deg, hsl(var(--metal-light)), hsl(var(--metal-dark)))",
+            boxShadow: "inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -1px 1px rgba(0,0,0,0.4)",
           }}
-        />
+        >
+          <div className="absolute top-1/2 left-1/2 w-1.5 h-[1px] -translate-x-1/2 -translate-y-1/2 bg-black/40" />
+        </div>
+      ))}
 
+      {/* Panel body */}
+      <div className="flex-1 min-h-0 flex flex-col">
         {/* Title bar */}
         {title && (
           <div 
-            className="px-3 py-1.5 border-b flex-shrink-0"
+            className="relative px-3 py-1.5 border-b flex-shrink-0"
             style={{
-              background: "linear-gradient(180deg, rgba(64, 224, 208, 0.15) 0%, rgba(64, 224, 208, 0.05) 100%)",
-              borderColor: "rgba(64, 224, 208, 0.3)",
+              background: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%)",
+              borderColor: "hsl(var(--accent) / 0.25)",
             }}
           >
-            <h3 
-              className="font-orbitron font-bold text-base"
+            <h2 
+              className="font-orbitron font-bold text-base glitch-hover"
               style={{ 
-                color: "hsl(var(--neon-turquoise))",
-                textShadow: "0 0 10px hsl(var(--neon-turquoise) / 0.6)",
+                color: "hsl(var(--accent))",
+                textShadow: "0 0 10px hsl(var(--accent) / 0.4)",
               }}
             >
               {title}
-            </h3>
+            </h2>
           </div>
         )}
 
-        {/* Content with subtle glow - scrollable */}
+        {/* Content - scrollable */}
         <div className="flex-1 overflow-y-auto min-h-0 relative industrial-scrollbar">
           {children}
         </div>
       </div>
-
-      {/* Power LED indicator */}
-      <motion.div
-        animate={{
-          opacity: [0.6, 1, 0.6],
-          boxShadow: [
-            "0 0 4px #40E0D0, 0 0 8px #40E0D0",
-            "0 0 8px #40E0D0, 0 0 16px #40E0D0",
-            "0 0 4px #40E0D0, 0 0 8px #40E0D0",
-          ],
-        }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-4 right-4 w-2 h-2 rounded-full"
-        style={{
-          background: "#40E0D0",
-        }}
-      />
     </motion.div>
   );
 };
