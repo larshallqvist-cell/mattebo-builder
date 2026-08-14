@@ -98,7 +98,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_hsl(var(--postit-text)/0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-[hsl(var(--postit-text))] shadow-[0_0_6px_hsl(var(--postit-text)/0.8)]" />
                 {renderInlineHtml(item)}
               </li>
             ))}
@@ -338,7 +338,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           <ul key={`ul-${elements.length}`} className="my-1.5 space-y-1 font-body font-normal">
             {bulletItems.map((item, i) => (
               <li key={i} className="relative pl-4 text-sm leading-snug">
-                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-blue-900 shadow-[0_0_6px_hsl(var(--postit-text)/0.8)]" />
+                <span className="absolute left-0 top-[0.45em] h-1.5 w-1.5 rounded-full bg-[hsl(var(--postit-text))] shadow-[0_0_6px_hsl(var(--postit-text)/0.8)]" />
                 {renderPlainInline(item)}
               </li>
             ))}
