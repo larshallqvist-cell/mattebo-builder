@@ -62,7 +62,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         <ApocalypticNav />
 
         {/* Compact Hero Header with Chapter Selector */}
-        <header className="relative pt-14 md:pt-14 pb-2 px-3 md:px-4 z-20">
+        <header className="relative pt-24 md:pt-24 pb-3 px-3 md:px-6 z-20">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
