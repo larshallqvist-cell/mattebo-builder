@@ -23,110 +23,109 @@
 /* Mattebo Design System - Post-Apocalyptic Recycled Technology Theme */
 @layer base {
   :root {
-    /* Main colors - Lighter blue-gray metal */
-    --background: 215 25% 18%;
-    --foreground: 45 20% 93%;
+    /* Ocean Deep palette */
+    --background: 211 69% 15%;
+    --foreground: 185 25% 95%;
 
     /* Card surfaces */
-    --card: 215 22% 22%;
-    --card-foreground: 45 20% 93%;
+    --card: 203 62% 24%;
+    --card-foreground: 185 25% 95%;
 
     /* Popover/dropdown */
-    --popover: 215 22% 20%;
-    --popover-foreground: 45 20% 93%;
+    --popover: 203 62% 20%;
+    --popover-foreground: 185 25% 95%;
 
-    /* Primary - Warm copper/bronze */
-    --primary: 30 70% 50%;
-    --primary-foreground: 215 30% 10%;
+    /* Primary - Teal */
+    --primary: 190 56% 40%;
+    --primary-foreground: 211 69% 12%;
 
-    /* Secondary - Muted steel */
-    --secondary: 215 18% 30%;
-    --secondary-foreground: 45 20% 93%;
+    /* Secondary - Deep sea blue */
+    --secondary: 203 62% 27%;
+    --secondary-foreground: 185 25% 95%;
 
     /* Muted elements */
-    --muted: 215 15% 26%;
-    --muted-foreground: 45 15% 70%;
+    --muted: 203 45% 26%;
+    --muted-foreground: 185 20% 76%;
 
-    /* Accent - Copper glow */
-    --accent: 25 80% 55%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Aqua */
+    --accent: 177 41% 55%;
+    --accent-foreground: 211 69% 12%;
 
     /* Destructive */
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 215 20% 25%;
-    --input: 215 20% 22%;
-    --ring: 30 70% 50%;
+    --border: 190 40% 30%;
+    --input: 203 55% 22%;
+    --ring: 177 41% 55%;
 
     --radius: 0.5rem;
 
-    /* Neon colors for grade cards */
-    --neon-turquoise: 175 80% 55%;
-    --neon-copper: 25 90% 60%;
-    --neon-blue: 200 85% 60%;
-    --neon-violet: 270 70% 65%;
+    /* Accent colors for grade buttons (ocean family) */
+    --neon-turquoise: 177 41% 55%;
+    --neon-copper: 190 56% 45%;
+    --neon-blue: 203 55% 45%;
+    --neon-violet: 186 45% 62%;
 
-    /* Rust/Metal colors */
-    --rust-dark: 20 50% 20%;
-    --rust-medium: 25 45% 35%;
-    --rust-light: 30 40% 45%;
-    --metal-dark: 215 15% 35%;
-    --metal-light: 215 10% 55%;
-    --panel-inner: 215 22% 24%;
-    --panel-dark: 215 28% 16%;
+    /* Surface tones */
+    --rust-dark: 211 69% 15%;
+    --rust-medium: 203 62% 24%;
+    --rust-light: 190 45% 33%;
+    --metal-dark: 203 45% 28%;
+    --metal-light: 190 35% 48%;
+    --panel-inner: 203 62% 22%;
+    --panel-dark: 211 69% 14%;
 
     /* Legacy colors for compatibility */
-    --chalk-yellow: 45 100% 85%;
-    --chalk-white: 45 20% 95%;
-    --board-green: 150 25% 18%;
-    --board-green-light: 150 20% 25%;
-    --wood-brown: 30 40% 30%;
+    --chalk-yellow: 177 41% 70%;
+    --chalk-white: 185 25% 96%;
+    --board-green: 203 62% 20%;
+    --board-green-light: 203 50% 28%;
+    --wood-brown: 203 45% 26%;
     --post-it-yellow: 50 100% 75%;
-    --calculator-gray: 220 10% 85%;
-    --divider-orange: 14 70% 51%;
+    --calculator-gray: 200 12% 85%;
+    --divider-orange: 190 56% 45%;
 
     /* Sidebar */
-    --sidebar-background: 215 30% 10%;
-    --sidebar-foreground: 45 20% 91%;
-    --sidebar-primary: 30 70% 50%;
-    --sidebar-primary-foreground: 215 30% 10%;
-    --sidebar-accent: 215 25% 20%;
-    --sidebar-accent-foreground: 45 20% 91%;
-    --sidebar-border: 215 20% 20%;
-    --sidebar-ring: 30 70% 50%;
+    --sidebar-background: 211 69% 12%;
+    --sidebar-foreground: 185 25% 93%;
+    --sidebar-primary: 190 56% 40%;
+    --sidebar-primary-foreground: 211 69% 12%;
+    --sidebar-accent: 203 62% 22%;
+    --sidebar-accent-foreground: 185 25% 93%;
+    --sidebar-border: 190 40% 28%;
+    --sidebar-ring: 177 41% 55%;
   }
 
   .dark {
-    /* Same as root - lighter dark theme */
-    --background: 215 25% 18%;
-    --foreground: 45 20% 93%;
-    --card: 215 22% 22%;
-    --card-foreground: 45 20% 93%;
-    --popover: 215 22% 20%;
-    --popover-foreground: 45 20% 93%;
-    --primary: 30 70% 50%;
-    --primary-foreground: 215 30% 10%;
-    --secondary: 215 18% 30%;
-    --secondary-foreground: 45 20% 93%;
-    --muted: 215 15% 26%;
-    --muted-foreground: 45 15% 70%;
-    --accent: 25 80% 55%;
-    --accent-foreground: 0 0% 100%;
+    --background: 211 69% 15%;
+    --foreground: 185 25% 95%;
+    --card: 203 62% 24%;
+    --card-foreground: 185 25% 95%;
+    --popover: 203 62% 20%;
+    --popover-foreground: 185 25% 95%;
+    --primary: 190 56% 40%;
+    --primary-foreground: 211 69% 12%;
+    --secondary: 203 62% 27%;
+    --secondary-foreground: 185 25% 95%;
+    --muted: 203 45% 26%;
+    --muted-foreground: 185 20% 76%;
+    --accent: 177 41% 55%;
+    --accent-foreground: 211 69% 12%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 215 18% 30%;
-    --input: 215 18% 28%;
-    --ring: 30 70% 50%;
-    --sidebar-background: 215 25% 16%;
-    --sidebar-foreground: 45 20% 93%;
-    --sidebar-primary: 30 70% 50%;
-    --sidebar-primary-foreground: 215 30% 10%;
-    --sidebar-accent: 215 22% 26%;
-    --sidebar-accent-foreground: 45 20% 93%;
-    --sidebar-border: 215 18% 26%;
-    --sidebar-ring: 30 70% 50%;
+    --border: 190 40% 30%;
+    --input: 203 55% 24%;
+    --ring: 177 41% 55%;
+    --sidebar-background: 211 69% 13%;
+    --sidebar-foreground: 185 25% 95%;
+    --sidebar-primary: 190 56% 40%;
+    --sidebar-primary-foreground: 211 69% 12%;
+    --sidebar-accent: 203 62% 24%;
+    --sidebar-accent-foreground: 185 25% 95%;
+    --sidebar-border: 190 40% 28%;
+    --sidebar-ring: 177 41% 55%;
   }
 }
 
@@ -449,8 +448,8 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background: 
-    radial-gradient(ellipse at 30% 20%, rgba(205, 127, 50, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(184, 115, 51, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse at 30% 20%, hsl(var(--accent) / 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, hsl(var(--primary) / 0.06) 0%, transparent 55%);
 }
 
 /* Light mist overlay - softening effect */
@@ -461,6 +460,6 @@ body::after {
   pointer-events: none;
   z-index: 1;
   background: 
-    radial-gradient(ellipse at 50% 0%, rgba(180, 190, 210, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(140, 160, 180, 0.06) 0%, transparent 40%);
+    radial-gradient(ellipse at 50% 0%, hsl(var(--accent) / 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, hsl(190 56% 40% / 0.05) 0%, transparent 40%);
 }

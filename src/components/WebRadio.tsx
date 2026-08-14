@@ -59,31 +59,6 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
       color: "from-purple-500 to-pink-600",
       streamUrl: "https://cdn.onlyhitsradio.net/onlyhits"
     },
-    { 
-      id: "christian", 
-      name: "Faith", 
-      emoji: "✌🏼", 
-      description: "Kristen pop (WJTL)", 
-      color: "from-sky-500 to-blue-600",
-      streamUrl: "https://us9.maindigitalstream.com/ssl/WJTL"
-    },
-    { 
-      id: "indie", 
-      name: "Indie", 
-      emoji: "🎵", 
-      description: "Indie pop (SomaFM)", 
-      color: "from-red-500 to-yellow-500",
-      streamUrl: "https://ice1.somafm.com/indiepop-128-mp3",
-      metadataId: "indiepop"
-    },
-    { 
-      id: "p3", 
-      name: "P3", 
-      emoji: "📻", 
-      description: "Sveriges Radio P3", 
-      color: "from-green-500 to-emerald-600",
-      streamUrl: "https://sverigesradio.se/topsy/direkt/164-hi-aac"
-    },
   ];
 
   const fetchTrackInfo = async (metadataId: string) => {

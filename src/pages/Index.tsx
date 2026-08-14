@@ -12,76 +12,81 @@ const Index = () => {
   return (
     <PageTransition>
       <div className="min-h-screen flex flex-col relative">
-        {/* Navigation */}
-
-        {/* Navigation */}
         <ApocalypticNav />
 
-        {/* Hero Section */}
-        <main className="flex-1 flex flex-col items-center justify-center px-6 pt-24 pb-12 relative z-20">
-        {/* Hero content */}
-        <div className="text-center mb-8 md:mb-12">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-orbitron font-bold text-foreground glitch-hover"
-            style={{
-              textShadow: "0 2px 10px rgba(0,0,0,0.5), 0 0 30px hsl(var(--primary) / 0.2)",
-            }}
-          >
-            Leteboskolans{" "}
-            <span 
-              className="text-primary"
-              style={{ textShadow: "0 0 20px hsl(var(--primary) / 0.6)" }}
+        <main className="flex-1 w-full max-w-5xl mx-auto px-5 pt-28 pb-16 relative z-20 space-y-10">
+          {/* Hero */}
+          <div className="text-center space-y-3">
+            <motion.h1
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="text-4xl sm:text-5xl md:text-6xl font-orbitron font-bold tracking-tight text-foreground"
             >
-              mattesida
-            </span>
-          </motion.h1>
-        </div>
-
-          {/* Subtitle */}
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-2xl md:text-3xl lg:text-4xl font-orbitron font-medium text-foreground/80 mb-8 md:mb-12"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
-          >
-            Välj årskurs
-          </motion.h2>
-
-          {/* Grade Cards Grid - optimized for mobile touch */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 justify-items-center px-2">
-            {SUPPORTED_GRADES.map((grade, index) => (
-              <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
-            ))}
+              Leteboskolans mattesida
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-accent text-base md:text-lg max-w-md mx-auto font-nunito"
+            >
+              Din digitala resurs för matematik i årskurs 6–9.
+            </motion.p>
           </div>
 
-          {/* Instruction hint - hidden on mobile (we have bottom nav) */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1 }}
-            className="hidden md:block text-center text-muted-foreground mt-12 text-sm font-nunito"
-          >
-            Klicka på en panel för att se resurser och lektionsplaneringar
-          </motion.p>
+          {/* Bento grid */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+            {/* Grade selection */}
+            <section
+              className="md:col-span-12 rounded-[2.5rem] border border-primary/20 bg-secondary/40 backdrop-blur-sm px-6 py-10 flex flex-col items-center gap-8"
+              style={{
+                boxShadow:
+                  "0 24px 50px -24px hsl(211 69% 6% / 0.9), 0 8px 20px -12px hsl(211 69% 6% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
+              }}
+            >
+              <h2 className="text-lg md:text-xl font-orbitron text-accent">Välj årskurs</h2>
+              <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+                {SUPPORTED_GRADES.map((grade, index) => (
+                  <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
+                ))}
+              </div>
+              <p className="hidden md:block text-center text-muted-foreground text-sm font-nunito">
+                Klicka på en årskurs för att se resurser och lektionsplaneringar
+              </p>
+            </section>
 
-          {/* Lunch menu */}
-          <div className="w-full max-w-sm mt-8">
-            <LunchMenu />
+            {/* Lunch */}
+            <section
+              className="md:col-span-7 rounded-[2rem] border border-primary/10 bg-secondary/30 backdrop-blur-sm p-6"
+              style={{
+                boxShadow:
+                  "0 20px 40px -22px hsl(211 69% 6% / 0.85), inset 0 1px 0 hsl(0 0% 100% / 0.05)",
+              }}
+            >
+              <LunchMenu />
+            </section>
+
+            {/* Info */}
+            <section
+              className="md:col-span-5 rounded-[2rem] border border-accent/20 bg-primary/10 backdrop-blur-sm p-6 flex flex-col justify-between gap-6"
+              style={{
+                boxShadow:
+                  "0 20px 40px -22px hsl(211 69% 6% / 0.85), inset 0 1px 0 hsl(0 0% 100% / 0.05)",
+              }}
+            >
+              <div className="space-y-2">
+                <h3 className="text-lg font-orbitron text-foreground">Lektionsplanering</h3>
+                <p className="text-sm text-muted-foreground font-nunito">
+                  Nästa lektion, agenda och länkar hittar du inne på din årskurs.
+                </p>
+              </div>
+              <p className="text-xs uppercase tracking-widest text-accent font-nunito">
+                Åk 6 · 7 · 8 · 9
+              </p>
+            </section>
           </div>
         </main>
-
-        {/* Decorative copper line - hidden on mobile */}
-        <div 
-          className="hidden md:block h-[2px] mx-6 relative z-20"
-          style={{
-            background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6) 20%, hsl(var(--primary) / 0.8) 50%, hsl(var(--primary) / 0.6) 80%, transparent)",
-            boxShadow: "0 0 10px hsl(var(--primary) / 0.4)",
-          }}
-        />
 
         {/* Footer - hidden on mobile */}
         <div className="hidden md:block">

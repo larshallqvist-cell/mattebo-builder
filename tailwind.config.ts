@@ -14,10 +14,12 @@ export default {
     },
     extend: {
       fontFamily: {
-        "life-savers": ['"Life Savers"', "cursive"],
-        orbitron: ['"Orbitron"', "sans-serif"],
-        nunito: ['"Nunito Sans"', "system-ui", "sans-serif"],
-        body: ['"Nunito Sans"', "system-ui", "sans-serif"],
+        "life-savers": ['"Sora"', "sans-serif"],
+        orbitron: ['"Sora"', "system-ui", "sans-serif"],
+        sora: ['"Sora"', "system-ui", "sans-serif"],
+        nunito: ['"Manrope"', "system-ui", "sans-serif"],
+        manrope: ['"Manrope"', "system-ui", "sans-serif"],
+        body: ['"Manrope"', "system-ui", "sans-serif"],
         mathematics: ['"Mathematics"', "serif"],
         pecita: ['"Pecita"', "cursive"],
         caveat: ['"Caveat"', "cursive"],
