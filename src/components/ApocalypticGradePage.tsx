@@ -98,9 +98,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           </header>
         </div>
 
-        {/* Glowing divider */}
+        {/* Glowing divider — desktop gets extra top padding to clear the expanded nav */}
         <div
-          className="h-[2px] mx-6 relative z-20"
+          className="h-[2px] mx-6 relative z-20 lg:pt-28"
           style={{
             background: `linear-gradient(90deg, transparent, ${glowColor}80 20%, ${glowColor} 50%, ${glowColor}80 80%, transparent)`,
             boxShadow: `0 0 15px ${glowColor}60`,
