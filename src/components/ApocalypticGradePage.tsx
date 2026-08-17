@@ -3,7 +3,7 @@ import { Calendar, BookOpen, Volume2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginGate from "@/components/LoginGate";
 import WelcomeFlash from "@/components/WelcomeFlash";
-import { motion } from "framer-motion";
+
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
 import MetalPanel from "@/components/MetalPanel";
@@ -58,26 +58,32 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         {/* Welcome Flash for logged-in users */}
         {user && <WelcomeFlash />}
 
-        {/* Navigation */}
-        <ApocalypticNav />
+        {/* Navigation with grade, chapter selector, and homework on desktop */}
+        <ApocalypticNav
+          centerContent={
+            <>
+              <div className="flex items-center gap-3">
+                <h1
+                  className="text-xl font-orbitron font-bold whitespace-nowrap"
+                  style={{
+                    color: glowColor,
+                    textShadow: `0 0 16px ${glowColor}60`,
+                  }}
+                >
+                  Åk {grade}
+                </h1>
+                <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+              </div>
+              <HomeworkBanner grade={grade} compact />
+            </>
+          }
+        />
 
-        {/* Homework banner - top of the page on every breakpoint */}
-        <div className="px-3 md:px-6 pt-20 lg:pt-20 pb-1 relative z-20">
-          <div className="max-w-7xl mx-auto">
-            <HomeworkBanner grade={grade} />
-          </div>
-        </div>
-
-        {/* Header with chapter selector and grade title */}
-        <header className="relative pt-1 pb-2 px-3 md:px-6 z-20">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-row items-center justify-start gap-4"
-            >
-              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+        {/* Mobile: homework + header below nav */}
+        <div className="lg:hidden px-3 md:px-6 pt-20 pb-2 relative z-20">
+          <HomeworkBanner grade={grade} />
+          <header className="mt-3">
+            <div className="flex flex-row items-center justify-start gap-4">
               <h1
                 className="text-xl font-orbitron font-bold whitespace-nowrap"
                 style={{
@@ -87,13 +93,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               >
                 Åk {grade}
               </h1>
-            </motion.div>
-          </div>
-        </header>
+              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+            </div>
+          </header>
+        </div>
 
-        {/* Glowing divider */}
+        {/* Glowing divider — desktop gets extra top padding to clear the expanded nav */}
         <div
-          className="h-[2px] mx-6 relative z-20"
+          className="h-[2px] mx-6 relative z-20 lg:pt-28"
           style={{
             background: `linear-gradient(90deg, transparent, ${glowColor}80 20%, ${glowColor} 50%, ${glowColor}80 80%, transparent)`,
             boxShadow: `0 0 15px ${glowColor}60`,

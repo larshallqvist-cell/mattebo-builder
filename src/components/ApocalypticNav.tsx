@@ -24,9 +24,9 @@ const ApocalypticNav = ({ centerContent }: ApocalypticNavProps) => {
           Leteboskolan
         </Link>
 
-        {/* Center content (grade + chapter selector) */}
+        {/* Center content (grade + chapter selector + homework) */}
         {centerContent && (
-          <div className="hidden lg:flex items-center justify-center flex-1 min-w-0">
+          <div className="hidden lg:flex items-center justify-start flex-1 min-w-0 ml-4 gap-4">
             {centerContent}
           </div>
         )}
