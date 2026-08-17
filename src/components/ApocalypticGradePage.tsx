@@ -58,10 +58,26 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         {/* Welcome Flash for logged-in users */}
         {user && <WelcomeFlash />}
 
-        {/* Navigation - grade title + chapter selector live in the nav bar on desktop */}
-        <ApocalypticNav
-          centerContent={
-            <div className="flex items-center gap-4">
+        {/* Navigation */}
+        <ApocalypticNav />
+
+        {/* Homework banner - top of the page on every breakpoint */}
+        <div className="px-3 md:px-6 pt-20 lg:pt-20 pb-1 relative z-20">
+          <div className="max-w-7xl mx-auto">
+            <HomeworkBanner grade={grade} />
+          </div>
+        </div>
+
+        {/* Header with chapter selector and grade title */}
+        <header className="relative pt-1 pb-2 px-3 md:px-6 z-20">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-row items-center justify-start gap-4"
+            >
+              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               <h1
                 className="text-xl font-orbitron font-bold whitespace-nowrap"
                 style={{
@@ -71,49 +87,13 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               >
                 Åk {grade}
               </h1>
-              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
-            </div>
-          }
-        />
-
-        {/* Homework banner - top of the page on every breakpoint */}
-        <div className="px-3 md:px-6 pt-20 lg:pt-20 pb-1 relative z-20">
-          <div className="max-w-7xl mx-auto">
-            <HomeworkBanner grade={grade} />
-          </div>
-        </div>
-
-        {/* Compact Hero Header with Chapter Selector - mobile/tablet only */}
-        <header className="relative pt-1 pb-2 px-3 md:px-6 z-20 lg:hidden">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
-            >
-              {/* Title + Chapter Selector - stacked on mobile, inline on desktop */}
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                <h1 
-                  className="text-2xl md:text-3xl font-orbitron font-bold text-center md:text-left"
-                  style={{
-                    color: glowColor,
-                    textShadow: `0 0 20px ${glowColor}60, 0 0 40px ${glowColor}30`,
-                  }}
-                >
-                  Åk {grade}
-                </h1>
-                
-                {/* Chapter Selector - horizontal centered on mobile */}
-                <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
-              </div>
             </motion.div>
           </div>
         </header>
 
         {/* Glowing divider */}
-        <div 
-          className="h-[2px] mx-6 relative z-20 lg:hidden"
+        <div
+          className="h-[2px] mx-6 relative z-20"
           style={{
             background: `linear-gradient(90deg, transparent, ${glowColor}80 20%, ${glowColor} 50%, ${glowColor}80 80%, transparent)`,
             boxShadow: `0 0 15px ${glowColor}60`,
