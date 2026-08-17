@@ -58,26 +58,32 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         {/* Welcome Flash for logged-in users */}
         {user && <WelcomeFlash />}
 
-        {/* Navigation */}
-        <ApocalypticNav />
+        {/* Navigation with grade, chapter selector, and homework on desktop */}
+        <ApocalypticNav
+          centerContent={
+            <>
+              <div className="flex items-center gap-3">
+                <h1
+                  className="text-xl font-orbitron font-bold whitespace-nowrap"
+                  style={{
+                    color: glowColor,
+                    textShadow: `0 0 16px ${glowColor}60`,
+                  }}
+                >
+                  Åk {grade}
+                </h1>
+                <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+              </div>
+              <HomeworkBanner grade={grade} compact />
+            </>
+          }
+        />
 
-        {/* Homework banner - top of the page on every breakpoint */}
-        <div className="px-3 md:px-6 pt-20 lg:pt-20 pb-1 relative z-20">
-          <div className="max-w-7xl mx-auto">
-            <HomeworkBanner grade={grade} />
-          </div>
-        </div>
-
-        {/* Header with chapter selector and grade title */}
-        <header className="relative pt-1 pb-2 px-3 md:px-6 z-20">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-row items-center justify-start gap-4"
-            >
-              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+        {/* Mobile: homework + header below nav */}
+        <div className="lg:hidden px-3 md:px-6 pt-20 pb-2 relative z-20">
+          <HomeworkBanner grade={grade} />
+          <header className="mt-3">
+            <div className="flex flex-row items-center justify-start gap-4">
               <h1
                 className="text-xl font-orbitron font-bold whitespace-nowrap"
                 style={{
@@ -87,9 +93,10 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               >
                 Åk {grade}
               </h1>
-            </motion.div>
-          </div>
-        </header>
+              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+            </div>
+          </header>
+        </div>
 
         {/* Glowing divider */}
         <div
