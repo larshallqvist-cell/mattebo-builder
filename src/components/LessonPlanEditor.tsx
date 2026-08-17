@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { useLessonPlans, lessonPlanKey, getLessonPlan } from "@/hooks/useLessonPlans";
+import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/hooks/useLessonPlans";
 import { SUPPORTED_GRADES } from "@/config/app";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,10 +24,11 @@ const LessonPlanEditor = () => {
   const { toast } = useToast();
   const [grade, setGrade] = useState<number>(SUPPORTED_GRADES[0]);
   const { events, loading: eventsLoading } = useCalendarEvents(grade);
-  const { plans, savePlan } = useLessonPlans(grade);
+  const { plans, titles, savePlan } = useLessonPlans(grade);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [draftTitle, setDraftTitle] = useState("");
   const [saving, setSaving] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkText, setLinkText] = useState("");
@@ -48,12 +49,14 @@ const LessonPlanEditor = () => {
   useEffect(() => {
     setSelectedKey(null);
     setDraft("");
+    setDraftTitle("");
   }, [grade]);
 
   const selectLesson = (key: string) => {
     setSelectedKey(key);
     const event = upcoming.find((e) => lessonPlanKey(e) === key);
     setDraft((event ? getLessonPlan(plans, event) : undefined) ?? event?.description ?? "");
+    setDraftTitle((event ? getLessonTitle(titles, event) : undefined) ?? event?.title ?? "");
     // On narrow screens the editor sits below the list — bring it into view.
     requestAnimationFrame(() => {
       editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -100,7 +103,7 @@ const LessonPlanEditor = () => {
     if (!selectedEvent) return;
     setSaving(true);
     try {
-      await savePlan(selectedEvent, draft.slice(0, MAX_CONTENT_LENGTH));
+      await savePlan(selectedEvent, draft.slice(0, MAX_CONTENT_LENGTH), draftTitle.trim().slice(0, 120));
       toast({ title: "Sparat!", description: "Lektionsplaneringen är uppdaterad." });
     } catch (err) {
       toast({
@@ -166,6 +169,13 @@ const LessonPlanEditor = () => {
                 <p className="text-sm font-semibold text-foreground">
                   {formatLesson(selectedEvent.date, selectedEvent.endDate, selectedEvent.location)}
                 </p>
+                <Input
+                  value={draftTitle}
+                  onChange={(e) => setDraftTitle(e.target.value)}
+                  maxLength={120}
+                  placeholder="Rubrik, t.ex. Matte Åk 6 – Bråk"
+                  className="font-body text-sm"
+                />
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={() => insertAtCursor("**", "**", "rubrik")}>
                     <Bold className="mr-1 h-4 w-4" /> Fet
