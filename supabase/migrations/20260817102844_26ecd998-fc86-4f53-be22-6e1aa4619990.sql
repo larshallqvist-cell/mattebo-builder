@@ -1,0 +1,1 @@
+ALTER TABLE public.lesson_plans ADD COLUMN IF NOT EXISTS title text NOT NULL DEFAULT '';
