@@ -95,6 +95,27 @@ export type Database = {
         }
         Relationships: []
       }
+      homework: {
+        Row: {
+          content: string
+          grade: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          grade: number
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          grade?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_plans: {
         Row: {
           content: string

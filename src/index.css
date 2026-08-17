@@ -86,6 +86,11 @@
     --post-it-yellow: 50 100% 75%;
     --postit-light: 186 52% 92%;
     --postit-text: 203 70% 22%;
+    /* Homework banner — warm amber complement to the ocean palette */
+    --homework-bg: 33 90% 60%;
+    --homework-bg-soft: 36 90% 70%;
+    --homework-text: 28 80% 12%;
+    --homework-border: 30 85% 48%;
     --calculator-gray: 200 12% 85%;
     --divider-orange: 190 56% 45%;
 
@@ -130,6 +135,7 @@
     --sidebar-ring: 177 41% 55%;
   }
 }
+
 
 @layer base {
   * {

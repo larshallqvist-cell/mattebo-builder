@@ -10,6 +10,7 @@ import { Check, X, ArrowLeft, Shield } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import LessonPlanEditor from "@/components/LessonPlanEditor";
+import HomeworkEditor from "@/components/HomeworkEditor";
 
 interface AccessRequest {
   id: string;
@@ -82,6 +83,8 @@ const Admin = () => {
             </h1>
           </div>
         </div>
+
+        <HomeworkEditor />
 
         <LessonPlanEditor />
 

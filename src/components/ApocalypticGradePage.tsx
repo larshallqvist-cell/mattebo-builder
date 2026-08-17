@@ -14,6 +14,7 @@ import MattebokenLink from "@/components/MattebokenLink";
 import WebRadio from "@/components/WebRadio";
 import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
+import HomeworkBanner from "@/components/HomeworkBanner";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
@@ -75,8 +76,15 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           }
         />
 
+        {/* Homework banner - top of the page on every breakpoint */}
+        <div className="px-3 md:px-6 pt-20 lg:pt-20 pb-1 relative z-20">
+          <div className="max-w-7xl mx-auto">
+            <HomeworkBanner grade={grade} />
+          </div>
+        </div>
+
         {/* Compact Hero Header with Chapter Selector - mobile/tablet only */}
-        <header className="relative pt-20 pb-2 px-3 md:px-6 z-20 lg:hidden">
+        <header className="relative pt-1 pb-2 px-3 md:px-6 z-20 lg:hidden">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -113,7 +121,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         />
 
         {/* Main Content - Fixed to viewport, no external scroll */}
-        <main className="flex-1 px-3 lg:px-4 py-1 lg:pt-24 lg:pb-3 relative z-20 min-h-0">
+        <main className="flex-1 px-3 lg:px-4 py-1 lg:pt-2 lg:pb-3 relative z-20 min-h-0">
           <div className="max-w-7xl mx-auto h-full">
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
