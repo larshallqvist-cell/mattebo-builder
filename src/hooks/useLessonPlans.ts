@@ -15,25 +15,32 @@ export const legacyLessonPlanKey = (date: Date) => `legacy:${date.toISOString().
 export const getLessonPlan = (plans: Record<string, string>, event: PlanTarget) =>
   plans[lessonPlanKey(event)] ?? plans[legacyLessonPlanKey(event.date)];
 
+export const getLessonTitle = (titles: Record<string, string>, event: PlanTarget) =>
+  (titles[lessonPlanKey(event)] ?? "").trim() || undefined;
+
 export const useLessonPlans = (grade: number) => {
   const [plans, setPlans] = useState<Record<string, string>>({});
+  const [titles, setTitles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("lesson_plans")
-      .select("event_uid, starts_at, content")
+      .select("event_uid, starts_at, content, title")
       .eq("grade", grade)
       // Cache-buster: iOS Safari happily serves stale GET responses otherwise.
       .neq("id", crypto.randomUUID());
 
     if (!error && data) {
       const map: Record<string, string> = {};
+      const titleMap: Record<string, string> = {};
       data.forEach((row) => {
         map[row.event_uid as string] = (row.content as string) ?? "";
+        titleMap[row.event_uid as string] = ((row as { title?: string }).title as string) ?? "";
       });
       setPlans(map);
+      setTitles(titleMap);
     }
     setLoading(false);
   }, [grade]);
@@ -70,18 +77,19 @@ export const useLessonPlans = (grade: number) => {
   }, [grade, load]);
 
   const savePlan = useCallback(
-    async (event: PlanTarget, content: string) => {
+    async (event: PlanTarget, content: string, title = "") => {
       const { error } = await supabase
         .from("lesson_plans")
         .upsert(
-          { grade, event_uid: event.uid, starts_at: event.date.toISOString(), content },
+          { grade, event_uid: event.uid, starts_at: event.date.toISOString(), content, title },
           { onConflict: "grade,event_uid" },
         );
       if (error) throw error;
       setPlans((prev) => ({ ...prev, [lessonPlanKey(event)]: content }));
+      setTitles((prev) => ({ ...prev, [lessonPlanKey(event)]: title }));
     },
     [grade],
   );
 
-  return { plans, loading, savePlan, reload: load };
+  return { plans, titles, loading, savePlan, reload: load };
 };
