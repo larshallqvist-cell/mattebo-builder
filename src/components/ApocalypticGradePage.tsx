@@ -178,8 +178,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               </div>
             </div>
 
-            {/* Tablet: Two-column layout */}
-            <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4 h-full">
+            {/* Tablet: Two-column layout — auto height so the page scrolls */}
+            <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4 items-start pb-24">
               {/* Left column - Calendar + Tools */}
               <div className="flex flex-col gap-4">
                 <ScreenFrame title={`Planering Åk ${grade}`} className="flex-1 min-h-[300px]">
@@ -190,7 +190,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className="min-h-[200px]"
+                  className=""
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
@@ -198,12 +198,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="flex flex-col gap-2 h-full" style={{ minHeight: '180px' }}>
+                  <div className="flex flex-col gap-2">
                     <div className="flex gap-2 h-[15mm] flex-shrink-0">
                       <CalculatorThumbnail row />
                       <WebRadio horizontal onChannelChange={setActiveRadioChannel} />
                     </div>
-                    <div className="pt-2 border-t border-border/40 flex-1 min-h-0">
+                    <div className="pt-2 border-t border-border/40">
                       <LunchMenu compact />
                     </div>
                     <div className="flex justify-center">
@@ -219,9 +219,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
                   icon={<BookOpen className="w-5 h-5" />}
                   glowColor={glowColor}
-                  className="flex-1"
+                  className="flex-1 min-h-[300px]"
                 >
-                  <div className="h-full overflow-y-auto -m-4 px-4 py-4">
+                  <div className="max-h-[60vh] overflow-y-auto -m-4 px-4 py-4">
                     <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
                   </div>
                 </MetalPanel>
