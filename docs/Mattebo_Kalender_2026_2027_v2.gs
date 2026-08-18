@@ -353,13 +353,41 @@ function synkaHelaBladetTillKalender() {
   );
 }
 
-// Starttid kan vara ett riktigt datumvärde eller texten "yyyy-MM-dd HH:mm"
+// Skapar ett datum som motsvarar angiven KLOCKSLAG i svensk tid,
+// oavsett vilken tidszon Apps Script-projektet eller kalkylbladet har.
+function skapaStockholmDatum(y, mo, d, h, mi) {
+  let ms = Date.UTC(y, mo - 1, d, h, mi, 0);
+  // Iterera två gånger så att sommar-/vintertid hanteras korrekt
+  for (let i = 0; i < 2; i++) {
+    const offset = stockholmOffsetMs(new Date(ms));
+    ms = Date.UTC(y, mo - 1, d, h, mi, 0) - offset;
+  }
+  return new Date(ms);
+}
+
+function stockholmOffsetMs(date) {
+  const z = Utilities.formatDate(date, "Europe/Stockholm", "Z"); // t.ex. "+0200"
+  const sign = z.charAt(0) === "-" ? -1 : 1;
+  const hours = Number(z.substr(1, 2));
+  const mins = Number(z.substr(3, 2));
+  return sign * (hours * 60 + mins) * 60000;
+}
+
+// Starttid kan vara ett riktigt datumvärde eller texten "yyyy-MM-dd HH:mm".
+// Klockslaget tolkas alltid som svensk tid.
 function parseStarttid(v) {
-  if (v instanceof Date) return new Date(v.getTime());
+  if (v instanceof Date) {
+    // Läs av datum/tid i kalkylbladets tidszon och tolka det som svensk tid
+    const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+    const s = Utilities.formatDate(v, tz, "yyyy-MM-dd HH:mm");
+    const p = s.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/);
+    if (!p) return null;
+    return skapaStockholmDatum(Number(p[1]), Number(p[2]), Number(p[3]), Number(p[4]), Number(p[5]));
+  }
   const s = String(v).trim();
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
   if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), 0);
+  return skapaStockholmDatum(Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]));
 }
 
 
