@@ -6,8 +6,8 @@
 
 
 // ===== VERSION =====
-const VERSION = "1.6.0";
-const VERSION_DATUM = "2026-08-12";
+const VERSION = "1.7.0";
+const VERSION_DATUM = "2026-08-18";
 
 function versionsText() {
   return "Mattebo Kalender v" + VERSION + " (" + VERSION_DATUM + ")";
@@ -104,7 +104,8 @@ function isPraoVecka(datum) {
 }
 
 function isLov(datum) {
-  const dStr = Utilities.formatDate(datum, "Europe/Stockholm", "yyyy-MM-dd");
+  // datum är alltid ett UTC-förankrat datum (midnatt UTC) → läs det som UTC
+  const dStr = Utilities.formatDate(datum, "UTC", "yyyy-MM-dd");
   for (const l of LOV) {
     if (l.date) {
       if (dStr === l.date) return true;
@@ -117,9 +118,9 @@ function isLov(datum) {
 
 function getISOWeek(date) {
   const d = new Date(date.getTime());
-  d.setHours(0,0,0,0);
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-  const yearStart = new Date(d.getFullYear(), 0, 1);
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
