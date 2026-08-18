@@ -233,7 +233,7 @@ function genereraTermin(arskurs, startStr, endStr, rader) {
   const end = parseDateStockholm(endStr);
   const dag = new Date(start);
   while (dag <= end) {
-    const day = dag.getDay();
+    const day = dag.getUTCDay();
     if (day !== 0 && day !== 6 && !isLov(dag)) {
       if (arskurs === 9 && isPraoVecka(dag)) {
         // Åk 9 har prao v43, ingen matte
@@ -241,17 +241,17 @@ function genereraTermin(arskurs, startStr, endStr, rader) {
         processDay(dag, arskurs, rader);
       }
     }
-    dag.setDate(dag.getDate() + 1);
+    dag.setUTCDate(dag.getUTCDate() + 1);
   }
 }
 
 function processDay(datum, arskurs, rader) {
-  const day = datum.getDay(); // 0=sön, 1=mån ... 5=fre
+  const day = datum.getUTCDay(); // 0=sön, 1=mån ... 5=fre
   if (day === 0 || day === 6 || day === 1) return; // helg + måndag = inga lektioner
   const pass = SCHEMA[arskurs] || [];
   pass.filter(p => p.day === day).forEach(p => {
     const titel = "Matte Åk " + (p.grupp || arskurs);
-    const datumStr = Utilities.formatDate(datum, "Europe/Stockholm", "yyyy-MM-dd");
+    const datumStr = Utilities.formatDate(datum, "UTC", "yyyy-MM-dd");
     rader.push([
       titel,
       datumStr + " " + p.start,       // Starttid
