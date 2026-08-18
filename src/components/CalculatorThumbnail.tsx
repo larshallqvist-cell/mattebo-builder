@@ -5,9 +5,10 @@ import CalculatorModal from "./CalculatorModal";
 interface CalculatorThumbnailProps {
   compact?: boolean;
   fillSpace?: boolean;
+  row?: boolean;
 }
 
-const CalculatorThumbnail = ({ compact = false, fillSpace = false }: CalculatorThumbnailProps) => {
+const CalculatorThumbnail = ({ compact = false, fillSpace = false, row = false }: CalculatorThumbnailProps) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const baseClasses = `group relative rounded-lg overflow-hidden 
@@ -16,9 +17,11 @@ const CalculatorThumbnail = ({ compact = false, fillSpace = false }: CalculatorT
   
   const sizeClasses = fillSpace 
     ? 'w-full h-full' 
-    : compact 
-      ? 'w-[60px] aspect-[260/360] flex-shrink-0' 
-      : 'w-[100px] aspect-[260/360] flex-shrink-0';
+    : row
+      ? 'h-full w-auto flex-shrink-0'
+      : compact 
+        ? 'w-[60px] aspect-[260/360] flex-shrink-0' 
+        : 'w-[100px] aspect-[260/360] flex-shrink-0';
   
   return (
     <>
@@ -35,7 +38,7 @@ const CalculatorThumbnail = ({ compact = false, fillSpace = false }: CalculatorT
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
           <span className={`opacity-0 group-hover:opacity-100 transition-opacity text-white font-medium
-            bg-black/50 rounded-full ${compact ? 'text-[10px] px-1.5 py-0.5' : 'text-sm px-3 py-1'}`}>
+            bg-black/50 rounded-full ${row ? 'text-[8px] px-1 py-0' : compact ? 'text-[10px] px-1.5 py-0.5' : 'text-sm px-3 py-1'}`}>
             Öppna
           </span>
         </div>
