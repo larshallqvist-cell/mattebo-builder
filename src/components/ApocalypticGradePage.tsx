@@ -143,7 +143,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <PostItNote grade={grade} />
                 </MetalPanel>
 
-                {/* Combined Tools Panel - 3x3 grid that fills available space */}
+                {/* Combined Tools Panel - compact 15mm tool strip + lunch menu */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
@@ -155,11 +155,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="grid grid-cols-2 gap-2 flex-1 min-h-0" style={{ gridTemplateRows: 'repeat(2, 1fr)' }}>
-                    <CalculatorThumbnail fillSpace />
-                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                  <div className="flex gap-2 h-[15mm] flex-shrink-0">
+                    <CalculatorThumbnail row />
+                    <WebRadio horizontal onChannelChange={setActiveRadioChannel} />
                   </div>
-                  <div className="mt-2 pt-2 border-t border-border/40">
+                  <div className="mt-2 pt-2 border-t border-border/40 flex-1 min-h-0">
                     <LunchMenu compact />
                   </div>
                 </MetalPanel>
