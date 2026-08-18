@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import MetalPanel from "./MetalPanel";
-import { UtensilsCrossed, Edit2, Save, X, ExternalLink, Lock } from "lucide-react";
+import { UtensilsCrossed, Edit2, Save, X, ExternalLink, Lock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,18 +12,30 @@ interface DayMenu {
 
 const WEEKDAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 
-// Get the current week's dates (Mon-Fri)
-const getCurrentWeekDates = (): { day: string; date: string }[] => {
+// Get a week's dates (Mon-Fri), offset in weeks from the current one
+const getWeekDates = (offset = 0): { day: string; date: string }[] => {
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
   const monday = new Date(now);
-  monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + offset * 7);
 
   return WEEKDAYS.map((day, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     return { day, date: d.toISOString().split("T")[0] };
   });
+};
+
+// ISO week number for a date string
+const getWeekNumber = (iso: string): number => {
+  const d = new Date(iso + "T00:00:00Z");
+  const target = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const dayNum = (target.getUTCDay() + 6) % 7;
+  target.setUTCDate(target.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+  const firstDayNum = (firstThursday.getUTCDay() + 6) % 7;
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNum + 3);
+  return 1 + Math.round((target.getTime() - firstThursday.getTime()) / (7 * 24 * 3600 * 1000));
 };
 
 interface LunchMenuProps {
@@ -35,40 +47,45 @@ const LunchMenu = ({ compact = false }: LunchMenuProps) => {
   const [menuItems, setMenuItems] = useState<DayMenu[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editBuffer, setEditBuffer] = useState<DayMenu[]>([]);
+  const [weekOffset, setWeekOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  const weekDates = getCurrentWeekDates();
+  const weekDates = getWeekDates(0);
+
+  const loadWeek = useCallback(async (offset: number): Promise<DayMenu[]> => {
+    const wd = getWeekDates(offset);
+    const { data, error } = await supabase
+      .from("lunch_menu")
+      .select("date, menu_text")
+      .in("date", wd.map((d) => d.date));
+
+    if (error) {
+      console.error("Error fetching lunch menu:", error);
+      return wd.map((d) => ({ ...d, menu: "" }));
+    }
+    return wd.map((d) => ({
+      ...d,
+      menu: data?.find((row) => row.date === d.date)?.menu_text || "",
+    }));
+  }, []);
 
   // Fetch this week's menu from database
   useEffect(() => {
-    const fetchMenu = async () => {
-      const dates = weekDates.map((d) => d.date);
-      const { data, error } = await supabase
-        .from("lunch_menu")
-        .select("date, menu_text")
-        .in("date", dates);
-
-      if (error) {
-        console.error("Error fetching lunch menu:", error);
-        setLoading(false);
-        return;
-      }
-
-      const items: DayMenu[] = weekDates.map((wd) => {
-        const found = data?.find((row) => row.date === wd.date);
-        return { day: wd.day, date: wd.date, menu: found?.menu_text || "" };
-      });
-
+    loadWeek(0).then((items) => {
       setMenuItems(items);
       setEditBuffer(items);
       setLoading(false);
-    };
+    });
+  }, [loadWeek]);
 
-    fetchMenu();
-  }, []);
+  const goToWeek = async (offset: number) => {
+    setWeekOffset(offset);
+    setEditBuffer(await loadWeek(offset));
+  };
 
   const handleEdit = () => {
+    setWeekOffset(0);
     setEditBuffer([...menuItems]);
     setIsEditing(true);
   };
@@ -108,11 +125,13 @@ const LunchMenu = ({ compact = false }: LunchMenuProps) => {
       }
     }
 
-    setMenuItems(editBuffer);
+    if (weekOffset === 0) setMenuItems(editBuffer);
     setIsEditing(false);
+    setWeekOffset(0);
   };
 
   const handleCancel = () => {
+    setWeekOffset(0);
     setEditBuffer([...menuItems]);
     setIsEditing(false);
   };
