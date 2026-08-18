@@ -56,6 +56,8 @@ const aphorisms = [
 
 interface MascotPanelProps {
   className?: string;
+  /** Slimmer variant: smaller robot and tighter text, for tight columns */
+  compact?: boolean;
 }
 
 const SparkleEffect = forwardRef<HTMLDivElement>((_, ref) => {
@@ -98,7 +100,7 @@ const SparkleEffect = forwardRef<HTMLDivElement>((_, ref) => {
 });
 SparkleEffect.displayName = "SparkleEffect";
 
-const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className }, ref) => {
+const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className, compact = false }, ref) => {
   const [message, setMessage] = useState(aphorisms[Math.floor(Math.random() * aphorisms.length)]);
   const [isBlinking, setIsBlinking] = useState(false);
   const [sparkleKey, setSparkleKey] = useState(0);
@@ -136,7 +138,7 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className={`relative rounded-lg p-3 flex items-start gap-3 ${className || ''}`}
+      className={`relative rounded-lg flex items-start ${compact ? 'p-2 gap-2' : 'p-3 gap-3'} ${className || ''}`}
       style={{
         background: `linear-gradient(135deg, 
           hsl(215 25% 18%) 0%, 
@@ -152,7 +154,7 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
         className="flex-shrink-0 relative cursor-pointer transition-transform hover:scale-105 active:scale-95 focus:outline-none"
         title="Klicka för nytt citat!"
       >
-        <svg width="60" height="70" viewBox="0 0 60 70" className="drop-shadow-lg">
+        <svg width={compact ? 40 : 60} height={compact ? 47 : 70} viewBox="0 0 60 70" className="drop-shadow-lg">
           {/* Body - Calculator shape */}
           <rect 
             x="10" y="20" width="40" height="45" rx="4" 
@@ -243,7 +245,7 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
         />
         
         <div 
-          className="relative rounded-lg px-3 py-2"
+          className={`relative rounded-lg ${compact ? 'px-2.5 py-1.5' : 'px-3 py-2'}`}
           style={{
             background: "rgba(64, 224, 208, 0.1)",
             border: "1px solid rgba(64, 224, 208, 0.3)",
@@ -252,14 +254,14 @@ const MascotPanel = forwardRef<HTMLDivElement, MascotPanelProps>(({ className },
           <AnimatePresence mode="wait">
             <SparkleEffect key={sparkleKey} />
           </AnimatePresence>
-          <p className="text-sm font-orbitron font-semibold text-neon-turquoise mb-1">
+          <p className={`${compact ? 'text-xs' : 'text-sm'} font-orbitron font-semibold text-neon-turquoise mb-0.5`}>
             MAT-T-E
           </p>
           <motion.p 
             key={message}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm text-foreground/90 font-nunito"
+            className={`${compact ? 'text-xs leading-snug line-clamp-3' : 'text-sm'} text-foreground/90 font-nunito`}
           >
             {message}
           </motion.p>
