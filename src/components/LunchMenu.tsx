@@ -131,6 +131,37 @@ const LunchMenu = ({ compact = false }: LunchMenuProps) => {
   const isWeekend = !WEEKDAYS.includes(todayCapitalized);
   const todayMenu = menuItems.find((item) => item.day === todayCapitalized);
 
+  if (compact) {
+    return (
+      <div className="flex items-center gap-2 min-w-0 text-xs">
+        <UtensilsCrossed className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+        {loading ? (
+          <span className="text-muted-foreground/60">Laddar meny...</span>
+        ) : isWeekend ? (
+          <span className="text-muted-foreground/60">Ingen skollunch idag 🌙</span>
+        ) : todayMenu?.menu.trim() ? (
+          <span className="truncate text-foreground" title={todayMenu.menu}>
+            <span className="text-muted-foreground mr-1">{todayCapitalized.slice(0, 3)}:</span>
+            {todayMenu.menu}
+          </span>
+        ) : (
+          <span className="text-muted-foreground/60 truncate">Ingen meny inlagd för idag</span>
+        )}
+        {user && (
+          <a
+            href="https://sms.schoolsoft.se/letebo/jsp/teacher/right_teacher_lunchmenu.jsp?requestid=6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto p-1 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+            title="Öppna Schoolsoft"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        )}
+      </div>
+    );
+  }
+
   return (
     <MetalPanel className="h-full">
       <div className="flex items-center justify-between mb-2">
