@@ -28,8 +28,8 @@ export const SuspenseLessonCalendar = ({ grade }: LessonCalendarProps) => (
   </Suspense>
 );
 
-export const SuspenseMascotPanel = ({ className }: { className?: string }) => (
+export const SuspenseMascotPanel = ({ className, compact }: { className?: string; compact?: boolean }) => (
   <Suspense fallback={<div className={className} />}>
-    <LazyMascotPanel className={className} />
+    <LazyMascotPanel className={className} compact={compact} />
   </Suspense>
 );

@@ -75,6 +75,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               </div>
               <HomeworkBanner grade={grade} compact />
+              <div className="ml-auto flex-shrink-0">
+                <LessonTimer grade={grade} size={44} hideClock />
+              </div>
             </>
           }
         />
@@ -125,8 +128,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   </div>
                 </MetalPanel>
 
-                {/* Mascot at bottom of left column */}
-                <SuspenseMascotPanel className="flex-shrink-0" />
+                {/* Mascot at bottom of left column — compact so resources get more height */}
+                <SuspenseMascotPanel className="flex-shrink-0" compact />
               </div>
 
               {/* Column 2 - Next Lesson + Tools - flexible sizing */}
@@ -153,16 +156,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="flex items-start gap-3 h-full">
-                    <div className="flex-shrink-0 self-center">
-                      <LessonTimer grade={grade} size={100} />
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5 flex-1 self-stretch" style={{ gridTemplateRows: 'repeat(3, 1fr)' }}>
-                      <CalculatorThumbnail fillSpace />
-                      <GeogebraLink fillSpace />
-                      <MattebokenLink fillSpace />
-                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                    </div>
+                  <div className="grid grid-cols-2 gap-2 h-full" style={{ gridTemplateRows: 'repeat(2, 1fr)' }}>
+                    <CalculatorThumbnail fillSpace />
+                    <GeogebraLink fillSpace />
+                    <MattebokenLink fillSpace />
+                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                   </div>
                 </MetalPanel>
               </div>
@@ -198,7 +196,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   }
                 >
                   <div className="flex flex-col gap-2 h-full" style={{ minHeight: '180px' }}>
-                    <div className="grid grid-cols-3 gap-2 flex-1">
+                    <div className="grid grid-cols-2 gap-2 flex-1">
                       <CalculatorThumbnail fillSpace />
                       <GeogebraLink fillSpace />
                       <MattebokenLink fillSpace />
@@ -248,7 +246,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 }
               >
                 <div className="flex flex-col gap-3" style={{ minHeight: '240px' }}>
-                  <div className="grid grid-cols-3 gap-3 flex-1">
+                  <div className="grid grid-cols-2 gap-3 flex-1">
                     <CalculatorThumbnail fillSpace />
                     <GeogebraLink fillSpace />
                     <MattebokenLink fillSpace />
