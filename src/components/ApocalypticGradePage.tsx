@@ -114,7 +114,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           className="flex-1 px-3 lg:px-4 py-1 lg:pt-2 lg:pb-3 relative z-20 min-h-0 overflow-y-auto lg:overflow-hidden overscroll-contain"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <div className="max-w-7xl mx-auto h-full">
+          <div className="max-w-7xl mx-auto lg:h-full">
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
               {/* Column 1 - Resources with chapter headers + Mascot at bottom */}
