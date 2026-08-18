@@ -1,4 +1,4 @@
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, ExternalLink } from "lucide-react";
 import { useHomework } from "@/hooks/useHomework";
 
 interface HomeworkBannerProps {
@@ -6,6 +6,68 @@ interface HomeworkBannerProps {
   className?: string;
   compact?: boolean;
 }
+
+const URL_REGEX = /(\[[^\]]+\]\((?:https?:\/\/|www\.|mailto:)[^)\s]+\)|https?:\/\/\S+|www\.\S+)/gi;
+
+const isSafeHref = (href: string) => {
+  return /^(https?:|mailto:)/i.test(href) || href.startsWith("/") || href.startsWith("#");
+};
+
+const makeHref = (raw: string) => {
+  if (raw.startsWith("www.")) return `https://${raw}`;
+  return raw;
+};
+
+const renderContentWithLinks = (text: string) => {
+  const parts = text.split(URL_REGEX);
+  return parts.filter(Boolean).map((part, i) => {
+    const markdownMatch = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+    if (markdownMatch) {
+      const label = markdownMatch[1];
+      const href = makeHref(markdownMatch[2]);
+      if (!isSafeHref(href)) return <span key={i}>{label}</span>;
+      return (
+        <a
+          key={i}
+          href={href}
+          onClick={(e) => {
+            e.preventDefault();
+            window.open(href, "_blank", "noopener,noreferrer");
+          }}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--homework-text))/40] bg-[hsl(var(--homework-text))/10] px-1 py-[1px] text-[0.75rem] font-medium transition-colors hover:bg-[hsl(var(--homework-text))/20] hover:border-[hsl(var(--homework-text))/70]"
+        >
+          {label}
+          <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
+        </a>
+      );
+    }
+
+    if (/^https?:\/\/\S+|^www\.\S+/.test(part)) {
+      const href = makeHref(part);
+      if (!isSafeHref(href)) return <span key={i}>{part}</span>;
+      return (
+        <a
+          key={i}
+          href={href}
+          onClick={(e) => {
+            e.preventDefault();
+            window.open(href, "_blank", "noopener,noreferrer");
+          }}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--homework-text))/40] bg-[hsl(var(--homework-text))/10] px-1 py-[1px] text-[0.75rem] font-medium transition-colors hover:bg-[hsl(var(--homework-text))/20] hover:border-[hsl(var(--homework-text))/70]"
+        >
+          {part}
+          <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
+        </a>
+      );
+    }
+
+    return <span key={i}>{part}</span>;
+  });
+};
 
 /** Rectangular highlight box at the very top of a grade page. */
 const HomeworkBanner = ({ grade, className = "", compact = false }: HomeworkBannerProps) => {
@@ -29,7 +91,7 @@ const HomeworkBanner = ({ grade, className = "", compact = false }: HomeworkBann
         {title}
       </h2>
       <p className={`mt-1 whitespace-pre-line font-nunito leading-snug ${compact ? "text-sm line-clamp-3" : "text-sm md:text-[0.95rem]"}`}>
-        {content}
+        {renderContentWithLinks(content)}
       </p>
     </section>
   );
