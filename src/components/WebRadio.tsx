@@ -34,8 +34,16 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
   
   const channels: RadioChannel[] = [
     { 
-      id: "spa", 
-      name: "Spa", 
+      id: "faith", 
+      name: "Faith", 
+      emoji: "✝️", 
+      description: "Lovsång & gospel", 
+      color: "from-indigo-500 to-blue-600",
+      streamUrl: "https://stream.faithfm.com.au/faith"
+    },
+    { 
+      id: "lugn", 
+      name: "Lugn", 
       emoji: "🧘", 
       description: "Lugn & avslappning", 
       color: "from-teal-500 to-cyan-600",
@@ -43,21 +51,12 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRa
       metadataId: "dronezone"
     },
     { 
-      id: "rock", 
-      name: "Rock", 
-      emoji: "🎸", 
-      description: "70-tals klassiker", 
-      color: "from-amber-500 to-orange-600",
-      streamUrl: "https://ice1.somafm.com/seventies-128-mp3",
-      metadataId: "seventies"
-    },
-    { 
-      id: "pop", 
-      name: "Pop", 
+      id: "p3", 
+      name: "P3", 
       emoji: "🎧", 
-      description: "Aktuella hits (OnlyHit)", 
+      description: "Sveriges Radio P3", 
       color: "from-purple-500 to-pink-600",
-      streamUrl: "https://cdn.onlyhitsradio.net/onlyhits"
+      streamUrl: "https://http-live.sr.se/p3-mp3-192"
     },
   ];
 
