@@ -183,7 +183,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <SuspenseLessonCalendar grade={grade} />
                 </ScreenFrame>
 
-                {/* Tools - 3x3 grid */}
+                {/* Tools - compact 15mm strip + lunch menu + timer */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
@@ -196,11 +196,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   }
                 >
                   <div className="flex flex-col gap-2 h-full" style={{ minHeight: '180px' }}>
-                    <div className="grid grid-cols-2 gap-2 flex-1">
-                      <CalculatorThumbnail fillSpace />
-                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    <div className="flex gap-2 h-[15mm] flex-shrink-0">
+                      <CalculatorThumbnail row />
+                      <WebRadio horizontal onChannelChange={setActiveRadioChannel} />
                     </div>
-                    <div className="pt-2 border-t border-border/40">
+                    <div className="pt-2 border-t border-border/40 flex-1 min-h-0">
                       <LunchMenu compact />
                     </div>
                     <div className="flex justify-center">
