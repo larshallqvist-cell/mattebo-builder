@@ -72,7 +72,7 @@ const HomeworkEditor = () => {
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            {draft.length}/{MAX_LENGTH} tecken · radbyten visas som de skrivs. Töm fältet för att dölja rutan.
+            {draft.length}/{MAX_LENGTH} tecken · radbyten visas som de skrivs · länkar skrivs som https://… eller [text](https://…) · Töm fältet för att dölja rutan.
           </span>
           <Button onClick={handleSave} disabled={saving || loading}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
