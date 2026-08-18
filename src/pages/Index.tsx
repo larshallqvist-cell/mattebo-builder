@@ -4,7 +4,6 @@ import ApocalypticGradeCard from "@/components/ApocalypticGradeCard";
 import ApocalypticNav from "@/components/ApocalypticNav";
 import ApocalypticFooter from "@/components/ApocalypticFooter";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import LunchMenu from "@/components/LunchMenu";
 import { SUPPORTED_GRADES } from "@/config/app";
 
 
