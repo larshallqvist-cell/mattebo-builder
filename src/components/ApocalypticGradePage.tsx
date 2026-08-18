@@ -196,7 +196,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   }
                 >
                   <div className="flex flex-col gap-2 h-full" style={{ minHeight: '180px' }}>
-                    <div className="grid grid-cols-3 gap-2 flex-1">
+                    <div className="grid grid-cols-2 gap-2 flex-1">
                       <CalculatorThumbnail fillSpace />
                       <GeogebraLink fillSpace />
                       <MattebokenLink fillSpace />
@@ -246,7 +246,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 }
               >
                 <div className="flex flex-col gap-3" style={{ minHeight: '240px' }}>
-                  <div className="grid grid-cols-3 gap-3 flex-1">
+                  <div className="grid grid-cols-2 gap-3 flex-1">
                     <CalculatorThumbnail fillSpace />
                     <GeogebraLink fillSpace />
                     <MattebokenLink fillSpace />
