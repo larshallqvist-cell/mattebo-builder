@@ -6,8 +6,8 @@
 
 
 // ===== VERSION =====
-const VERSION = "1.6.0";
-const VERSION_DATUM = "2026-08-12";
+const VERSION = "1.7.0";
+const VERSION_DATUM = "2026-08-18";
 
 function versionsText() {
   return "Mattebo Kalender v" + VERSION + " (" + VERSION_DATUM + ")";
@@ -104,7 +104,8 @@ function isPraoVecka(datum) {
 }
 
 function isLov(datum) {
-  const dStr = Utilities.formatDate(datum, "Europe/Stockholm", "yyyy-MM-dd");
+  // datum är alltid ett UTC-förankrat datum (midnatt UTC) → läs det som UTC
+  const dStr = Utilities.formatDate(datum, "UTC", "yyyy-MM-dd");
   for (const l of LOV) {
     if (l.date) {
       if (dStr === l.date) return true;
@@ -117,9 +118,9 @@ function isLov(datum) {
 
 function getISOWeek(date) {
   const d = new Date(date.getTime());
-  d.setHours(0,0,0,0);
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-  const yearStart = new Date(d.getFullYear(), 0, 1);
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
@@ -232,7 +233,7 @@ function genereraTermin(arskurs, startStr, endStr, rader) {
   const end = parseDateStockholm(endStr);
   const dag = new Date(start);
   while (dag <= end) {
-    const day = dag.getDay();
+    const day = dag.getUTCDay();
     if (day !== 0 && day !== 6 && !isLov(dag)) {
       if (arskurs === 9 && isPraoVecka(dag)) {
         // Åk 9 har prao v43, ingen matte
@@ -240,17 +241,17 @@ function genereraTermin(arskurs, startStr, endStr, rader) {
         processDay(dag, arskurs, rader);
       }
     }
-    dag.setDate(dag.getDate() + 1);
+    dag.setUTCDate(dag.getUTCDate() + 1);
   }
 }
 
 function processDay(datum, arskurs, rader) {
-  const day = datum.getDay(); // 0=sön, 1=mån ... 5=fre
+  const day = datum.getUTCDay(); // 0=sön, 1=mån ... 5=fre
   if (day === 0 || day === 6 || day === 1) return; // helg + måndag = inga lektioner
   const pass = SCHEMA[arskurs] || [];
   pass.filter(p => p.day === day).forEach(p => {
     const titel = "Matte Åk " + (p.grupp || arskurs);
-    const datumStr = Utilities.formatDate(datum, "Europe/Stockholm", "yyyy-MM-dd");
+    const datumStr = Utilities.formatDate(datum, "UTC", "yyyy-MM-dd");
     rader.push([
       titel,
       datumStr + " " + p.start,       // Starttid
@@ -352,13 +353,41 @@ function synkaHelaBladetTillKalender() {
   );
 }
 
-// Starttid kan vara ett riktigt datumvärde eller texten "yyyy-MM-dd HH:mm"
+// Skapar ett datum som motsvarar angiven KLOCKSLAG i svensk tid,
+// oavsett vilken tidszon Apps Script-projektet eller kalkylbladet har.
+function skapaStockholmDatum(y, mo, d, h, mi) {
+  let ms = Date.UTC(y, mo - 1, d, h, mi, 0);
+  // Iterera två gånger så att sommar-/vintertid hanteras korrekt
+  for (let i = 0; i < 2; i++) {
+    const offset = stockholmOffsetMs(new Date(ms));
+    ms = Date.UTC(y, mo - 1, d, h, mi, 0) - offset;
+  }
+  return new Date(ms);
+}
+
+function stockholmOffsetMs(date) {
+  const z = Utilities.formatDate(date, "Europe/Stockholm", "Z"); // t.ex. "+0200"
+  const sign = z.charAt(0) === "-" ? -1 : 1;
+  const hours = Number(z.substr(1, 2));
+  const mins = Number(z.substr(3, 2));
+  return sign * (hours * 60 + mins) * 60000;
+}
+
+// Starttid kan vara ett riktigt datumvärde eller texten "yyyy-MM-dd HH:mm".
+// Klockslaget tolkas alltid som svensk tid.
 function parseStarttid(v) {
-  if (v instanceof Date) return new Date(v.getTime());
+  if (v instanceof Date) {
+    // Läs av datum/tid i kalkylbladets tidszon och tolka det som svensk tid
+    const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+    const s = Utilities.formatDate(v, tz, "yyyy-MM-dd HH:mm");
+    const p = s.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/);
+    if (!p) return null;
+    return skapaStockholmDatum(Number(p[1]), Number(p[2]), Number(p[3]), Number(p[4]), Number(p[5]));
+  }
   const s = String(v).trim();
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
   if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), 0);
+  return skapaStockholmDatum(Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]));
 }
 
 
