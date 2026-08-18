@@ -110,7 +110,10 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         />
 
         {/* Main Content - Fixed to viewport, no external scroll */}
-        <main className="flex-1 px-3 lg:px-4 py-1 lg:pt-2 lg:pb-3 relative z-20 min-h-0">
+        <main
+          className="flex-1 px-3 lg:px-4 py-1 lg:pt-2 lg:pb-3 relative z-20 min-h-0 overflow-y-auto lg:overflow-hidden overscroll-contain"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           <div className="max-w-7xl mx-auto h-full">
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
             <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
@@ -132,7 +135,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               </div>
 
               {/* Column 2 - Next Lesson + Tools - flexible sizing */}
-              <div className="lg:col-span-4 flex flex-col gap-2 h-full min-h-0">
+              <div className="lg:col-span-4 flex flex-col gap-2 h-full min-h-0 overflow-y-auto industrial-scrollbar pr-1">
                 {/* Next Lesson - elastic, expands with content */}
                 <MetalPanel 
                   title={nextLessonTitle}
