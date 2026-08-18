@@ -154,6 +154,18 @@ const LunchMenu = ({ compact = false }: LunchMenuProps) => {
     if (isEditing) {
       return (
         <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <button onClick={() => goToWeek(weekOffset - 1)} className="p-1 rounded hover:bg-primary/20 text-muted-foreground" title="Föregående vecka">
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-[10px] font-medium text-foreground">
+              Vecka {editBuffer[0] ? getWeekNumber(editBuffer[0].date) : ""}
+              {weekOffset === 0 ? " (denna)" : ""}
+            </span>
+            <button onClick={() => goToWeek(weekOffset + 1)} className="p-1 rounded hover:bg-primary/20 text-muted-foreground" title="Nästa vecka">
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
           {editBuffer.map((item, index) => (
             <div key={item.date} className="flex gap-2 items-center">
               <span className="text-[10px] font-medium text-muted-foreground w-8 shrink-0">
