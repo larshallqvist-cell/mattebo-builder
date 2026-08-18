@@ -9,9 +9,8 @@ import ApocalypticNav from "@/components/ApocalypticNav";
 import MetalPanel from "@/components/MetalPanel";
 import ScreenFrame from "@/components/ScreenFrame";
 import CalculatorThumbnail from "@/components/CalculatorThumbnail";
-import GeogebraLink from "@/components/GeogebraLink";
-import MattebokenLink from "@/components/MattebokenLink";
 import WebRadio from "@/components/WebRadio";
+import LunchMenu from "@/components/LunchMenu";
 import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import HomeworkBanner from "@/components/HomeworkBanner";
@@ -148,7 +147,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className="flex-1 min-h-0" 
+                  className="flex-1 min-h-0 flex flex-col" 
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
@@ -156,11 +155,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="grid grid-cols-2 gap-2 h-full" style={{ gridTemplateRows: 'repeat(2, 1fr)' }}>
+                  <div className="grid grid-cols-2 gap-2 flex-1 min-h-0" style={{ gridTemplateRows: 'repeat(2, 1fr)' }}>
                     <CalculatorThumbnail fillSpace />
-                    <GeogebraLink fillSpace />
-                    <MattebokenLink fillSpace />
                     <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-border/40">
+                    <LunchMenu compact />
                   </div>
                 </MetalPanel>
               </div>
@@ -198,9 +198,10 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <div className="flex flex-col gap-2 h-full" style={{ minHeight: '180px' }}>
                     <div className="grid grid-cols-2 gap-2 flex-1">
                       <CalculatorThumbnail fillSpace />
-                      <GeogebraLink fillSpace />
-                      <MattebokenLink fillSpace />
                       <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    </div>
+                    <div className="pt-2 border-t border-border/40">
+                      <LunchMenu compact />
                     </div>
                     <div className="flex justify-center">
                       <LessonTimer grade={grade} />
@@ -248,9 +249,10 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <div className="flex flex-col gap-3" style={{ minHeight: '240px' }}>
                   <div className="grid grid-cols-2 gap-3 flex-1">
                     <CalculatorThumbnail fillSpace />
-                    <GeogebraLink fillSpace />
-                    <MattebokenLink fillSpace />
                     <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-border/40">
+                    <LunchMenu compact />
                   </div>
                   <div className="flex justify-center">
                     <LessonTimer grade={grade} />

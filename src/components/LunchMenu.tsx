@@ -26,7 +26,12 @@ const getCurrentWeekDates = (): { day: string; date: string }[] => {
   });
 };
 
-const LunchMenu = () => {
+interface LunchMenuProps {
+  /** Renders a single compact row without the surrounding panel */
+  compact?: boolean;
+}
+
+const LunchMenu = ({ compact = false }: LunchMenuProps) => {
   const [menuItems, setMenuItems] = useState<DayMenu[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editBuffer, setEditBuffer] = useState<DayMenu[]>([]);
@@ -125,6 +130,76 @@ const LunchMenu = () => {
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);
   const isWeekend = !WEEKDAYS.includes(todayCapitalized);
   const todayMenu = menuItems.find((item) => item.day === todayCapitalized);
+
+  if (compact) {
+    if (isEditing) {
+      return (
+        <div className="space-y-1.5">
+          {editBuffer.map((item, index) => (
+            <div key={item.date} className="flex gap-2 items-center">
+              <span className="text-[10px] font-medium text-muted-foreground w-8 shrink-0">
+                {item.day.slice(0, 3)}
+              </span>
+              <input
+                type="text"
+                value={item.menu}
+                onChange={(e) => updateDay(index, e.target.value)}
+                placeholder="Dagens rätt..."
+                className="flex-1 min-w-0 text-[11px] bg-background/50 border border-border/50 rounded px-2 py-1
+                         text-foreground placeholder:text-muted-foreground/50
+                         focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          ))}
+          <div className="flex justify-end gap-1">
+            <button onClick={handleSave} className="p-1 rounded hover:bg-primary/20 text-primary" title="Spara">
+              <Save className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={handleCancel} className="p-1 rounded hover:bg-destructive/20 text-muted-foreground" title="Avbryt">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center gap-2 min-w-0 text-xs">
+        <UtensilsCrossed className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+        {loading ? (
+          <span className="text-muted-foreground/60">Laddar meny...</span>
+        ) : isWeekend ? (
+          <span className="text-muted-foreground/60">Ingen skollunch idag 🌙</span>
+        ) : todayMenu?.menu.trim() ? (
+          <span className="truncate text-foreground" title={todayMenu.menu}>
+            <span className="text-muted-foreground mr-1">{todayCapitalized.slice(0, 3)}:</span>
+            {todayMenu.menu}
+          </span>
+        ) : (
+          <span className="text-muted-foreground/60 truncate">Ingen meny inlagd för idag</span>
+        )}
+        {user && (
+          <>
+            <button
+              onClick={handleEdit}
+              className="ml-auto p-1 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+              title="Redigera meny"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+            <a
+            href="https://sms.schoolsoft.se/letebo/jsp/teacher/right_teacher_lunchmenu.jsp?requestid=6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+            title="Öppna Schoolsoft"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <MetalPanel className="h-full">
