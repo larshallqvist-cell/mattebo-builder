@@ -38,7 +38,7 @@ const CalculatorThumbnail = ({ compact = false, fillSpace = false, row = false }
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
           <span className={`opacity-0 group-hover:opacity-100 transition-opacity text-white font-medium
-            bg-black/50 rounded-full ${compact ? 'text-[10px] px-1.5 py-0.5' : 'text-sm px-3 py-1'}`}>
+            bg-black/50 rounded-full ${row ? 'text-[8px] px-1 py-0' : compact ? 'text-[10px] px-1.5 py-0.5' : 'text-sm px-3 py-1'}`}>
             Öppna
           </span>
         </div>

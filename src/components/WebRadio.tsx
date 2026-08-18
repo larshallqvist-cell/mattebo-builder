@@ -184,6 +184,34 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
   
   const activeChannelData = channels.find(c => c.id === activeChannel);
   
+  // Horizontal strip mode — one row of compact channel buttons
+  if (horizontal) {
+    return (
+      <div className="flex gap-1.5 flex-1 h-full min-w-0">
+        {channels.map((channel) => (
+          <button
+            key={channel.id}
+            onClick={() => handleChannelClick(channel)}
+            disabled={isLoading}
+            title={channel.description}
+            className={`
+              flex-1 flex flex-col items-center justify-center gap-0.5 rounded-lg min-w-0
+              transition-all duration-200 
+              ${activeChannel === channel.id 
+                ? `bg-gradient-to-br ${channel.color} text-white shadow-lg` 
+                : 'bg-secondary/50 hover:bg-secondary hover:scale-105 text-foreground'
+              }
+              ${isLoading ? 'opacity-70 cursor-wait' : ''}
+            `}
+          >
+            <span className="text-base md:text-lg leading-none">{channel.emoji}</span>
+            <span className="text-[8px] md:text-[9px] font-medium leading-none opacity-80 truncate px-0.5">{channel.name}</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+  
   // fillSpace mode - returns fragments for parent grid integration (6 radio buttons only)
   if (fillSpace) {
     return (
