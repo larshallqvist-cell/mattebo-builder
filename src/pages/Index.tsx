@@ -35,57 +35,24 @@ const Index = () => {
             </motion.p>
           </div>
 
-          {/* Bento grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-            {/* Grade selection */}
-            <section
-              className="md:col-span-12 rounded-[2.5rem] border border-primary/20 bg-secondary/40 backdrop-blur-sm px-6 py-10 flex flex-col items-center gap-8"
-              style={{
-                boxShadow:
-                  "0 24px 50px -24px hsl(211 69% 6% / 0.9), 0 8px 20px -12px hsl(211 69% 6% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
-              }}
-            >
-              <h2 className="text-lg md:text-xl font-orbitron text-accent">Välj årskurs</h2>
-              <div className="flex flex-wrap justify-center gap-6 md:gap-10">
-                {SUPPORTED_GRADES.map((grade, index) => (
-                  <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
-                ))}
-              </div>
-              <p className="hidden md:block text-center text-muted-foreground text-sm font-nunito">
-                Klicka på en årskurs för att se resurser och lektionsplaneringar
-              </p>
-            </section>
-
-            {/* Lunch */}
-            <section
-              className="md:col-span-7 rounded-[2rem] border border-primary/10 bg-secondary/30 backdrop-blur-sm p-6"
-              style={{
-                boxShadow:
-                  "0 20px 40px -22px hsl(211 69% 6% / 0.85), inset 0 1px 0 hsl(0 0% 100% / 0.05)",
-              }}
-            >
-              <LunchMenu />
-            </section>
-
-            {/* Info */}
-            <section
-              className="md:col-span-5 rounded-[2rem] border border-accent/20 bg-primary/10 backdrop-blur-sm p-6 flex flex-col justify-between gap-6"
-              style={{
-                boxShadow:
-                  "0 20px 40px -22px hsl(211 69% 6% / 0.85), inset 0 1px 0 hsl(0 0% 100% / 0.05)",
-              }}
-            >
-              <div className="space-y-2">
-                <h3 className="text-lg font-orbitron text-foreground">Lektionsplanering</h3>
-                <p className="text-sm text-muted-foreground font-nunito">
-                  Nästa lektion, agenda och länkar hittar du inne på din årskurs.
-                </p>
-              </div>
-              <p className="text-xs uppercase tracking-widest text-accent font-nunito">
-                Åk 6 · 7 · 8 · 9
-              </p>
-            </section>
-          </div>
+          {/* Grade selection */}
+          <section
+            className="rounded-[2.5rem] border border-primary/20 bg-secondary/40 backdrop-blur-sm px-6 py-10 flex flex-col items-center gap-8"
+            style={{
+              boxShadow:
+                "0 24px 50px -24px hsl(211 69% 6% / 0.9), 0 8px 20px -12px hsl(211 69% 6% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
+            }}
+          >
+            <h2 className="text-lg md:text-xl font-orbitron text-accent">Välj årskurs</h2>
+            <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+              {SUPPORTED_GRADES.map((grade, index) => (
+                <ApocalypticGradeCard key={grade} grade={grade} delay={index} />
+              ))}
+            </div>
+            <p className="hidden md:block text-center text-muted-foreground text-sm font-nunito">
+              Klicka på en årskurs för att se resurser och lektionsplaneringar
+            </p>
+          </section>
         </main>
 
         {/* Footer - hidden on mobile */}
