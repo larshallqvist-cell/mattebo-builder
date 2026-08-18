@@ -4,6 +4,8 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 interface LessonTimerProps {
   grade: number;
   size?: number;
+  /** Hide the clock label below the dial (used in the compact header variant) */
+  hideClock?: boolean;
 }
 
 const DEFAULT_SIZE = 60;
@@ -30,7 +32,7 @@ function piePath(fraction: number): string {
           Z`;
 }
 
-const LessonTimer = ({ grade, size = DEFAULT_SIZE }: LessonTimerProps) => {
+const LessonTimer = ({ grade, size = DEFAULT_SIZE, hideClock = false }: LessonTimerProps) => {
   const { upcomingEvents } = useCalendarEvents(grade);
   const [now, setNow] = useState(() => Date.now());
 
@@ -108,9 +110,11 @@ const LessonTimer = ({ grade, size = DEFAULT_SIZE }: LessonTimerProps) => {
           {timeDisplay}
         </span>
       </div>
-      <span className={`${size >= 100 ? 'text-xs' : 'text-[10px]'} text-muted-foreground font-mono leading-tight`}>
-        {clockStr}
-      </span>
+      {!hideClock && (
+        <span className={`${size >= 100 ? 'text-xs' : 'text-[10px]'} text-muted-foreground font-mono leading-tight`}>
+          {clockStr}
+        </span>
+      )}
     </div>
   );
 };
