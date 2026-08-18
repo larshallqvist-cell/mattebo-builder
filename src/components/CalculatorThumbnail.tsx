@@ -5,9 +5,10 @@ import CalculatorModal from "./CalculatorModal";
 interface CalculatorThumbnailProps {
   compact?: boolean;
   fillSpace?: boolean;
+  row?: boolean;
 }
 
-const CalculatorThumbnail = ({ compact = false, fillSpace = false }: CalculatorThumbnailProps) => {
+const CalculatorThumbnail = ({ compact = false, fillSpace = false, row = false }: CalculatorThumbnailProps) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const baseClasses = `group relative rounded-lg overflow-hidden 
@@ -16,9 +17,11 @@ const CalculatorThumbnail = ({ compact = false, fillSpace = false }: CalculatorT
   
   const sizeClasses = fillSpace 
     ? 'w-full h-full' 
-    : compact 
-      ? 'w-[60px] aspect-[260/360] flex-shrink-0' 
-      : 'w-[100px] aspect-[260/360] flex-shrink-0';
+    : row
+      ? 'h-full w-auto flex-shrink-0'
+      : compact 
+        ? 'w-[60px] aspect-[260/360] flex-shrink-0' 
+        : 'w-[100px] aspect-[260/360] flex-shrink-0';
   
   return (
     <>

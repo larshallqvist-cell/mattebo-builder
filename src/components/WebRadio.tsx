@@ -21,9 +21,10 @@ interface WebRadioProps {
   onChannelChange?: (channel: string | null) => void;
   compact?: boolean;
   fillSpace?: boolean;
+  horizontal?: boolean;
 }
 
-const WebRadio = ({ onChannelChange, compact = false, fillSpace = false }: WebRadioProps) => {
+const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizontal = false }: WebRadioProps) => {
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<TrackInfo | null>(null);
