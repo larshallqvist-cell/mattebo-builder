@@ -26,7 +26,12 @@ const getCurrentWeekDates = (): { day: string; date: string }[] => {
   });
 };
 
-const LunchMenu = () => {
+interface LunchMenuProps {
+  /** Renders a single compact row without the surrounding panel */
+  compact?: boolean;
+}
+
+const LunchMenu = ({ compact = false }: LunchMenuProps) => {
   const [menuItems, setMenuItems] = useState<DayMenu[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editBuffer, setEditBuffer] = useState<DayMenu[]>([]);
