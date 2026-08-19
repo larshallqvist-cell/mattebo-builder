@@ -6,8 +6,8 @@
 
 
 // ===== VERSION =====
-const VERSION = "1.7.0";
-const VERSION_DATUM = "2026-08-18";
+const VERSION = "1.8.0";
+const VERSION_DATUM = "2026-08-19";
 
 function versionsText() {
   return "Mattebo Kalender v" + VERSION + " (" + VERSION_DATUM + ")";
@@ -69,6 +69,7 @@ const SCHEMA = {
   9: [
     { day: 3, start: "10:00", slut: "11:00", sal: "H1" },
     { day: 3, start: "11:10", slut: "12:05", sal: "H2" },
+    { day: 3, start: "13:55", slut: "14:20", sal: "H1" },
     { day: 4, start: "14:25", slut: "15:25", sal: "H1" },
     { day: 5, start: "11:00", slut: "11:40", sal: "H1" }
   ]
