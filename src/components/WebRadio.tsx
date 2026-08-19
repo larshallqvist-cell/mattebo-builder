@@ -38,9 +38,9 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
       id: "faith", 
       name: "Faith", 
       emoji: "✝️", 
-      description: "Lovsång & gospel", 
+      description: "Kristen pop & lovsång", 
       color: "from-indigo-500 to-blue-600",
-      streamUrl: "https://stream.faithfm.com.au/faith"
+      streamUrl: "https://mml2.prostream.se/listen/faith_beats_radio/radio.mp3"
     },
     { 
       id: "lugn", 
@@ -57,7 +57,7 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
       emoji: "🎧", 
       description: "Sveriges Radio P3", 
       color: "from-purple-500 to-pink-600",
-      streamUrl: "https://http-live.sr.se/p3-mp3-192"
+      streamUrl: "https://www.sverigesradio.se/topsy/direkt/srapi/164-hi-mp3"
     },
   ];
 
