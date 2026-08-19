@@ -6,8 +6,8 @@
 
 
 // ===== VERSION =====
-const VERSION = "1.7.0";
-const VERSION_DATUM = "2026-08-18";
+const VERSION = "1.8.0";
+const VERSION_DATUM = "2026-08-19";
 
 function versionsText() {
   return "Mattebo Kalender v" + VERSION + " (" + VERSION_DATUM + ")";
