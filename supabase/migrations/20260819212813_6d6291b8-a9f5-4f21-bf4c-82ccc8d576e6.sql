@@ -1,0 +1,1 @@
+DELETE FROM public.calendar_cache WHERE grade = 8;
