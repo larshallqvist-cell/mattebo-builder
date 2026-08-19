@@ -6,9 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Check, X, ArrowLeft, Shield } from "lucide-react";
+import { Check, X, ArrowLeft, Shield, Trash2 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import LessonPlanEditor from "@/components/LessonPlanEditor";
 import HomeworkEditor from "@/components/HomeworkEditor";
 
@@ -27,6 +32,7 @@ const Admin = () => {
   const { toast } = useToast();
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchRequests = async () => {
     const { data, error } = await supabase
@@ -59,6 +65,45 @@ const Admin = () => {
       fetchRequests();
     }
   };
+
+  const deleteUser = async (r: AccessRequest) => {
+    setDeletingId(r.id);
+    const { data, error } = await supabase.functions.invoke("delete-user", {
+      body: { user_id: r.user_id },
+    });
+    setDeletingId(null);
+
+    const message = (data as any)?.error ?? error?.message;
+    if (message) {
+      toast({ title: "Kunde inte radera", description: message, variant: "destructive" });
+    } else {
+      toast({ title: "Användare raderad", description: r.email });
+      fetchRequests();
+    }
+  };
+
+  const DeleteButton = ({ r }: { r: AccessRequest }) => (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="sm" variant="outline" disabled={deletingId === r.id} className="gap-1">
+          <Trash2 className="w-4 h-4" /> Radera
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Radera användare permanent?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {r.email} tas bort helt — inloggning, profil och behörighet försvinner.
+            Detta går inte att ångra.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Avbryt</AlertDialogCancel>
+          <AlertDialogAction onClick={() => deleteUser(r)}>Radera</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 
   if (!user || accessStatus !== "approved" || !isAdmin) {
     return <Navigate to="/" replace />;
@@ -135,6 +180,7 @@ const Admin = () => {
                         >
                           <X className="w-4 h-4" /> Neka
                         </Button>
+                        <DeleteButton r={r} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -162,6 +208,7 @@ const Admin = () => {
                     <TableHead>E-post</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Datum</TableHead>
+                    <TableHead className="text-right">Åtgärd</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -182,6 +229,19 @@ const Admin = () => {
                       </TableCell>
                       <TableCell>
                         {new Date(r.created_at).toLocaleDateString("sv-SE")}
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        {r.status === "approved" && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => updateStatus(r.id, "denied")}
+                            className="gap-1"
+                          >
+                            <X className="w-4 h-4" /> Neka
+                          </Button>
+                        )}
+                        <DeleteButton r={r} />
                       </TableCell>
                     </TableRow>
                   ))}
