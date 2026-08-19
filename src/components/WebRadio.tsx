@@ -43,13 +43,12 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
       streamUrl: "https://mml2.prostream.se/listen/faith_beats_radio/radio.mp3"
     },
     { 
-      id: "lugn", 
-      name: "Lugn", 
-      emoji: "🧘", 
-      description: "Lugn & avslappning", 
+      id: "focus", 
+      name: "Focus", 
+      emoji: "🧠", 
+      description: "Deep Focus – musik för koncentration", 
       color: "from-teal-500 to-cyan-600",
-      streamUrl: "https://ice1.somafm.com/dronezone-128-mp3",
-      metadataId: "dronezone"
+      streamUrl: "https://air.radioart.online/fDeep_focus.mp3"
     },
     { 
       id: "p3", 
