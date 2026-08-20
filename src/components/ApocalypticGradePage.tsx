@@ -146,11 +146,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <PostItNote grade={grade} />
                 </MetalPanel>
 
-                {/* Combined Tools Panel - compact 15mm tool strip + lunch menu */}
+                {/* Combined Tools Panel - 2x2 grid fills remaining space */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className="flex-1 min-h-[190px] flex flex-col flex-shrink-0" 
+                  className="flex-1 min-h-[180px] flex flex-col flex-shrink-0" 
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
@@ -158,12 +158,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="flex gap-2 h-[15mm] flex-shrink-0">
-                    <CalculatorThumbnail row />
-                    <WebRadio horizontal onChannelChange={setActiveRadioChannel} />
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-border/40 flex-1 min-h-0">
-                    <LunchMenu compact />
+                  <div className="flex-1 min-h-0 flex flex-col gap-3">
+                    <div className="grid grid-cols-2 grid-rows-2 gap-3 flex-1 min-h-0 [&>*]:min-h-0 [&>*]:overflow-hidden">
+                      <CalculatorThumbnail fillSpace />
+                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
+                    </div>
+                    <div className="pt-3 border-t border-border/40 flex-shrink-0">
+                      <LunchMenu compact />
+                    </div>
                   </div>
                 </MetalPanel>
               </div>
@@ -186,11 +188,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <SuspenseLessonCalendar grade={grade} />
                 </ScreenFrame>
 
-                {/* Tools - compact 15mm strip + lunch menu + timer */}
+                {/* Tools - 2x2 grid fills remaining space */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className=""
+                  className="flex-1 min-h-[180px] flex flex-col flex-shrink-0" 
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
@@ -198,16 +200,13 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="flex flex-col gap-2">
-                    <div className="flex gap-2 h-[15mm] flex-shrink-0">
-                      <CalculatorThumbnail row />
-                      <WebRadio horizontal onChannelChange={setActiveRadioChannel} />
+                  <div className="flex-1 min-h-0 flex flex-col gap-3">
+                    <div className="grid grid-cols-2 grid-rows-2 gap-3 flex-1 min-h-0 [&>*]:min-h-0 [&>*]:overflow-hidden">
+                      <CalculatorThumbnail fillSpace />
+                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                     </div>
-                    <div className="pt-2 border-t border-border/40">
+                    <div className="pt-3 border-t border-border/40 flex-shrink-0">
                       <LunchMenu compact />
-                    </div>
-                    <div className="flex justify-center">
-                      <LessonTimer grade={grade} />
                     </div>
                   </div>
                 </MetalPanel>
@@ -250,7 +249,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 }
               >
                 <div className="flex flex-col gap-3" style={{ minHeight: '240px' }}>
-                  <div className="grid grid-cols-2 gap-3 flex-1">
+                  <div className="grid grid-cols-2 grid-rows-2 gap-3 flex-1 min-h-0 [&>*]:min-h-0 [&>*]:overflow-hidden">
                     <CalculatorThumbnail fillSpace />
                     <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                   </div>
