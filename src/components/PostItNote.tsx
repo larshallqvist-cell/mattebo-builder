@@ -315,7 +315,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--neon-blue))/40] bg-[hsl(var(--neon-blue))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--neon-blue))] transition-colors hover:bg-[hsl(var(--neon-blue))/20] hover:border-[hsl(var(--neon-blue))/70]"
               target="_blank"
               rel="noopener noreferrer"
             >
