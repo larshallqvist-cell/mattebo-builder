@@ -229,7 +229,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
               e.preventDefault();
               window.open(finalHref, "_blank", "noopener,noreferrer");
             }}
-            className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--postit-text))/40] bg-[hsl(var(--postit-text))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/20] hover:border-[hsl(var(--postit-text))/70]"
+            className="inline-flex items-center gap-1 align-baseline rounded-md border border-primary/40 bg-primary/10 px-1.5 py-[1px] text-[0.8rem] font-medium text-primary transition-colors hover:bg-primary/20 hover:border-primary/70"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -296,7 +296,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--postit-text))/40] bg-[hsl(var(--postit-text))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/20] hover:border-[hsl(var(--postit-text))/70]"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--neon-blue))/40] bg-[hsl(var(--neon-blue))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--neon-blue))] transition-colors hover:bg-[hsl(var(--neon-blue))/20] hover:border-[hsl(var(--neon-blue))/70]"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -315,7 +315,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 e.preventDefault();
                 window.open(href, "_blank", "noopener,noreferrer");
               }}
-              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--postit-text))/40] bg-[hsl(var(--postit-text))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/20] hover:border-[hsl(var(--postit-text))/70]"
+              className="inline-flex items-center gap-1 align-baseline rounded-md border border-[hsl(var(--neon-blue))/40] bg-[hsl(var(--neon-blue))/10] px-1.5 py-[1px] text-[0.8rem] font-medium text-[hsl(var(--neon-blue))] transition-colors hover:bg-[hsl(var(--neon-blue))/20] hover:border-[hsl(var(--neon-blue))/70]"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -454,8 +454,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       
       {/* Lesson header */}
       {currentEvent && (
-        <div className="pb-2 border-b border-[hsl(var(--postit-text))/25]">
-          <div className="text-sm font-semibold text-[hsl(var(--postit-text))] underline underline-offset-4 decoration-[hsl(var(--postit-text))/60]">
+        <div className="mb-2">
+          <div className="text-sm font-bold text-[hsl(var(--postit-text))] underline underline-offset-4 decoration-[hsl(var(--postit-text))/60]">
             {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
             {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
