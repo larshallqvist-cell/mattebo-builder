@@ -103,8 +103,20 @@ const LessonPlanEditor = () => {
     if (!selectedEvent) return;
     setSaving(true);
     try {
-      await savePlan(selectedEvent, draft.slice(0, MAX_CONTENT_LENGTH), draftTitle.trim().slice(0, 120));
-      toast({ title: "Sparat!", description: "Lektionsplaneringen är uppdaterad." });
+      const result = await savePlan(
+        selectedEvent,
+        draft.slice(0, MAX_CONTENT_LENGTH),
+        draftTitle.trim().slice(0, 120),
+      );
+      toast(
+        result?.calendarSynced
+          ? { title: "Sparat!", description: "Planeringen är uppdaterad och synkad till Google Kalender." }
+          : {
+              title: "Sparat i appen",
+              description: "Kunde inte skriva till Google Kalender just nu.",
+              variant: "destructive" as const,
+            },
+      );
     } catch (err) {
       toast({
         title: "Kunde inte spara",
