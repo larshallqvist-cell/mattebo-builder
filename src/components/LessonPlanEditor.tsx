@@ -36,10 +36,16 @@ const LessonPlanEditor = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
+  const [showPast, setShowPast] = useState(false);
+
   const upcoming = useMemo(() => {
     const now = new Date();
-    return events.filter((e) => e.endDate > now).slice(0, 60);
-  }, [events]);
+    const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const future = events.filter((e) => e.endDate > now).slice(0, 60);
+    if (!showPast) return future;
+    const past = events.filter((e) => e.endDate <= now && e.endDate >= cutoff).slice(-20);
+    return [...past, ...future];
+  }, [events, showPast]);
 
   const selectedEvent = useMemo(
     () => upcoming.find((e) => lessonPlanKey(e) === selectedKey) || null,
