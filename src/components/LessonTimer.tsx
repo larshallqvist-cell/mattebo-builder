@@ -103,7 +103,7 @@ const LessonTimer = ({ grade, size = DEFAULT_SIZE, hideClock = false }: LessonTi
         {/* Time digits in center */}
         <span
           className={`absolute inset-0 flex items-center justify-center font-bold tabular-nums ${
-            size >= 100 ? 'text-base' : 'text-xs'
+            size >= 100 ? 'text-base' : size >= 56 ? 'text-sm' : 'text-xs'
           } text-white`}
           style={{ textShadow: '0 1px 3px rgba(0,0,0,0.7), 0 0 6px rgba(0,0,0,0.4)' }}
         >
