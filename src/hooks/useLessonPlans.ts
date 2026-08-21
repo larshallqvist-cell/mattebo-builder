@@ -87,6 +87,16 @@ export const useLessonPlans = (grade: number) => {
       if (error) throw error;
       setPlans((prev) => ({ ...prev, [lessonPlanKey(event)]: content }));
       setTitles((prev) => ({ ...prev, [lessonPlanKey(event)]: title }));
+
+      // Best effort: skriv även tillbaka rubrik + innehåll till Google Kalender.
+      const { error: syncError } = await supabase.functions.invoke("sync-lesson-to-calendar", {
+        body: { grade, event_uid: event.uid, title, content },
+      });
+      if (syncError) {
+        console.error("Kalendersynk misslyckades:", syncError);
+        return { calendarSynced: false as const };
+      }
+      return { calendarSynced: true as const };
     },
     [grade],
   );
