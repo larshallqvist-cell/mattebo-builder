@@ -208,6 +208,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     <div className="pt-3 border-t border-border/40 flex-shrink-0">
                       <LunchMenu compact />
                     </div>
+                    <div className="pt-3 border-t border-border/40 flex justify-center flex-shrink-0">
+                      <LessonTimer grade={grade} />
+                    </div>
                   </div>
                 </MetalPanel>
               </div>
