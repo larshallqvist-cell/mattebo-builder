@@ -1,10 +1,16 @@
 project_id = "elzqxtrncamxiymbjqio"
 
 [functions.get-resources]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-calendar]
-verify_jwt = false
+verify_jwt = true
 
 [functions.mascot-message]
-verify_jwt = false
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.sync-lesson-to-calendar]
+verify_jwt = true
