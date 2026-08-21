@@ -75,7 +75,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               </div>
               <HomeworkBanner grade={grade} compact />
               <div className="ml-auto flex-shrink-0">
-                <LessonTimer grade={grade} size={44} hideClock />
+                <LessonTimer grade={grade} size={56} hideClock />
               </div>
             </>
           }
