@@ -36,10 +36,16 @@ const LessonPlanEditor = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
+  const [showPast, setShowPast] = useState(false);
+
   const upcoming = useMemo(() => {
     const now = new Date();
-    return events.filter((e) => e.endDate > now).slice(0, 60);
-  }, [events]);
+    const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const future = events.filter((e) => e.endDate > now).slice(0, 60);
+    if (!showPast) return future;
+    const past = events.filter((e) => e.endDate <= now && e.endDate >= cutoff).slice(-20);
+    return [...past, ...future];
+  }, [events, showPast]);
 
   const selectedEvent = useMemo(
     () => upcoming.find((e) => lessonPlanKey(e) === selectedKey) || null,
@@ -149,6 +155,10 @@ const LessonPlanEditor = () => {
           ))}
         </div>
 
+        <Button size="sm" variant={showPast ? "secondary" : "ghost"} onClick={() => setShowPast((v) => !v)}>
+          {showPast ? "Dölj tidigare lektioner" : "Visa tidigare lektioner"}
+        </Button>
+
         <div className="grid gap-4 md:grid-cols-[minmax(0,18rem)_1fr]">
           <div className="max-h-[14rem] md:max-h-[26rem] overflow-y-auto rounded-md border border-border divide-y divide-border">
             {eventsLoading ? (
@@ -159,13 +169,14 @@ const LessonPlanEditor = () => {
               upcoming.map((e) => {
                 const key = lessonPlanKey(e);
                 const hasPlan = Boolean((getLessonPlan(plans, e) ?? "").trim());
+                const isPast = e.endDate <= new Date();
                 return (
                   <button
                     key={e.id}
                     onClick={() => selectLesson(key)}
                     className={`flex w-full items-center justify-between gap-2 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
                       key === selectedKey ? "bg-muted font-semibold" : ""
-                    }`}
+                    } ${isPast ? "text-muted-foreground italic" : ""}`}
                   >
                     <span>{formatLesson(e.date, e.endDate, e.location)}</span>
                     {hasPlan && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
