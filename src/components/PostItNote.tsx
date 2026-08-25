@@ -3,8 +3,9 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useLessonPlans, getLessonPlan } from "@/hooks/useLessonPlans";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Maximize2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 interface PostItNoteProps {
@@ -16,6 +17,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const { plans } = useLessonPlans(grade);
   const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const isMobile = useIsMobile();
   
   // Current event to display
