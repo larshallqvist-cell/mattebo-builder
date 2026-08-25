@@ -204,10 +204,10 @@ const LessonPlanEditor = () => {
                   className="font-body text-sm"
                 />
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => insertAtCursor("**", "**", "rubrik")}>
+                  <Button size="sm" variant="outline" onClick={() => insertAtCursor("**", "**", "fet text")}>
                     <Bold className="mr-1 h-4 w-4" /> Fet
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => insertAtCursor("\n", ":", "Rubrik")}>
+                  <Button size="sm" variant="outline" onClick={insertHeading}>
                     <Heading className="mr-1 h-4 w-4" /> Rubrik
                   </Button>
                   <Button size="sm" variant="outline" onClick={insertBullet}>
@@ -217,15 +217,33 @@ const LessonPlanEditor = () => {
                     <Link2 className="mr-1 h-4 w-4" /> Länk
                   </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  <code>## Rubrik</code> = rubrik (versal, med linje över) · <code>**fet**</code> = fetstil i löpande
+                  text · <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> =
+                  länk
+                </p>
                 <Textarea
                   ref={textareaRef}
                   value={draft}
                   maxLength={MAX_CONTENT_LENGTH}
                   onChange={(e) => setDraft(e.target.value)}
                   rows={14}
-                  placeholder={"Dagens mål:\n- Repetera bråk\n- [Matteboken](https://www.matteboken.se)"}
+                  placeholder={"## Dagens mål\nVi repeterar **bråk**.\n- Uppgift 1–5\n- [Matteboken](https://www.matteboken.se)"}
                   className="font-body text-sm"
                 />
+                <div className="rounded-md border border-border bg-[hsl(var(--postit-light))] p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[hsl(var(--postit-text))/70]">
+                    Förhandsvisning
+                  </p>
+                  <div className="space-y-0.5 font-nunito text-black">
+                    {draft.trim() ? (
+                      parseLessonContent(draft)
+                    ) : (
+                      <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
                     {draft.length}/{MAX_CONTENT_LENGTH} tecken
