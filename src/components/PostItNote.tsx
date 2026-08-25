@@ -344,6 +344,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const lines = text.split('\n');
     const elements: JSX.Element[] = [];
     let bulletItems: string[] = [];
+    let plainHeadingCount = 0;
+
     
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
