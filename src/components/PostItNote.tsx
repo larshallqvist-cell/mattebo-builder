@@ -3,8 +3,9 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useLessonPlans, getLessonPlan } from "@/hooks/useLessonPlans";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Maximize2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 interface PostItNoteProps {
@@ -16,6 +17,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const { plans } = useLessonPlans(grade);
   const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const isMobile = useIsMobile();
   
   // Current event to display
@@ -90,7 +92,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     // Split by markers and list items
     const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\})/);
     let listIndex = 0;
+    let headingCount = 0;
     let bulletItems: string[] = [];
+
     
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
@@ -132,17 +136,27 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       const trimmed = part.trim();
       if (trimmed) {
         flushBulletList();
-        const isHeading = /^<(b|strong)(\s[^>]*)?>[\s\S]*<\/\1>$/i.test(trimmed);
-        if (isHeading) {
-          const headingIndex = elements.filter((el) => el.type === "h4").length;
-          const headingMargin = headingIndex === 0 ? "mt-0" : "mt-5";
+        // Heading = starts with <b>/<strong>; any text after it continues on the same line
+        const headingMatch = trimmed.match(/^<(b|strong)(?:\s[^>]*)?>([\s\S]*?)<\/(?:b|strong)>([\s\S]*)$/i);
+        if (headingMatch) {
+          const headingText = headingMatch[2];
+          const rest = headingMatch[3]?.trim() ?? "";
+          const isFirst = headingCount === 0;
+          headingCount++;
           elements.push(
-            <h4
+            <div
               key={`h-${i}`}
-              className={`${headingMargin} mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))] border-b border-[hsl(var(--postit-text))/25] pb-0.5`}
+              className={`${isFirst ? "mt-0" : "mt-5"} mb-1 border-t border-[hsl(var(--postit-text))/25] pt-1.5`}
             >
-              {renderInlineHtml(trimmed.replace(/<\/?(?:b|strong)[^>]*>/gi, ""))}
-            </h4>
+              <span className="text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))]">
+                {renderInlineHtml(headingText)}
+              </span>
+              {rest && (
+                <span className="ml-2 text-sm font-body font-normal leading-snug">
+                  {renderInlineHtml(rest)}
+                </span>
+              )}
+            </div>
           );
         } else {
           elements.push(
@@ -153,6 +167,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         }
       }
     });
+
     
     flushBulletList();
     return elements;
@@ -331,6 +346,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     const lines = text.split('\n');
     const elements: JSX.Element[] = [];
     let bulletItems: string[] = [];
+    let plainHeadingCount = 0;
+
     
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
@@ -356,17 +373,27 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       } else {
         flushBulletList();
         if (trimmed) {
-          const isHeading =
-            /^\*\*[^*]+\*\*$/.test(trimmed) ||
-            (trimmed.endsWith(":") && trimmed.length < 40);
-          if (isHeading) {
+          const boldStart = trimmed.match(/^\*\*([^*]+)\*\*([\s\S]*)$/);
+          const colonHeading = !boldStart && trimmed.endsWith(":") && trimmed.length < 40;
+          if (boldStart || colonHeading) {
+            const headingText = boldStart ? boldStart[1] : trimmed.replace(/:$/, "");
+            const rest = boldStart ? boldStart[2].trim() : "";
+            const isFirst = plainHeadingCount === 0;
+            plainHeadingCount++;
             elements.push(
-              <h4
+              <div
                 key={`h-${i}`}
-                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))] border-b border-[hsl(var(--postit-text))/25] pb-0.5"
+                className={`${isFirst ? "mt-0" : "mt-5"} mb-1 border-t border-[hsl(var(--postit-text))/25] pt-1.5`}
               >
-                {trimmed.replace(/\*\*/g, "").replace(/:$/, "")}
-              </h4>
+                <span className="text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))]">
+                  {headingText}
+                </span>
+                {rest && (
+                  <span className="ml-2 text-sm font-body font-normal leading-snug">
+                    {renderPlainInline(rest)}
+                  </span>
+                )}
+              </div>
             );
           } else {
             elements.push(
@@ -376,6 +403,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             );
           }
         }
+
       }
     });
     
@@ -482,7 +510,36 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           </div>
         </ScrollArea>
       )}
+
+      {/* Expand agenda for projector */}
+      {content && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="mt-3 inline-flex items-center justify-center gap-1.5 self-start rounded-md border border-[hsl(var(--postit-text))/30] bg-[hsl(var(--postit-text))/5] px-2.5 py-1 text-xs font-semibold text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/12]"
+        >
+          <Maximize2 className="h-3.5 w-3.5" />
+          Förstora dagens agenda
+        </button>
+      )}
+
+      <Dialog open={expanded} onOpenChange={setExpanded}>
+        <DialogContent className="max-w-5xl bg-[hsl(var(--postit-light))] text-[hsl(var(--postit-text))] font-nunito">
+          <DialogHeader>
+            <DialogTitle className="text-xl md:text-2xl font-bold underline underline-offset-4 decoration-[hsl(var(--postit-text))/60] text-left">
+              {currentEvent
+                ? `${formatEventDate(currentEvent.date)} · ${formatEventTime(currentEvent.date)}–${formatEventTime(currentEvent.endDate)}${currentEvent.location ? ` · ${currentEvent.location}` : ""}`
+                : "Dagens agenda"}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[70vh]">
+            <div className="pr-4 text-black [&_p]:text-xl [&_p]:leading-relaxed [&_li]:text-xl [&_li]:leading-relaxed [&_span.font-orbitron]:text-base [&_a]:text-lg">
+              {content ? parseContent(content) : null}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };
 
