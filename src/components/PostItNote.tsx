@@ -369,17 +369,27 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       } else {
         flushBulletList();
         if (trimmed) {
-          const isHeading =
-            /^\*\*[^*]+\*\*$/.test(trimmed) ||
-            (trimmed.endsWith(":") && trimmed.length < 40);
-          if (isHeading) {
+          const boldStart = trimmed.match(/^\*\*([^*]+)\*\*([\s\S]*)$/);
+          const colonHeading = !boldStart && trimmed.endsWith(":") && trimmed.length < 40;
+          if (boldStart || colonHeading) {
+            const headingText = boldStart ? boldStart[1] : trimmed.replace(/:$/, "");
+            const rest = boldStart ? boldStart[2].trim() : "";
+            const isFirst = plainHeadingCount === 0;
+            plainHeadingCount++;
             elements.push(
-              <h4
+              <div
                 key={`h-${i}`}
-                className="mt-2.5 mb-1 text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))] border-b border-[hsl(var(--postit-text))/25] pb-0.5"
+                className={`${isFirst ? "mt-0" : "mt-5"} mb-1 border-t border-[hsl(var(--postit-text))/25] pt-1.5`}
               >
-                {trimmed.replace(/\*\*/g, "").replace(/:$/, "")}
-              </h4>
+                <span className="text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))]">
+                  {headingText}
+                </span>
+                {rest && (
+                  <span className="ml-2 text-sm font-body font-normal leading-snug">
+                    {renderPlainInline(rest)}
+                  </span>
+                )}
+              </div>
             );
           } else {
             elements.push(
@@ -389,6 +399,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
             );
           }
         }
+
       }
     });
     
