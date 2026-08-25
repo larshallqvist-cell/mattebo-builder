@@ -88,9 +88,10 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     text = text.replace(/<\/?p>/gi, '{{BR}}');
     text = text.replace(/<\/?div>/gi, '{{BR}}');
     text = text.replace(/<\/?span[^>]*>/gi, '');
+    text = text.replace(/<hr\s*\/?>/gi, '{{HR}}');
     
     // Split by markers and list items
-    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\})/);
+    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\}|\{\{HR\}\})/);
     let listIndex = 0;
     let headingCount = 0;
     let bulletItems: string[] = [];
@@ -120,6 +121,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       if (part === '{{SPACING}}') {
         flushBulletList();
         elements.push(<div key={`space-${i}`} className="h-3" />);
+        return;
+      }
+      if (part === '{{HR}}') {
+        flushBulletList();
+        elements.push(<hr key={`hr-${i}`} className="my-3 border-[hsl(var(--postit-text))/25]" />);
         return;
       }
       if (part === '{{LI}}') {
@@ -368,6 +374,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     lines.forEach((line, i) => {
       const trimmed = line.trim();
       
+      if (trimmed === '---' || trimmed === '___' || trimmed === '***') {
+        flushBulletList();
+        elements.push(<hr key={`hr-${i}`} className="my-3 border-[hsl(var(--postit-text))/25]" />);
+        return;
+      }
+      
       if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
         bulletItems.push(trimmed.slice(2));
       } else {
@@ -483,7 +495,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Lesson header */}
       {currentEvent && (
         <div className="mb-2">
-          <div className="text-sm font-bold text-[hsl(var(--postit-text))] underline underline-offset-4 decoration-[hsl(var(--postit-text))/60]">
+          <div className="text-sm font-bold text-[hsl(var(--postit-text))]">
             {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
             {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
