@@ -91,7 +91,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     text = text.replace(/<hr\s*\/?>/gi, '{{HR}}');
     
     // Split by markers and list items
-    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\})/);
+    const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\}|\{\{HR\}\})/);
     let listIndex = 0;
     let headingCount = 0;
     let bulletItems: string[] = [];
