@@ -88,6 +88,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     text = text.replace(/<\/?p>/gi, '{{BR}}');
     text = text.replace(/<\/?div>/gi, '{{BR}}');
     text = text.replace(/<\/?span[^>]*>/gi, '');
+    text = text.replace(/<hr\s*\/?>/gi, '{{HR}}');
     
     // Split by markers and list items
     const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\})/);
