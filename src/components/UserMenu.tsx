@@ -1,5 +1,5 @@
 import { LogOut, Shield } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +13,12 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const UserMenu = () => {
   const { user, signOut, isAdmin } = useAuth();
+  const location = useLocation();
+  const gradeMatch = location.pathname.match(/^\/ak(\d)/);
+  const adminHref = gradeMatch ? `/admin?grade=${gradeMatch[1]}` : "/admin";
 
   if (!user) return null;
+
 
   const userEmail = user.email || "";
   const userName = user.user_metadata?.full_name || 
