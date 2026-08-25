@@ -90,7 +90,9 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     // Split by markers and list items
     const parts = text.split(/(\{\{BR\}\}|\{\{LI\}\}|\{\{SPACING\}\})/);
     let listIndex = 0;
+    let headingCount = 0;
     let bulletItems: string[] = [];
+
     
     const flushBulletList = () => {
       if (bulletItems.length > 0) {
