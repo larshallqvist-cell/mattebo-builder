@@ -57,7 +57,7 @@ const UserMenu = () => {
         {isAdmin && (
           <>
             <DropdownMenuItem asChild className="cursor-pointer">
-              <Link to="/admin" className="flex items-center">
+              <Link to={adminHref} className="flex items-center">
                 <Shield className="mr-2 h-4 w-4" />
                 <span>Admin</span>
               </Link>
