@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Bold, List, Link2, Save, Loader2, Heading } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { parseLessonContent } from "@/lib/lessonContent";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
