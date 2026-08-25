@@ -68,6 +68,13 @@
     --neon-blue: 203 55% 45%;
     --neon-violet: 186 45% 62%;
 
+    /* Soft pastel colors per grade (start page circles) */
+    --grade-6: 162 45% 68%;
+    --grade-7: 30 62% 74%;
+    --grade-8: 205 55% 72%;
+    --grade-9: 280 38% 76%;
+
+
     /* Surface tones */
     --rust-dark: 211 69% 15%;
     --rust-medium: 203 62% 24%;
