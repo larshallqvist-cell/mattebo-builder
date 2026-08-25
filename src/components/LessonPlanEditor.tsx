@@ -23,9 +23,26 @@ const formatLesson = (date: Date, end: Date, location?: string) =>
     { hour: "2-digit", minute: "2-digit" },
   )}–${end.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}${location ? ` · ${location}` : ""}`;
 
+const GRADE_STORAGE_KEY = "mattebo_admin_grade";
+
+const isSupportedGrade = (value: number) =>
+  (SUPPORTED_GRADES as readonly number[]).includes(value);
+
 const LessonPlanEditor = () => {
   const { toast } = useToast();
-  const [grade, setGrade] = useState<number>(SUPPORTED_GRADES[0]);
+  const [searchParams] = useSearchParams();
+  const [grade, setGrade] = useState<number>(() => {
+    const fromUrl = Number(searchParams.get("grade"));
+    if (isSupportedGrade(fromUrl)) return fromUrl;
+    const stored = Number(localStorage.getItem(GRADE_STORAGE_KEY));
+    if (isSupportedGrade(stored)) return stored;
+    return DEFAULT_GRADE;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(GRADE_STORAGE_KEY, String(grade));
+  }, [grade]);
+
   const { events, loading: eventsLoading } = useCalendarEvents(grade);
   const { plans, titles, savePlan } = useLessonPlans(grade);
 
