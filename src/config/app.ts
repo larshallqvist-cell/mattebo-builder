@@ -23,26 +23,27 @@ export const GRADE_CARD_COLORS: Record<
   { neon: string; glow: string; border: string }
 > = {
   6: {
-    neon: "hsl(var(--neon-turquoise))",
-    glow: "0 18px 30px -12px hsl(var(--neon-turquoise) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
-    border: "hsl(var(--neon-turquoise) / 0.6)",
+    neon: "hsl(var(--grade-6))",
+    glow: "0 18px 30px -12px hsl(var(--grade-6) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--grade-6) / 0.6)",
   },
   7: {
-    neon: "hsl(var(--neon-copper))",
-    glow: "0 18px 30px -12px hsl(var(--neon-copper) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
-    border: "hsl(var(--neon-copper) / 0.6)",
+    neon: "hsl(var(--grade-7))",
+    glow: "0 18px 30px -12px hsl(var(--grade-7) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--grade-7) / 0.6)",
   },
   8: {
-    neon: "hsl(var(--neon-blue))",
-    glow: "0 18px 30px -12px hsl(var(--neon-blue) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
-    border: "hsl(var(--neon-blue) / 0.6)",
+    neon: "hsl(var(--grade-8))",
+    glow: "0 18px 30px -12px hsl(var(--grade-8) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--grade-8) / 0.6)",
   },
   9: {
-    neon: "hsl(var(--neon-violet))",
-    glow: "0 18px 30px -12px hsl(var(--neon-violet) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
-    border: "hsl(var(--neon-violet) / 0.6)",
+    neon: "hsl(var(--grade-9))",
+    glow: "0 18px 30px -12px hsl(var(--grade-9) / 0.55), 0 30px 60px -20px hsl(211 69% 8% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+    border: "hsl(var(--grade-9) / 0.6)",
   },
 };
+
 
 export const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
 export const SHEET_STORAGE_KEY = "mattebo_sheet_id";
