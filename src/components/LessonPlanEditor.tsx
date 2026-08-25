@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/hooks/useLessonPlans";
-import { SUPPORTED_GRADES } from "@/config/app";
+import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
