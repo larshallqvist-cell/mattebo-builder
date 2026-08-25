@@ -483,7 +483,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Lesson header */}
       {currentEvent && (
         <div className="mb-2">
-          <div className="text-sm font-bold text-[hsl(var(--postit-text))] underline underline-offset-4 decoration-[hsl(var(--postit-text))/60]">
+          <div className="text-sm font-bold text-[hsl(var(--postit-text))]">
             {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
             {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
