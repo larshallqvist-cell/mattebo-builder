@@ -84,14 +84,18 @@ const LessonPlanEditor = () => {
     });
   };
 
-  const insertBullet = () => {
+  const insertLinePrefix = (marker: string, placeholder: string) => {
     const el = textareaRef.current;
     if (!el) return;
     const start = el.selectionStart;
     const lineStart = draft.lastIndexOf("\n", start - 1) + 1;
-    const prefix = draft.slice(lineStart, start).trim().length === 0 ? "- " : "\n- ";
-    insertAtCursor(prefix, "", "punkt");
+    const atLineStart = draft.slice(lineStart, start).trim().length === 0;
+    insertAtCursor(atLineStart ? marker : `\n${marker}`, "", placeholder);
   };
+
+  const insertBullet = () => insertLinePrefix("- ", "punkt");
+  const insertHeading = () => insertLinePrefix("## ", "Rubrik");
+
 
   const confirmLink = () => {
     const url = linkUrl.trim();
