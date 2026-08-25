@@ -123,6 +123,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         elements.push(<div key={`space-${i}`} className="h-3" />);
         return;
       }
+      if (part === '{{HR}}') {
+        flushBulletList();
+        elements.push(<hr key={`hr-${i}`} className="my-3 border-[hsl(var(--postit-text))/25]" />);
+        return;
+      }
       if (part === '{{LI}}') {
         const item = listItems[listIndex++];
         if (item === '{{EMPTY}}') {
