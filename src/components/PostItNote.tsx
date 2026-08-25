@@ -374,6 +374,12 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
     lines.forEach((line, i) => {
       const trimmed = line.trim();
       
+      if (trimmed === '---' || trimmed === '___' || trimmed === '***') {
+        flushBulletList();
+        elements.push(<hr key={`hr-${i}`} className="my-3 border-[hsl(var(--postit-text))/25]" />);
+        return;
+      }
+      
       if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
         bulletItems.push(trimmed.slice(2));
       } else {
