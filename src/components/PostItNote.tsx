@@ -508,7 +508,36 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           </div>
         </ScrollArea>
       )}
+
+      {/* Expand agenda for projector */}
+      {content && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="mt-3 inline-flex items-center justify-center gap-1.5 self-start rounded-md border border-[hsl(var(--postit-text))/30] bg-[hsl(var(--postit-text))/5] px-2.5 py-1 text-xs font-semibold text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/12]"
+        >
+          <Maximize2 className="h-3.5 w-3.5" />
+          Förstora dagens agenda
+        </button>
+      )}
+
+      <Dialog open={expanded} onOpenChange={setExpanded}>
+        <DialogContent className="max-w-5xl bg-[hsl(var(--postit-light))] text-[hsl(var(--postit-text))] font-nunito">
+          <DialogHeader>
+            <DialogTitle className="text-xl md:text-2xl font-bold underline underline-offset-4 decoration-[hsl(var(--postit-text))/60] text-left">
+              {currentEvent
+                ? `${formatEventDate(currentEvent.date)} · ${formatEventTime(currentEvent.date)}–${formatEventTime(currentEvent.endDate)}${currentEvent.location ? ` · ${currentEvent.location}` : ""}`
+                : "Dagens agenda"}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[70vh]">
+            <div className="pr-4 text-black [&_p]:text-xl [&_p]:leading-relaxed [&_li]:text-xl [&_li]:leading-relaxed [&_span.font-orbitron]:text-base [&_a]:text-lg">
+              {content ? parseContent(content) : null}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };
 
