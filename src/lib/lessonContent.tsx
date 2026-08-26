@@ -260,6 +260,8 @@ const renderRichContent = (html: string): JSX.Element[] => {
 
 /* ----------------------------- plain / markdown --------------------------- */
 
+const MAX_LINE_LENGTH = 2000;
+
 const renderPlainContent = (text: string): JSX.Element[] => {
   const lines = text.split("\n");
   const elements: JSX.Element[] = [];
@@ -274,7 +276,7 @@ const renderPlainContent = (text: string): JSX.Element[] => {
   };
 
   lines.forEach((line, i) => {
-    const trimmed = line.trim();
+    const trimmed = line.trim().slice(0, MAX_LINE_LENGTH);
 
     if (trimmed === "---" || trimmed === "___" || trimmed === "***") {
       flushBulletList();
@@ -283,12 +285,13 @@ const renderPlainContent = (text: string): JSX.Element[] => {
     }
 
     if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
-      bulletItems.push(<>{renderPlainInline(trimmed.slice(2))}</>);
+      bulletItems.push(<span key={`li-${i}`}>{renderPlainInline(trimmed.slice(2))}</span>);
       return;
     }
 
     flushBulletList();
     if (!trimmed) return;
+
 
     const isMarkerHeading = HEADING_MARKER.test(trimmed);
     const colonHeading = !isMarkerHeading && trimmed.endsWith(":") && trimmed.length < 40;
