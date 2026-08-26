@@ -317,8 +317,30 @@ const renderPlainContent = (text: string): JSX.Element[] => {
   return elements;
 };
 
+const MAX_CONTENT_LENGTH = 20000;
+
+/** Remove invisible/odd characters that often sneak in via copy-paste. */
+export const sanitizeLessonText = (text: string): string =>
+  text
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"');
+
 /** Render lesson content (HTML from Google Calendar or markdown from the admin editor). */
 export const parseLessonContent = (text: string): JSX.Element[] => {
   if (!text) return [];
-  return /<[^>]+>/.test(text) ? renderRichContent(text) : renderPlainContent(text);
+  try {
+    const safe = sanitizeLessonText(text).slice(0, MAX_CONTENT_LENGTH);
+    return /<[^>]+>/.test(safe) ? renderRichContent(safe) : renderPlainContent(safe);
+  } catch (err) {
+    console.error("parseLessonContent failed:", err);
+    return [
+      <p key="parse-error" className="text-sm italic text-[hsl(var(--postit-text))/70]">
+        Kunde inte visa innehållet just nu.
+      </p>,
+    ];
+  }
 };
+
