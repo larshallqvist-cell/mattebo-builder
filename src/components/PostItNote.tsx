@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { parseLessonContent } from "@/lib/lessonContent";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 
 
 interface PostItNoteProps {
@@ -131,23 +133,28 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Content - no scroll on mobile for natural expansion */}
       {isMobile ? (
         <div className="space-y-0.5 text-black">
-          {content ? (
-            parseLessonContent(content)
-          ) : (
-            <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
-          )}
-        </div>
-      ) : (
-        <ScrollArea className="flex-1">
-          <div className="space-y-0.5 text-black pr-3">
+          <ErrorBoundary fallback={<p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>}>
             {content ? (
               parseLessonContent(content)
             ) : (
               <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
             )}
+          </ErrorBoundary>
+        </div>
+      ) : (
+        <ScrollArea className="flex-1">
+          <div className="space-y-0.5 text-black pr-3">
+            <ErrorBoundary fallback={<p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>}>
+              {content ? (
+                parseLessonContent(content)
+              ) : (
+                <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
+              )}
+            </ErrorBoundary>
           </div>
         </ScrollArea>
       )}
+
 
       {/* Expand agenda for projector */}
       {content && (
@@ -171,8 +178,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
             <div className="pr-4 text-black [&_p]:text-xl [&_p]:leading-relaxed [&_li]:text-xl [&_li]:leading-relaxed [&_span.font-orbitron]:text-base [&_a]:text-lg">
-              {content ? parseLessonContent(content) : null}
+              <ErrorBoundary fallback={<p className="text-lg italic">Kunde inte visa innehållet just nu.</p>}>
+                {content ? parseLessonContent(content) : null}
+              </ErrorBoundary>
             </div>
+
           </ScrollArea>
         </DialogContent>
       </Dialog>

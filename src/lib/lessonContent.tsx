@@ -223,10 +223,11 @@ const renderRichContent = (html: string): JSX.Element[] => {
         flushBulletList();
         elements.push(<div key={`space-${i}`} className="h-4" />);
       } else {
-        bulletItems.push(<>{renderInlineHtml(item)}</>);
+        bulletItems.push(<span key={`li-${i}`}>{renderInlineHtml(item)}</span>);
       }
       return;
     }
+
 
     const trimmed = part.trim();
     if (!trimmed) return;
@@ -259,6 +260,8 @@ const renderRichContent = (html: string): JSX.Element[] => {
 
 /* ----------------------------- plain / markdown --------------------------- */
 
+const MAX_LINE_LENGTH = 2000;
+
 const renderPlainContent = (text: string): JSX.Element[] => {
   const lines = text.split("\n");
   const elements: JSX.Element[] = [];
@@ -273,7 +276,7 @@ const renderPlainContent = (text: string): JSX.Element[] => {
   };
 
   lines.forEach((line, i) => {
-    const trimmed = line.trim();
+    const trimmed = line.trim().slice(0, MAX_LINE_LENGTH);
 
     if (trimmed === "---" || trimmed === "___" || trimmed === "***") {
       flushBulletList();
@@ -282,12 +285,13 @@ const renderPlainContent = (text: string): JSX.Element[] => {
     }
 
     if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
-      bulletItems.push(<>{renderPlainInline(trimmed.slice(2))}</>);
+      bulletItems.push(<span key={`li-${i}`}>{renderPlainInline(trimmed.slice(2))}</span>);
       return;
     }
 
     flushBulletList();
     if (!trimmed) return;
+
 
     const isMarkerHeading = HEADING_MARKER.test(trimmed);
     const colonHeading = !isMarkerHeading && trimmed.endsWith(":") && trimmed.length < 40;
@@ -313,8 +317,30 @@ const renderPlainContent = (text: string): JSX.Element[] => {
   return elements;
 };
 
+const MAX_CONTENT_LENGTH = 20000;
+
+/** Remove invisible/odd characters that often sneak in via copy-paste. */
+export const sanitizeLessonText = (text: string): string =>
+  text
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"');
+
 /** Render lesson content (HTML from Google Calendar or markdown from the admin editor). */
 export const parseLessonContent = (text: string): JSX.Element[] => {
   if (!text) return [];
-  return /<[^>]+>/.test(text) ? renderRichContent(text) : renderPlainContent(text);
+  try {
+    const safe = sanitizeLessonText(text).slice(0, MAX_CONTENT_LENGTH);
+    return /<[^>]+>/.test(safe) ? renderRichContent(safe) : renderPlainContent(safe);
+  } catch (err) {
+    console.error("parseLessonContent failed:", err);
+    return [
+      <p key="parse-error" className="text-sm italic text-[hsl(var(--postit-text))/70]">
+        Kunde inte visa innehållet just nu.
+      </p>,
+    ];
+  }
 };
+

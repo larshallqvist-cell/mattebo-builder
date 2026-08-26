@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/hooks/useLessonPlans";
@@ -10,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Bold, List, Link2, Save, Loader2, Heading } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { parseLessonContent } from "@/lib/lessonContent";
+import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -56,7 +58,11 @@ const LessonPlanEditor = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
+  // Keeps the live preview from re-parsing on every keystroke of a large paste.
+  const preview = useDeferredValue(draft);
+
   const [showPast, setShowPast] = useState(false);
+
 
   const upcoming = useMemo(() => {
     const now = new Date();
@@ -115,6 +121,26 @@ const LessonPlanEditor = () => {
 
   const insertBullet = () => insertLinePrefix("- ", "punkt");
   const insertHeading = () => insertLinePrefix("## ", "Rubrik");
+
+  /** Clean pasted content (invisible chars, CRLF, smart quotes) before it enters the draft. */
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const pasted = sanitizeLessonText(e.clipboardData.getData("text/plain"));
+    if (!pasted) return;
+    e.preventDefault();
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = (draft.slice(0, start) + pasted + draft.slice(end)).slice(0, MAX_CONTENT_LENGTH);
+    setDraft(next);
+    const caret = Math.min(start + pasted.length, MAX_CONTENT_LENGTH);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(caret, caret);
+    });
+  };
+
+
 
 
   const confirmLink = () => {
@@ -247,6 +273,7 @@ const LessonPlanEditor = () => {
                   value={draft}
                   maxLength={MAX_CONTENT_LENGTH}
                   onChange={(e) => setDraft(e.target.value)}
+                  onPaste={handlePaste}
                   rows={14}
                   placeholder={"## Dagens mål\nVi repeterar **bråk**.\n- Uppgift 1–5\n- [Matteboken](https://www.matteboken.se)"}
                   className="font-body text-sm"
@@ -256,13 +283,22 @@ const LessonPlanEditor = () => {
                     Förhandsvisning
                   </p>
                   <div className="space-y-0.5 font-nunito text-black">
-                    {draft.trim() ? (
-                      parseLessonContent(draft)
-                    ) : (
-                      <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
-                    )}
+                    <ErrorBoundary
+                      fallback={
+                        <p className="text-sm italic text-[hsl(var(--postit-text))/70]">
+                          Kunde inte förhandsvisa just nu.
+                        </p>
+                      }
+                    >
+                      {preview.trim() ? (
+                        parseLessonContent(preview)
+                      ) : (
+                        <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
+                      )}
+                    </ErrorBoundary>
                   </div>
                 </div>
+
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
