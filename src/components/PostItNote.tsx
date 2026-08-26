@@ -131,23 +131,28 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Content - no scroll on mobile for natural expansion */}
       {isMobile ? (
         <div className="space-y-0.5 text-black">
-          {content ? (
-            parseLessonContent(content)
-          ) : (
-            <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
-          )}
-        </div>
-      ) : (
-        <ScrollArea className="flex-1">
-          <div className="space-y-0.5 text-black pr-3">
+          <ErrorBoundary fallback={<p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>}>
             {content ? (
               parseLessonContent(content)
             ) : (
               <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
             )}
+          </ErrorBoundary>
+        </div>
+      ) : (
+        <ScrollArea className="flex-1">
+          <div className="space-y-0.5 text-black pr-3">
+            <ErrorBoundary fallback={<p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>}>
+              {content ? (
+                parseLessonContent(content)
+              ) : (
+                <p className="text-sm text-[hsl(var(--postit-text))/70] italic">Ingen beskrivning tillgänglig</p>
+              )}
+            </ErrorBoundary>
           </div>
         </ScrollArea>
       )}
+
 
       {/* Expand agenda for projector */}
       {content && (
