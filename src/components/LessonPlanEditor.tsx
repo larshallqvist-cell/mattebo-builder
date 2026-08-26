@@ -58,7 +58,11 @@ const LessonPlanEditor = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
+  // Keeps the live preview from re-parsing on every keystroke of a large paste.
+  const preview = useDeferredValue(draft);
+
   const [showPast, setShowPast] = useState(false);
+
 
   const upcoming = useMemo(() => {
     const now = new Date();
