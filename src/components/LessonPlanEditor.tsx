@@ -122,6 +122,26 @@ const LessonPlanEditor = () => {
   const insertBullet = () => insertLinePrefix("- ", "punkt");
   const insertHeading = () => insertLinePrefix("## ", "Rubrik");
 
+  /** Clean pasted content (invisible chars, CRLF, smart quotes) before it enters the draft. */
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const pasted = sanitizeLessonText(e.clipboardData.getData("text/plain"));
+    if (!pasted) return;
+    e.preventDefault();
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = (draft.slice(0, start) + pasted + draft.slice(end)).slice(0, MAX_CONTENT_LENGTH);
+    setDraft(next);
+    const caret = Math.min(start + pasted.length, MAX_CONTENT_LENGTH);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(caret, caret);
+    });
+  };
+
+
+
 
   const confirmLink = () => {
     const url = linkUrl.trim();
