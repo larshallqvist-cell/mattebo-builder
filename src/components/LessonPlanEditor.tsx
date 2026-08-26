@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/hooks/useLessonPlans";
@@ -10,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Bold, List, Link2, Save, Loader2, Heading } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { parseLessonContent } from "@/lib/lessonContent";
+import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
