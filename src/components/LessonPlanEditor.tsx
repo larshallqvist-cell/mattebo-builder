@@ -247,6 +247,7 @@ const LessonPlanEditor = () => {
                   value={draft}
                   maxLength={MAX_CONTENT_LENGTH}
                   onChange={(e) => setDraft(e.target.value)}
+                  onPaste={handlePaste}
                   rows={14}
                   placeholder={"## Dagens mål\nVi repeterar **bråk**.\n- Uppgift 1–5\n- [Matteboken](https://www.matteboken.se)"}
                   className="font-body text-sm"
@@ -256,13 +257,22 @@ const LessonPlanEditor = () => {
                     Förhandsvisning
                   </p>
                   <div className="space-y-0.5 font-nunito text-black">
-                    {draft.trim() ? (
-                      parseLessonContent(draft)
-                    ) : (
-                      <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
-                    )}
+                    <ErrorBoundary
+                      fallback={
+                        <p className="text-sm italic text-[hsl(var(--postit-text))/70]">
+                          Kunde inte förhandsvisa just nu.
+                        </p>
+                      }
+                    >
+                      {preview.trim() ? (
+                        parseLessonContent(preview)
+                      ) : (
+                        <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
+                      )}
+                    </ErrorBoundary>
                   </div>
                 </div>
+
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
