@@ -223,10 +223,11 @@ const renderRichContent = (html: string): JSX.Element[] => {
         flushBulletList();
         elements.push(<div key={`space-${i}`} className="h-4" />);
       } else {
-        bulletItems.push(<>{renderInlineHtml(item)}</>);
+        bulletItems.push(<span key={`li-${i}`}>{renderInlineHtml(item)}</span>);
       }
       return;
     }
+
 
     const trimmed = part.trim();
     if (!trimmed) return;
