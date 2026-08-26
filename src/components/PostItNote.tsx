@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { parseLessonContent } from "@/lib/lessonContent";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 
 
 interface PostItNoteProps {
