@@ -50,6 +50,7 @@ const SurveyAdmin = () => {
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -240,11 +241,32 @@ const SurveyAdmin = () => {
             )}
             {currentSurvey?.is_open ? "Stäng veckans avstämning" : "Öppna veckans avstämning"}
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPreviewOpen(true)}
+            disabled={!selectedSurvey}
+            title={selectedSurvey ? "Se hur elevenkätens dialog ser ut" : "Skapa en avstämning först"}
+            className="gap-1"
+          >
+            <Eye className="w-4 h-4" /> Förhandsgranska elevvyn
+          </Button>
           <span className="text-sm text-muted-foreground font-nunito">
             {formatWeekLabel(currentWeek)} ·{" "}
             {currentSurvey?.is_open ? "lampan lyser för eleverna" : "lampan är släckt"}
           </span>
         </div>
+
+        {selectedSurvey && (
+          <SurveyDialog
+            open={previewOpen}
+            onOpenChange={setPreviewOpen}
+            survey={selectedSurvey}
+            existing={null}
+            onSubmit={async (_: SurveyAnswers) => {}}
+            preview
+          />
+        )}
 
         {loading ? (
           <p className="text-sm text-muted-foreground">Laddar…</p>
