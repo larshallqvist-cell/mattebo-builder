@@ -14,6 +14,7 @@ import LunchMenu from "@/components/LunchMenu";
 import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import HomeworkBanner from "@/components/HomeworkBanner";
+import SurveyLamp from "@/components/SurveyLamp";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
