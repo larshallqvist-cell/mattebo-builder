@@ -200,6 +200,56 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_responses: {
+        Row: {
+          created_at: string
+          id: string
+          learned_text: string
+          q_calm: number
+          q_effort: number
+          q_learning: number
+          q_teacher: number
+          survey_id: string
+          updated_at: string
+          user_id: string
+          wish_text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          learned_text?: string
+          q_calm: number
+          q_effort: number
+          q_learning: number
+          q_teacher: number
+          survey_id: string
+          updated_at?: string
+          user_id: string
+          wish_text?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          learned_text?: string
+          q_calm?: number
+          q_effort?: number
+          q_learning?: number
+          q_teacher?: number
+          survey_id?: string
+          updated_at?: string
+          user_id?: string
+          wish_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -215,6 +265,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_surveys: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          grade: number
+          id: string
+          is_open: boolean
+          opened_at: string
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          grade: number
+          id?: string
+          is_open?: boolean
+          opened_at?: string
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          grade?: number
+          id?: string
+          is_open?: boolean
+          opened_at?: string
+          updated_at?: string
+          week_start?: string
         }
         Relationships: []
       }
