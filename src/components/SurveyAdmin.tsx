@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Lightbulb, LightbulbOff, Download, AlertTriangle } from "lucide-react";
+import { Loader2, Lightbulb, LightbulbOff, Download, AlertTriangle, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
 import {
@@ -12,6 +12,8 @@ import {
   formatWeekLabel,
   type SurveyQuestionKey,
 } from "@/lib/survey";
+import SurveyDialog from "@/components/SurveyDialog";
+import type { SurveyAnswers } from "@/hooks/useWeeklySurvey";
 
 interface SurveyRow {
   id: string;
