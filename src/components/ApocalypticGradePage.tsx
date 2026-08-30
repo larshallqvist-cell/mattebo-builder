@@ -98,6 +98,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 Åk {grade}
               </h1>
               <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+              <div className="ml-auto">
+                <SurveyLamp grade={grade} compact />
+              </div>
             </div>
           </header>
         </div>
