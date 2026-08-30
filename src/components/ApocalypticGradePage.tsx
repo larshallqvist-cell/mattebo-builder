@@ -75,7 +75,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               </div>
               <HomeworkBanner grade={grade} compact />
-              <div className="ml-auto flex-shrink-0">
+              <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+                <SurveyLamp grade={grade} />
                 <LessonTimer grade={grade} size={56} hideClock />
               </div>
             </>
