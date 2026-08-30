@@ -135,6 +135,8 @@ const Admin = () => {
 
         <HomeworkEditor />
 
+        <SurveyAdmin />
+
         <LessonPlanEditor />
 
         {/* Pending */}
