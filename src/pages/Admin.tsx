@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import LessonPlanEditor from "@/components/LessonPlanEditor";
 import HomeworkEditor from "@/components/HomeworkEditor";
+import SurveyAdmin from "@/components/SurveyAdmin";
 
 interface AccessRequest {
   id: string;
