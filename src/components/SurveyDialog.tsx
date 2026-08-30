@@ -20,9 +20,11 @@ interface Props {
   survey: WeeklySurvey;
   existing: SurveyAnswers | null;
   onSubmit: (answers: SurveyAnswers) => Promise<void>;
+  /** Read-only preview: no submit, nothing written to the database. */
+  preview?: boolean;
 }
 
-const SurveyDialog = ({ open, onOpenChange, survey, existing, onSubmit }: Props) => {
+const SurveyDialog = ({ open, onOpenChange, survey, existing, onSubmit, preview }: Props) => {
   const { toast } = useToast();
   const [answers, setAnswers] = useState<SurveyAnswers>(existing ?? emptyAnswers());
   const [saving, setSaving] = useState(false);
@@ -128,14 +130,22 @@ const SurveyDialog = ({ open, onOpenChange, survey, existing, onSubmit }: Props)
             </label>
           </div>
 
-          <Button onClick={handleSubmit} disabled={!complete || saving} className="w-full gap-2">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-            {existing ? "Uppdatera mitt svar" : "Skicka in"}
-          </Button>
-          {!complete && (
+          {preview ? (
             <p className="text-center text-xs font-nunito text-[hsl(var(--postit-text))/70]">
-              Svara på alla fyra frågorna först.
+              Förhandsgranskning — inget sparas.
             </p>
+          ) : (
+            <>
+              <Button onClick={handleSubmit} disabled={!complete || saving} className="w-full gap-2">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                {existing ? "Uppdatera mitt svar" : "Skicka in"}
+              </Button>
+              {!complete && (
+                <p className="text-center text-xs font-nunito text-[hsl(var(--postit-text))/70]">
+                  Svara på alla fyra frågorna först.
+                </p>
+              )}
+            </>
           )}
         </div>
       </DialogContent>

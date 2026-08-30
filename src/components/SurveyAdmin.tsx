@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Lightbulb, LightbulbOff, Download, AlertTriangle } from "lucide-react";
+import { Loader2, Lightbulb, LightbulbOff, Download, AlertTriangle, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
 import {
@@ -12,6 +12,8 @@ import {
   formatWeekLabel,
   type SurveyQuestionKey,
 } from "@/lib/survey";
+import SurveyDialog from "@/components/SurveyDialog";
+import type { SurveyAnswers } from "@/hooks/useWeeklySurvey";
 
 interface SurveyRow {
   id: string;
@@ -48,6 +50,7 @@ const SurveyAdmin = () => {
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -238,11 +241,32 @@ const SurveyAdmin = () => {
             )}
             {currentSurvey?.is_open ? "Stäng veckans avstämning" : "Öppna veckans avstämning"}
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPreviewOpen(true)}
+            disabled={!selectedSurvey}
+            title={selectedSurvey ? "Se hur elevenkätens dialog ser ut" : "Skapa en avstämning först"}
+            className="gap-1"
+          >
+            <Eye className="w-4 h-4" /> Förhandsgranska elevvyn
+          </Button>
           <span className="text-sm text-muted-foreground font-nunito">
             {formatWeekLabel(currentWeek)} ·{" "}
             {currentSurvey?.is_open ? "lampan lyser för eleverna" : "lampan är släckt"}
           </span>
         </div>
+
+        {selectedSurvey && (
+          <SurveyDialog
+            open={previewOpen}
+            onOpenChange={setPreviewOpen}
+            survey={selectedSurvey}
+            existing={null}
+            onSubmit={async (_: SurveyAnswers) => {}}
+            preview
+          />
+        )}
 
         {loading ? (
           <p className="text-sm text-muted-foreground">Laddar…</p>
