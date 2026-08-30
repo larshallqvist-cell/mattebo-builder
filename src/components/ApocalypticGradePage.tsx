@@ -14,6 +14,7 @@ import LunchMenu from "@/components/LunchMenu";
 import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import HomeworkBanner from "@/components/HomeworkBanner";
+import SurveyLamp from "@/components/SurveyLamp";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
@@ -74,7 +75,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               </div>
               <HomeworkBanner grade={grade} compact />
-              <div className="ml-auto flex-shrink-0">
+              <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+                <SurveyLamp grade={grade} />
                 <LessonTimer grade={grade} size={56} hideClock />
               </div>
             </>
@@ -96,6 +98,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 Åk {grade}
               </h1>
               <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
+              <div className="ml-auto">
+                <SurveyLamp grade={grade} compact />
+              </div>
             </div>
           </header>
         </div>
