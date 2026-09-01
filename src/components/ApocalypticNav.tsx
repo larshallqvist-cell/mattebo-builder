@@ -7,9 +7,13 @@ import UserMenu from "./UserMenu";
 interface ApocalypticNavProps {
   /** Optional content rendered in the middle of the nav bar (desktop only) */
   centerContent?: ReactNode;
+  /** Optional grade shown stacked under the logo */
+  grade?: number;
+  /** Glow color for the grade label */
+  glowColor?: string;
 }
 
-const ApocalypticNav = ({ centerContent }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, grade, glowColor }: ApocalypticNavProps) => {
   const { user, loading } = useAuth();
 
   return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
@@ -19,10 +23,24 @@ const ApocalypticNav = ({ centerContent }: ApocalypticNavProps) => {
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
       border: "1px solid hsl(var(--primary) / 0.2)"
     }}>
-        {/* Logo / Site title */}
-        <Link to="/" className="font-orbitron text-lg font-bold text-accent hover:text-foreground transition-colors">
-          Leteboskolan
-        </Link>
+        {/* Logo / Site title — with grade stacked underneath */}
+        <div className="flex flex-col leading-tight">
+          <Link to="/" className="font-orbitron text-lg font-bold text-accent hover:text-foreground transition-colors">
+            Leteboskolan
+          </Link>
+          {grade != null && (
+            <span
+              className="font-orbitron text-xs font-semibold"
+              style={
+                glowColor
+                  ? { color: glowColor, textShadow: `0 0 12px ${glowColor}60` }
+                  : undefined
+              }
+            >
+              Åk {grade}
+            </span>
+          )}
+        </div>
 
         {/* Center content (grade + chapter selector + homework) */}
         {centerContent && (
