@@ -15,6 +15,8 @@ import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import HomeworkBanner from "@/components/HomeworkBanner";
 import SurveyLamp from "@/components/SurveyLamp";
+import ViewModeToggle from "@/components/ViewModeToggle";
+import { useViewMode } from "@/hooks/useViewMode";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
@@ -36,6 +38,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
   const { nextEvent } = useCalendarEvents(grade);
   const { user } = useAuth();
+  const { mode } = useViewMode();
+  const forcedMobile = mode === "mobile";
+  const forcedDesktop = mode === "desktop";
   const glowColor = GRADE_NEON_COLORS[grade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--neon-copper))";
 
 
@@ -76,6 +81,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               </div>
               <HomeworkBanner grade={grade} compact />
               <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+                <ViewModeToggle compact />
                 <SurveyLamp grade={grade} />
                 <LessonTimer grade={grade} size={56} hideClock />
               </div>
@@ -84,7 +90,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         />
 
         {/* Mobile: homework + header below nav */}
-        <div className="lg:hidden px-3 md:px-6 pt-20 pb-2 relative z-20">
+        <div className={`${forcedMobile ? "" : forcedDesktop ? "hidden" : "lg:hidden"} px-3 md:px-6 pt-20 pb-2 relative z-20`}>
           <HomeworkBanner grade={grade} />
           <header className="mt-3">
             <div className="flex flex-row items-center justify-start gap-4">
@@ -98,7 +104,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 Åk {grade}
               </h1>
               <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                <ViewModeToggle compact />
                 <SurveyLamp grade={grade} compact />
               </div>
             </div>
@@ -107,7 +114,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
         {/* Glowing divider — desktop gets extra top padding to clear the expanded nav */}
         <div
-          className="h-[2px] mx-6 relative z-20 lg:pt-28"
+          className={`h-[2px] mx-6 relative z-20 ${forcedMobile ? "" : forcedDesktop ? "pt-28" : "lg:pt-28"}`}
           style={{
             background: `linear-gradient(90deg, transparent, ${glowColor}80 20%, ${glowColor} 50%, ${glowColor}80 80%, transparent)`,
             boxShadow: `0 0 15px ${glowColor}60`,
@@ -116,12 +123,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
         {/* Main Content - Fixed to viewport, no external scroll */}
         <main
-          className="flex-1 px-3 lg:px-4 py-1 lg:pt-2 lg:pb-3 relative z-20 min-h-0 overflow-y-auto lg:overflow-hidden overscroll-contain"
+          className={`flex-1 px-3 py-1 relative z-20 min-h-0 overflow-y-auto overscroll-contain ${forcedMobile ? "" : forcedDesktop ? "px-4 pt-2 pb-3 overflow-hidden" : "lg:px-4 lg:pt-2 lg:pb-3 lg:overflow-hidden"}`}
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <div className="max-w-7xl mx-auto lg:h-full">
+          <div className={`max-w-7xl mx-auto ${forcedMobile ? "" : forcedDesktop ? "h-full" : "lg:h-full"}`}>
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
-            <div className="hidden lg:grid lg:grid-cols-12 gap-4 h-full">
+            <div className={`${forcedMobile ? "hidden" : forcedDesktop ? "grid grid-cols-12" : "hidden lg:grid lg:grid-cols-12"} gap-4 h-full`}>
               {/* Column 1 - Resources with chapter headers + Mascot at bottom */}
               <div className="lg:col-span-5 h-full flex flex-col gap-3 min-h-0">
                 <MetalPanel 
@@ -186,7 +193,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             </div>
 
             {/* Tablet: Two-column layout — auto height so the page scrolls */}
-            <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4 items-start pb-24">
+            <div className={`${forcedMobile || forcedDesktop ? "hidden" : "hidden md:grid md:grid-cols-2 lg:hidden"} gap-4 items-start pb-24`}>
               {/* Left column - Calendar + Tools */}
               <div className="flex flex-col gap-4">
                 <ScreenFrame title={`Planering Åk ${grade}`} className="flex-1 min-h-[300px]">
@@ -238,7 +245,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             </div>
 
             {/* Mobile: Single column - optimized for touch */}
-            <div className="md:hidden space-y-4 pb-24 px-1">
+            <div className={`${forcedMobile ? "" : forcedDesktop ? "hidden" : "md:hidden"} space-y-4 pb-24 px-1`}>
               {/* Quick info - compact */}
               <div id="next-lesson">
                 <PostItNote grade={grade} />
