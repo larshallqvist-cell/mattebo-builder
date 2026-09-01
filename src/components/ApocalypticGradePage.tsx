@@ -149,11 +149,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   <PostItNote grade={grade} />
                 </MetalPanel>
 
-                {/* Combined Tools Panel - 2x2 grid fills remaining space */}
+                {/* Combined Tools Panel - fixed dimensions, scrolls with the column as one package */}
                 <MetalPanel 
                   title="Verktyg" 
                   glowColor="hsl(var(--neon-copper))" 
-                  className="flex-1 min-h-[180px] flex flex-col flex-shrink-0" 
+                  className="flex-shrink-0 flex flex-col" 
                   showSparks
                   titleExtra={
                     activeRadioChannel && (
@@ -161,12 +161,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     )
                   }
                 >
-                  <div className="flex-1 min-h-0 flex flex-col gap-3">
-                    <div className="grid grid-cols-2 grid-rows-2 gap-3 flex-1 min-h-0 [&>*]:min-h-0 [&>*]:overflow-hidden">
+                  <div className="flex flex-col gap-3">
+                    <div className="grid grid-cols-2 grid-rows-2 gap-3 h-[170px] [&>*]:overflow-hidden">
                       <CalculatorThumbnail fillSpace />
                       <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
                     </div>
-                    <div className="pt-3 border-t border-border/40 flex-shrink-0">
+                    <div className="pt-3 border-t border-border/40">
                       <LunchMenu compact />
                     </div>
                   </div>
