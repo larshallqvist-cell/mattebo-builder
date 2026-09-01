@@ -128,7 +128,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         >
           <div className={`max-w-7xl mx-auto ${forcedMobile ? "" : forcedDesktop ? "h-full" : "lg:h-full"}`}>
             {/* Desktop: Three-column layout - tighter gaps for Chromebooks */}
-            <div className={`${forcedMobile ? "hidden" : forcedDesktop ? "grid grid-cols-12" : "hidden lg:grid lg:grid-cols-12"} gap-4 h-full`}>
+            <div className={`${forcedMobile ? "hidden" : forcedDesktop ? "grid grid-cols-12 [&>*:nth-child(1)]:col-span-5 [&>*:nth-child(2)]:col-span-4 [&>*:nth-child(3)]:col-span-3" : "hidden lg:grid lg:grid-cols-12"} gap-4 h-full`}>
               {/* Column 1 - Resources with chapter headers + Mascot at bottom */}
               <div className="lg:col-span-5 h-full flex flex-col gap-3 min-h-0">
                 <MetalPanel 
