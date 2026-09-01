@@ -65,20 +65,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
         {/* Navigation with grade, chapter selector, and homework on desktop */}
         <ApocalypticNav
+          grade={grade}
+          glowColor={glowColor}
           centerContent={
             <>
-              <div className="flex items-center gap-3">
-                <h1
-                  className="text-xl font-orbitron font-bold whitespace-nowrap"
-                  style={{
-                    color: glowColor,
-                    textShadow: `0 0 16px ${glowColor}60`,
-                  }}
-                >
-                  Åk {grade}
-                </h1>
-                <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
-              </div>
+              <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               <HomeworkBanner grade={grade} compact />
               <div className="ml-auto flex items-center gap-3 flex-shrink-0">
                 <ViewModeToggle compact />
