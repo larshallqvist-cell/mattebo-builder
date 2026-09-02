@@ -29,7 +29,7 @@ interface AccessRequest {
 }
 
 const Admin = () => {
-  const { user, isAdmin, accessStatus } = useAuth();
+  const { user, isAdmin, accessStatus, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +105,14 @@ const Admin = () => {
       </AlertDialogContent>
     </AlertDialog>
   );
+
+  if (authLoading || accessStatus === "loading" || accessStatus === null) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <p className="text-muted-foreground">Laddar…</p>
+      </div>
+    );
+  }
 
   if (!user || accessStatus !== "approved" || !isAdmin) {
     return <Navigate to="/" replace />;
