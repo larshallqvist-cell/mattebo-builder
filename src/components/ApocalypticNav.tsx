@@ -7,13 +7,15 @@ import UserMenu from "./UserMenu";
 interface ApocalypticNavProps {
   /** Optional content rendered in the middle of the nav bar (desktop only) */
   centerContent?: ReactNode;
+  /** Hide center content entirely (used when mobile view is forced) */
+  hideCenter?: boolean;
   /** Optional grade shown stacked under the logo */
   grade?: number;
   /** Glow color for the grade label */
   glowColor?: string;
 }
 
-const ApocalypticNav = ({ centerContent, grade, glowColor }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
   const { user, loading } = useAuth();
 
   return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
@@ -43,7 +45,7 @@ const ApocalypticNav = ({ centerContent, grade, glowColor }: ApocalypticNavProps
         </div>
 
         {/* Center content (grade + chapter selector + homework) */}
-        {centerContent && (
+        {centerContent && !hideCenter && (
           <div className="hidden lg:flex items-center justify-start flex-1 min-w-0 ml-4 gap-4">
             {centerContent}
           </div>
