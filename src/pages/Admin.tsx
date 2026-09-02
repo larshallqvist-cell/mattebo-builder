@@ -29,7 +29,7 @@ interface AccessRequest {
 }
 
 const Admin = () => {
-  const { user, isAdmin, accessStatus } = useAuth();
+  const { user, isAdmin, accessStatus, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
