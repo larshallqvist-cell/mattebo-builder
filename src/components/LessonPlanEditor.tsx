@@ -249,7 +249,7 @@ const LessonPlanEditor = () => {
                   placeholder="Rubrik, t.ex. Matte Åk 6 – Bråk"
                   className="font-body text-sm"
                 />
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => insertAtCursor("**", "**", "fet text")}>
                     <Bold className="mr-1 h-4 w-4" /> Fet
                   </Button>
@@ -261,6 +261,10 @@ const LessonPlanEditor = () => {
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)}>
                     <Link2 className="mr-1 h-4 w-4" /> Länk
+                  </Button>
+                  <Button size="sm" onClick={handleSave} disabled={saving} className="ml-auto">
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    Spara
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -300,15 +304,9 @@ const LessonPlanEditor = () => {
                 </div>
 
 
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {draft.length}/{MAX_CONTENT_LENGTH} tecken
-                  </span>
-                  <Button onClick={handleSave} disabled={saving}>
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Spara
-                  </Button>
-                </div>
+                <span className="block text-xs text-muted-foreground">
+                  {draft.length}/{MAX_CONTENT_LENGTH} tecken
+                </span>
               </>
             ) : (
               <p className="text-sm text-muted-foreground">Välj en lektion i listan för att skriva planeringen.</p>
