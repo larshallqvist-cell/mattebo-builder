@@ -304,15 +304,9 @@ const LessonPlanEditor = () => {
                 </div>
 
 
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {draft.length}/{MAX_CONTENT_LENGTH} tecken
-                  </span>
-                  <Button onClick={handleSave} disabled={saving}>
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Spara
-                  </Button>
-                </div>
+                <span className="block text-xs text-muted-foreground">
+                  {draft.length}/{MAX_CONTENT_LENGTH} tecken
+                </span>
               </>
             ) : (
               <p className="text-sm text-muted-foreground">Välj en lektion i listan för att skriva planeringen.</p>
