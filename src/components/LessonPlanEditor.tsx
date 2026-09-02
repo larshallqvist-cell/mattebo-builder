@@ -249,20 +249,22 @@ const LessonPlanEditor = () => {
                   placeholder="Rubrik, t.ex. Matte Åk 6 – Bråk"
                   className="font-body text-sm"
                 />
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" variant="outline" onClick={() => insertAtCursor("**", "**", "fet text")}>
-                    <Bold className="mr-1 h-4 w-4" /> Fet
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={insertHeading}>
-                    <Heading className="mr-1 h-4 w-4" /> Rubrik
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={insertBullet}>
-                    <List className="mr-1 h-4 w-4" /> Punkt
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)}>
-                    <Link2 className="mr-1 h-4 w-4" /> Länk
-                  </Button>
-                  <Button size="sm" onClick={handleSave} disabled={saving} className="ml-auto">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => insertAtCursor("**", "**", "fet text")}>
+                      <Bold className="mr-1 h-4 w-4" /> Fet
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={insertHeading}>
+                      <Heading className="mr-1 h-4 w-4" /> Rubrik
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={insertBullet}>
+                      <List className="mr-1 h-4 w-4" /> Punkt
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)}>
+                      <Link2 className="mr-1 h-4 w-4" /> Länk
+                    </Button>
+                  </div>
+                  <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Spara
                   </Button>
