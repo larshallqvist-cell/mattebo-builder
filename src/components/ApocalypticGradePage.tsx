@@ -67,6 +67,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         <ApocalypticNav
           grade={grade}
           glowColor={glowColor}
+          hideCenter={forcedMobile}
           centerContent={
             <>
               <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
