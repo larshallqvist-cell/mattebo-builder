@@ -81,20 +81,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           }
         />
 
-        {/* Mobile: homework + header below nav */}
-        <div className={`${forcedMobile ? "" : forcedDesktop ? "hidden" : "lg:hidden"} px-3 md:px-6 pt-20 pb-2 relative z-20`}>
+        {/* Mobile: homework + header below nav. Also shown below lg when desktop
+            view is forced, so the controls never disappear on small screens. */}
+        <div className={`${forcedMobile ? "" : "lg:hidden"} px-3 md:px-6 pt-20 pb-2 relative z-20`}>
           <HomeworkBanner grade={grade} />
           <header className="mt-3">
             <div className="flex flex-row items-center justify-start gap-4">
-              <h1
-                className="text-xl font-orbitron font-bold whitespace-nowrap"
-                style={{
-                  color: glowColor,
-                  textShadow: `0 0 16px ${glowColor}60`,
-                }}
-              >
-                Åk {grade}
-              </h1>
               <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
               <div className="ml-auto flex items-center gap-2">
                 <ViewModeToggle compact />

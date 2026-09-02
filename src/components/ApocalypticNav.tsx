@@ -45,7 +45,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
         </div>
 
         {/* Center content (grade + chapter selector + homework) */}
-        {centerContent && (
+        {centerContent && !hideCenter && (
           <div className="hidden lg:flex items-center justify-start flex-1 min-w-0 ml-4 gap-4">
             {centerContent}
           </div>
