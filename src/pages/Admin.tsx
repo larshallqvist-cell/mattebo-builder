@@ -106,6 +106,14 @@ const Admin = () => {
     </AlertDialog>
   );
 
+  if (authLoading || accessStatus === "loading" || accessStatus === null) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <p className="text-muted-foreground">Laddar…</p>
+      </div>
+    );
+  }
+
   if (!user || accessStatus !== "approved" || !isAdmin) {
     return <Navigate to="/" replace />;
   }
