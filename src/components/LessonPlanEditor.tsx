@@ -5,7 +5,7 @@ import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/
 import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Bold, List, Link2, Save, Loader2, Heading } from "lucide-react";
