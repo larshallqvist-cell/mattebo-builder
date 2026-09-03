@@ -76,8 +76,7 @@ const HomeworkEditor = () => {
             Spara
           </Button>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 

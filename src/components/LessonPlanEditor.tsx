@@ -311,7 +311,6 @@ const LessonPlanEditor = () => {
             )}
           </div>
         </div>
-      </CardContent>
 
       <Dialog open={linkOpen} onOpenChange={setLinkOpen}>
         <DialogContent>
@@ -328,7 +327,7 @@ const LessonPlanEditor = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 };
 

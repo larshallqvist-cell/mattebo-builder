@@ -409,8 +409,7 @@ const SurveyAdmin = () => {
             </div>
           </>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 
