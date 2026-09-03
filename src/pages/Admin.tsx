@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Check, X, ArrowLeft, Shield, Trash2 } from "lucide-react";
+import {
+  Check, X, ArrowLeft, Shield, Trash2, Pencil, ClipboardList,
+  CalendarDays, Inbox, Users, Mail,
+} from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -17,6 +19,7 @@ import {
 import LessonPlanEditor from "@/components/LessonPlanEditor";
 import HomeworkEditor from "@/components/HomeworkEditor";
 import SurveyAdmin from "@/components/SurveyAdmin";
+import CollapsibleAdminSection from "@/components/CollapsibleAdminSection";
 
 interface AccessRequest {
   id: string;
@@ -121,12 +124,22 @@ const Admin = () => {
   const pending = requests.filter((r) => r.status === "pending");
   const handled = requests.filter((r) => r.status !== "pending");
 
+  const pendingBadge = pending.length > 0 && (
+    <span className="relative flex items-center gap-2 shrink-0">
+      <span className="relative flex h-3 w-3">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+        <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400" />
+      </span>
+      <span className="text-sm font-semibold text-amber-500">{pending.length} nya</span>
+    </span>
+  );
+
   return (
     <div
       className="h-screen w-full overflow-y-auto overscroll-contain bg-background p-6 pt-24"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
-      <div className="max-w-4xl mx-auto space-y-6 pb-24">
+      <div className="max-w-4xl mx-auto space-y-4 pb-24">
         <div className="flex items-center gap-4">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -139,23 +152,43 @@ const Admin = () => {
               Admin
             </h1>
           </div>
+          {/* Mailbox lamp: lit when new access requests have arrived */}
+          <div className="ml-auto flex items-center gap-2" title={pending.length > 0 ? `${pending.length} väntande förfrågningar` : "Inga väntande förfrågningar"}>
+            {pending.length > 0 && (
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400" />
+              </span>
+            )}
+            <Mail className={`w-5 h-5 ${pending.length > 0 ? "text-amber-400" : "text-muted-foreground"}`} />
+            {pending.length > 0 && (
+              <span className="text-sm font-semibold text-amber-500">{pending.length}</span>
+            )}
+          </div>
         </div>
 
-        <HomeworkEditor />
+        <CollapsibleAdminSection title="Läxruta" icon={<Pencil className="w-5 h-5" />}>
+          <HomeworkEditor />
+        </CollapsibleAdminSection>
 
-        <SurveyAdmin />
+        <CollapsibleAdminSection title="Veckoavstämning" icon={<ClipboardList className="w-5 h-5" />}>
+          <SurveyAdmin />
+        </CollapsibleAdminSection>
 
-        <LessonPlanEditor />
+        <CollapsibleAdminSection title="Lektionsplanering" icon={<CalendarDays className="w-5 h-5" />}>
+          <LessonPlanEditor />
+        </CollapsibleAdminSection>
 
         {/* Pending */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-nunito">
-              Väntande förfrågningar ({pending.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pending.length === 0 ? (
+        <CollapsibleAdminSection
+          title={`Väntande förfrågningar (${pending.length})`}
+          icon={<Inbox className="w-5 h-5" />}
+          badge={pendingBadge}
+        >
+          <div className="p-5">
+            {loading ? (
+              <p className="text-muted-foreground text-sm">Laddar…</p>
+            ) : pending.length === 0 ? (
               <p className="text-muted-foreground text-sm">Inga väntande förfrågningar.</p>
             ) : (
               <Table>
@@ -198,17 +231,15 @@ const Admin = () => {
                 </TableBody>
               </Table>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </CollapsibleAdminSection>
 
         {/* Handled */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-nunito">
-              Hanterade ({handled.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <CollapsibleAdminSection
+          title={`Insläppta och hanterade (${handled.length})`}
+          icon={<Users className="w-5 h-5" />}
+        >
+          <div className="p-5">
             {handled.length === 0 ? (
               <p className="text-muted-foreground text-sm">Inga hanterade ännu.</p>
             ) : (
@@ -259,8 +290,8 @@ const Admin = () => {
                 </TableBody>
               </Table>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </CollapsibleAdminSection>
       </div>
     </div>
   );
