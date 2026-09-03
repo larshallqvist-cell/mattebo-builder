@@ -187,11 +187,7 @@ const LessonPlanEditor = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-nunito">Lektionsplanering</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="p-5 space-y-4">
         <div className="flex flex-wrap gap-2">
           {SUPPORTED_GRADES.map((g) => (
             <Button
