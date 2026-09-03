@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { SUPPORTED_GRADES } from "@/config/app";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Save, Loader2 } from "lucide-react";
@@ -40,11 +40,8 @@ const HomeworkEditor = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-nunito">Läxruta (visas högst upp på årskurssidan)</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="p-5 space-y-4">
+      <p className="text-sm text-muted-foreground">Läxrutan visas högst upp på årskurssidan.</p>
         <div className="flex flex-wrap gap-2">
           {SUPPORTED_GRADES.map((g) => (
             <Button key={g} size="sm" variant={g === grade ? "default" : "outline"} onClick={() => setGrade(g)}>
@@ -79,8 +76,7 @@ const HomeworkEditor = () => {
             Spara
           </Button>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Loader2, Lightbulb, LightbulbOff, Download, AlertTriangle, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
@@ -212,9 +212,8 @@ const SurveyAdmin = () => {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
-        <CardTitle className="text-lg font-nunito">Veckoavstämning</CardTitle>
+    <div className="p-5 space-y-6">
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex gap-1">
           {SUPPORTED_GRADES.map((g) => (
             <Button
@@ -227,8 +226,7 @@ const SurveyAdmin = () => {
             </Button>
           ))}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      </div>
         {/* Open / close */}
         <div className="flex items-center gap-3 flex-wrap">
           <Button onClick={toggleSurvey} disabled={busy} className="gap-2">
@@ -411,8 +409,7 @@ const SurveyAdmin = () => {
             </div>
           </>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 

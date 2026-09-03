@@ -5,7 +5,7 @@ import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/
 import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Bold, List, Link2, Save, Loader2, Heading } from "lucide-react";
@@ -187,11 +187,7 @@ const LessonPlanEditor = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-nunito">Lektionsplanering</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="p-5 space-y-4">
         <div className="flex flex-wrap gap-2">
           {SUPPORTED_GRADES.map((g) => (
             <Button
@@ -315,7 +311,6 @@ const LessonPlanEditor = () => {
             )}
           </div>
         </div>
-      </CardContent>
 
       <Dialog open={linkOpen} onOpenChange={setLinkOpen}>
         <DialogContent>
@@ -332,7 +327,7 @@ const LessonPlanEditor = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 };
 
