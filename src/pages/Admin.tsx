@@ -7,9 +7,10 @@ import {
 } from "@/components/ui/table";
 import {
   Check, X, ArrowLeft, Shield, Trash2, Pencil, ClipboardList,
-  CalendarDays, Inbox, Users, Mail,
+  CalendarDays, Inbox, Users, Mail, RefreshCw,
 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
+import { forceAppUpdate } from "@/pwa";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -165,6 +166,16 @@ const Admin = () => {
               <span className="text-sm font-semibold text-amber-500">{pending.length}</span>
             )}
           </div>
+          {/* Escape-knapp: låser upp fastnad PWA-cache på en knapptryckning */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => forceAppUpdate()}
+            title="Tvinga uppdatering – rensar cache och service worker"
+            className="shrink-0"
+          >
+            <RefreshCw className="w-5 h-5" />
+          </Button>
         </div>
 
         <CollapsibleAdminSection title="Läxruta" icon={<Pencil className="w-5 h-5" />}>

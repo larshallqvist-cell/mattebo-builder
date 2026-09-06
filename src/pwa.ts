@@ -52,6 +52,43 @@ if ("serviceWorker" in navigator) {
 
 void purgeStaleCaches();
 
+/**
+ * Manuell escape-hatch för fastnad iOS/PWA-cache.
+ * Avregistrerar service workers, tömmer alla cache-poster (förutom Google-fonts),
+ * rensar versionsnyckeln och laddar om siden hårt.
+ */
+export async function forceAppUpdate() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((k) => !k.includes("google-fonts") && !k.includes("gstatic"))
+          .map((k) => caches.delete(k)),
+      );
+    }
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    window.localStorage.removeItem("mattebo-app-version");
+  } catch {
+    /* ignore */
+  }
+
+  window.location.reload();
+}
+
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
