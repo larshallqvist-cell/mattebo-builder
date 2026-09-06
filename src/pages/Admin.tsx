@@ -7,9 +7,10 @@ import {
 } from "@/components/ui/table";
 import {
   Check, X, ArrowLeft, Shield, Trash2, Pencil, ClipboardList,
-  CalendarDays, Inbox, Users, Mail,
+  CalendarDays, Inbox, Users, Mail, RefreshCw,
 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
+import { forceAppUpdate } from "@/pwa";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
