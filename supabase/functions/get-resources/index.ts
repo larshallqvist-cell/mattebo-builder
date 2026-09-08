@@ -119,7 +119,8 @@ serve(async (req) => {
       response = await tryFetch(gridUrl("A2:F1000"));
     }
 
-    let data: unknown = null;
+    // deno-lint-ignore no-explicit-any
+    let data: any = null;
 
     if (!response.ok) {
       const errorText = await response.text();
