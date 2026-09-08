@@ -93,9 +93,33 @@ serve(async (req) => {
     // Rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA.
     // Extended to column E/F so URLs/colors copied further across still load.
     // Keep the row range generous so special rows copied further down still load.
-    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!${SHEET_RANGE}`)}&includeGridData=true`;
+    const gridUrl = (range: string) =>
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!${range}`)}&includeGridData=true`;
 
-    const response = await fetch(sheetsUrl);
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    // Retry transient failures (429/5xx) with backoff, then try a smaller range
+    // (large grid requests can be rejected/time out), then fall back to plain values.
+    const tryFetch = async (url: string) => {
+      let last: Response | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const res = await fetch(url);
+        if (res.ok) return res;
+        last = res;
+        if (res.status !== 429 && res.status < 500) return res;
+        await sleep(500 * Math.pow(2, attempt));
+      }
+      return last as Response;
+    };
+
+    let response = await tryFetch(gridUrl(SHEET_RANGE));
+
+    if (!response.ok && response.status !== 400) {
+      console.error("Sheets grid fetch failed, retrying smaller range", response.status);
+      response = await tryFetch(gridUrl("A2:F1000"));
+    }
+
+    let data: unknown = null;
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -109,15 +133,32 @@ serve(async (req) => {
         );
       }
 
-      // Return generic error without exposing internal details
-      return new Response(
-        JSON.stringify({ error: 'Kunde inte hämta resurser. Försök igen senare.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      // Last resort: plain values (loses rich-link metadata but keeps the page usable)
+      const valuesRes = await tryFetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(`${tabName}!${SHEET_RANGE}`)}?key=${apiKey}`,
       );
+      if (!valuesRes.ok) {
+        console.error("Sheets values fallback failed", valuesRes.status);
+        return new Response(
+          JSON.stringify({ error: 'Kunde inte hämta resurser. Försök igen senare.' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      const valuesJson = await valuesRes.json();
+      const valueRows: string[][] = valuesJson.values || [];
+      data = {
+        sheets: [{
+          data: [{
+            rowData: valueRows.map((r) => ({
+              values: r.map((v) => ({ formattedValue: v })),
+            })),
+          }],
+        }],
+      };
+    } else {
+      data = await response.json();
     }
 
-
-    const data = await response.json();
 
     // Extract rows from the grid data structure
     const sheet = data.sheets?.[0];
