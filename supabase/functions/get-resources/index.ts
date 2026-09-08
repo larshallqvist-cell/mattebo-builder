@@ -99,6 +99,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("Sheets API error", response.status, errorText.slice(0, 500));
 
       // Check if it's a tab not found error - return user-friendly message
       if (response.status === 400 && errorText.includes('Unable to parse range')) {
@@ -114,6 +115,7 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
 
     const data = await response.json();
 
