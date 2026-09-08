@@ -318,8 +318,10 @@ const GradeView = () => {
                 <button
                   key={e.id}
                   onClick={() => selectLesson(key)}
-                  className={`flex w-full items-center justify-between gap-2 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
-                    key === selectedKey ? "bg-muted font-semibold" : ""
+                  className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
+                    key === selectedKey
+                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.18)] font-semibold text-foreground"
+                      : "border-transparent"
                   } ${isPast ? "text-muted-foreground italic" : ""}`}
                 >
                   <span>{formatLesson(e.date, e.endDate, e.location)}</span>
@@ -418,8 +420,10 @@ const DayView = () => {
                 <button
                   key={`${grade}:${event.id}`}
                   onClick={() => selectLesson(grade, event.uid)}
-                  className={`flex w-full items-center justify-between gap-2 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
-                    active ? "bg-muted font-semibold" : ""
+                  className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
+                    active
+                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.18)] font-semibold text-foreground"
+                      : "border-transparent"
                   }`}
                 >
                   <span>
