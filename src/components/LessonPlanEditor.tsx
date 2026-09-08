@@ -318,12 +318,13 @@ const GradeView = () => {
                 <button
                   key={e.id}
                   onClick={() => selectLesson(key)}
-                  className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
+                  className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors ${
                     key === selectedKey
-                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.32)] font-semibold text-foreground"
-                      : "border-transparent"
+                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.32)] font-semibold text-foreground hover:bg-[hsl(var(--accent)/0.42)]"
+                      : "border-transparent hover:bg-muted"
                   } ${isPast ? "text-muted-foreground italic" : ""}`}
                 >
+
                   <span>{formatLesson(e.date, e.endDate, e.location)}</span>
                   {hasPlan && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
                 </button>
@@ -420,12 +421,13 @@ const DayView = () => {
                 <button
                   key={`${grade}:${event.id}`}
                   onClick={() => selectLesson(grade, event.uid)}
-                  className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
+                  className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors ${
                     active
-                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.32)] font-semibold text-foreground"
-                      : "border-transparent"
+                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.32)] font-semibold text-foreground hover:bg-[hsl(var(--accent)/0.42)]"
+                      : "border-transparent hover:bg-muted"
                   }`}
                 >
+
                   <span>
                     {formatTimeRange(event.date, event.endDate)} · Åk {grade}
                     {event.location ? ` · ${event.location}` : ""}
