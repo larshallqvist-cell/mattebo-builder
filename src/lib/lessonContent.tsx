@@ -36,17 +36,25 @@ const openLink = (href: string) => (e: React.MouseEvent) => {
 const isSafeHref = (href: string) =>
   /^(https?:|mailto:)/i.test(href) || href.startsWith("/") || href.startsWith("#");
 
-const headingWrapper = (key: string, isFirst: boolean, title: React.ReactNode, rest: React.ReactNode) => (
-  <div
-    key={key}
-    className={`${isFirst ? "mt-0" : "mt-5"} mb-1 border-t border-[hsl(var(--postit-text))/25] pt-1.5`}
-  >
-    <span className="text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))]">
-      {title}
-    </span>
-    {rest && <span className="ml-2 text-sm font-body font-normal leading-snug">{rest}</span>}
-  </div>
-);
+const headingWrapper = (key: string, isFirst: boolean, title: React.ReactNode, rest: React.ReactNode) =>
+  isFirst ? (
+    <div key={key} className="mt-0 mb-2">
+      <h3 className="font-orbitron text-lg font-bold leading-tight text-[hsl(var(--postit-text))]">
+        {title}
+      </h3>
+      {rest && <p className="mt-0.5 text-sm font-body font-normal leading-snug">{rest}</p>}
+    </div>
+  ) : (
+    <div
+      key={key}
+      className="mt-5 mb-1 border-t border-[hsl(var(--postit-text))/25] pt-1.5"
+    >
+      <span className="text-[0.7rem] uppercase tracking-[0.14em] font-orbitron text-[hsl(var(--postit-text))]">
+        {title}
+      </span>
+      {rest && <span className="ml-2 text-sm font-body font-normal leading-snug">{rest}</span>}
+    </div>
+  );
 
 const bulletList = (key: string, items: React.ReactNode[]) => (
   <ul key={key} className="my-1.5 space-y-1 font-body font-normal">
