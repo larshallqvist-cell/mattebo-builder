@@ -320,7 +320,7 @@ const GradeView = () => {
                   onClick={() => selectLesson(key)}
                   className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
                     key === selectedKey
-                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.18)] font-semibold text-foreground"
+                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.32)] font-semibold text-foreground"
                       : "border-transparent"
                   } ${isPast ? "text-muted-foreground italic" : ""}`}
                 >
@@ -422,7 +422,7 @@ const DayView = () => {
                   onClick={() => selectLesson(grade, event.uid)}
                   className={`flex w-full items-center justify-between gap-2 border-l-4 p-2.5 text-left text-sm transition-colors hover:bg-muted ${
                     active
-                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.18)] font-semibold text-foreground"
+                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.32)] font-semibold text-foreground"
                       : "border-transparent"
                   }`}
                 >
