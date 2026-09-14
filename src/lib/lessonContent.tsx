@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import { openYouTubeOverlay } from "@/lib/youtube";
 
 /**
  * Shared renderer for lesson plan content (used by PostItNote and the admin editor preview).
@@ -30,6 +31,7 @@ const linkClass =
 
 const openLink = (href: string) => (e: React.MouseEvent) => {
   e.preventDefault();
+  if (openYouTubeOverlay(href)) return;
   window.open(href, "_blank", "noopener,noreferrer");
 };
 

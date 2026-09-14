@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
+import YouTubeOverlay from "./components/YouTubeOverlay";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <ChalkDust />
+        <YouTubeOverlay />
         <BrowserRouter>
           <SheetConfig />
           <AnimatedRoutes />

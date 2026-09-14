@@ -1,5 +1,6 @@
 import { GraduationCap, ExternalLink } from "lucide-react";
 import { useHomework } from "@/hooks/useHomework";
+import { openYouTubeOverlay } from "@/lib/youtube";
 
 interface HomeworkBannerProps {
   grade: number;
@@ -32,6 +33,7 @@ const renderContentWithLinks = (text: string) => {
           href={href}
           onClick={(e) => {
             e.preventDefault();
+            if (openYouTubeOverlay(href, label)) return;
             window.open(href, "_blank", "noopener,noreferrer");
           }}
           target="_blank"
@@ -53,6 +55,7 @@ const renderContentWithLinks = (text: string) => {
           href={href}
           onClick={(e) => {
             e.preventDefault();
+            if (openYouTubeOverlay(href)) return;
             window.open(href, "_blank", "noopener,noreferrer");
           }}
           target="_blank"

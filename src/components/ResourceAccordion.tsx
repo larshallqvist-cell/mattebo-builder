@@ -5,6 +5,7 @@ import { hapticFeedback } from "@/hooks/useHaptic";
 import { ResourceSkeleton } from "@/components/skeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY } from "@/config/app";
+import { openYouTubeOverlay } from "@/lib/youtube";
 
 
 interface ResourceLink {
@@ -308,6 +309,9 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
                                 }).then(() => {});
                               }
                             });
+                            if (openYouTubeOverlay(cleanUrl, link.title)) {
+                              return;
+                            }
                             if (isExternal) {
                               window.open(cleanUrl, '_blank', 'noopener,noreferrer');
                             } else {
