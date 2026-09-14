@@ -66,6 +66,7 @@ export const getYouTubeRoot = (): HTMLElement => {
   if (!root) {
     root = document.createElement("div");
     root.id = YOUTUBE_ROOT_ID;
+    root.style.background = "#000";
     document.body.appendChild(root);
   }
   return root;
