@@ -145,6 +145,12 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
     setLinkUrl("");
   };
 
+  /** Insert a color tag around the selection: `{color}…{/}`. */
+  const applyColor = (colorToken: string) => {
+    insertAtCursor(`{${colorToken}}`, "{/}", "färgad text");
+    setColorOpen(false);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
