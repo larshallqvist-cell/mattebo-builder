@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import ErrorBoundary from "@/components/ErrorBoundary";
