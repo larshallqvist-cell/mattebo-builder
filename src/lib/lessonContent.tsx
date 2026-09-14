@@ -101,7 +101,8 @@ const divider = (key: string) => <hr key={key} className="my-3 border-[hsl(var(-
 
 /* ------------------------------- inline HTML ------------------------------- */
 
-const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
+/** HTML-tag rendering (b/strong/u/i/em/a) for a segment without color tags. */
+const renderBasicInlineHtml = (html: string, keyPrefix: string): (string | JSX.Element)[] => {
   const result: (string | JSX.Element)[] = [];
   let keyIndex = 0;
   let lastIndex = 0;
@@ -111,7 +112,7 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
   while ((match = regex.exec(html)) !== null) {
     if (match.index > lastIndex) {
       const decoded = decodeHtmlEntities(html.slice(lastIndex, match.index));
-      if (decoded) result.push(decoded);
+      if (decoded) result.push(<span key={`${keyPrefix}-t${keyIndex++}`}>{decoded}</span>);
     }
 
     const fullMatch = match[0];
@@ -119,17 +120,17 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
 
     if (tagName === "b" || tagName === "strong") {
       const content = fullMatch.replace(/<\/?(?:b|strong)[^>]*>/gi, "");
-      result.push(<strong key={`b-${keyIndex++}`}>{renderInlineHtml(content)}</strong>);
+      result.push(<strong key={`${keyPrefix}-b${keyIndex++}`}>{renderInlineHtml(content, `${keyPrefix}-b${keyIndex}`)}</strong>);
     } else if (tagName === "u") {
       const content = fullMatch.replace(/<\/?u[^>]*>/gi, "");
       result.push(
-        <span key={`u-${keyIndex++}`} className="underline">
-          {renderInlineHtml(content)}
+        <span key={`${keyPrefix}-u${keyIndex++}`} className="underline">
+          {renderInlineHtml(content, `${keyPrefix}-u${keyIndex}`)}
         </span>,
       );
     } else if (tagName === "i" || tagName === "em") {
       const content = fullMatch.replace(/<\/?(?:i|em)[^>]*>/gi, "");
-      result.push(<em key={`i-${keyIndex++}`}>{renderInlineHtml(content)}</em>);
+      result.push(<em key={`${keyPrefix}-i${keyIndex++}`}>{renderInlineHtml(content, `${keyPrefix}-i${keyIndex}`)}</em>);
     } else if (tagName === "a") {
       const hrefMatch = fullMatch.match(/href="([^"]*)"/i);
       const href = hrefMatch ? hrefMatch[1] : "#";
@@ -140,11 +141,11 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
       const finalHref = href.startsWith("www.") ? `https://${href}` : href;
 
       if (!isSafeHref(finalHref)) {
-        result.push(<span key={`a-${keyIndex++}`}>{cleanContent}</span>);
+        result.push(<span key={`${keyPrefix}-a${keyIndex++}`}>{cleanContent}</span>);
       } else {
         result.push(
           <a
-            key={`a-${keyIndex++}`}
+            key={`${keyPrefix}-a${keyIndex++}`}
             href={finalHref}
             onClick={openLink(finalHref)}
             className={linkClass}
@@ -163,9 +164,41 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
 
   if (lastIndex < html.length) {
     const decoded = decodeHtmlEntities(html.slice(lastIndex).replace(/<[^>]+>/g, ""));
-    if (decoded) result.push(decoded);
+    if (decoded) result.push(<span key={`${keyPrefix}-t${keyIndex++}`}>{decoded}</span>);
   }
 
+  return result.length > 0 ? result : [decodeHtmlEntities(html.replace(/<[^>]+>/g, ""))];
+};
+
+/** Inline HTML rendering with color-tag support ({röd}…{/} / {#hex}…{/}). */
+const renderInlineHtml = (html: string, keyPrefix = "h"): (string | JSX.Element)[] => {
+  const result: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let keyIndex = 0;
+  COLOR_TAG_REGEX.lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = COLOR_TAG_REGEX.exec(html)) !== null) {
+    if (match.index > lastIndex) {
+      result.push(...renderBasicInlineHtml(html.slice(lastIndex, match.index), `${keyPrefix}-${keyIndex}`));
+    }
+    const color = resolveColor(match[1]);
+    const inner = match[2];
+    if (color) {
+      result.push(
+        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }}>
+          {renderInlineHtml(inner, `${keyPrefix}-c${keyIndex}`)}
+        </span>,
+      );
+    } else {
+      result.push(...renderBasicInlineHtml(match[0], `${keyPrefix}-${keyIndex}`));
+    }
+    lastIndex = COLOR_TAG_REGEX.lastIndex;
+  }
+
+  if (lastIndex < html.length) {
+    result.push(...renderBasicInlineHtml(html.slice(lastIndex), `${keyPrefix}-${keyIndex}`));
+  }
   return result.length > 0 ? result : [decodeHtmlEntities(html.replace(/<[^>]+>/g, ""))];
 };
 
