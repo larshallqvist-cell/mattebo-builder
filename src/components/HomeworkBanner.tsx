@@ -33,6 +33,7 @@ const renderContentWithLinks = (text: string) => {
           href={href}
           onClick={(e) => {
             e.preventDefault();
+            if (openYouTubeOverlay(href, label)) return;
             window.open(href, "_blank", "noopener,noreferrer");
           }}
           target="_blank"
@@ -54,6 +55,7 @@ const renderContentWithLinks = (text: string) => {
           href={href}
           onClick={(e) => {
             e.preventDefault();
+            if (openYouTubeOverlay(href)) return;
             window.open(href, "_blank", "noopener,noreferrer");
           }}
           target="_blank"
