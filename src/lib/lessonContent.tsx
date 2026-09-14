@@ -38,6 +38,34 @@ const openLink = (href: string) => (e: React.MouseEvent) => {
 const isSafeHref = (href: string) =>
   /^(https?:|mailto:)/i.test(href) || href.startsWith("/") || href.startsWith("#");
 
+/* --------------------------------- color --------------------------------- */
+/**
+ * Inline color tags: `{röd}text{/}` (named palette) or `{#1aa7ec}text{/}` (hex).
+ * Can wrap other inline formatting (bold, links, nested colors).
+ */
+const COLOR_PALETTE: Record<string, string> = {
+  röd: "#e02424",
+  röd2: "#dc2626",
+  blå: "#1d4ed8",
+  grön: "#15803d",
+  gul: "#ca8a04",
+  lila: "#7c3aed",
+  orange: "#ea580c",
+  svart: "#111827",
+  vit: "#f9fafb",
+  grå: "#6b7280",
+};
+
+const COLOR_TAG_REGEX = /\{([^{}]+)\}([\s\S]*?)\{\/\}/g;
+
+const resolveColor = (token: string): string | null => {
+  const t = token.trim().toLowerCase();
+  if (COLOR_PALETTE[t]) return COLOR_PALETTE[t];
+  if (/^#[0-9a-f]{6}$/i.test(t)) return t.toLowerCase();
+  if (/^#[0-9a-f]{3}$/i.test(t)) return t.toLowerCase();
+  return null;
+};
+
 const headingWrapper = (key: string, isFirst: boolean, title: React.ReactNode, rest: React.ReactNode) =>
   isFirst ? (
     <div key={key} className="mt-0 mb-2">
@@ -73,7 +101,8 @@ const divider = (key: string) => <hr key={key} className="my-3 border-[hsl(var(-
 
 /* ------------------------------- inline HTML ------------------------------- */
 
-const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
+/** HTML-tag rendering (b/strong/u/i/em/a) for a segment without color tags. */
+const renderBasicInlineHtml = (html: string, keyPrefix: string): (string | JSX.Element)[] => {
   const result: (string | JSX.Element)[] = [];
   let keyIndex = 0;
   let lastIndex = 0;
@@ -83,7 +112,7 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
   while ((match = regex.exec(html)) !== null) {
     if (match.index > lastIndex) {
       const decoded = decodeHtmlEntities(html.slice(lastIndex, match.index));
-      if (decoded) result.push(decoded);
+      if (decoded) result.push(<span key={`${keyPrefix}-t${keyIndex++}`}>{decoded}</span>);
     }
 
     const fullMatch = match[0];
@@ -91,17 +120,17 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
 
     if (tagName === "b" || tagName === "strong") {
       const content = fullMatch.replace(/<\/?(?:b|strong)[^>]*>/gi, "");
-      result.push(<strong key={`b-${keyIndex++}`}>{renderInlineHtml(content)}</strong>);
+      result.push(<strong key={`${keyPrefix}-b${keyIndex++}`}>{renderInlineHtml(content, `${keyPrefix}-b${keyIndex}`)}</strong>);
     } else if (tagName === "u") {
       const content = fullMatch.replace(/<\/?u[^>]*>/gi, "");
       result.push(
-        <span key={`u-${keyIndex++}`} className="underline">
-          {renderInlineHtml(content)}
+        <span key={`${keyPrefix}-u${keyIndex++}`} className="underline">
+          {renderInlineHtml(content, `${keyPrefix}-u${keyIndex}`)}
         </span>,
       );
     } else if (tagName === "i" || tagName === "em") {
       const content = fullMatch.replace(/<\/?(?:i|em)[^>]*>/gi, "");
-      result.push(<em key={`i-${keyIndex++}`}>{renderInlineHtml(content)}</em>);
+      result.push(<em key={`${keyPrefix}-i${keyIndex++}`}>{renderInlineHtml(content, `${keyPrefix}-i${keyIndex}`)}</em>);
     } else if (tagName === "a") {
       const hrefMatch = fullMatch.match(/href="([^"]*)"/i);
       const href = hrefMatch ? hrefMatch[1] : "#";
@@ -112,11 +141,11 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
       const finalHref = href.startsWith("www.") ? `https://${href}` : href;
 
       if (!isSafeHref(finalHref)) {
-        result.push(<span key={`a-${keyIndex++}`}>{cleanContent}</span>);
+        result.push(<span key={`${keyPrefix}-a${keyIndex++}`}>{cleanContent}</span>);
       } else {
         result.push(
           <a
-            key={`a-${keyIndex++}`}
+            key={`${keyPrefix}-a${keyIndex++}`}
             href={finalHref}
             onClick={openLink(finalHref)}
             className={linkClass}
@@ -135,30 +164,63 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
 
   if (lastIndex < html.length) {
     const decoded = decodeHtmlEntities(html.slice(lastIndex).replace(/<[^>]+>/g, ""));
-    if (decoded) result.push(decoded);
+    if (decoded) result.push(<span key={`${keyPrefix}-t${keyIndex++}`}>{decoded}</span>);
   }
 
   return result.length > 0 ? result : [decodeHtmlEntities(html.replace(/<[^>]+>/g, ""))];
 };
 
+/** Inline HTML rendering with color-tag support ({röd}…{/} / {#hex}…{/}). */
+const renderInlineHtml = (html: string, keyPrefix = "h"): (string | JSX.Element)[] => {
+  const result: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let keyIndex = 0;
+  COLOR_TAG_REGEX.lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = COLOR_TAG_REGEX.exec(html)) !== null) {
+    if (match.index > lastIndex) {
+      result.push(...renderBasicInlineHtml(html.slice(lastIndex, match.index), `${keyPrefix}-${keyIndex}`));
+    }
+    const color = resolveColor(match[1]);
+    const inner = match[2];
+    if (color) {
+      result.push(
+        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }}>
+          {renderInlineHtml(inner, `${keyPrefix}-c${keyIndex}`)}
+        </span>,
+      );
+    } else {
+      result.push(...renderBasicInlineHtml(match[0], `${keyPrefix}-${keyIndex}`));
+    }
+    lastIndex = COLOR_TAG_REGEX.lastIndex;
+  }
+
+  if (lastIndex < html.length) {
+    result.push(...renderBasicInlineHtml(html.slice(lastIndex), `${keyPrefix}-${keyIndex}`));
+  }
+  return result.length > 0 ? result : [decodeHtmlEntities(html.replace(/<[^>]+>/g, ""))];
+};
+
 /* ------------------------------ inline markdown --------------------------- */
 
-const renderPlainInline = (line: string): (string | JSX.Element)[] => {
+/** Bold/link/url rendering for a text segment that contains no color tags. */
+const renderBasicInline = (line: string, keyPrefix: string): (string | JSX.Element)[] => {
   const parts = line.split(
     /(\*\*[^*]+\*\*|\[[^\]]+\]\((?:https?:\/\/|www\.|mailto:)[^)\s]+\)|https?:\/\/\S+|www\.\S+)/g,
   );
   return parts.filter(Boolean).map((part, i) => {
     if (/^\*\*[^*]+\*\*$/.test(part)) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
+      return <strong key={`${keyPrefix}-b${i}`}>{part.slice(2, -2)}</strong>;
     }
     const linkMatch = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
     if (linkMatch) {
       const label = linkMatch[1];
       const raw = linkMatch[2];
       const href = raw.startsWith("www.") ? `https://${raw}` : raw;
-      if (!/^(https?:|mailto:)/i.test(href)) return label;
+      if (!/^(https?:|mailto:)/i.test(href)) return <span key={`${keyPrefix}-l${i}`}>{label}</span>;
       return (
-        <a key={i} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
+        <a key={`${keyPrefix}-l${i}`} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
           {label}
           <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
         </a>
@@ -167,14 +229,50 @@ const renderPlainInline = (line: string): (string | JSX.Element)[] => {
     if (/^(https?:\/\/|www\.)/i.test(part)) {
       const href = part.startsWith("www.") ? `https://${part}` : part;
       return (
-        <a key={i} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
+        <a key={`${keyPrefix}-u${i}`} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
           {part.replace(/^https?:\/\//, "").replace(/\/$/, "")}
           <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
         </a>
       );
     }
-    return part;
+    return <span key={`${keyPrefix}-t${i}`}>{part}</span>;
   });
+};
+
+/**
+ * Render inline content with color-tag support. `{röd}…{/}` / `{#hex}…{/}`
+ * wraps its inner content (which may itself contain bold/links/nested colors).
+ */
+const renderPlainInline = (line: string, keyPrefix = "p"): (string | JSX.Element)[] => {
+  const result: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let keyIndex = 0;
+  COLOR_TAG_REGEX.lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = COLOR_TAG_REGEX.exec(line)) !== null) {
+    if (match.index > lastIndex) {
+      result.push(...renderBasicInline(line.slice(lastIndex, match.index), `${keyPrefix}-${keyIndex}`));
+    }
+    const color = resolveColor(match[1]);
+    const inner = match[2];
+    if (color) {
+      result.push(
+        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }}>
+          {renderPlainInline(inner, `${keyPrefix}-c${keyIndex}`)}
+        </span>,
+      );
+    } else {
+      // Not a recognized color token — render the raw tag text literally.
+      result.push(...renderBasicInline(match[0], `${keyPrefix}-${keyIndex}`));
+    }
+    lastIndex = COLOR_TAG_REGEX.lastIndex;
+  }
+
+  if (lastIndex < line.length) {
+    result.push(...renderBasicInline(line.slice(lastIndex), `${keyPrefix}-${keyIndex}`));
+  }
+  return result;
 };
 
 /* --------------------------------- HTML ----------------------------------- */

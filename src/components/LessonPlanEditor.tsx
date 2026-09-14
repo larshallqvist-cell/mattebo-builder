@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -20,6 +21,18 @@ import {
 } from "@/components/ui/dialog";
 
 const MAX_CONTENT_LENGTH = 4000;
+
+/** Named color palette shown as quick swatches in the editor. */
+const COLOR_SWATCHES: { name: string; hex: string }[] = [
+  { name: "röd", hex: "#e02424" },
+  { name: "blå", hex: "#1d4ed8" },
+  { name: "grön", hex: "#15803d" },
+  { name: "gul", hex: "#ca8a04" },
+  { name: "lila", hex: "#7c3aed" },
+  { name: "orange", hex: "#ea580c" },
+  { name: "svart", hex: "#111827" },
+  { name: "grå", hex: "#6b7280" },
+];
 
 const formatLesson = (date: Date, end: Date, location?: string) =>
   `${date.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })} ${date.toLocaleTimeString(
@@ -69,6 +82,8 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkText, setLinkText] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [colorOpen, setColorOpen] = useState(false);
+  const [customColor, setCustomColor] = useState("#1d4ed8");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Keeps the live preview from re-parsing on every keystroke of a large paste.
@@ -130,6 +145,12 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
     setLinkUrl("");
   };
 
+  /** Insert a color tag around the selection: `{color}…{/}`. */
+  const applyColor = (colorToken: string) => {
+    insertAtCursor(`{${colorToken}}`, "{/}", "färgad text");
+    setColorOpen(false);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -181,6 +202,48 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
           <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)}>
             <Link2 className="mr-1 h-4 w-4" /> Länk
           </Button>
+          <Popover open={colorOpen} onOpenChange={setColorOpen}>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline">
+                <Palette className="mr-1 h-4 w-4" /> Färg
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60 p-3" align="start">
+              <div className="mb-2 text-xs font-semibold text-muted-foreground">Snabbval</div>
+              <div className="grid grid-cols-4 gap-2">
+                {COLOR_SWATCHES.map((c) => (
+                  <button
+                    key={c.name}
+                    onClick={() => applyColor(c.name)}
+                    title={c.name}
+                    aria-label={`Färg ${c.name}`}
+                    className="h-8 w-full rounded-md border border-border transition-transform hover:scale-110"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                ))}
+              </div>
+              <div className="my-3 h-px bg-border" />
+              <div className="mb-2 text-xs font-semibold text-muted-foreground">Egen färg</div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={customColor}
+                  onChange={(e) => setCustomColor(e.target.value)}
+                  className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0"
+                  aria-label="Välj egen färg"
+                />
+                <Input
+                  value={customColor}
+                  onChange={(e) => setCustomColor(e.target.value)}
+                  className="h-8 font-mono text-xs"
+                  maxLength={7}
+                />
+                <Button size="sm" onClick={() => applyColor(customColor)}>
+                  Infoga
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
         <Button size="sm" onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -189,7 +252,8 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
       </div>
       <p className="text-xs text-muted-foreground">
         <code>## Rubrik</code> = rubrik (versal, med linje över) · <code>**fet**</code> = fetstil i löpande text ·{" "}
-        <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> = länk
+        <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> = länk ·{" "}
+        <code>{`{röd}text{/}`}</code> = färg (namn eller <code>#hex</code>)
       </p>
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="space-y-1.5">
