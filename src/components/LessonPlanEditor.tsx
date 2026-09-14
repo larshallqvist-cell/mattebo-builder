@@ -202,6 +202,48 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
           <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)}>
             <Link2 className="mr-1 h-4 w-4" /> Länk
           </Button>
+          <Popover open={colorOpen} onOpenChange={setColorOpen}>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline">
+                <Palette className="mr-1 h-4 w-4" /> Färg
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60 p-3" align="start">
+              <div className="mb-2 text-xs font-semibold text-muted-foreground">Snabbval</div>
+              <div className="grid grid-cols-4 gap-2">
+                {COLOR_SWATCHES.map((c) => (
+                  <button
+                    key={c.name}
+                    onClick={() => applyColor(c.name)}
+                    title={c.name}
+                    aria-label={`Färg ${c.name}`}
+                    className="h-8 w-full rounded-md border border-border transition-transform hover:scale-110"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                ))}
+              </div>
+              <div className="my-3 h-px bg-border" />
+              <div className="mb-2 text-xs font-semibold text-muted-foreground">Egen färg</div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={customColor}
+                  onChange={(e) => setCustomColor(e.target.value)}
+                  className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0"
+                  aria-label="Välj egen färg"
+                />
+                <Input
+                  value={customColor}
+                  onChange={(e) => setCustomColor(e.target.value)}
+                  className="h-8 font-mono text-xs"
+                  maxLength={7}
+                />
+                <Button size="sm" onClick={() => applyColor(customColor)}>
+                  Infoga
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
         <Button size="sm" onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
