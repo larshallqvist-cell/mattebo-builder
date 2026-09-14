@@ -171,22 +171,23 @@ const renderInlineHtml = (html: string): (string | JSX.Element)[] => {
 
 /* ------------------------------ inline markdown --------------------------- */
 
-const renderPlainInline = (line: string): (string | JSX.Element)[] => {
+/** Bold/link/url rendering for a text segment that contains no color tags. */
+const renderBasicInline = (line: string, keyPrefix: string): (string | JSX.Element)[] => {
   const parts = line.split(
     /(\*\*[^*]+\*\*|\[[^\]]+\]\((?:https?:\/\/|www\.|mailto:)[^)\s]+\)|https?:\/\/\S+|www\.\S+)/g,
   );
   return parts.filter(Boolean).map((part, i) => {
     if (/^\*\*[^*]+\*\*$/.test(part)) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
+      return <strong key={`${keyPrefix}-b${i}`}>{part.slice(2, -2)}</strong>;
     }
     const linkMatch = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
     if (linkMatch) {
       const label = linkMatch[1];
       const raw = linkMatch[2];
       const href = raw.startsWith("www.") ? `https://${raw}` : raw;
-      if (!/^(https?:|mailto:)/i.test(href)) return label;
+      if (!/^(https?:|mailto:)/i.test(href)) return <span key={`${keyPrefix}-l${i}`}>{label}</span>;
       return (
-        <a key={i} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
+        <a key={`${keyPrefix}-l${i}`} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
           {label}
           <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
         </a>
@@ -195,14 +196,50 @@ const renderPlainInline = (line: string): (string | JSX.Element)[] => {
     if (/^(https?:\/\/|www\.)/i.test(part)) {
       const href = part.startsWith("www.") ? `https://${part}` : part;
       return (
-        <a key={i} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
+        <a key={`${keyPrefix}-u${i}`} href={href} onClick={openLink(href)} className={linkClass} target="_blank" rel="noopener noreferrer">
           {part.replace(/^https?:\/\//, "").replace(/\/$/, "")}
           <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
         </a>
       );
     }
-    return part;
+    return <span key={`${keyPrefix}-t${i}`}>{part}</span>;
   });
+};
+
+/**
+ * Render inline content with color-tag support. `{röd}…{/}` / `{#hex}…{/}`
+ * wraps its inner content (which may itself contain bold/links/nested colors).
+ */
+const renderPlainInline = (line: string, keyPrefix = "p"): (string | JSX.Element)[] => {
+  const result: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let keyIndex = 0;
+  COLOR_TAG_REGEX.lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = COLOR_TAG_REGEX.exec(line)) !== null) {
+    if (match.index > lastIndex) {
+      result.push(...renderBasicInline(line.slice(lastIndex, match.index), `${keyPrefix}-${keyIndex}`));
+    }
+    const color = resolveColor(match[1]);
+    const inner = match[2];
+    if (color) {
+      result.push(
+        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }}>
+          {renderPlainInline(inner, `${keyPrefix}-c${keyIndex}`)}
+        </span>,
+      );
+    } else {
+      // Not a recognized color token — render the raw tag text literally.
+      result.push(...renderBasicInline(match[0], `${keyPrefix}-${keyIndex}`));
+    }
+    lastIndex = COLOR_TAG_REGEX.lastIndex;
+  }
+
+  if (lastIndex < line.length) {
+    result.push(...renderBasicInline(line.slice(lastIndex), `${keyPrefix}-${keyIndex}`));
+  }
+  return result;
 };
 
 /* --------------------------------- HTML ----------------------------------- */
