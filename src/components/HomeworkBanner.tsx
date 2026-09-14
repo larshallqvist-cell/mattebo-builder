@@ -1,5 +1,6 @@
 import { GraduationCap, ExternalLink } from "lucide-react";
 import { useHomework } from "@/hooks/useHomework";
+import { openYouTubeOverlay } from "@/lib/youtube";
 
 interface HomeworkBannerProps {
   grade: number;
