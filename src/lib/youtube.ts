@@ -54,10 +54,58 @@ export const extractYouTubeId = (rawUrl: string): string | null => {
 
 export const isYouTubeUrl = (url: string): boolean => extractYouTubeId(url) !== null;
 
+export const YOUTUBE_ROOT_ID = "mattebo-youtube-root";
+
+/**
+ * Hämtar (eller skapar) den permanenta portal-containern.
+ * Den ligger alltid i DOM:en så att requestFullscreen() kan anropas
+ * synkront i samma användarinteraktion som klicket.
+ */
+export const getYouTubeRoot = (): HTMLElement => {
+  let root = document.getElementById(YOUTUBE_ROOT_ID);
+  if (!root) {
+    root = document.createElement("div");
+    root.id = YOUTUBE_ROOT_ID;
+    root.style.background = "#000";
+    document.body.appendChild(root);
+  }
+  return root;
+};
+
+type FsElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+  webkitEnterFullscreen?: () => Promise<void> | void;
+  msRequestFullscreen?: () => Promise<void> | void;
+};
+
+/** Försöker gå i äkta fullscreen. Misslyckas tyst om det inte stöds/nekas. */
+export const tryRequestFullscreen = (el: HTMLElement): void => {
+  const target = el as FsElement;
+  try {
+    const req =
+      target.requestFullscreen?.bind(target) ??
+      target.webkitRequestFullscreen?.bind(target) ??
+      target.msRequestFullscreen?.bind(target);
+    if (!req) return;
+    const result = req() as Promise<void> | void;
+    if (result && typeof (result as Promise<void>).catch === "function") {
+      (result as Promise<void>).catch(() => {
+        /* fallback: vanlig overlay */
+      });
+    }
+  } catch {
+    /* fallback: vanlig overlay */
+  }
+};
+
 /** Öppnar helskärmsoverlayen för ett video-ID (eller en hel YouTube-url). */
 export const openYouTubeOverlay = (urlOrId: string, title?: string): boolean => {
   const videoId = ID_PATTERN.test(urlOrId) ? urlOrId : extractYouTubeId(urlOrId);
   if (!videoId) return false;
+
+  // Måste ske synkront i klick-handlern för att webbläsaren ska godkänna det.
+  tryRequestFullscreen(getYouTubeRoot());
+
   window.dispatchEvent(
     new CustomEvent(YOUTUBE_OPEN_EVENT, { detail: { videoId, title } }),
   );
