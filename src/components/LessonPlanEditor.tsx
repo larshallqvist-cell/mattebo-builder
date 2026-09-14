@@ -252,7 +252,8 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
       </div>
       <p className="text-xs text-muted-foreground">
         <code>## Rubrik</code> = rubrik (versal, med linje över) · <code>**fet**</code> = fetstil i löpande text ·{" "}
-        <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> = länk
+        <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> = länk ·{" "}
+        <code>{`{röd}text{/}`}</code> = färg (namn eller <code>#hex</code>)
       </p>
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="space-y-1.5">
