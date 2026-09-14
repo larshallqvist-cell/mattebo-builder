@@ -38,6 +38,34 @@ const openLink = (href: string) => (e: React.MouseEvent) => {
 const isSafeHref = (href: string) =>
   /^(https?:|mailto:)/i.test(href) || href.startsWith("/") || href.startsWith("#");
 
+/* --------------------------------- color --------------------------------- */
+/**
+ * Inline color tags: `{röd}text{/}` (named palette) or `{#1aa7ec}text{/}` (hex).
+ * Can wrap other inline formatting (bold, links, nested colors).
+ */
+const COLOR_PALETTE: Record<string, string> = {
+  röd: "#e02424",
+  röd2: "#dc2626",
+  blå: "#1d4ed8",
+  grön: "#15803d",
+  gul: "#ca8a04",
+  lila: "#7c3aed",
+  orange: "#ea580c",
+  svart: "#111827",
+  vit: "#f9fafb",
+  grå: "#6b7280",
+};
+
+const COLOR_TAG_REGEX = /\{([^{}]+)\}([\s\S]*?)\{\/\}/g;
+
+const resolveColor = (token: string): string | null => {
+  const t = token.trim().toLowerCase();
+  if (COLOR_PALETTE[t]) return COLOR_PALETTE[t];
+  if (/^#[0-9a-f]{6}$/i.test(t)) return t.toLowerCase();
+  if (/^#[0-9a-f]{3}$/i.test(t)) return t.toLowerCase();
+  return null;
+};
+
 const headingWrapper = (key: string, isFirst: boolean, title: React.ReactNode, rest: React.ReactNode) =>
   isFirst ? (
     <div key={key} className="mt-0 mb-2">
