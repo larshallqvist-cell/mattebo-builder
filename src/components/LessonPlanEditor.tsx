@@ -82,6 +82,8 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkText, setLinkText] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [colorOpen, setColorOpen] = useState(false);
+  const [customColor, setCustomColor] = useState("#1d4ed8");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Keeps the live preview from re-parsing on every keystroke of a large paste.
