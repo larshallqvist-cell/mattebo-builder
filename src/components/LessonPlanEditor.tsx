@@ -22,6 +22,18 @@ import {
 
 const MAX_CONTENT_LENGTH = 4000;
 
+/** Named color palette shown as quick swatches in the editor. */
+const COLOR_SWATCHES: { name: string; hex: string }[] = [
+  { name: "röd", hex: "#e02424" },
+  { name: "blå", hex: "#1d4ed8" },
+  { name: "grön", hex: "#15803d" },
+  { name: "gul", hex: "#ca8a04" },
+  { name: "lila", hex: "#7c3aed" },
+  { name: "orange", hex: "#ea580c" },
+  { name: "svart", hex: "#111827" },
+  { name: "grå", hex: "#6b7280" },
+];
+
 const formatLesson = (date: Date, end: Date, location?: string) =>
   `${date.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })} ${date.toLocaleTimeString(
     "sv-SE",
