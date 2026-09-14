@@ -56,7 +56,7 @@ const COLOR_PALETTE: Record<string, string> = {
   grå: "#6b7280",
 };
 
-const COLOR_TAG_REGEX = /\{([^{}]+)\}([\s\S]*?)\{\/\}/g;
+const createColorTagRegex = () => /\{([^{}]+)\}([\s\S]*?)\{\/\}/g;
 
 const resolveColor = (token: string): string | null => {
   const t = token.trim().toLowerCase();
@@ -175,10 +175,11 @@ const renderInlineHtml = (html: string, keyPrefix = "h"): (string | JSX.Element)
   const result: (string | JSX.Element)[] = [];
   let lastIndex = 0;
   let keyIndex = 0;
-  COLOR_TAG_REGEX.lastIndex = 0;
+  // Keep the regex local: recursive color rendering must not reset a parent's search position.
+  const colorTagRegex = createColorTagRegex();
   let match: RegExpExecArray | null;
 
-  while ((match = COLOR_TAG_REGEX.exec(html)) !== null) {
+  while ((match = colorTagRegex.exec(html)) !== null) {
     if (match.index > lastIndex) {
       result.push(...renderBasicInlineHtml(html.slice(lastIndex, match.index), `${keyPrefix}-${keyIndex}`));
     }
@@ -193,7 +194,7 @@ const renderInlineHtml = (html: string, keyPrefix = "h"): (string | JSX.Element)
     } else {
       result.push(...renderBasicInlineHtml(match[0], `${keyPrefix}-${keyIndex}`));
     }
-    lastIndex = COLOR_TAG_REGEX.lastIndex;
+    lastIndex = colorTagRegex.lastIndex;
   }
 
   if (lastIndex < html.length) {
@@ -247,10 +248,11 @@ const renderPlainInline = (line: string, keyPrefix = "p"): (string | JSX.Element
   const result: (string | JSX.Element)[] = [];
   let lastIndex = 0;
   let keyIndex = 0;
-  COLOR_TAG_REGEX.lastIndex = 0;
+  // Each recursion needs its own cursor; sharing one global regex can otherwise loop forever.
+  const colorTagRegex = createColorTagRegex();
   let match: RegExpExecArray | null;
 
-  while ((match = COLOR_TAG_REGEX.exec(line)) !== null) {
+  while ((match = colorTagRegex.exec(line)) !== null) {
     if (match.index > lastIndex) {
       result.push(...renderBasicInline(line.slice(lastIndex, match.index), `${keyPrefix}-${keyIndex}`));
     }
@@ -266,7 +268,7 @@ const renderPlainInline = (line: string, keyPrefix = "p"): (string | JSX.Element
       // Not a recognized color token — render the raw tag text literally.
       result.push(...renderBasicInline(match[0], `${keyPrefix}-${keyIndex}`));
     }
-    lastIndex = COLOR_TAG_REGEX.lastIndex;
+    lastIndex = colorTagRegex.lastIndex;
   }
 
   if (lastIndex < line.length) {
