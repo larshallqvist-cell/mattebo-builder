@@ -191,38 +191,41 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
         <code>## Rubrik</code> = rubrik (versal, med linje över) · <code>**fet**</code> = fetstil i löpande text ·{" "}
         <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> = länk
       </p>
-      <Textarea
-        ref={textareaRef}
-        value={draft}
-        maxLength={MAX_CONTENT_LENGTH}
-        onChange={(e) => setDraft(e.target.value)}
-        onPaste={handlePaste}
-        rows={14}
-        placeholder={"## Dagens mål\nVi repeterar **bråk**.\n- Uppgift 1–5\n- [Matteboken](https://www.matteboken.se)"}
-        className="font-body text-sm"
-      />
-      <div className="rounded-md border border-border bg-[hsl(var(--postit-light))] p-3">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[hsl(var(--postit-text))/70]">
-          Förhandsvisning
-        </p>
-        <div className="space-y-0.5 font-nunito text-black">
-          <ErrorBoundary
-            fallback={
-              <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte förhandsvisa just nu.</p>
-            }
-          >
-            {preview.trim() ? (
-              parseLessonContent(preview)
-            ) : (
-              <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
-            )}
-          </ErrorBoundary>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className="space-y-1.5">
+          <Textarea
+            ref={textareaRef}
+            value={draft}
+            maxLength={MAX_CONTENT_LENGTH}
+            onChange={(e) => setDraft(e.target.value)}
+            onPaste={handlePaste}
+            rows={16}
+            placeholder={"## Dagens mål\nVi repeterar **bråk**.\n- Uppgift 1–5\n- [Matteboken](https://www.matteboken.se)"}
+            className="font-body text-sm"
+          />
+          <span className="block text-right text-xs text-muted-foreground">
+            {draft.length}/{MAX_CONTENT_LENGTH} tecken
+          </span>
+        </div>
+        <div className="rounded-md border border-border bg-[hsl(var(--postit-light))] p-3 max-h-[26rem] lg:max-h-none lg:h-full overflow-y-auto">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[hsl(var(--postit-text))/70]">
+            Förhandsvisning
+          </p>
+          <div className="space-y-0.5 font-nunito text-black">
+            <ErrorBoundary
+              fallback={
+                <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte förhandsvisa just nu.</p>
+              }
+            >
+              {preview.trim() ? (
+                parseLessonContent(preview)
+              ) : (
+                <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Inget innehåll än.</p>
+              )}
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
-
-      <span className="block text-xs text-muted-foreground">
-        {draft.length}/{MAX_CONTENT_LENGTH} tecken
-      </span>
 
       <Dialog open={linkOpen} onOpenChange={setLinkOpen}>
         <DialogContent>
