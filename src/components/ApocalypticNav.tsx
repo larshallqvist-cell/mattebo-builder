@@ -18,7 +18,7 @@ interface ApocalypticNavProps {
 const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
 
-  return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+  return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-2">
       <div className={`${centerContent ? "max-w-7xl" : "max-w-5xl"} mx-auto flex items-center justify-between gap-4 rounded-full px-6 py-[10px]`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",

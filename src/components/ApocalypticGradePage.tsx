@@ -97,7 +97,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
         {/* Mobile: homework + header below nav. Also shown below lg when desktop
             view is forced, so the controls never disappear on small screens. */}
-        <div className={`${forcedMobile ? "" : "lg:hidden"} px-3 md:px-6 pt-20 pb-2 relative z-20`}>
+        <div className={`${forcedMobile ? "" : "lg:hidden"} px-3 md:px-6 pt-[4.5rem] pb-2 relative z-20`}>
           <HomeworkBanner grade={grade} />
           <header className="mt-3">
             <div className="flex flex-row items-center justify-start gap-4">
