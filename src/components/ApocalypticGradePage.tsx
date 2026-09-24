@@ -31,19 +31,28 @@ interface ApocalypticGradePageProps {
   grade: number;
 }
 
-const VIDMA_URL = "https://drills.vidma.se";
+const TOOL_LINKS = [
+  { label: "Drills", url: "https://drills.vidma.se" },
+  { label: "Tabellerna", url: "https://bit.ly/tabellerna" },
+  { label: "Mathdrop", url: "https://vidma.se/mathdrop/" },
+] as const;
 
 const ToolsGrid = ({ heightClass, onChannelChange }: { heightClass: string; onChannelChange: (c: string | null) => void }) => (
   <div className={`grid grid-cols-2 gap-3 ${heightClass}`}>
     <div className="flex flex-col gap-2 min-h-0">
       <div className="flex-1 min-h-0 overflow-hidden"><CalculatorThumbnail fillSpace /></div>
-      <button
-        type="button"
-        onClick={() => window.open(VIDMA_URL, "_blank", "noopener,noreferrer")}
-        className="flex-shrink-0 rounded-lg bg-primary/80 hover:bg-primary text-primary-foreground text-xs font-semibold py-1.5 transition-colors"
-      >
-        Vidma drills
-      </button>
+      <div className="flex-shrink-0 grid grid-cols-3 gap-1.5">
+        {TOOL_LINKS.map((link) => (
+          <button
+            key={link.url}
+            type="button"
+            onClick={() => window.open(link.url, "_blank", "noopener,noreferrer")}
+            className="rounded-lg bg-primary/80 hover:bg-primary text-primary-foreground text-xs font-semibold py-1.5 transition-colors"
+          >
+            {link.label}
+          </button>
+        ))}
+      </div>
     </div>
     <div className="grid grid-cols-3 gap-1.5 min-h-0 overflow-hidden [&_span:first-child]:!text-2xl">
       <WebRadio fillSpace onChannelChange={onChannelChange} />
