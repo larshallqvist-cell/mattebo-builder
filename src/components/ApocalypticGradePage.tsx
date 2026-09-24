@@ -59,9 +59,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           `,
         }}
       >
-        {/* Welcome Flash for logged-in users */}
-        {user && <WelcomeFlash />}
-
         {/* Navigation with grade, chapter selector, and homework on desktop */}
         <ApocalypticNav
           grade={grade}
