@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Calendar, BookOpen, Volume2 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
