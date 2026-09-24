@@ -35,7 +35,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
   const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
   const { nextEvent } = useCalendarEvents(grade);
-  const { user } = useAuth();
   const { mode } = useViewMode();
   const forcedMobile = mode === "mobile";
   const forcedDesktop = mode === "desktop";
