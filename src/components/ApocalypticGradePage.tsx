@@ -31,6 +31,26 @@ interface ApocalypticGradePageProps {
   grade: number;
 }
 
+const VIDMA_URL = "https://drills.vidma.se";
+
+const ToolsGrid = ({ heightClass, onChannelChange }: { heightClass: string; onChannelChange: (c: string | null) => void }) => (
+  <div className={`grid grid-cols-2 gap-3 ${heightClass}`}>
+    <div className="flex flex-col gap-2 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden"><CalculatorThumbnail fillSpace /></div>
+      <button
+        type="button"
+        onClick={() => window.open(VIDMA_URL, "_blank", "noopener,noreferrer")}
+        className="flex-shrink-0 rounded-lg bg-primary/80 hover:bg-primary text-primary-foreground text-xs font-semibold py-1.5 transition-colors"
+      >
+        Vidma drills
+      </button>
+    </div>
+    <div className="grid grid-cols-3 gap-1.5 min-h-0 overflow-hidden [&_span:first-child]:!text-2xl">
+      <WebRadio fillSpace onChannelChange={onChannelChange} />
+    </div>
+  </div>
+);
+
 const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
   const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
@@ -149,10 +169,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   }
                 >
                   <div className="flex flex-col gap-3">
-                    <div className="grid grid-cols-2 grid-rows-2 gap-3 h-[170px] [&>*]:overflow-hidden">
-                      <CalculatorThumbnail fillSpace />
-                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                    </div>
+                    <ToolsGrid heightClass="h-[130px]" onChannelChange={setActiveRadioChannel} />
                     <div className="pt-3 border-t border-border/40">
                       <LunchMenu compact />
                     </div>
@@ -191,10 +208,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                   }
                 >
                   <div className="flex-1 min-h-0 flex flex-col gap-3">
-                    <div className="grid grid-cols-2 grid-rows-2 gap-3 flex-1 min-h-0 [&>*]:min-h-0 [&>*]:overflow-hidden">
-                      <CalculatorThumbnail fillSpace />
-                      <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                    </div>
+                    <ToolsGrid heightClass="h-[140px]" onChannelChange={setActiveRadioChannel} />
                     <div className="pt-3 border-t border-border/40 flex-shrink-0">
                       <LunchMenu compact />
                     </div>
@@ -242,10 +256,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 }
               >
                 <div className="flex flex-col gap-3" style={{ minHeight: '240px' }}>
-                  <div className="grid grid-cols-2 grid-rows-2 gap-3 flex-1 min-h-0 [&>*]:min-h-0 [&>*]:overflow-hidden">
-                    <CalculatorThumbnail fillSpace />
-                    <WebRadio fillSpace onChannelChange={setActiveRadioChannel} />
-                  </div>
+                  <ToolsGrid heightClass="h-[140px]" onChannelChange={setActiveRadioChannel} />
                   <div className="mt-2 pt-2 border-t border-border/40">
                     <LunchMenu compact />
                   </div>

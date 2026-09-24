@@ -16,7 +16,7 @@ interface ApocalypticNavProps {
 }
 
 const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
 
   return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className={`${centerContent ? "max-w-7xl" : "max-w-5xl"} mx-auto flex items-center justify-between gap-4 rounded-full px-6 py-[10px]`} style={{
@@ -30,7 +30,22 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
           <Link to="/" className="font-orbitron text-lg font-bold text-accent hover:text-foreground transition-colors">
             Leteboskolan
           </Link>
-          {grade != null && (
+          {grade != null && isAdmin && (
+            <div className="flex items-center gap-1 mt-0.5">
+              {[6, 7, 8, 9].map((g) => (
+                <Link
+                  key={g}
+                  to={`/ak${g}`}
+                  className={`font-orbitron text-[11px] font-semibold rounded-full px-1.5 py-0.5 transition-colors ${
+                    g === grade ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
+                  }`}
+                >
+                  Åk {g}
+                </Link>
+              ))}
+            </div>
+          )}
+          {grade != null && !isAdmin && (
             <span
               className="font-orbitron text-xs font-semibold"
               style={
