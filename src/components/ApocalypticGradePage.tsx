@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Calendar, BookOpen, Volume2 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import LoginGate from "@/components/LoginGate";
-import WelcomeFlash from "@/components/WelcomeFlash";
 
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
@@ -37,7 +35,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const [selectedChapter, setSelectedChapter] = useState(() => getChapterFromCookie(grade));
   const [activeRadioChannel, setActiveRadioChannel] = useState<string | null>(null);
   const { nextEvent } = useCalendarEvents(grade);
-  const { user } = useAuth();
   const { mode } = useViewMode();
   const forcedMobile = mode === "mobile";
   const forcedDesktop = mode === "desktop";
@@ -60,9 +57,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           `,
         }}
       >
-        {/* Welcome Flash for logged-in users */}
-        {user && <WelcomeFlash />}
-
         {/* Navigation with grade, chapter selector, and homework on desktop */}
         <ApocalypticNav
           grade={grade}
