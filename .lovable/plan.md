@@ -1,23 +1,21 @@
-# Felsökning: Spara-testet mot "Auto åk6" (bara analys, ingen kod ändrad)
+# Verifiering: sparat testpass mot "Auto åk6" (bara läsning, ingen kod ändrad)
 
-## Resultat
+## Resultat: hela kedjan fungerade
 
-1. **Nådde anropet serverfunktionen?** Ja. `POST /functions/v1/sync-lesson-to-calendar` svarade **200** kl 17:03:04 UTC. Funktionen startade kl 17:02:59.
-2. **Data som sparades** (raden i `lesson_plans`, uppdaterad 17:02:58 UTC):
-   - grade: **6**
-   - event_uid: `pbu56sep2amjq2ae0p440ele1c@google.com`
-   - starts_at: 2026-10-01 06:45 UTC (08:45 svensk tid)
-   - title: **"Prov kap 1"**
-   - content: **"PROV KAPITEL 1 TESTSYNK"**
-3. **Skrivningen till kalkylbladet:** Loggarna visar inga fel. Funktionen loggar `Master sheet write failed` om skrivningen misslyckas, och den raden finns inte. Svaret var 200 och inga fel loggades, så skrivningen verkar ha lyckats.
-4. **Kalendern:** Inget `Calendar patch failed` i loggarna, så kalenderändringen verkar också ha lyckats.
-5. **Varför hittades inget?** Den sparade texten är **"TESTSYNK"**, alltså ihopskrivet, inte "TEST SYNK" med mellanslag. Därför gav sökningen ingen träff. Titeln är "Prov kap 1".
+| Steg | Resultat |
+|---|---|
+| Mattebo, sparat 17:02:58 UTC | Åk 6, titel "Prov kap 1", text "PROV KAPITEL 1 TESTSYNK" |
+| Serverfunktionen, 17:03:04 UTC | Svarade OK, inga fel loggade |
+| Kalkylbladet, Åk 6 rad 35 | Samma titel och text, rätt händelse-ID (du har kontrollerat) |
+| Kalendern "Åk 6 Letebo" | Titel "Prov kap 1", text "PROV KAPITEL 1 TESTSYNK", ändrad 17:03:03 UTC |
 
-## Förslag på kontroll (inga skrivtester)
+Lektionen i kalendern: 1 okt 2026 kl 08:45–09:35 svensk tid, sal Fjäderm.
 
-- Sök efter `TESTSYNK` eller `Prov kap 1` på fliken **Åk 6**. Titta i kolumn F efter raden med KalenderEventID `pbu56sep2amjq2ae0p440ele1c`.
-- Öppna lektionen 1 okt kl 08:45 i Åk 6-kalendern och kontrollera beskrivningen.
+## Varför första sökningen missade
 
-## Förbehåll
+Texten är ihopskriven, "TESTSYNK". Sökningen gällde "TEST SYNK" med mellanslag.
 
-- Serverfunktionen loggar inte svaret när allt går bra. Därför bygger "lyckades" på att inga fel finns, inte på en bekräftelse i loggen. Om texten ändå saknas i bladet kan den körda versionen av funktionen vara äldre än koden. Nästa steg är då att bekräfta att den senaste versionen är i drift. Den kontrollen ändrar inga data.
+## Kvar innan publicering
+
+- Vänta på nästa automatiska synk från kalkylbladet, som körs var 15:e minut. Kontrollera sedan att kalendertexten inte har ändrats.
+- Om texten finns kvar kan appen publiceras.
