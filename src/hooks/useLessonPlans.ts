@@ -88,15 +88,29 @@ export const useLessonPlans = (grade: number) => {
       setPlans((prev) => ({ ...prev, [lessonPlanKey(event)]: content }));
       setTitles((prev) => ({ ...prev, [lessonPlanKey(event)]: title }));
 
-      // Best effort: skriv även tillbaka rubrik + innehåll till Google Kalender.
-      const { error: syncError } = await supabase.functions.invoke("sync-lesson-to-calendar", {
-        body: { grade, event_uid: event.uid, title, content },
+      // Skriv till master-kalkylbladet (server-side), därefter Google Kalender.
+      const { data, error: syncError } = await supabase.functions.invoke("sync-lesson-to-calendar", {
+        body: {
+          grade,
+          event_uid: event.uid,
+          title,
+          content,
+          starts_at: event.date.toISOString(),
+          original_title: (event as PlanTarget & { title?: string }).title ?? "",
+        },
       });
-      if (syncError) {
-        console.error("Kalendersynk misslyckades:", syncError);
-        return { calendarSynced: false as const };
+      if (syncError || !data?.ok) {
+        const sheetError = data?.sheet && !data.sheet.written ? String(data.sheet.error ?? "") : "";
+        console.error("Synk misslyckades:", syncError ?? data);
+        return {
+          calendarSynced: false as const,
+          sheetWritten: Boolean(data?.sheet?.written),
+          message: sheetError
+            ? `Sparat i Mattebo, men INTE i kalkylbladet: ${sheetError}`
+            : "Sparat i Mattebo och kalkylbladet, men kalendern kunde inte uppdateras.",
+        };
       }
-      return { calendarSynced: true as const };
+      return { calendarSynced: true as const, sheetWritten: true };
     },
     [grade],
   );
