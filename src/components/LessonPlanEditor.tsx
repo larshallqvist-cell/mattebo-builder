@@ -63,7 +63,7 @@ const addDays = (d: Date, days: number) => {
   return next;
 };
 
-type SaveResult = { calendarSynced: boolean } | void;
+type SaveResult = { calendarSynced: boolean; sheetWritten?: boolean; message?: string } | void;
 
 interface EditorPaneProps {
   event: CalendarEvent;
@@ -157,11 +157,12 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
       const result = await savePlan(event, draft.slice(0, MAX_CONTENT_LENGTH), draftTitle.trim().slice(0, 120));
       toast(
         result && result.calendarSynced
-          ? { title: "Sparat!", description: "Planeringen är uppdaterad och synkad till Google Kalender." }
+          ? { title: "Sparat!", description: "Sparat i kalkylbladet och Google Kalender." }
           : {
-              title: "Sparat i appen",
-              description: "Kunde inte skriva till Google Kalender just nu.",
+              title: "Delvis sparat – kontrollera",
+              description: (result && result.message) || "Kunde inte skriva till kalkylbladet/kalendern just nu.",
               variant: "destructive" as const,
+              duration: 12000,
             },
       );
     } catch (err) {
