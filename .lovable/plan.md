@@ -15,7 +15,15 @@ Lektionen i kalendern: 1 okt 2026 kl 08:45–09:35 svensk tid, sal Fjäderm.
 
 Texten är ihopskriven, "TESTSYNK". Sökningen gällde "TEST SYNK" med mellanslag.
 
+## Ny kontroll 18:05 UTC (bara läsning)
+
+- summary: "Prov kap 1"
+- description: "PROV KAPITEL 1 TESTSYNK"
+- updated: **2026-09-30T17:03:03.894Z**, samma tid som vid förra kontrollen
+
+Texten finns kvar efter drygt 60 minuter. Tidsstämpeln har inte ändrats, så det går inte att se om den automatiska synken har körts. Kanske skriver skriptet inte om en händelse vars värden redan är desamma, men det framgår inte av det vi har läst. Säkert är bara att synken inte har skrivit över texten.
+
 ## Kvar innan publicering
 
-- Vänta på nästa automatiska synk från kalkylbladet, som körs var 15:e minut. Kontrollera sedan att kalendertexten inte har ändrats.
-- Om texten finns kvar kan appen publiceras.
+- Vill du bekräfta att den automatiska synken körs: öppna Apps Script → Körningar och kontrollera att `autoSynk` har körts efter 17:03 UTC. Det är bara läsning.
+- Därefter kan appen publiceras.
