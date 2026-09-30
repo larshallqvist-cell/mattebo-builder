@@ -66,6 +66,10 @@ serve(async (req) => {
     const connectorKey = Deno.env.get("GOOGLE_CALENDAR_API_KEY");
     if (!lovableKey || !connectorKey) return json({ error: "Google Calendar connector not configured" }, 500);
 
+    // 1) Master: skriv Titel (A) + Beskrivning (E) till master-kalkylbladet.
+    const sheetResult = await writeToMasterSheet(grade as Grade, uid, title.trim(), content, lovableKey);
+    if (sheetResult.error) console.error("Master sheet write:", sheetResult.error);
+
     const patch: Record<string, string> = { description: content };
     if (title.trim()) patch.summary = title.trim();
 
@@ -85,15 +89,65 @@ serve(async (req) => {
     if (!res.ok) {
       const details = await res.text();
       console.error(`Calendar patch failed [${res.status}]: ${details}`);
-      return json({ error: "Google Calendar update failed", status: res.status, details }, res.status);
+      return json({ error: "Google Calendar update failed", status: res.status, details, sheet: sheetResult }, res.status);
     }
 
     // Force a fresh iCal fetch so the app shows the new text immediately.
     await admin.from("calendar_cache").delete().eq("grade", grade);
 
-    return json({ ok: true });
+    return json({ ok: true, sheet: sheetResult });
   } catch (error) {
     console.error("sync-lesson-to-calendar error:", error);
     return json({ error: String(error) }, 500);
   }
 });
+
+const SHEETS_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
+
+type SheetResult = { written: boolean; row?: number; tab?: string; error?: string };
+
+async function writeToMasterSheet(
+  grade: Grade,
+  uid: string,
+  title: string,
+  content: string,
+  lovableKey: string,
+): Promise<SheetResult> {
+  const sheetId = Deno.env.get("MASTER_LESSON_SHEET_ID");
+  const sheetsKey = Deno.env.get("GOOGLE_SHEETS_API_KEY");
+  if (!sheetId) return { written: false, error: "MASTER_LESSON_SHEET_ID not configured" };
+  if (!sheetsKey) return { written: false, error: "Google Sheets connector not configured" };
+  const headers = {
+    Authorization: `Bearer ${lovableKey}`,
+    "X-Connection-Api-Key": sheetsKey,
+    "Content-Type": "application/json",
+  };
+
+  const metaRes = await fetch(`${SHEETS_URL}/spreadsheets/${sheetId}?fields=sheets.properties.title`, { headers });
+  if (!metaRes.ok) return { written: false, error: `meta ${metaRes.status}: ${(await metaRes.text()).slice(0, 300)}` };
+  const meta = await metaRes.json();
+  const tab: string | undefined = (meta.sheets ?? [])
+    .map((s: { properties: { title: string } }) => s.properties.title)
+    .find((t: string) => new RegExp(`^\\s*åk\\s*${grade}\\s*$`, "i").test(t));
+  if (!tab) return { written: false, error: `Tab for grade ${grade} not found` };
+
+  const quoted = `'${tab.replace(/'/g, "''")}'`;
+  const colRes = await fetch(`${SHEETS_URL}/spreadsheets/${sheetId}/values/${encodeURIComponent(`${quoted}!F:F`)}`, { headers });
+  if (!colRes.ok) return { written: false, tab, error: `read ${colRes.status}: ${(await colRes.text()).slice(0, 300)}` };
+  const col: string[][] = (await colRes.json()).values ?? [];
+
+  const target = eventIdFromUid(uid.split("::")[0]);
+  const idx = col.findIndex((r, i) => i > 0 && r[0] && eventIdFromUid(String(r[0])) === target);
+  if (idx < 0) return { written: false, tab, error: "Event ID not found in column F" };
+  const row = idx + 1;
+
+  const data = [{ range: `${quoted}!E${row}`, values: [[content]] }];
+  if (title) data.push({ range: `${quoted}!A${row}`, values: [[title]] });
+  const upd = await fetch(`${SHEETS_URL}/spreadsheets/${sheetId}/values:batchUpdate`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ valueInputOption: "RAW", data }),
+  });
+  if (!upd.ok) return { written: false, tab, row, error: `write ${upd.status}: ${(await upd.text()).slice(0, 300)}` };
+  return { written: true, tab, row };
+}
