@@ -54,6 +54,9 @@ serve(async (req) => {
     const uid = typeof body?.event_uid === "string" ? body.event_uid : "";
     const title = typeof body?.title === "string" ? body.title.slice(0, 300) : "";
     const content = typeof body?.content === "string" ? body.content.slice(0, 4000) : "";
+    const startsAtRaw = typeof body?.starts_at === "string" ? body.starts_at : "";
+    const startsAt = startsAtRaw && !isNaN(Date.parse(startsAtRaw)) ? new Date(startsAtRaw) : null;
+    const originalTitle = typeof body?.original_title === "string" ? body.original_title.slice(0, 300) : "";
 
     if (!SUPPORTED_GRADES.includes(grade as Grade) || !uid) {
       return json({ error: "Invalid grade or event_uid" }, 400);
@@ -67,8 +70,12 @@ serve(async (req) => {
     if (!lovableKey || !connectorKey) return json({ error: "Google Calendar connector not configured" }, 500);
 
     // 1) Master: skriv Titel (A) + Beskrivning (E) till master-kalkylbladet.
-    const sheetResult = await writeToMasterSheet(grade as Grade, uid, title.trim(), content, lovableKey);
-    if (sheetResult.error) console.error("Master sheet write:", sheetResult.error);
+    const sheetResult = await writeToMasterSheet(grade as Grade, uid, title.trim(), content, lovableKey, startsAt, originalTitle);
+    if (!sheetResult.written) {
+      console.error("Master sheet write failed:", sheetResult.error);
+      // Kalendern uppdateras inte: Apps Script skulle ändå skriva tillbaka bladets gamla text.
+      return json({ ok: false, sheet: sheetResult, calendarSynced: false }, 200);
+    }
 
     const patch: Record<string, string> = { description: content };
     if (title.trim()) patch.summary = title.trim();
@@ -89,13 +96,13 @@ serve(async (req) => {
     if (!res.ok) {
       const details = await res.text();
       console.error(`Calendar patch failed [${res.status}]: ${details}`);
-      return json({ error: "Google Calendar update failed", status: res.status, details, sheet: sheetResult }, res.status);
+      return json({ ok: false, error: "Google Calendar update failed", status: res.status, details, sheet: sheetResult, calendarSynced: false }, 200);
     }
 
     // Force a fresh iCal fetch so the app shows the new text immediately.
     await admin.from("calendar_cache").delete().eq("grade", grade);
 
-    return json({ ok: true, sheet: sheetResult });
+    return json({ ok: true, sheet: sheetResult, calendarSynced: true });
   } catch (error) {
     console.error("sync-lesson-to-calendar error:", error);
     return json({ error: String(error) }, 500);
@@ -112,6 +119,8 @@ async function writeToMasterSheet(
   title: string,
   content: string,
   lovableKey: string,
+  startsAt: Date | null,
+  originalTitle: string,
 ): Promise<SheetResult> {
   const sheetId = Deno.env.get("MASTER_LESSON_SHEET_ID");
   const sheetsKey = Deno.env.get("GOOGLE_SHEETS_API_KEY");
@@ -132,13 +141,28 @@ async function writeToMasterSheet(
   if (!tab) return { written: false, error: `Tab for grade ${grade} not found` };
 
   const quoted = `'${tab.replace(/'/g, "''")}'`;
-  const colRes = await fetch(`${SHEETS_URL}/spreadsheets/${sheetId}/values/${encodeURIComponent(`${quoted}!F:F`)}`, { headers });
+  const colRes = await fetch(
+    `${SHEETS_URL}/spreadsheets/${sheetId}/values/${encodeURIComponent(`${quoted}!A:F`)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,
+    { headers },
+  );
   if (!colRes.ok) return { written: false, tab, error: `read ${colRes.status}: ${(await colRes.text()).slice(0, 300)}` };
-  const col: string[][] = (await colRes.json()).values ?? [];
+  const rows: unknown[][] = (await colRes.json()).values ?? [];
 
-  const target = eventIdFromUid(uid.split("::")[0]);
-  const idx = col.findIndex((r, i) => i > 0 && r[0] && eventIdFromUid(String(r[0])) === target);
-  if (idx < 0) return { written: false, tab, error: "Event ID not found in column F" };
+  // 1) KalenderEventID i F (med eller utan @google.com)
+  const target = eventIdFromUid(uid.split("::")[0]).toLowerCase();
+  let idx = rows.findIndex((r, i) => i > 0 && r[5] && eventIdFromUid(String(r[5])).toLowerCase() === target);
+
+  // 2) Fallback: starttid (Stockholm, minutprecision) + titel — bara om exakt en träff.
+  if (idx < 0 && startsAt) {
+    const wanted = stockholmMinuteKey(startsAt);
+    const t = originalTitle.trim().toLowerCase();
+    const hits = rows
+      .map((r, i) => ({ r, i }))
+      .filter(({ r, i }) => i > 0 && cellToStockholmKey(r[1]) === wanted && (!t || String(r[0] ?? "").trim().toLowerCase() === t));
+    if (hits.length === 1) idx = hits[0].i;
+    else if (hits.length > 1) return { written: false, tab, error: "Flera rader matchar starttid/titel – skriver inte" };
+  }
+  if (idx < 0) return { written: false, tab, error: "Lektionen hittades inte i bladet (varken KalenderEventID eller starttid+titel)" };
   const row = idx + 1;
 
   const data = [{ range: `${quoted}!E${row}`, values: [[content]] }];
@@ -150,4 +174,30 @@ async function writeToMasterSheet(
   });
   if (!upd.ok) return { written: false, tab, row, error: `write ${upd.status}: ${(await upd.text()).slice(0, 300)}` };
   return { written: true, tab, row };
+}
+
+/** "YYYY-MM-DD HH:mm" i Europe/Stockholm */
+function stockholmMinuteKey(d: Date): string {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hour12: false,
+    }).formatToParts(d).map((x) => [x.type, x.value]),
+  );
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
+}
+
+/** Bladets starttid: serienummer (lokal tid) eller text "YYYY-MM-DD HH:mm". */
+function cellToStockholmKey(v: unknown): string | null {
+  if (typeof v === "number") {
+    const ms = Math.round((v - 25569) * 86400000); // serienummer tolkat som "väggklocka"
+    const d = new Date(ms);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+  }
+  if (typeof v === "string") {
+    const m = v.trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2})[:.](\d{2})/);
+    if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")} ${m[4].padStart(2, "0")}:${m[5]}`;
+  }
+  return null;
 }
