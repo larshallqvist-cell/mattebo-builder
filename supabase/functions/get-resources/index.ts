@@ -80,30 +80,28 @@ serve(async (req) => {
     }
 
     const apiKey = Deno.env.get('GOOGLE_SHEETS_API_KEY');
-    if (!apiKey) {
+    const lovableKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!apiKey || !lovableKey) {
       return new Response(
         JSON.stringify({ error: 'API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    const GATEWAY = 'https://connector-gateway.lovable.dev/google_sheets/v4';
+    const gwHeaders = { Authorization: `Bearer ${lovableKey}`, 'X-Connection-Api-Key': apiKey };
 
     const tabName = SHEET_TAB_NAME(grade);
 
     // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links.
-    // Rich links (Ctrl+K style) don't appear in valueRenderOption=FORMULA.
-    // Extended to column E/F so URLs/colors copied further across still load.
-    // Keep the row range generous so special rows copied further down still load.
     const gridUrl = (range: string) =>
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}&ranges=${encodeURIComponent(`${tabName}!${range}`)}&includeGridData=true`;
+      `${GATEWAY}/spreadsheets/${sheetId}?ranges=${encodeURIComponent(`${tabName}!${range}`)}&includeGridData=true`;
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-    // Retry transient failures (429/5xx) with backoff, then try a smaller range
-    // (large grid requests can be rejected/time out), then fall back to plain values.
     const tryFetch = async (url: string) => {
       let last: Response | null = null;
       for (let attempt = 0; attempt < 3; attempt++) {
-        const res = await fetch(url);
+        const res = await fetch(url, { headers: gwHeaders });
         if (res.ok) return res;
         last = res;
         if (res.status !== 429 && res.status < 500) return res;
@@ -136,7 +134,7 @@ serve(async (req) => {
 
       // Last resort: plain values (loses rich-link metadata but keeps the page usable)
       const valuesRes = await tryFetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(`${tabName}!${SHEET_RANGE}`)}?key=${apiKey}`,
+        `${GATEWAY}/spreadsheets/${sheetId}/values/${encodeURIComponent(`${tabName}!${SHEET_RANGE}`)}`,
       );
       if (!valuesRes.ok) {
         console.error("Sheets values fallback failed", valuesRes.status);
