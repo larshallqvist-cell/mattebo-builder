@@ -13,6 +13,7 @@ import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import HomeworkBanner from "@/components/HomeworkBanner";
 import SurveyLamp from "@/components/SurveyLamp";
+import LessonNotesButton from "@/components/LessonNotesButton";
 import ViewModeToggle from "@/components/ViewModeToggle";
 import { useViewMode } from "@/hooks/useViewMode";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
@@ -98,6 +99,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <HomeworkBanner grade={grade} compact />
                 <div className="ml-auto flex items-center gap-3 flex-shrink-0">
                   <ViewModeToggle compact />
+                  <LessonNotesButton grade={grade} />
                   <SurveyLamp grade={grade} />
                   <LessonTimer grade={grade} size={56} hideClock />
                 </div>
@@ -114,6 +116,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
                 <div className="ml-auto flex items-center gap-2">
                   <ViewModeToggle compact />
+                  <LessonNotesButton grade={grade} />
                   <SurveyLamp grade={grade} compact />
                 </div>
               </div>

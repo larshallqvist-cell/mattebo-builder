@@ -116,6 +116,36 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_notes: {
+        Row: {
+          content: string
+          created_at: string
+          event_uid: string
+          grade: number
+          id: string
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          event_uid: string
+          grade: number
+          id?: string
+          starts_at: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          event_uid?: string
+          grade?: number
+          id?: string
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_plans: {
         Row: {
           content: string

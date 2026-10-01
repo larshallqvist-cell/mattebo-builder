@@ -15,6 +15,7 @@ import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight, P
 import { useToast } from "@/hooks/use-toast";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import LessonNotesPanel from "@/components/LessonNotesPanel";
 
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
@@ -182,6 +183,7 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
       <p className="text-sm font-semibold text-foreground">
         Åk {grade} · {formatLesson(event.date, event.endDate, event.location)}
       </p>
+      <LessonNotesPanel grade={grade} event={event} />
       <Input
         value={draftTitle}
         onChange={(e) => setDraftTitle(e.target.value)}
