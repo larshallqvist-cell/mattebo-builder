@@ -71,6 +71,9 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
           <Link to="/" className="nav-link">
             Hem
           </Link>
+          <Link to="/braklabbet" className="nav-link">
+            Bråklabbet
+          </Link>
           <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
             Om
           </a>
