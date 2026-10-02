@@ -49,7 +49,8 @@ const LunchMenu = ({ compact = false }: LunchMenuProps) => {
   const [editBuffer, setEditBuffer] = useState<DayMenu[]>([]);
   const [weekOffset, setWeekOffset] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { isAdmin } = useAuth();
+  const user = isAdmin;
 
   const weekDates = getWeekDates(0);
 
