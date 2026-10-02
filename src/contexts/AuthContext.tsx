@@ -47,19 +47,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (data) {
       setAccessStatus(data.status as AccessStatus);
-    } else {
-      // No row yet — create one (for users who signed up before trigger existed)
-      const isSchool = email.endsWith("@leteboskolan.se");
-      const newStatus = isSchool ? "approved" : "pending";
-
-      await supabase.from("access_requests").insert({
+    } else if (!error) {
+      // No row yet — create a pending request (only status the database allows from the client).
+      const { error: insertError } = await supabase.from("access_requests").insert({
         user_id: userId,
         email,
         full_name: "",
-        status: newStatus,
+        status: "pending",
       });
-
-      setAccessStatus(newStatus);
+      if (insertError) {
+        console.error("Could not create access request:", insertError);
+        toast({
+          title: "Kunde inte skicka åtkomstförfrågan",
+          description: "Ladda om sidan och försök igen.",
+          variant: "destructive",
+        });
+      }
+      setAccessStatus("pending");
+    } else {
+      console.error("Could not read access status:", error);
+      setAccessStatus("pending");
     }
   };
 

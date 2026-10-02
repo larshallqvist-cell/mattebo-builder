@@ -107,7 +107,9 @@ export const useLessonPlans = (grade: number) => {
           sheetWritten: Boolean(data?.sheet?.written),
           message: sheetError
             ? `Sparat i Mattebo, men INTE i kalkylbladet: ${sheetError}`
-            : "Sparat i Mattebo och kalkylbladet, men kalendern kunde inte uppdateras.",
+            : data?.sheet?.written
+              ? "Sparat i Mattebo och kalkylbladet, men kalendern kunde inte uppdateras."
+              : "Sparat i Mattebo, men INTE i kalkylbladet eller kalendern (servern svarade med fel).",
         };
       }
       return { calendarSynced: true as const, sheetWritten: true };
