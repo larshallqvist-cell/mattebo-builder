@@ -111,6 +111,19 @@ serve(async (req) => {
 
 const SHEETS_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
 
+async function sheetFetch(url: string, init: RequestInit): Promise<Response> {
+  // Google Sheets har en kvot per minut (delas med länksidorna). Försök igen vid 429/5xx.
+  const waits = [1500, 4000, 10000, 20000];
+  let res = await fetch(url, init);
+  for (const w of waits) {
+    if (res.status !== 429 && res.status < 500) return res;
+    await res.body?.cancel();
+    await new Promise((r) => setTimeout(r, w + Math.random() * 500));
+    res = await fetch(url, init);
+  }
+  return res;
+}
+
 type SheetResult = { written: boolean; row?: number; tab?: string; error?: string };
 
 async function writeToMasterSheet(
@@ -132,7 +145,7 @@ async function writeToMasterSheet(
     "Content-Type": "application/json",
   };
 
-  const metaRes = await fetch(`${SHEETS_URL}/spreadsheets/${sheetId}?fields=sheets.properties.title`, { headers });
+  const metaRes = await sheetFetch(`${SHEETS_URL}/spreadsheets/${sheetId}?fields=sheets.properties.title`, { headers });
   if (!metaRes.ok) return { written: false, error: `meta ${metaRes.status}: ${(await metaRes.text()).slice(0, 300)}` };
   const meta = await metaRes.json();
   const tab: string | undefined = (meta.sheets ?? [])
@@ -141,7 +154,7 @@ async function writeToMasterSheet(
   if (!tab) return { written: false, error: `Tab for grade ${grade} not found` };
 
   const quoted = `'${tab.replace(/'/g, "''")}'`;
-  const colRes = await fetch(
+  const colRes = await sheetFetch(
     `${SHEETS_URL}/spreadsheets/${sheetId}/values/${encodeURIComponent(`${quoted}!A:F`)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,
     { headers },
   );
@@ -167,7 +180,7 @@ async function writeToMasterSheet(
 
   const data = [{ range: `${quoted}!E${row}`, values: [[content]] }];
   if (title) data.push({ range: `${quoted}!A${row}`, values: [[title]] });
-  const upd = await fetch(`${SHEETS_URL}/spreadsheets/${sheetId}/values:batchUpdate`, {
+  const upd = await sheetFetch(`${SHEETS_URL}/spreadsheets/${sheetId}/values:batchUpdate`, {
     method: "POST",
     headers,
     body: JSON.stringify({ valueInputOption: "RAW", data }),
