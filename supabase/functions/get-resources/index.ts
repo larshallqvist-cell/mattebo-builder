@@ -150,6 +150,11 @@ serve(async (req) => {
 
     let response = await tryFetch(gridUrl(SHEET_RANGE));
 
+    if (response.status === 429 && cachedResources && cacheAge < RESOURCE_STALE_TTL_MS) {
+      console.warn("Sheets quota exhausted; serving cached resources");
+      return resourcesResponse(cachedResources, chapter);
+    }
+
     if (!response.ok && response.status !== 400 && response.status !== 429) {
       console.error("Sheets grid fetch failed, retrying smaller range", response.status);
       response = await tryFetch(gridUrl("A2:F1000"));
