@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireApprovedUser } from "../_shared/auth.ts";
 import {
   MAX_CHAPTER,
@@ -22,6 +23,31 @@ interface ResourceRow {
   url: string;
   color?: string;
 }
+
+const admin = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  { auth: { persistSession: false } },
+);
+
+const RESOURCE_CACHE_TTL_MS = 15 * 60 * 1000;
+const RESOURCE_STALE_TTL_MS = 24 * 60 * 60 * 1000;
+
+const groupedResources = (resources: ResourceRow[], chapter: string | null) => {
+  const chapterNum = chapter ? parseInt(chapter, 10) : null;
+  const filtered = chapterNum == null ? resources : resources.filter((r) => r.chapter === chapterNum);
+  const grouped: Record<string, { title: string; url: string; color?: string }[]> = {};
+  for (const resource of filtered) {
+    grouped[resource.category] ??= [];
+    grouped[resource.category].push({ title: resource.title, url: resource.url, color: resource.color });
+  }
+  return grouped;
+};
+
+const resourcesResponse = (resources: ResourceRow[], chapter: string | null) =>
+  new Response(JSON.stringify({ resources: groupedResources(resources, chapter) }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -91,6 +117,17 @@ serve(async (req) => {
     const gwHeaders = { Authorization: `Bearer ${lovableKey}`, 'X-Connection-Api-Key': apiKey };
 
     const tabName = SHEET_TAB_NAME(grade);
+    const cacheKey = `resources:${sheetId}:${grade}`;
+    const { data: cached } = await admin
+      .from("google_sheet_cache")
+      .select("payload,fetched_at")
+      .eq("cache_key", cacheKey)
+      .maybeSingle();
+    const cachedResources = Array.isArray(cached?.payload) ? cached.payload as ResourceRow[] : null;
+    const cacheAge = cached?.fetched_at ? Date.now() - new Date(cached.fetched_at).getTime() : Infinity;
+    if (cachedResources && cacheAge < RESOURCE_CACHE_TTL_MS) {
+      return resourcesResponse(cachedResources, chapter);
+    }
 
     // Use spreadsheets.get with includeGridData to get hyperlink metadata from rich links.
     const gridUrl = (range: string) =>
@@ -100,19 +137,25 @@ serve(async (req) => {
 
     const tryFetch = async (url: string) => {
       let last: Response | null = null;
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < 2; attempt++) {
         const res = await fetch(url, { headers: gwHeaders });
         if (res.ok) return res;
         last = res;
         if (res.status !== 429 && res.status < 500) return res;
-        await sleep(500 * Math.pow(2, attempt));
+        const retryAfter = Number(res.headers.get("Retry-After"));
+        await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 1000 * (attempt + 1));
       }
       return last as Response;
     };
 
     let response = await tryFetch(gridUrl(SHEET_RANGE));
 
-    if (!response.ok && response.status !== 400) {
+    if (response.status === 429 && cachedResources && cacheAge < RESOURCE_STALE_TTL_MS) {
+      console.warn("Sheets quota exhausted; serving cached resources");
+      return resourcesResponse(cachedResources, chapter);
+    }
+
+    if (!response.ok && response.status !== 400 && response.status !== 429) {
       console.error("Sheets grid fetch failed, retrying smaller range", response.status);
       response = await tryFetch(gridUrl("A2:F1000"));
     }
@@ -138,6 +181,9 @@ serve(async (req) => {
       );
       if (!valuesRes.ok) {
         console.error("Sheets values fallback failed", valuesRes.status);
+        if (cachedResources && cacheAge < RESOURCE_STALE_TTL_MS) {
+          return resourcesResponse(cachedResources, chapter);
+        }
         return new Response(
           JSON.stringify({ error: 'Kunde inte hämta resurser. Försök igen senare.' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -357,27 +403,14 @@ serve(async (req) => {
         .filter((r: ResourceRow) => !isNaN(r.chapter) && r.title && r.url && r.url.startsWith('http'));
     }
 
-    // Filter by chapter if provided
-    let filtered = resources;
+    const { error: cacheError } = await admin.from("google_sheet_cache").upsert({
+      cache_key: cacheKey,
+      payload: resources,
+      fetched_at: new Date().toISOString(),
+    });
+    if (cacheError) console.error("Resource cache update failed", cacheError.message);
 
-    if (chapter) {
-      const chapterNum = parseInt(chapter, 10);
-      filtered = filtered.filter(r => r.chapter === chapterNum);
-    }
-
-    // Group by category
-    const grouped: Record<string, { title: string; url: string; color?: string }[]> = {};
-    for (const r of filtered) {
-      if (!grouped[r.category]) {
-        grouped[r.category] = [];
-      }
-      grouped[r.category].push({ title: r.title, url: r.url, color: r.color });
-    }
-
-    return new Response(
-      JSON.stringify({ resources: grouped }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return resourcesResponse(resources, chapter);
 
   } catch (error) {
     // Return generic error without exposing internal details
