@@ -18,8 +18,8 @@ interface ApocalypticNavProps {
 const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
 
-  return <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-2">
-      <div className={`${centerContent ? "max-w-7xl" : "max-w-5xl"} mx-auto flex items-center justify-between gap-4 rounded-full px-6 py-[10px]`} style={{
+  return <nav className="fixed top-0 left-0 right-0 z-50 px-2 py-1 sm:px-6 sm:py-2">
+      <div className={`${centerContent ? "max-w-7xl" : "max-w-5xl"} mx-auto flex items-center justify-between gap-2 rounded-full px-3 py-1.5 sm:gap-4 sm:px-6 sm:py-[10px]`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
@@ -27,20 +27,21 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
     }}>
         {/* Logo / Site title — with grade stacked underneath */}
         <div className="flex flex-col leading-tight">
-          <Link to="/" className="font-orbitron text-lg font-bold text-accent hover:text-foreground transition-colors">
+          <Link to="/" className="font-orbitron text-sm font-bold text-accent hover:text-foreground transition-colors sm:text-lg">
             Leteboskolan
           </Link>
           {grade != null && isAdmin && (
-            <div className="flex items-center gap-1 mt-0.5">
+            <div className="mt-0.5 flex items-center gap-0.5 sm:gap-1">
               {[6, 7, 8, 9].map((g) => (
                 <Link
                   key={g}
                   to={`/ak${g}`}
-                  className={`font-orbitron text-[11px] font-semibold rounded-full px-1.5 py-0.5 transition-colors ${
+                  className={`rounded-full px-1 py-0.5 font-orbitron text-[9px] font-semibold transition-colors sm:px-1.5 sm:text-[11px] ${
                     g === grade ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
                   }`}
                 >
-                  Åk {g}
+                  <span className="sm:hidden">{g}</span>
+                  <span className="hidden sm:inline">Åk {g}</span>
                 </Link>
               ))}
             </div>
@@ -67,12 +68,13 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
         )}
 
         {/* Navigation links and auth */}
-        <div className="flex items-center gap-5 text-sm font-nunito flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-2 font-nunito text-xs sm:gap-5 sm:text-sm">
           <Link to="/" className="nav-link">
             Hem
           </Link>
           <Link to="/braklabbet" className="nav-link">
-            Bråklabbet
+            <span className="sm:hidden">Labbet</span>
+            <span className="hidden sm:inline">Bråklabbet</span>
           </Link>
           <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
             Om
