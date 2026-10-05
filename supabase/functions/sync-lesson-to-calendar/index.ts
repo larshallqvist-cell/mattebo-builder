@@ -112,8 +112,8 @@ serve(async (req) => {
 const SHEETS_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
 
 async function sheetFetch(url: string, init: RequestInit): Promise<Response> {
-  // Google Sheets har en kvot per minut (delas med länksidorna). Försök igen vid 429/5xx.
-  const waits = [1500, 4000, 10000, 20000];
+  // Keep retries bounded: shared connector quota must not turn one save into many reads.
+  const waits = [2000];
   let res = await fetch(url, init);
   for (const w of waits) {
     if (res.status !== 429 && res.status < 500) return res;
@@ -125,6 +125,44 @@ async function sheetFetch(url: string, init: RequestInit): Promise<Response> {
 }
 
 type SheetResult = { written: boolean; row?: number; tab?: string; error?: string };
+const MASTER_CACHE_TTL_MS = 30 * 60 * 1000;
+
+async function loadMasterRows(
+  sheetId: string,
+  grade: Grade,
+  headers: Record<string, string>,
+  forceFresh = false,
+): Promise<{ tab: string; rows: unknown[][]; error?: string }> {
+  const tab = `Åk ${grade}`;
+  const cacheKey = `master-lessons:${sheetId}:${grade}`;
+  if (!forceFresh) {
+    const { data: cached } = await admin
+      .from("google_sheet_cache")
+      .select("payload,fetched_at")
+      .eq("cache_key", cacheKey)
+      .maybeSingle();
+    const age = cached?.fetched_at ? Date.now() - new Date(cached.fetched_at).getTime() : Infinity;
+    const rows = cached?.payload && typeof cached.payload === "object" && Array.isArray((cached.payload as { rows?: unknown[][] }).rows)
+      ? (cached.payload as { rows: unknown[][] }).rows
+      : null;
+    if (rows && age < MASTER_CACHE_TTL_MS) return { tab, rows };
+  }
+
+  const quoted = `'${tab}'`;
+  const res = await sheetFetch(
+    `${SHEETS_URL}/spreadsheets/${sheetId}/values/${quoted}!A:F?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,
+    { headers },
+  );
+  if (!res.ok) return { tab, rows: [], error: `read ${res.status}: ${(await res.text()).slice(0, 300)}` };
+  const rows: unknown[][] = (await res.json()).values ?? [];
+  const { error } = await admin.from("google_sheet_cache").upsert({
+    cache_key: cacheKey,
+    payload: { rows },
+    fetched_at: new Date().toISOString(),
+  });
+  if (error) console.error("Master sheet cache update failed", error.message);
+  return { tab, rows };
+}
 
 async function writeToMasterSheet(
   grade: Grade,
@@ -145,25 +183,23 @@ async function writeToMasterSheet(
     "Content-Type": "application/json",
   };
 
-  const metaRes = await sheetFetch(`${SHEETS_URL}/spreadsheets/${sheetId}?fields=sheets.properties.title`, { headers });
-  if (!metaRes.ok) return { written: false, error: `meta ${metaRes.status}: ${(await metaRes.text()).slice(0, 300)}` };
-  const meta = await metaRes.json();
-  const tab: string | undefined = (meta.sheets ?? [])
-    .map((s: { properties: { title: string } }) => s.properties.title)
-    .find((t: string) => new RegExp(`^\\s*åk\\s*${grade}\\s*$`, "i").test(t));
-  if (!tab) return { written: false, error: `Tab for grade ${grade} not found` };
-
+  let loaded = await loadMasterRows(sheetId, grade, headers);
+  if (loaded.error) return { written: false, tab: loaded.tab, error: loaded.error };
+  const tab = loaded.tab;
   const quoted = `'${tab.replace(/'/g, "''")}'`;
-  const colRes = await sheetFetch(
-    `${SHEETS_URL}/spreadsheets/${sheetId}/values/${encodeURIComponent(`${quoted}!A:F`)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,
-    { headers },
-  );
-  if (!colRes.ok) return { written: false, tab, error: `read ${colRes.status}: ${(await colRes.text()).slice(0, 300)}` };
-  const rows: unknown[][] = (await colRes.json()).values ?? [];
+  let rows = loaded.rows;
 
   // 1) KalenderEventID i F (med eller utan @google.com)
   const target = eventIdFromUid(uid.split("::")[0]).toLowerCase();
   let idx = rows.findIndex((r, i) => i > 0 && r[5] && eventIdFromUid(String(r[5])).toLowerCase() === target);
+
+  // The cached snapshot may predate a newly added sheet row. Refresh only on a cache miss.
+  if (idx < 0) {
+    loaded = await loadMasterRows(sheetId, grade, headers, true);
+    if (loaded.error) return { written: false, tab, error: loaded.error };
+    rows = loaded.rows;
+    idx = rows.findIndex((r, i) => i > 0 && r[5] && eventIdFromUid(String(r[5])).toLowerCase() === target);
+  }
 
   // 2) Fallback: starttid (Stockholm, minutprecision) + titel — bara om exakt en träff.
   if (idx < 0 && startsAt) {
@@ -186,6 +222,20 @@ async function writeToMasterSheet(
     body: JSON.stringify({ valueInputOption: "RAW", data }),
   });
   if (!upd.ok) return { written: false, tab, row, error: `write ${upd.status}: ${(await upd.text()).slice(0, 300)}` };
+
+  const nextRows = rows.map((existing, rowIndex) => {
+    if (rowIndex !== idx) return existing;
+    const next = [...existing];
+    next[4] = content;
+    if (title) next[0] = title;
+    return next;
+  });
+  const { error: cacheError } = await admin.from("google_sheet_cache").upsert({
+    cache_key: `master-lessons:${sheetId}:${grade}`,
+    payload: { rows: nextRows },
+    fetched_at: new Date().toISOString(),
+  });
+  if (cacheError) console.error("Master sheet cache refresh failed", cacheError.message);
   return { written: true, tab, row };
 }
 
