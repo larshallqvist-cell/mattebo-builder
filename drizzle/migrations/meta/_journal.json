@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791227132566,
+      "tag": "0000_add_google_sheet_response_cache",
+      "breakpoints": true
+    }
+  ]
+}
