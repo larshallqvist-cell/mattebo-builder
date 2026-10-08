@@ -31,6 +31,7 @@ const admin = createClient(
 );
 
 const RESOURCE_CACHE_TTL_MS = 15 * 60 * 1000;
+const ADMIN_CACHE_TTL_MS = 30 * 1000;
 const RESOURCE_STALE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const groupedResources = (resources: ResourceRow[], chapter: string | null) => {
@@ -125,7 +126,15 @@ serve(async (req) => {
       .maybeSingle();
     const cachedResources = Array.isArray(cached?.payload) ? cached.payload as ResourceRow[] : null;
     const cacheAge = cached?.fetched_at ? Date.now() - new Date(cached.fetched_at).getTime() : Infinity;
-    if (cachedResources && cacheAge < RESOURCE_CACHE_TTL_MS) {
+    // Admins (the teacher editing the sheet) get near-fresh data; everyone else shares the long cache.
+    const { data: adminRow } = await admin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", auth.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    const ttl = adminRow ? ADMIN_CACHE_TTL_MS : RESOURCE_CACHE_TTL_MS;
+    if (cachedResources && cacheAge < ttl) {
       return resourcesResponse(cachedResources, chapter);
     }
 
