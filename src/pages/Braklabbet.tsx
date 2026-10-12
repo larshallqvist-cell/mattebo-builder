@@ -7,7 +7,8 @@ import { PRIVATE_BRAKLABBET_URL } from "@/config/app";
 // Official, frame-embeddable Polypad (Mathigon/Amplify). The full app at /p blocks iframes.
 const POLYPAD_EMBED_URL = "https://polypad.amplify.com/embed";
 
-const { isAdmin } = useAuth();
+const Braklabbet = () => {
+  const { isAdmin } = useAuth();
   useEffect(() => {
     document.title = "Bråklabbet – Mattebo";
   }, []);
