@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { PRIVATE_BRAKLABBET_URL } from "@/config/app";
 import LoginButton from "./LoginButton";
 import UserMenu from "./UserMenu";
 
@@ -72,10 +73,24 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
           <Link to="/" className="nav-link">
             Hem
           </Link>
-          <Link to="/braklabbet" className="nav-link">
-            <span className="sm:hidden">Labbet</span>
-            <span className="hidden sm:inline">Bråklabbet</span>
-          </Link>
+          {isAdmin ? (
+            <a
+              href={PRIVATE_BRAKLABBET_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-link"
+              title="Öppnar det privata Bråklabbet i en ny flik (ChatGPT-inloggning krävs)"
+              aria-label="Privata Bråklabbet – öppnas i ny flik, ChatGPT-inloggning krävs"
+            >
+              <span className="sm:hidden">Labbet</span>
+              <span className="hidden sm:inline">Bråklabbet</span>
+            </a>
+          ) : (
+            <Link to="/braklabbet" className="nav-link">
+              <span className="sm:hidden">Labbet</span>
+              <span className="hidden sm:inline">Bråklabbet</span>
+            </Link>
+          )}
           <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
             Om
           </a>
