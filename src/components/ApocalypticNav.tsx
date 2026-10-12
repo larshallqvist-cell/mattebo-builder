@@ -19,15 +19,15 @@ interface ApocalypticNavProps {
 const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
 
-  return <nav className="fixed top-0 left-0 right-0 z-50 px-2 py-1 sm:px-6 sm:py-2">
-      <div className={`${centerContent ? "max-w-7xl" : "max-w-5xl"} mx-auto flex items-center justify-between gap-2 rounded-full px-3 py-1.5 sm:gap-4 sm:px-6 sm:py-[10px]`} style={{
+  return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-1 sm:px-6 sm:py-2`}>
+      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-2 px-3 py-1.5 sm:gap-4 sm:px-6 sm:py-[10px]`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
       border: "1px solid hsl(var(--primary) / 0.2)"
     }}>
         {/* Logo / Site title — with grade stacked underneath */}
-        <div className="flex flex-col leading-tight">
+        <div className="flex shrink-0 flex-col leading-tight">
           <Link to="/" className="font-orbitron text-sm font-bold text-accent hover:text-foreground transition-colors sm:text-lg">
             Leteboskolan
           </Link>
@@ -63,13 +63,13 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
 
         {/* Center content (grade + chapter selector + homework) */}
         {centerContent && !hideCenter && (
-          <div className="hidden lg:flex items-center justify-start flex-1 min-w-0 ml-4 gap-4">
+          <div className="order-last flex w-full min-w-0 flex-wrap items-center gap-3 border-t border-primary/20 pt-3">
             {centerContent}
           </div>
         )}
 
         {/* Navigation links and auth */}
-        <div className="flex flex-shrink-0 items-center gap-2 font-nunito text-xs sm:gap-5 sm:text-sm">
+        <div className="flex flex-wrap items-center justify-end gap-2 font-nunito text-xs sm:gap-4 sm:text-sm">
           <Link to="/" className="nav-link">
             Hem
           </Link>
