@@ -45,6 +45,9 @@ export const GRADE_CARD_COLORS: Record<
 };
 
 
+/** Lasse's private Bråklabbet — separate Sites app, owner-only with ChatGPT login. */
+export const PRIVATE_BRAKLABBET_URL = "https://braklabbet.earthyowl128.chatgpt.site";
+
 export const DEFAULT_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
 export const SHEET_STORAGE_KEY = "mattebo_sheet_id";
 
