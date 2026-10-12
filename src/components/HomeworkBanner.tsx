@@ -81,7 +81,7 @@ const HomeworkBanner = ({ grade, className = "", compact = false, dense = false 
 
   return (
     <section
-      className={`rounded-xl border ${compact ? "px-2.5 py-1.5 w-[6cm] max-w-[34vw] shrink-0" : dense ? "px-3 py-1.5" : "px-4 py-2.5"} ${className}`}
+      className={`rounded-xl border ${compact ? "px-2.5 py-1.5 w-full sm:w-[6cm] shrink-0" : dense ? "px-3 py-1.5" : "px-4 py-2.5"} ${className}`}
       style={{
         background:
           "linear-gradient(135deg, hsl(var(--homework-bg-soft)) 0%, hsl(var(--homework-bg)) 100%)",

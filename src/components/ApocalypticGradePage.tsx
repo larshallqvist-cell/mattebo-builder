@@ -92,12 +92,11 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           <ApocalypticNav
             grade={grade}
             glowColor={glowColor}
-            hideCenter={forcedMobile}
             centerContent={
               <>
                 <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
                 <HomeworkBanner grade={grade} compact />
-                <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                   <ViewModeToggle compact />
                   <LessonNotesButton grade={grade} />
                   <SurveyLamp grade={grade} />
@@ -107,25 +106,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             }
           />
 
-          {/* Mobile: homework + header below nav. Also shown below lg when desktop
-            view is forced, so the controls never disappear on small screens. */}
-          <div className={`${forcedMobile ? "" : "lg:hidden"} relative z-20 px-2 pb-1 pt-[3.6rem] md:px-6`}>
-            <HomeworkBanner grade={grade} dense />
-            <header className="mt-1.5">
-              <div className="flex flex-row items-center justify-start gap-2">
-                <ChapterSelector grade={grade} onChapterChange={setSelectedChapter} />
-                <div className="ml-auto flex items-center gap-2">
-                  <ViewModeToggle compact />
-                  <LessonNotesButton grade={grade} />
-                  <SurveyLamp grade={grade} compact />
-                </div>
-              </div>
-            </header>
-          </div>
-
-          {/* Glowing divider — desktop gets extra top padding to clear the expanded nav */}
+          {/* Navigation participates in layout, so its wrapped rows reserve their own height. */}
           <div
-            className={`h-[2px] mx-6 relative z-20 ${forcedMobile ? "" : forcedDesktop ? "pt-28" : "lg:pt-28"}`}
+            className="h-[2px] shrink-0 mx-6 relative z-20"
             style={{
               background: `linear-gradient(90deg, transparent, ${glowColor}80 20%, ${glowColor} 50%, ${glowColor}80 80%, transparent)`,
               boxShadow: `0 0 15px ${glowColor}60`,
