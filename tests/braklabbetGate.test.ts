@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canShowLab, isAllowedReturnPath, labAccountKey } from "./braklabbetGate";
+import { canShowLab, isAllowedReturnPath, labAccountKey } from "../src/lib/braklabbetGate";
 
 describe("post-login return path", () => {
   test("only /braklabbet is accepted", () => {
