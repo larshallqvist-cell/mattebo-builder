@@ -485,3 +485,15 @@ body::after {
     radial-gradient(ellipse at 50% 0%, hsl(var(--accent) / 0.05) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 100%, hsl(190 56% 40% / 0.05) 0%, transparent 40%);
 }
+
+/* Bråklabbet light surface (student lab page) */
+@layer components {
+  .lab-shell { --lab-bg: 180 14% 97%; --lab-ink: 200 30% 14%; --lab-muted: 200 10% 40%; --lab-line: 190 15% 85%; --lab-accent: 190 56% 34%; background: hsl(var(--lab-bg)); color: hsl(var(--lab-ink)); }
+  .lab-card { background: hsl(0 0% 100%); border: 1px solid hsl(var(--lab-line)); box-shadow: 0 20px 50px -30px hsl(var(--lab-ink) / 0.35); }
+  .lab-muted { color: hsl(var(--lab-muted)); }
+  .lab-chip { background: hsl(0 0% 100%); border: 1px solid hsl(var(--lab-line)); color: hsl(var(--lab-ink)); }
+  .lab-chip:hover { background: hsl(var(--lab-line) / 0.5); }
+  .lab-primary { background: hsl(var(--lab-accent)); color: hsl(0 0% 100%); }
+  .lab-primary:hover { background: hsl(var(--lab-accent) / 0.88); }
+  .lab-frame { background: hsl(0 0% 100%); border: 1px solid hsl(var(--lab-line)); }
+}

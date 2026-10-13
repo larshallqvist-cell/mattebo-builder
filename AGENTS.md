@@ -1,5 +1,6 @@
 # Project architecture rules
 
 - Cache quota-limited Google Sheets reads in the server-only `google_sheet_cache` table; frontend clients must never access this cache or connector credentials.
-- The private Bråklabbet lives in a separate owner-only app outside this codebase; reach it only as an external link through the `PRIVATE_BRAKLABBET_URL` constant, never embed it or copy its code, so its own access rules stay in charge.
+- The private teacher Bråklabbet is a separate owner-only app; reach it only as an external admin link via `PRIVATE_BRAKLABBET_URL`, never embed that URL, so its own access rules stay in charge.
+- The student Bråklabbet (owner-authorized copy of the generic lab) lives only in `supabase/functions/braklabbet-content/source/`, bundled by `scripts/build-braklabbet-content.mjs` into `content.ts` and served only after server-side checks in `access.ts`; `/braklabbet` renders it in a sandboxed `srcDoc` iframe without `allow-same-origin` or tokens, so it is never a public asset.
 - Grade-page navigation stays in document flow with a wrapping second row for lesson controls; this reserves its actual height and prevents overlap at narrow widths or enlarged text sizes.

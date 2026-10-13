@@ -1,64 +1,155 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, LogIn, ShieldX } from "lucide-react";
+import { FunctionsHttpError } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PRIVATE_BRAKLABBET_URL } from "@/config/app";
 
-// Official, frame-embeddable Polypad (Mathigon/Amplify). The full app at /p blocks iframes.
-const POLYPAD_EMBED_URL = "https://polypad.amplify.com/embed";
+type LabState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "ready"; html: string }
+  | { kind: "denied"; reason: string }
+  | { kind: "error" };
+
+const DENY_TEXT: Record<string, string> = {
+  denied: "Ditt konto har spärrats från Mattebo. Prata med din lärare.",
+  wrong_domain: "Bråklabbet är bara öppet för skolkonton som slutar på @leteboskolan.se.",
+  not_google: "Logga in med ditt Google-skolkonto för att öppna Bråklabbet.",
+  unverified: "Ditt Google-konto kunde inte bekräftas som skolkonto.",
+};
 
 const Braklabbet = () => {
-  const { isAdmin } = useAuth();
+  const { user, loading, isAdmin, signInWithGoogle, signOut } = useAuth();
+  const [lab, setLab] = useState<LabState>({ kind: "idle" });
+  const userId = user?.id ?? null;
+
   useEffect(() => {
     document.title = "Bråklabbet – Mattebo";
   }, []);
 
+  // Fetch the protected lab document for the current account; reset whenever the account changes.
+  useEffect(() => {
+    setLab({ kind: userId ? "loading" : "idle" });
+    if (!userId) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.functions.invoke("braklabbet-content", { method: "POST" });
+      if (cancelled) return;
+      if (!error && typeof data?.html === "string") {
+        setLab({ kind: "ready", html: data.html });
+        return;
+      }
+      if (error instanceof FunctionsHttpError) {
+        const status = error.context.status;
+        let reason = "";
+        try {
+          reason = (await error.context.json())?.reason ?? "";
+        } catch {
+          /* ignore */
+        }
+        if (cancelled) return;
+        if (status === 403) return setLab({ kind: "denied", reason });
+        if (status === 401) return setLab({ kind: "denied", reason: "not_google" });
+      }
+      setLab({ kind: "error" });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  const signedOut = !loading && !user;
+
   return (
-    <div className="h-[100dvh] flex flex-col bg-background">
-      <header className="flex items-center justify-between gap-3 px-3 py-2 sm:px-5">
+    <div className="lab-shell flex h-[100dvh] flex-col">
+      <header className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-5">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-secondary/60 px-4 py-2 text-sm font-nunito text-foreground hover:bg-primary/20 transition-colors"
+          className="lab-chip inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-nunito transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Tillbaka till Mattebo
         </Link>
-        <h1 className="font-orbitron text-xl sm:text-2xl font-bold text-accent">Bråklabbet</h1>
-        <div className="flex items-center gap-1 sm:gap-3">
+        <div className="flex items-center gap-2">
           {isAdmin && (
-            <span className="inline-flex items-center gap-1.5">
-              <a
-                href={PRIVATE_BRAKLABBET_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 px-3 py-2 text-xs font-nunito text-accent transition-colors hover:bg-accent/10"
-                title="Öppnar det privata Bråklabbet i en ny flik (ChatGPT-inloggning krävs)"
-                aria-label="Privata Bråklabbet – öppnas i ny flik, ChatGPT-inloggning krävs"
-              >
-                Öppna nya Bråklabbet <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-              <span className="hidden text-[11px] text-muted-foreground lg:inline">
-                Privat · ChatGPT-inloggning
-              </span>
-            </span>
+            <a
+              href={PRIVATE_BRAKLABBET_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="lab-chip inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-nunito"
+              title="Öppnar det privata Bråklabbet i en ny flik (ChatGPT-inloggning krävs)"
+              aria-label="Privata Bråklabbet – öppnas i ny flik, ChatGPT-inloggning krävs"
+            >
+              Lärarversion <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           )}
-          <button
-            type="button"
-            onClick={() => window.open("https://polypad.amplify.com/p", "_blank", "noopener")}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-nunito text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Öppna i ny flik <ExternalLink className="h-3.5 w-3.5" />
-          </button>
+          {user && (
+            <button type="button" onClick={signOut} className="lab-chip rounded-full px-3 py-2 text-xs font-nunito">
+              Logga ut
+            </button>
+          )}
         </div>
       </header>
-      <main className="flex-1 min-h-0 px-2 pb-2 sm:px-3 sm:pb-3">
-        <iframe
-          src={POLYPAD_EMBED_URL}
-          title="Polypad – bråkverktyg"
-          className="h-full w-full rounded-2xl border border-primary/20 bg-card"
-          allow="fullscreen; clipboard-read; clipboard-write"
-          allowFullScreen
-        />
+
+      <main className="min-h-0 flex-1 px-2 pb-2 sm:px-3 sm:pb-3">
+        {lab.kind === "ready" && user ? (
+          <iframe
+            key={userId ?? "none"}
+            srcDoc={lab.html}
+            title="Bråklabbet"
+            sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+            className="lab-frame h-full w-full rounded-2xl"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center px-4">
+            <div className="lab-card w-full max-w-md rounded-3xl p-8 text-center">
+              <h1 className="font-orbitron text-3xl font-bold">Bråklabbet</h1>
+              {(loading || lab.kind === "loading") && (
+                <div className="mt-6 flex items-center justify-center gap-2 font-nunito" role="status">
+                  <Loader2 className="h-5 w-5 animate-spin" /> Kontrollerar ditt konto…
+                </div>
+              )}
+              {signedOut && (
+                <>
+                  <p className="lab-muted mt-4 font-nunito">
+                    Bygg, jämför och räkna med bråk. Öppet för elever på Leteboskolan.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => signInWithGoogle("/braklabbet")}
+                    className="lab-primary mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 font-nunito text-base font-semibold"
+                  >
+                    <LogIn className="h-5 w-5" />
+                    Logga in med ditt skolkonto
+                  </button>
+                  <p className="lab-muted mt-3 text-xs font-nunito">Använd ditt @leteboskolan.se-konto.</p>
+                </>
+              )}
+              {lab.kind === "denied" && (
+                <>
+                  <ShieldX className="mx-auto mt-6 h-10 w-10" aria-hidden="true" />
+                  <p className="mt-3 font-nunito">{DENY_TEXT[lab.reason] ?? DENY_TEXT.wrong_domain}</p>
+                  <p className="lab-muted mt-2 text-sm font-nunito">Inloggad som {user?.email}</p>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await signOut();
+                      signInWithGoogle("/braklabbet");
+                    }}
+                    className="lab-primary mt-6 rounded-full px-5 py-2.5 font-nunito font-semibold"
+                  >
+                    Byt till skolkontot
+                  </button>
+                </>
+              )}
+              {lab.kind === "error" && (
+                <p className="mt-6 font-nunito">Bråklabbet kunde inte laddas just nu. Ladda om sidan och försök igen.</p>
+              )}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
