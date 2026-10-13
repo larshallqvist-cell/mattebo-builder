@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth, POST_LOGIN_PATH_KEY } from "@/contexts/AuthContext";
+import { isAllowedReturnPath } from "@/lib/braklabbetGate";
 
-/** After Google OAuth returns to the site root, send the user back to the page they started from. */
+/** After Google OAuth returns to the site root, send the user back to the approved page (only /braklabbet). */
 const PostLoginRedirect = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -10,9 +11,9 @@ const PostLoginRedirect = () => {
   useEffect(() => {
     if (!user) return;
     const path = sessionStorage.getItem(POST_LOGIN_PATH_KEY);
-    if (!path) return;
+    if (path === null) return;
     sessionStorage.removeItem(POST_LOGIN_PATH_KEY);
-    if (path.startsWith("/") && !path.startsWith("//") && path !== window.location.pathname) {
+    if (isAllowedReturnPath(path) && path !== window.location.pathname) {
       navigate(path, { replace: true });
     }
   }, [user, navigate]);

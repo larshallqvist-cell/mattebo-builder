@@ -3,6 +3,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
+import { isAllowedReturnPath } from "@/lib/braklabbetGate";
 
 type AccessStatus = "loading" | "approved" | "pending" | "denied" | null;
 
@@ -102,7 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async (returnPath?: unknown) => {
     try {
       // Remember where to land after OAuth; PostLoginRedirect navigates there once the session exists.
-      if (typeof returnPath === "string" && returnPath.startsWith("/") && !returnPath.startsWith("//")) {
+      if (isAllowedReturnPath(returnPath)) {
         sessionStorage.setItem(POST_LOGIN_PATH_KEY, returnPath);
       } else {
         sessionStorage.removeItem(POST_LOGIN_PATH_KEY);
