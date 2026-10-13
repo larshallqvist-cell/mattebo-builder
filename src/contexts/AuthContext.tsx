@@ -12,9 +12,11 @@ interface AuthContextType {
   loading: boolean;
   accessStatus: AccessStatus;
   isAdmin: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (returnPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
+
+export const POST_LOGIN_PATH_KEY = "mattebo_post_login_path";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -97,8 +99,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (returnPath?: unknown) => {
     try {
+      // Remember where to land after OAuth; PostLoginRedirect navigates there once the session exists.
+      if (typeof returnPath === "string" && returnPath.startsWith("/") && !returnPath.startsWith("//")) {
+        sessionStorage.setItem(POST_LOGIN_PATH_KEY, returnPath);
+      } else {
+        sessionStorage.removeItem(POST_LOGIN_PATH_KEY);
+      }
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });

@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
 import YouTubeOverlay from "./components/YouTubeOverlay";
+import PostLoginRedirect from "./components/PostLoginRedirect";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
         <YouTubeOverlay />
         <BrowserRouter>
           <SheetConfig />
+          <PostLoginRedirect />
           <AnimatedRoutes />
         </BrowserRouter>
       </TooltipProvider>
