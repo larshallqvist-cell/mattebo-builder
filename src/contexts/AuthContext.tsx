@@ -12,7 +12,7 @@ interface AuthContextType {
   loading: boolean;
   accessStatus: AccessStatus;
   isAdmin: boolean;
-  signInWithGoogle: (returnPath?: string) => Promise<void>;
+  signInWithGoogle: (returnPath?: unknown) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
