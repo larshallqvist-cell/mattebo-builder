@@ -5,11 +5,12 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PRIVATE_BRAKLABBET_URL } from "@/config/app";
+import { canShowLab, labAccountKey } from "@/lib/braklabbetGate";
 
 type LabState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "ready"; html: string }
+  | { kind: "ready"; html: string; key: string }
   | { kind: "denied"; reason: string }
   | { kind: "error" };
 
@@ -24,6 +25,7 @@ const Braklabbet = () => {
   const { user, loading, isAdmin, signInWithGoogle, signOut } = useAuth();
   const [lab, setLab] = useState<LabState>({ kind: "idle" });
   const userId = user?.id ?? null;
+  const accountKey = labAccountKey(userId, user?.email);
 
   useEffect(() => {
     document.title = "Bråklabbet – Mattebo";
@@ -31,14 +33,15 @@ const Braklabbet = () => {
 
   // Fetch the protected lab document for the current account; reset whenever the account changes.
   useEffect(() => {
-    setLab({ kind: userId ? "loading" : "idle" });
-    if (!userId) return;
+    setLab({ kind: accountKey ? "loading" : "idle" });
+    if (!accountKey) return;
+    const key = accountKey;
     let cancelled = false;
     (async () => {
       const { data, error } = await supabase.functions.invoke("braklabbet-content", { method: "POST" });
       if (cancelled) return;
       if (!error && typeof data?.html === "string") {
-        setLab({ kind: "ready", html: data.html });
+        setLab({ kind: "ready", html: data.html, key });
         return;
       }
       if (error instanceof FunctionsHttpError) {
@@ -58,7 +61,7 @@ const Braklabbet = () => {
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [accountKey]);
 
   const signedOut = !loading && !user;
 
@@ -94,9 +97,9 @@ const Braklabbet = () => {
       </header>
 
       <main className="min-h-0 flex-1 px-2 pb-2 sm:px-3 sm:pb-3">
-        {lab.kind === "ready" && user ? (
+        {canShowLab(lab, accountKey, loading) && lab.kind === "ready" ? (
           <iframe
-            key={userId ?? "none"}
+            key={lab.key}
             srcDoc={lab.html}
             title="Bråklabbet"
             sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
