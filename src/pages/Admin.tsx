@@ -21,6 +21,7 @@ import LessonPlanEditor from "@/components/LessonPlanEditor";
 import HomeworkEditor from "@/components/HomeworkEditor";
 import SurveyAdmin from "@/components/SurveyAdmin";
 import CollapsibleAdminSection from "@/components/CollapsibleAdminSection";
+import BraklabbetResults from "@/components/BraklabbetResults";
 
 interface AccessRequest {
   id: string;
@@ -188,6 +189,11 @@ const Admin = () => {
 
         <CollapsibleAdminSection title="Lektionsplanering" icon={<CalendarDays className="w-5 h-5" />}>
           <LessonPlanEditor />
+        </CollapsibleAdminSection>
+
+        {/* Pending */}
+        <CollapsibleAdminSection title="Bråklabbet – elevresultat" icon={<ClipboardList className="w-5 h-5" />}>
+          <BraklabbetResults />
         </CollapsibleAdminSection>
 
         {/* Pending */}

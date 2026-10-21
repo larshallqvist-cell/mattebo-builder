@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PRIVATE_BRAKLABBET_URL } from "@/config/app";
 import { canShowLab, labAccountKey, parseMissionMessage } from "@/lib/braklabbetGate";
+import { useBraklabbetTraining } from "@/hooks/useBraklabbetTraining";
 
 type LabState =
   | { kind: "idle" }
@@ -28,6 +29,7 @@ const Braklabbet = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const userId = user?.id ?? null;
   const accountKey = labAccountKey(userId, user?.email);
+  useBraklabbetTraining(userId, iframeRef, canShowLab(lab, accountKey, loading));
 
   useEffect(() => {
     document.title = "Bråklabbet – Mattebo";
