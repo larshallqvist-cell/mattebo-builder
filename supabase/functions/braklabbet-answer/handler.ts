@@ -45,7 +45,7 @@ export async function handleAnswer(req: Request, deps: AnswerDeps): Promise<Resp
     if (!input) return json(400, { error: "invalid_answer" });
     const grade = gradeComparison(input.exercise_id, input.answer);
     if (!grade.valid) return json(400, { error: grade.error });
-    const saved = await deps.record(user.id, input, grade.correct);
+    const saved = await deps.record(user.id, input, grade.correct === true);
     if (saved.error || !saved.data) return json(503, { error: "answer_not_saved" });
     return json(200, { row: saved.data });
   } catch { return json(500, { error: "answer_not_saved" }); }
