@@ -31,3 +31,18 @@ describe("lab iframe gate", () => {
     expect(canShowLab(ready, a, true)).toBe(false);
   });
 });
+
+import { parseMissionMessage } from "../src/lib/braklabbetGate";
+describe("mission message validation", () => {
+  test("known mission accepted", () => {
+    expect(parseMissionMessage({ type: "braklabbet:mission-complete", mission: "extend-by-two" })).toBe("extend-by-two");
+  });
+  test("unknown mission, wrong type, extra keys and junk rejected", () => {
+    for (const d of [
+      { type: "braklabbet:mission-complete", mission: "hack" },
+      { type: "other", mission: "extend-by-two" },
+      { type: "braklabbet:mission-complete", mission: "extend-by-two", user_id: "x" },
+      "extend-by-two", null, [], 42,
+    ]) expect(parseMissionMessage(d)).toBe(null);
+  });
+});

@@ -48,3 +48,13 @@ Deno.test("manually denied school account is blocked", () => {
 Deno.test("existing admin is allowed with any account", () => {
   assertEquals(decideAccess(google("teacher@gmail.com"), true, null), { allowed: true, reason: "admin" });
 });
+
+Deno.test("lookalike domains are denied", () => {
+  for (const e of ["a@leteboskolan.com", "a@letebo-skolan.se", "a@leteboskolan.se.", "a@1eteboskolan.se"]) {
+    assertEquals(decideAccess(google(e), false, null).allowed, false, e);
+  }
+});
+
+Deno.test("admin who is also denied: admin wins (deliberate, so the teacher can never lock himself out)", () => {
+  assertEquals(decideAccess(google("teacher@gmail.com"), true, "denied"), { allowed: true, reason: "admin" });
+});
