@@ -51,3 +51,13 @@ Deno.test("denied school account gets 403", async () => {
   const r = await call(deps({ getAccessStatus: () => ok({ status: "denied" }) }));
   assertEquals([r.status, r.text.includes("LAB")], [403, false]);
 });
+
+Deno.test("signed-out request (no token) gets 401 without HTML", async () => {
+  const r = await handle(new Request("http://x", { method: "POST" }), deps());
+  assertEquals([r.status, (await r.text()).includes("LAB")], [401, false]);
+});
+
+Deno.test("invalid session gets 401 without HTML", async () => {
+  const r = await call(deps({ getUser: () => ok({ user: null }) }));
+  assertEquals([r.status, r.text.includes("LAB")], [401, false]);
+});

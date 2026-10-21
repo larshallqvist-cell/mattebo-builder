@@ -14,3 +14,16 @@ export const canShowLab = (
   currentKey: string | null,
   authLoading: boolean,
 ) => !authLoading && currentKey !== null && lab.kind === "ready" && lab.key === currentKey;
+
+/** Known mission IDs; must match the DB check constraint on braklabbet_progress. */
+export const KNOWN_MISSIONS = ["extend-by-two"] as const;
+
+/** Accepts only `{ type: "braklabbet:mission-complete", mission: <known id> }` with no extra keys. */
+export const parseMissionMessage = (data: unknown): string | null => {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  const keys = Object.keys(data).sort();
+  if (keys.length !== 2 || keys[0] !== "mission" || keys[1] !== "type") return null;
+  const { type, mission } = data as Record<string, unknown>;
+  if (type !== "braklabbet:mission-complete" || typeof mission !== "string") return null;
+  return (KNOWN_MISSIONS as readonly string[]).includes(mission) ? mission : null;
+};

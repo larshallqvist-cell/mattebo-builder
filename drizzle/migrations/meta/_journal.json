@@ -15,6 +15,13 @@
       "when": 1792599942992,
       "tag": "0001_create_braklabbet_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792601672962,
+      "tag": "0002_harden_braklabbet_progress",
+      "breakpoints": true
     }
   ]
 }

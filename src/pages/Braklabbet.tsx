@@ -5,7 +5,7 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PRIVATE_BRAKLABBET_URL } from "@/config/app";
-import { canShowLab, labAccountKey } from "@/lib/braklabbetGate";
+import { canShowLab, labAccountKey, parseMissionMessage } from "@/lib/braklabbetGate";
 
 type LabState =
   | { kind: "idle" }
@@ -87,10 +87,10 @@ const Braklabbet = () => {
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event.source !== iframeRef.current?.contentWindow) return;
-      const data = event.data as { type?: unknown; mission?: unknown } | null;
-      if (data?.type !== "braklabbet:mission-complete" || typeof data.mission !== "string" || !userId) return;
-      const missionId = data.mission;
+      const frame = iframeRef.current?.contentWindow;
+      if (!frame || event.source !== frame || !userId) return;
+      const missionId = parseMissionMessage(event.data);
+      if (!missionId) return;
       void supabase
         .from("braklabbet_progress")
         .upsert({ user_id: userId, mission_id: missionId }, { onConflict: "user_id,mission_id" })

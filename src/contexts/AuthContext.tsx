@@ -19,7 +19,9 @@ interface AuthContextType {
 
 export const POST_LOGIN_PATH_KEY = "mattebo_post_login_path";
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Reuse one context instance across hot reloads so provider and consumers never diverge.
+const globalCtx = globalThis as { __matteboAuthContext?: React.Context<AuthContextType | undefined> };
+const AuthContext = (globalCtx.__matteboAuthContext ??= createContext<AuthContextType | undefined>(undefined));
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
