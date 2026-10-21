@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ExternalLink, Loader2, LogIn, ShieldX } from "lucide-react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
@@ -24,6 +24,8 @@ const DENY_TEXT: Record<string, string> = {
 const Braklabbet = () => {
   const { user, loading, isAdmin, signInWithGoogle, signOut } = useAuth();
   const [lab, setLab] = useState<LabState>({ kind: "idle" });
+  const [missions, setMissions] = useState<string[]>([]);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const userId = user?.id ?? null;
   const accountKey = labAccountKey(userId, user?.email);
 
@@ -63,6 +65,48 @@ const Braklabbet = () => {
     };
   }, [accountKey]);
 
+  // The sandboxed lab iframe has no storage or tokens, so mission progress
+  // travels over postMessage: the parent owns persistence in braklabbet_progress.
+  useEffect(() => {
+    if (!userId) {
+      setMissions([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("braklabbet_progress")
+        .select("mission_id")
+        .eq("user_id", userId);
+      if (!cancelled) setMissions((data ?? []).map((r) => r.mission_id));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return;
+      const data = event.data as { type?: unknown; mission?: unknown } | null;
+      if (data?.type !== "braklabbet:mission-complete" || typeof data.mission !== "string" || !userId) return;
+      const missionId = data.mission;
+      void supabase
+        .from("braklabbet_progress")
+        .upsert({ user_id: userId, mission_id: missionId }, { onConflict: "user_id,mission_id" })
+        .then(({ error }) => {
+          if (!error) setMissions((prev) => (prev.includes(missionId) ? prev : [...prev, missionId]));
+        });
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [userId]);
+
+  // Send the saved missions whenever they load or the iframe (re)loads.
+  useEffect(() => {
+    iframeRef.current?.contentWindow?.postMessage({ type: "braklabbet:missions", completed: missions }, "*");
+  }, [missions]);
+
   const signedOut = !loading && !user;
 
   return (
@@ -99,8 +143,15 @@ const Braklabbet = () => {
       <main className="min-h-0 flex-1 px-2 pb-2 sm:px-3 sm:pb-3">
         {canShowLab(lab, accountKey, loading) && lab.kind === "ready" ? (
           <iframe
+            ref={iframeRef}
             key={lab.key}
             srcDoc={lab.html}
+            onLoad={() => {
+              iframeRef.current?.contentWindow?.postMessage(
+                { type: "braklabbet:missions", completed: missions },
+                "*",
+              );
+            }}
             title="Bråklabbet"
             sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
             className="lab-frame h-full w-full rounded-2xl"
