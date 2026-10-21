@@ -77,6 +77,47 @@ export type Database = {
         }
         Relationships: []
       }
+      braklabbet_attempts: {
+        Row: {
+          answer: string
+          answered_at: string
+          attempt_number: number
+          exercise_id: number
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          answered_at?: string
+          attempt_number: number
+          exercise_id: number
+          hint_used?: boolean
+          id: string
+          is_correct: boolean
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          answered_at?: string
+          attempt_number?: number
+          exercise_id?: number
+          hint_used?: boolean
+          id?: string
+          is_correct?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "braklabbet_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       braklabbet_progress: {
         Row: {
           completed_at: string
@@ -378,6 +419,32 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_braklabbet_attempt: {
+        Args: {
+          p_answer: string
+          p_exercise_id: number
+          p_hint_used: boolean
+          p_id: string
+          p_is_correct: boolean
+          p_user_id: string
+        }
+        Returns: {
+          answer: string
+          answered_at: string
+          attempt_number: number
+          exercise_id: number
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "braklabbet_attempts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
