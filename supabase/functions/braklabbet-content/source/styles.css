@@ -21,3 +21,12 @@
 .mission .button{margin-top:14px}
 .mission-more{margin-top:11px}
 @media (max-width:640px){.mission{padding:15px 16px}.mission-option{flex:1;justify-content:center}}
+.training{margin-top:24px;padding:25px 0;border-top:1px solid var(--line)}
+.training .panel-heading{margin-bottom:16px}.training-numbers{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.training-numbers button{min-width:44px;min-height:44px}.training-numbers [aria-current=step],.training .mission-option[aria-pressed=true]{color:var(--teal);border-color:var(--teal);background:var(--teal-light)}
+.training-question{margin-top:0}.training .mission-instruction{font-size:17px}.training .mission-instruction .fraction{font-size:23px}
+.training-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.training-actions .button{margin-top:0}
+.training-label{display:block;font-size:13px;color:var(--muted);margin:16px 0 8px}
+.training-input{width:100%;max-width:620px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);padding:12px;font:inherit}
+.training textarea{resize:vertical}.training-save{margin-top:15px;overflow-wrap:anywhere}
+@media(max-width:640px){.training-levels{display:flex;flex-wrap:wrap}.training-levels button{flex:1;padding:12px 8px}.training .mission-options .mission-option{min-width:80px}.training-actions .button{white-space:normal}}
