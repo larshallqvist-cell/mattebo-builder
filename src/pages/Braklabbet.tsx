@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ExternalLink, Loader2, LogIn, ShieldX } from "lucide-react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
@@ -24,6 +24,8 @@ const DENY_TEXT: Record<string, string> = {
 const Braklabbet = () => {
   const { user, loading, isAdmin, signInWithGoogle, signOut } = useAuth();
   const [lab, setLab] = useState<LabState>({ kind: "idle" });
+  const [missions, setMissions] = useState<string[]>([]);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const userId = user?.id ?? null;
   const accountKey = labAccountKey(userId, user?.email);
 
