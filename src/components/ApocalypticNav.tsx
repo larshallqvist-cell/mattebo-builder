@@ -76,6 +76,10 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
             <span className="sm:hidden">Labbet</span>
             <span className="hidden sm:inline">Bråklabbet</span>
           </Link>
+          <Link to="/tabelltestet" className="nav-link">
+            <span className="sm:hidden">Testet</span>
+            <span className="hidden sm:inline">Tabelltestet</span>
+          </Link>
           <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
             Om
           </a>
