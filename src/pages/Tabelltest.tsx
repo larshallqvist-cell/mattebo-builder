@@ -5,8 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
-  generateQuestions, isPassed, parseSpokenNumber,
-  QUESTION_COUNT, PASS_SCORE, PASS_AVG_MS, type TabellQuestion,
+  generateQuestions, isPassed, parseSpokenNumber, passAvgMs,
+  INPUT_MODE_LABELS, QUESTION_COUNT, PASS_SCORE,
+  type InputMode, type TabellQuestion,
 } from "@/lib/tabelltest";
 
 type Phase = "idle" | "running" | "done";
@@ -16,6 +17,7 @@ interface ResultRow {
   total: number;
   avg_time_ms: number;
   passed: boolean;
+  input_mode: InputMode;
   created_at: string;
 }
 
@@ -26,6 +28,7 @@ const Tabelltest = () => {
   const allowed = !!user && (isAdmin || accessStatus === "approved");
 
   const [phase, setPhase] = useState<Phase>("idle");
+  const [mode, setMode] = useState<InputMode>("voice");
   const [questions, setQuestions] = useState<TabellQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -50,7 +53,7 @@ const Tabelltest = () => {
     if (!user) return;
     const { data } = await supabase
       .from("tabelltest_results")
-      .select("score,total,avg_time_ms,passed,created_at")
+      .select("score,total,avg_time_ms,passed,input_mode,created_at")
       .eq("user_id", user.id)
       .order("passed", { ascending: false })
       .order("avg_time_ms", { ascending: true })
@@ -103,18 +106,19 @@ const Tabelltest = () => {
       setAvgMs(avg);
       setPhase("done");
       if (!user) return;
-      const passed = isPassed(finalScore, avg);
+      const passed = isPassed(finalScore, avg, mode);
       const { error } = await supabase.from("tabelltest_results").insert({
         user_id: user.id,
         score: finalScore,
         total: QUESTION_COUNT,
         avg_time_ms: avg,
         passed,
+        input_mode: mode,
       });
       if (error) setSaveError(true);
       else loadBest();
     },
-    [user, stopListening, loadBest],
+    [user, mode, stopListening, loadBest],
   );
 
   const submitAnswer = useCallback(
@@ -168,7 +172,7 @@ const Tabelltest = () => {
     setListening(true);
   };
 
-  const passed = isPassed(score, avgMs);
+  const passed = isPassed(score, avgMs, mode);
   const displayName = fullName || user?.email || "";
 
   if (loading) {
@@ -227,13 +231,37 @@ const Tabelltest = () => {
             <div className="mt-6 space-y-5 font-nunito">
               <p className="text-muted-foreground">
                 {QUESTION_COUNT} slumpvisa uppgifter ur tabellerna 2–9. Godkänt: minst{" "}
-                {PASS_SCORE} rätt på högst {formatTime(PASS_AVG_MS)} i snitt per uppgift.
+                {PASS_SCORE} rätt på högst {formatTime(passAvgMs(mode))} i snitt per uppgift.
               </p>
-              {speechSupported && (
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-foreground">Välj hur du vill svara:</p>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <Button
+                    type="button"
+                    variant={mode === "voice" ? "default" : "outline"}
+                    onClick={() => setMode("voice")}
+                    disabled={!speechSupported}
+                    className="gap-2 font-nunito"
+                  >
+                    <Mic className="h-4 w-4" /> Röst ({formatTime(passAvgMs("voice"))})
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={mode === "keyboard" ? "default" : "outline"}
+                    onClick={() => setMode("keyboard")}
+                    className="font-nunito"
+                  >
+                    Tangentbord ({formatTime(passAvgMs("keyboard"))})
+                  </Button>
+                </div>
                 <p className="text-sm text-muted-foreground">
-                  Svara med rösten via mikrofonen, eller skriv svaret med tangentbordet.
+                  {mode === "voice"
+                    ? speechSupported
+                      ? "Säg svaren i mikrofonen. Tangentbordet fungerar som backup."
+                      : "Röstinmatning stöds inte i den här webbläsaren – välj tangentbord."
+                    : "Skriv svaren med siffrorna på tangentbordet."}
                 </p>
-              )}
+              </div>
               {best && (
                 <p className="inline-flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-accent">
                   <Trophy className="h-4 w-4" />
@@ -252,7 +280,8 @@ const Tabelltest = () => {
           {phase === "running" && q && (
             <div className="mt-6 space-y-6">
               <p className="font-nunito text-sm text-muted-foreground">
-                Uppgift {index + 1} av {questions.length}
+                Uppgift {index + 1} av {questions.length} · {INPUT_MODE_LABELS[mode]} · gräns{" "}
+                {formatTime(passAvgMs(mode))}
               </p>
               <p className="font-orbitron text-5xl font-bold text-foreground sm:text-6xl">
                 {q.a} × {q.b}
@@ -268,7 +297,7 @@ const Tabelltest = () => {
                   aria-label="Ditt svar"
                   className="w-32 rounded-2xl border border-primary/30 bg-background/60 px-4 py-3 text-center font-orbitron text-3xl text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                 />
-                {speechSupported && (
+                {speechSupported && mode === "voice" && (
                   <Button
                     type="button"
                     variant={listening ? "destructive" : "outline"}
@@ -302,12 +331,13 @@ const Tabelltest = () => {
                 {passed ? "Godkänt!" : "Inte godkänt än"}
               </p>
               <p className="text-lg text-foreground">
-                {score} av {QUESTION_COUNT} rätt · snittid {formatTime(avgMs)}
+                {score} av {QUESTION_COUNT} rätt · snittid {formatTime(avgMs)} ·{" "}
+                {INPUT_MODE_LABELS[mode]}
               </p>
               <p className="text-sm text-muted-foreground">
                 {passed
                   ? "Bra jobbat! Resultatet är sparat. Gör gärna ett nytt försök för att förbättra din tid."
-                  : `Du behöver minst ${PASS_SCORE} rätt på högst ${formatTime(PASS_AVG_MS)} i snitt. Försök igen!`}
+                  : `Du behöver minst ${PASS_SCORE} rätt på högst ${formatTime(passAvgMs(mode))} i snitt. Försök igen!`}
               </p>
               {saveError && (
                 <p className="text-sm text-destructive">

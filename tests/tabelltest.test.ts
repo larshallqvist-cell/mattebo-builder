@@ -1,7 +1,8 @@
 import { test, expect } from "bun:test";
 import {
-  generateQuestions, isPassed, parseSpokenNumber,
-  QUESTION_COUNT, TABLE_MIN, TABLE_MAX, FACTOR_MAX, PASS_SCORE, PASS_AVG_MS,
+  generateQuestions, isPassed, parseSpokenNumber, passAvgMs,
+  QUESTION_COUNT, TABLE_MIN, TABLE_MAX, FACTOR_MAX, PASS_SCORE,
+  PASS_AVG_MS_VOICE, PASS_AVG_MS_KEYBOARD,
 } from "../src/lib/tabelltest";
 
 test("20 unika uppgifter ur tabellerna 2-9 med faktorer 1-10", () => {
@@ -23,9 +24,24 @@ test("godkänt kräver minst 18 av 20 rätt", () => {
   expect(isPassed(PASS_SCORE - 1, 1500)).toBe(false);
 });
 
-test("godkänt kräver snittid högst 2,0 sekunder", () => {
-  expect(isPassed(20, PASS_AVG_MS)).toBe(true);
-  expect(isPassed(20, PASS_AVG_MS + 1)).toBe(false);
+test("tidsgränsen är 2,0 s för röst och 3,0 s för tangentbord", () => {
+  expect(passAvgMs("voice")).toBe(2000);
+  expect(passAvgMs("keyboard")).toBe(3000);
+});
+
+test("röstläge: godkänt kräver snittid högst 2,0 sekunder", () => {
+  expect(isPassed(20, PASS_AVG_MS_VOICE, "voice")).toBe(true);
+  expect(isPassed(20, PASS_AVG_MS_VOICE + 1, "voice")).toBe(false);
+});
+
+test("tangentbordsläge: godkänt kräver snittid högst 3,0 sekunder", () => {
+  expect(isPassed(20, PASS_AVG_MS_KEYBOARD, "keyboard")).toBe(true);
+  expect(isPassed(20, PASS_AVG_MS_KEYBOARD + 1, "keyboard")).toBe(false);
+});
+
+test("2,5 s i snitt räcker för tangentbord men inte för röst", () => {
+  expect(isPassed(20, 2500, "keyboard")).toBe(true);
+  expect(isPassed(20, 2500, "voice")).toBe(false);
 });
 
 test("röstinmatning tolkar siffror och svenska talord", () => {
