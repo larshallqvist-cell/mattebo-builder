@@ -1,0 +1,1 @@
+ALTER POLICY "Read own fraction answers or admin overview" ON public.braklabbet_attempts USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = auth.uid() AND ur.role = 'admin'::public.app_role));

@@ -29,6 +29,13 @@
       "when": 1792617211703,
       "tag": "0003_braklabbet_comparison_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792697354656,
+      "tag": "0004_braklabbet_attempts_admin_policy",
+      "breakpoints": true
     }
   ]
 }
