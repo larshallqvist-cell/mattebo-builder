@@ -7,4 +7,4 @@
 - [x] Lägg till de 20 bifogade originaluppgifterna i elevlabbet utan att ändra befintliga funktioner
 - [x] Spara och kontrollera privata elevresultat samt läraröversikt
 - [x] Kontrollera alla 20 facit och verifiera träningen och sparningen
-- [ ] Tabelltestet: bygga sida, röstinmatning, resultatsparning, adminlista och headerlänk
+- [x] Tabelltestet: sida, röstinmatning, resultatsparning, adminlista och headerlänk
