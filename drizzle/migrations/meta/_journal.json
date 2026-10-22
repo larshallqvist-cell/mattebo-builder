@@ -43,6 +43,13 @@
       "when": 1792708595429,
       "tag": "0005_create_tabelltest_results",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792709286990,
+      "tag": "0006_tabelltest_input_mode",
+      "breakpoints": true
     }
   ]
 }

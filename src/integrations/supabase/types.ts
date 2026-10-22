@@ -362,6 +362,7 @@ export type Database = {
           avg_time_ms: number
           created_at: string
           id: string
+          input_mode: string
           passed: boolean
           score: number
           total: number
@@ -371,6 +372,7 @@ export type Database = {
           avg_time_ms: number
           created_at?: string
           id?: string
+          input_mode?: string
           passed: boolean
           score: number
           total?: number
@@ -380,6 +382,7 @@ export type Database = {
           avg_time_ms?: number
           created_at?: string
           id?: string
+          input_mode?: string
           passed?: boolean
           score?: number
           total?: number
