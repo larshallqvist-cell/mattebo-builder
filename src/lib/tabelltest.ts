@@ -1,12 +1,26 @@
 // Tabelltestet: multiplikationstabellerna 2-9, 20 slumpvisa uppgifter.
-// Godkänt = minst 18 rätt OCH högst 2,0 s i snitt per uppgift.
+// Godkänt = minst 18 rätt OCH tillräckligt snabb snittid per uppgift.
+// Tidsgränsen beror på inmatningssätt: röst 2,0 s, tangentbord 3,0 s.
 
 export const TABLE_MIN = 2;
 export const TABLE_MAX = 9;
 export const FACTOR_MAX = 10;
 export const QUESTION_COUNT = 20;
 export const PASS_SCORE = 18;
-export const PASS_AVG_MS = 2000;
+export const PASS_AVG_MS_VOICE = 2000;
+export const PASS_AVG_MS_KEYBOARD = 3000;
+
+export type InputMode = "voice" | "keyboard";
+
+export const INPUT_MODE_LABELS: Record<InputMode, string> = {
+  voice: "Röst",
+  keyboard: "Tangentbord",
+};
+
+/** Tidsgräns i millisekunder för godkänt snitt, per inmatningssätt. */
+export function passAvgMs(mode: InputMode): number {
+  return mode === "keyboard" ? PASS_AVG_MS_KEYBOARD : PASS_AVG_MS_VOICE;
+}
 
 export interface TabellQuestion {
   a: number;
@@ -29,9 +43,9 @@ export function generateQuestions(rand: () => number = Math.random): TabellQuest
   return all.slice(0, QUESTION_COUNT);
 }
 
-/** Godkänt kräver både tillräckligt många rätt och tillräckligt snabba svar. */
-export function isPassed(score: number, avgTimeMs: number): boolean {
-  return score >= PASS_SCORE && avgTimeMs <= PASS_AVG_MS;
+/** Godkänt kräver både tillräckligt många rätt och tillräckligt snabba svar för valt inmatningssätt. */
+export function isPassed(score: number, avgTimeMs: number, mode: InputMode = "voice"): boolean {
+  return score >= PASS_SCORE && avgTimeMs <= passAvgMs(mode);
 }
 
 const ONES: Record<string, number> = {

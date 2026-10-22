@@ -10,6 +10,7 @@ interface Row {
   total: number;
   avg_time_ms: number;
   passed: boolean;
+  input_mode: "voice" | "keyboard";
   created_at: string;
   profiles: { full_name: string | null; email: string | null } | null;
 }
@@ -26,7 +27,7 @@ const TabelltestResults = () => {
     (async () => {
       const { data, error: err } = await supabase
         .from("tabelltest_results")
-        .select("user_id,score,total,avg_time_ms,passed,created_at,profiles(full_name,email)")
+        .select("user_id,score,total,avg_time_ms,passed,input_mode,created_at,profiles(full_name,email)")
         .order("created_at", { ascending: false });
       if (err) setError(true);
       else setRows((data ?? []) as unknown as Row[]);
@@ -59,6 +60,7 @@ const TabelltestResults = () => {
               <TableHead>E-post</TableHead>
               <TableHead>Bästa resultat</TableHead>
               <TableHead>Snittid</TableHead>
+              <TableHead>Läge</TableHead>
               <TableHead>Datum</TableHead>
             </TableRow>
           </TableHeader>
@@ -69,6 +71,7 @@ const TabelltestResults = () => {
                 <TableCell>{r.profiles?.email || "—"}</TableCell>
                 <TableCell>{r.score}/{r.total}</TableCell>
                 <TableCell>{formatTime(r.avg_time_ms)}</TableCell>
+                <TableCell>{r.input_mode === "keyboard" ? "Tangentbord" : "Röst"}</TableCell>
                 <TableCell>{new Date(r.created_at).toLocaleDateString("sv-SE")}</TableCell>
               </TableRow>
             ))}
