@@ -357,6 +357,44 @@ export type Database = {
           },
         ]
       }
+      tabelltest_results: {
+        Row: {
+          avg_time_ms: number
+          created_at: string
+          id: string
+          passed: boolean
+          score: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          avg_time_ms: number
+          created_at?: string
+          id?: string
+          passed: boolean
+          score: number
+          total?: number
+          user_id: string
+        }
+        Update: {
+          avg_time_ms?: number
+          created_at?: string
+          id?: string
+          passed?: boolean
+          score?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tabelltest_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
