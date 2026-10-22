@@ -1,3 +1,4 @@
+// GENERATED from protected lab source by build-braklabbet-content.mjs
 // Original pilot questions and answer keys supplied by Lasse, 21 October 2026.
 export const comparisonExercises = [
  {id:1, prompt:'Vilket är störst: 1/4 eller 3/4?', kind:'choice', options:['1/4','3/4'], key:'3/4', explanation:'Samma nämnare, större täljare.', hint:'När delarna är lika stora: jämför antalet delar.'},
