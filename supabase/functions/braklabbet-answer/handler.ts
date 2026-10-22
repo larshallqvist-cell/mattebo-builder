@@ -1,5 +1,5 @@
-import { decideAccess, type UserLike } from "../braklabbet-content/access.ts";
-import { gradeComparison } from "../braklabbet-content/source/comparison-exercises.js";
+import { decideAccess, type UserLike } from "../_shared/braklabbet-access.ts";
+import { gradeComparison } from "../_shared/braklabbet-exercises.js";
 
 type Result<T> = { data: T | null; error: unknown };
 export type AnswerInput = { request_id: string; exercise_id: number; answer: string; hint_used: boolean };

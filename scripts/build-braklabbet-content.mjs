@@ -6,6 +6,7 @@ const read = (f) => readFileSync(new URL("source/" + f, dir), "utf8");
 const math = read("math.js").replace(/^export\s+/gm, "");
 const app = read("app.js").replace(/^import\s*\{[^}]*\}\s*from\s*['"]\.\/math\.js['"];?\s*$/m, "");
 const exercises = read("comparison-exercises.js").replace(/^export\s+/gm, "");
+writeFileSync(new URL("../_shared/braklabbet-exercises.js", dir), "// GENERATED from protected lab source by build-braklabbet-content.mjs\n" + read("comparison-exercises.js"));
 const training = read("training.js").replace(/^import[^\n]*\n/, "");
 if (/^\s*(import|export)\s/m.test(math + app + exercises + training)) throw new Error("module syntax left in bundle");
 const csp = "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'";
