@@ -51,7 +51,7 @@ const TabelltestResults = () => {
   // Elever som behöver övning först: icke godkänt senast, sedan äldst senaste försök.
   const latestList = [...latest.values()].sort((a, b) => {
     if (a.passed !== b.passed) return a.passed ? 1 : -1;
-    return new Date(a.created_at) - new Date(b.created_at);
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
 
   return (
