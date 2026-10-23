@@ -24,17 +24,17 @@ test("godkänt kräver minst 18 av 20 rätt", () => {
   expect(isPassed(PASS_SCORE - 1, 1500)).toBe(false);
 });
 
-test("tidsgränsen är 2,0 s för röst och 3,0 s för tangentbord", () => {
-  expect(passAvgMs("voice")).toBe(2000);
-  expect(passAvgMs("keyboard")).toBe(3000);
+test("tidsgränsen är 1,7 s för röst och 2,7 s för tangentbord", () => {
+  expect(passAvgMs("voice")).toBe(1700);
+  expect(passAvgMs("keyboard")).toBe(2700);
 });
 
-test("röstläge: godkänt kräver snittid högst 2,0 sekunder", () => {
+test("röstläge: godkänt kräver snittid högst 1,7 sekunder", () => {
   expect(isPassed(20, PASS_AVG_MS_VOICE, "voice")).toBe(true);
   expect(isPassed(20, PASS_AVG_MS_VOICE + 1, "voice")).toBe(false);
 });
 
-test("tangentbordsläge: godkänt kräver snittid högst 3,0 sekunder", () => {
+test("tangentbordsläge: godkänt kräver snittid högst 2,7 sekunder", () => {
   expect(isPassed(20, PASS_AVG_MS_KEYBOARD, "keyboard")).toBe(true);
   expect(isPassed(20, PASS_AVG_MS_KEYBOARD + 1, "keyboard")).toBe(false);
 });
