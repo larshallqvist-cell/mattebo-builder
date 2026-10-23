@@ -300,6 +300,24 @@ const Tabelltest = () => {
                       : "Röstinmatning stöds inte i den här webbläsaren – välj tangentbord."
                     : "Skriv svaren med siffrorna på tangentbordet."}
                 </p>
+                {mode === "voice" && speechSupported && (
+                  micReady ? (
+                    <p className="text-sm text-accent" role="status">Mikrofonen är klar att användas.</p>
+                  ) : micDenied ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-sm text-destructive">
+                        Mikrofonen är blockerad. Tillåt mikrofon för mattebo.com i webbläsaren och försök igen.
+                      </p>
+                      <Button type="button" variant="outline" onClick={retryMicPermission} className="font-nunito">
+                        Försök igen
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground" role="status">
+                      Frågar efter mikrofon… tillåt den om webbläsaren frågar.
+                    </p>
+                  )
+                )}
               </div>
               {best && (
                 <p className="inline-flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-accent">
