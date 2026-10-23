@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Undersök första röstsvar som försvinner och rätta bekräftade tapp i röstflödet
+
 - [x] Rätta röstsvar som fastnar och återanslut när webbläsaren slutar lyssna
 
 - [x] Korta väntan vid röstsvar i Tabelltestet och kontrollera sena dubbelsvar
