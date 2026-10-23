@@ -49,6 +49,11 @@ async def main():
         await page.get_by_role("button", name="Stoppa röstinmatning", exact=True).wait_for()
         assert await page.evaluate("window.testRecognition.interimResults") is True
         for i in range(20):
+            if i == 5:
+                await page.evaluate("window.testRecognition.onend()")
+                await page.wait_for_function("window.recognitionStarts === 2")
+                await page.evaluate("window.voiceResults = []")
+            utterance = i if i < 5 else i - 5
             progress = await page.locator("p").filter(has_text="Uppgift ").inner_text()
             assert progress.startswith(f"Uppgift {i + 1} av 20"), progress
             question = await page.locator("p").filter(has_text=" × ").inner_text()
@@ -57,10 +62,10 @@ async def main():
             await page.evaluate("""([index, answer]) => {
                 window.voiceResults ??= [];
                 const result = [{transcript: String(answer)}];
-                result.isFinal = answer >= 20 && answer % 10 === 0;
+                result.isFinal = false;
                 window.voiceResults[index] = result;
                 window.testRecognition.onresult({resultIndex:index, results:window.voiceResults});
-            }""", [i, value])
+            }""", [utterance, value])
             if i < 19:
                 await page.get_by_text(f"Uppgift {i + 2} av 20", exact=False).wait_for()
             else:
@@ -69,7 +74,7 @@ async def main():
             await page.evaluate("""index => {
                 window.voiceResults[index].isFinal = true;
                 window.testRecognition.onresult({resultIndex:index, results:window.voiceResults});
-            }""", i)
+            }""", utterance)
         await page.get_by_text("20 av 20 rätt", exact=False).wait_for()
         await page.get_by_role("button", name="Försök igen").wait_for()
         await page.wait_for_timeout(200)
@@ -77,7 +82,7 @@ async def main():
         assert writes[0]["score"] == 20
         assert writes[0]["total"] == 20
         assert writes[0]["input_mode"] == "voice"
-        assert await page.evaluate("window.recognitionStarts") == 1
+        assert await page.evaluate("window.recognitionStarts") == 2
         os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
         await page.screenshot(path="/tmp/browser/voice-latency/after.png")
         print("PASS: stable interim answers and delayed finals advance 20 questions exactly once, with one 20/20 voice result")
