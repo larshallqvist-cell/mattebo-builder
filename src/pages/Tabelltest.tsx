@@ -40,6 +40,9 @@ const Tabelltest = () => {
   const [fullName, setFullName] = useState("");
   const [listening, setListening] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [micReady, setMicReady] = useState(false);
+  const [micDenied, setMicDenied] = useState(false);
+  const [micRequestKey, setMicRequestKey] = useState(0);
 
   const timesRef = useRef<number[]>([]);
   const questionStartRef = useRef(0);
@@ -51,6 +54,31 @@ const Tabelltest = () => {
   const speechSupported =
     typeof window !== "undefined" &&
     ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+
+  // Ask for mic permission as soon as the page is open, so the browser
+  // prompt appears before the test instead of during the first question.
+  useEffect(() => {
+    if (!user || !allowed || !speechSupported) return;
+    let stream: MediaStream | null = null;
+    navigator.mediaDevices
+      ?.getUserMedia({ audio: true })
+      .then((s) => {
+        stream = s;
+        setMicReady(true);
+        setMicDenied(false);
+      })
+      .catch(() => {
+        setMicReady(false);
+        setMicDenied(true);
+      })
+      .finally(() => stream?.getTracks().forEach((t) => t.stop()));
+  }, [user, allowed, speechSupported, micRequestKey]);
+
+  const retryMicPermission = () => {
+    setMicReady(false);
+    setMicDenied(false);
+    setMicRequestKey((k) => k + 1);
+  };
 
   const loadBest = useCallback(async () => {
     if (!user) return;
