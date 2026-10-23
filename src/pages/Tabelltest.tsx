@@ -4,6 +4,7 @@ import { ArrowLeft, LogIn, Mic, MicOff, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import MicrophoneMeter from "@/components/MicrophoneMeter";
 import {
   generateQuestions, isPassed, parseSpokenNumber, passAvgMs,
   INPUT_MODE_LABELS, QUESTION_COUNT, PASS_SCORE,
@@ -304,7 +305,8 @@ const Tabelltest = () => {
                   className="w-32 rounded-2xl border border-primary/30 bg-background/60 px-4 py-3 text-center font-orbitron text-3xl text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                 />
                 {speechSupported && mode === "voice" && (
-                  <Button
+                  <div className="flex w-16 flex-shrink-0 flex-col items-center gap-1">
+                    <Button
                     type="button"
                     variant={listening ? "destructive" : "outline"}
                     size="icon"
@@ -313,7 +315,9 @@ const Tabelltest = () => {
                     aria-label={listening ? "Stoppa röstinmatning" : "Svara med rösten"}
                   >
                     {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-                  </Button>
+                    </Button>
+                    <MicrophoneMeter active={listening} />
+                  </div>
                 )}
               </div>
               {listening && (

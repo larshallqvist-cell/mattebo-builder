@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- Microphone level meters analyze live audio locally through Web Audio only while voice input is active, stopping tracks and closing the audio context on stop/unmount; never record or upload meter audio.
+
 - Cache quota-limited Google Sheets reads in the server-only `google_sheet_cache` table; frontend clients must never access this cache or connector credentials.
 - The private teacher Bråklabbet is a separate owner-only app; reach it only as an external admin link via `PRIVATE_BRAKLABBET_URL`, never embed that URL, so its own access rules stay in charge.
 - The student Bråklabbet (owner-authorized copy of the generic lab) lives only in `supabase/functions/braklabbet-content/source/`, bundled by `scripts/build-braklabbet-content.mjs` into `content.ts` and served only after server-side checks in `access.ts`; `/braklabbet` renders it in a sandboxed `srcDoc` iframe without `allow-same-origin` or tokens, so it is never a public asset. Mission progress cannot live inside that sandbox; the iframe reports completions over `postMessage` and `src/pages/Braklabbet.tsx` persists them in `public.braklabbet_progress` (RLS: own rows only), never by passing tokens into the iframe.
