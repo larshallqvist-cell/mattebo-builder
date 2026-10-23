@@ -43,6 +43,8 @@ const Tabelltest = () => {
   const [micReady, setMicReady] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const [micRequestKey, setMicRequestKey] = useState(0);
+  const [heard, setHeard] = useState("");
+  const [voiceStatus, setVoiceStatus] = useState("");
 
   const timesRef = useRef<number[]>([]);
   const questionStartRef = useRef(0);
@@ -50,6 +52,8 @@ const Tabelltest = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const voiceHandlerRef = useRef<ReturnType<typeof createVoiceAnswerHandler> | null>(null);
+  const voiceWantedRef = useRef(false);
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const speechSupported =
     typeof window !== "undefined" &&
@@ -94,6 +98,8 @@ const Tabelltest = () => {
   }, [user, loadBest]);
 
   const stopListening = useCallback(() => {
+    voiceWantedRef.current = false;
+    clearTimeout(restartTimerRef.current);
     voiceHandlerRef.current?.stop();
     voiceHandlerRef.current = null;
     recognitionRef.current?.stop();
@@ -112,6 +118,8 @@ const Tabelltest = () => {
     scoreRef.current = 0;
     timesRef.current = [];
     setSaveError(false);
+    setHeard("");
+    setVoiceStatus("");
     setPhase("running");
     questionStartRef.current = performance.now();
     if (mode === "voice" && speechSupported && !listening) toggleListening();
@@ -172,12 +180,16 @@ const Tabelltest = () => {
   }, [submitAnswer]);
 
   const toggleListening = () => {
-    if (listening) {
+    if (voiceWantedRef.current) {
       stopListening();
       return;
     }
     const Ctor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
     if (!Ctor) return;
+    voiceWantedRef.current = true;
+    let restarts = 0;
+    const connect = () => {
+    if (!voiceWantedRef.current) return;
     const rec = new Ctor();
     rec.lang = "sv-SE";
     rec.continuous = true;
@@ -185,13 +197,30 @@ const Tabelltest = () => {
     const handler = createVoiceAnswerHandler((number) => {
       setAnswer(String(number));
       submitAnswerRef.current(String(number));
-    });
+    }, setHeard);
     voiceHandlerRef.current = handler;
-    rec.onresult = handler.handle;
-    rec.onerror = () => stopListening();
+    rec.onresult = (event: Parameters<typeof handler.handle>[0]) => {
+      restarts = 0;
+      handler.handle(event);
+    };
+    rec.onstart = () => setVoiceStatus("");
+    rec.onerror = (event: { error: string }) => {
+      if (event.error === "no-speech") return;
+      stopListening();
+      setVoiceStatus(event.error === "not-allowed" || event.error === "service-not-allowed"
+        ? "Röstinmatningen saknar tillstånd. Tillåt mikrofonen och tryck på mikrofonknappen."
+        : "Röstinmatningen avbröts. Tryck på mikrofonknappen för att försöka igen.");
+    };
     rec.onend = () => {
       handler.stop();
-      setListening(false);
+      if (!voiceWantedRef.current) return;
+      if (restarts >= 3) {
+        stopListening();
+        setVoiceStatus("Röstinmatningen kunde inte återansluta. Tryck på mikrofonknappen för att försöka igen.");
+        return;
+      }
+      setVoiceStatus("Återansluter röstinmatningen…");
+      restartTimerRef.current = setTimeout(connect, 300 * 2 ** restarts++);
     };
     recognitionRef.current = rec;
     try {
@@ -199,8 +228,10 @@ const Tabelltest = () => {
       setListening(true);
     } catch {
       stopListening();
-      setMicDenied(true);
+      setVoiceStatus("Röstinmatningen kunde inte starta. Tryck på mikrofonknappen för att försöka igen.");
     }
+    };
+    connect();
   };
 
   const passed = isPassed(score, avgMs, mode);
@@ -361,6 +392,8 @@ const Tabelltest = () => {
                   Lyssnar… säg svaret.
                 </p>
               )}
+              {heard && <p className="font-nunito text-sm text-muted-foreground" aria-live="polite">Hörde: {heard}</p>}
+              {voiceStatus && <p className="font-nunito text-sm text-destructive" role="status">{voiceStatus}</p>}
               <Button size="lg" onClick={() => submitAnswer(answer)} className="font-nunito">
                 Svara
               </Button>

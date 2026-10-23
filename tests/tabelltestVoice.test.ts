@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { createVoiceAnswerHandler, VOICE_STABILITY_MS } from "../src/lib/tabelltestVoice";
+import { createVoiceAnswerHandler, VOICE_STABILITY_MS, VOICE_TENS_STABILITY_MS } from "../src/lib/tabelltestVoice";
 
 const result = (transcript: string, isFinal: boolean) => Object.assign([{ transcript }], { isFinal });
 const wait = () => new Promise((resolve) => setTimeout(resolve, VOICE_STABILITY_MS + 60));
@@ -72,4 +72,15 @@ test("stopping cancels queued answers and ignores later events", async () => {
   await wait();
   handler.handle({ results: [result("42", true)] });
   expect(answers).toEqual([]);
+});
+
+test("a whole ten is accepted even when the browser never sends final", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("fyrtio", false)] });
+  await new Promise((resolve) => setTimeout(resolve, VOICE_TENS_STABILITY_MS + 60));
+  expect(answers).toEqual([40]);
+  handler.handle({ results: [result("fyrtio", true)] });
+  expect(answers).toEqual([40]);
+  handler.stop();
 });
