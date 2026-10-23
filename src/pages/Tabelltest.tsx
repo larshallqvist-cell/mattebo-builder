@@ -52,6 +52,7 @@ const Tabelltest = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const voiceHandlerRef = useRef<ReturnType<typeof createVoiceAnswerHandler> | null>(null);
+  const voiceHandlersRef = useRef(new Set<ReturnType<typeof createVoiceAnswerHandler>>());
   const voiceWantedRef = useRef(false);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -100,7 +101,8 @@ const Tabelltest = () => {
   const stopListening = useCallback(() => {
     voiceWantedRef.current = false;
     clearTimeout(restartTimerRef.current);
-    voiceHandlerRef.current?.stop();
+    voiceHandlersRef.current.forEach((handler) => handler.stop());
+    voiceHandlersRef.current.clear();
     voiceHandlerRef.current = null;
     recognitionRef.current?.stop();
     recognitionRef.current = null;
@@ -199,6 +201,7 @@ const Tabelltest = () => {
       submitAnswerRef.current(String(number));
     }, setHeard);
     voiceHandlerRef.current = handler;
+    voiceHandlersRef.current.add(handler);
     rec.onresult = (event: Parameters<typeof handler.handle>[0]) => {
       restarts = 0;
       handler.handle(event);
@@ -212,7 +215,7 @@ const Tabelltest = () => {
         : "Röstinmatningen avbröts. Tryck på mikrofonknappen för att försöka igen.");
     };
     rec.onend = () => {
-      handler.stop();
+      handler.end();
       if (!voiceWantedRef.current) return;
       if (restarts >= 3) {
         stopListening();

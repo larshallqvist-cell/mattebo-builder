@@ -66,6 +66,9 @@ async def main():
                 window.voiceResults[index] = result;
                 window.testRecognition.onresult({resultIndex:index, results:window.voiceResults});
             }""", [utterance, value])
+            if i == 19:
+                # A browser ending after interim must not discard the final answer.
+                await page.evaluate("window.testRecognition.onend()")
             if i < 19:
                 await page.get_by_text(f"Uppgift {i + 2} av 20", exact=False).wait_for()
             else:
@@ -82,7 +85,7 @@ async def main():
         assert writes[0]["score"] == 20
         assert writes[0]["total"] == 20
         assert writes[0]["input_mode"] == "voice"
-        assert await page.evaluate("window.recognitionStarts") == 2
+        assert await page.evaluate("window.recognitionStarts") in (2, 3)
         os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
         await page.screenshot(path="/tmp/browser/voice-latency/after.png")
         print("PASS: stable interim answers and delayed finals advance 20 questions exactly once, with one 20/20 voice result")

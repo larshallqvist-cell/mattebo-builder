@@ -2,6 +2,7 @@
 
 - Microphone level meters analyze live audio locally through Web Audio only while voice input or the pre-test microphone check is active, stopping tracks and closing the audio context on stop/unmount; never record or upload meter audio. Tabelltestet keeps the same meter mounted from pre-test checking into the test and starts speech recognition on the Start click, so permission and audio levels can be checked before timing begins.
 - Tabelltestet restarts unexpectedly ended speech sessions with bounded backoff and a fresh utterance handler; explicit stops and terminal recognition errors never restart, preventing silent loss of listening without retry loops. Stable tens use a longer finite debounce to allow compounds without waiting indefinitely for browser final results.
+- Natural speech-session endings retain the last pending candidate's original debounce; explicit stops cancel all session handlers, including those draining during reconnection. Transcript feedback includes consumed-result revisions without grading them again, keeping browser output visible without duplicate answers.
 
 - Cache quota-limited Google Sheets reads in the server-only `google_sheet_cache` table; frontend clients must never access this cache or connector credentials.
 - The private teacher Bråklabbet is a separate owner-only app; reach it only as an external admin link via `PRIVATE_BRAKLABBET_URL`, never embed that URL, so its own access rules stay in charge.
