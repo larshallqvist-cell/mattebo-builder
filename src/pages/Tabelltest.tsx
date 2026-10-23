@@ -145,6 +145,12 @@ const Tabelltest = () => {
     [phase, questions, index, finish],
   );
 
+  // Continuous recognition outlives each question's callback.
+  const submitAnswerRef = useRef(submitAnswer);
+  useEffect(() => {
+    submitAnswerRef.current = submitAnswer;
+  }, [submitAnswer]);
+
   const toggleListening = () => {
     if (listening) {
       stopListening();
@@ -162,7 +168,7 @@ const Tabelltest = () => {
       const number = parseSpokenNumber(transcript);
       if (number != null) {
         setAnswer(String(number));
-        submitAnswer(String(number));
+        submitAnswerRef.current(String(number));
       }
     };
     rec.onerror = () => stopListening();
