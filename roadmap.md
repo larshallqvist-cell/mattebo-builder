@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Rätta röstsvar som fastnar och återanslut när webbläsaren slutar lyssna
+
 - [x] Korta väntan vid röstsvar i Tabelltestet och kontrollera sena dubbelsvar
 
 - [x] Kontrollera och rätta fastnad röstinmatning i Tabelltestet

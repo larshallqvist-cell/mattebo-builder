@@ -1,6 +1,7 @@
 import { parseSpokenNumber } from "./tabelltest";
 
 export const VOICE_STABILITY_MS = 400;
+export const VOICE_TENS_STABILITY_MS = 800;
 
 interface SpeechResult {
   isFinal?: boolean;
@@ -13,7 +14,7 @@ export interface SpeechResultsEvent {
 }
 
 /** One submission per utterance, including when its final result arrives later. */
-export function createVoiceAnswerHandler(submit: (answer: number) => void) {
+export function createVoiceAnswerHandler(submit: (answer: number) => void, onHeard?: (text: string) => void) {
   const consumed = new Set<number>();
   let pending: { index: number; value: number } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -38,6 +39,7 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void) {
       for (let index = event.resultIndex ?? 0; index < event.results.length; index++) {
         if (consumed.has(index)) continue;
         const result = event.results[index];
+        onHeard?.(result?.[0]?.transcript ?? "");
         const value = parseSpokenNumber(result?.[0]?.transcript ?? "");
         if (value == null) {
           if (pending?.index === index) cancelPending();
@@ -47,15 +49,12 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void) {
           accept(index, value);
           return;
         }
-        // "fyrtio" can still become "fyrtio två": wait for final on tens.
-        if (value >= 20 && value % 10 === 0) {
-          if (pending?.index === index) cancelPending();
-          continue;
-        }
+        // Give compound numbers longer to settle, but never wait forever for final.
+        const delay = value >= 20 && value % 10 === 0 ? VOICE_TENS_STABILITY_MS : VOICE_STABILITY_MS;
         if (pending?.index === index && pending.value === value) return;
         cancelPending();
         pending = { index, value };
-        timer = setTimeout(() => accept(index, value), VOICE_STABILITY_MS);
+        timer = setTimeout(() => accept(index, value), delay);
         return;
       }
     },
