@@ -197,7 +197,7 @@ const Admin = () => {
           <BraklabbetResults />
         </CollapsibleAdminSection>
 
-        <CollapsibleAdminSection title="Tabelltestet – godkända elever" icon={<ClipboardList className="w-5 h-5" />}>
+        <CollapsibleAdminSection title="Tabelltestet – resultat" icon={<ClipboardList className="w-5 h-5" />}>
           <TabelltestResults />
         </CollapsibleAdminSection>
 
