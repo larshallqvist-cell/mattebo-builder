@@ -392,7 +392,14 @@ const Tabelltest = () => {
                   Lyssnar… säg svaret.
                 </p>
               )}
-              {heard && <p className="font-nunito text-sm text-muted-foreground" aria-live="polite">Hörde: {heard}</p>}
+              {mode === "voice" && (
+                <div className="min-h-16 border-t border-primary/30 pt-3 font-nunito" aria-live="polite" aria-atomic="true">
+                  <p className="text-sm text-muted-foreground">Senast uppfattat</p>
+                  <p className="break-words text-lg font-semibold text-foreground">
+                    {heard || "Inget röstsvar har kommit fram ännu"}
+                  </p>
+                </div>
+              )}
               {voiceStatus && <p className="font-nunito text-sm text-destructive" role="status">{voiceStatus}</p>}
               <Button size="lg" onClick={() => submitAnswer(answer)} className="font-nunito">
                 Svara
