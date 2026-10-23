@@ -43,12 +43,12 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
       streamUrl: "https://mml2.prostream.se/listen/faith_beats_radio/radio.mp3"
     },
     { 
-      id: "focus", 
-      name: "Focus", 
-      emoji: "🧠", 
-      description: "Deep Focus – musik för koncentration", 
+      id: "piano", 
+      name: "Piano", 
+      emoji: "🎹", 
+      description: "Solo Piano – lugna pianostycken", 
       color: "from-teal-500 to-cyan-600",
-      streamUrl: "https://air.radioart.online/fDeep_focus.mp3"
+      streamUrl: "https://air.radioart.online/fSolo_piano.mp3"
     },
     { 
       id: "p3", 
