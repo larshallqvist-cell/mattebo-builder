@@ -19,8 +19,12 @@ async def main():
         storage_key = auth["storage_key"]
         session_json = json.dumps(auth["session"])
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(viewport={"width": 1280, "height": 1800})
+        browser = await p.chromium.launch(headless=True, args=["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"])
+        context = await browser.new_context(viewport={"width": 1280, "height": 1800}, permissions=["microphone"])
+        await context.add_init_script("""window.SpeechRecognition = class {
+            start() { window.testRecognition = this; window.recognitionStarts = (window.recognitionStarts || 0) + 1; }
+            stop() { this.onend?.(); }
+        };""")
         page = await context.new_page()
         writes = []
 
@@ -36,14 +40,13 @@ async def main():
         await page.evaluate("([k,v])=>localStorage.setItem(k,v)",
                             [storage_key, session_json])
         await page.goto("http://localhost:8080/tabelltestet")
-        await page.evaluate("""() => {
-            window.SpeechRecognition = class {
-                start() { window.testRecognition = this; window.recognitionStarts = (window.recognitionStarts || 0) + 1; }
-                stop() { this.onend?.(); }
-            };
-        }""")
+        await page.get_by_text("Mikrofonen är på – ljudnivån visas ovan.", exact=True).wait_for()
+        await page.wait_for_function("Number(document.querySelector('[role=meter]')?.getAttribute('aria-valuenow')) > 0")
+        os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
+        await page.screenshot(path="/tmp/browser/voice-latency/pre-test.png")
+        assert await page.evaluate("window.recognitionStarts || 0") == 0
         await page.get_by_role("button", name="Starta testet").click()
-        await page.get_by_role("button", name="Svara med rösten", exact=True).click()
+        await page.get_by_role("button", name="Stoppa röstinmatning", exact=True).wait_for()
         assert await page.evaluate("window.testRecognition.interimResults") is True
         for i in range(20):
             progress = await page.locator("p").filter(has_text="Uppgift ").inner_text()
