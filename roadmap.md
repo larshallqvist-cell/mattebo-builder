@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Skilj intilliggande röstsvar som webbläsaren lägger i samma text och verifiera utan dubbelsvar (22 tester och simulerat helt förhör med 20/20)
+
 - [x] Undersök första röstsvar som försvinner och rätta bekräftade tapp i röstflödet (simulerat avbrott verifierat)
 
 - [x] Rätta röstsvar som fastnar och återanslut när webbläsaren slutar lyssna

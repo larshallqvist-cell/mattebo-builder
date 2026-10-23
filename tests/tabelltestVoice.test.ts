@@ -129,3 +129,50 @@ test("revised words remain visible without grading a consumed utterance twice", 
   expect(answers).toEqual([12]);
   handler.stop();
 });
+
+test("4 followed by 15 in the same browser result grades both answers once", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("4", false)] });
+  await wait();
+  handler.handle({ results: [result("4.15", false)] });
+  await wait();
+  expect(answers).toEqual([4, 15]);
+  handler.handle({ results: [result("4.15", true)] });
+  expect(answers).toEqual([4, 15]);
+  handler.stop();
+});
+
+test("spaced Swedish answers can accumulate at one result index", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("fyra", true)] });
+  handler.handle({ results: [result("fyra femton", false)] });
+  await wait();
+  handler.handle({ results: [result("fyra femton åtta", false)] });
+  await wait();
+  expect(answers).toEqual([4, 15, 8]);
+  handler.handle({ results: [result("fyra femton åtta", true)] });
+  expect(answers).toEqual([4, 15, 8]);
+  handler.stop();
+});
+
+test("unseparated digit revisions are not the next question's answer", () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("4", true)] });
+  handler.handle({ results: [result("42", true)] });
+  expect(answers).toEqual([4]);
+  handler.stop();
+});
+
+test("a revised appended candidate replaces rather than duplicates its pending answer", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("4", true)] });
+  handler.handle({ results: [result("4 1", false)] });
+  handler.handle({ results: [result("4 15", true)] });
+  await wait();
+  expect(answers).toEqual([4, 15]);
+  handler.stop();
+});

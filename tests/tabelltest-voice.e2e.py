@@ -1,6 +1,7 @@
 """Run with python3 tests/tabelltest-voice.e2e.py after minting the owner's preview session.
 
-Uses a synthetic speech recognizer, not microphone hardware. Result writes are
+Uses a synthetic speech recognizer, not microphone hardware, including answers
+appended with dots to the same browser result. Result writes are
 intercepted so this regression never adds a test result to the owner's history.
 """
 import asyncio
@@ -53,7 +54,8 @@ async def main():
                 await page.evaluate("window.testRecognition.onend()")
                 await page.wait_for_function("window.recognitionStarts === 2")
                 await page.evaluate("window.voiceResults = []")
-            utterance = i if i < 5 else i - 5
+                await page.evaluate("window.voiceTranscript = ''")
+            utterance = 0
             progress = await page.locator("p").filter(has_text="Uppgift ").inner_text()
             assert progress.startswith(f"Uppgift {i + 1} av 20"), progress
             question = await page.locator("p").filter(has_text=" × ").inner_text()
@@ -61,7 +63,9 @@ async def main():
             value = int(a) * int(b)
             await page.evaluate("""([index, answer]) => {
                 window.voiceResults ??= [];
-                const result = [{transcript: String(answer)}];
+                window.voiceTranscript = window.voiceTranscript
+                    ? window.voiceTranscript + '.' + answer : String(answer);
+                const result = [{transcript: window.voiceTranscript}];
                 result.isFinal = false;
                 window.voiceResults[index] = result;
                 window.testRecognition.onresult({resultIndex:index, results:window.voiceResults});
@@ -88,7 +92,7 @@ async def main():
         assert await page.evaluate("window.recognitionStarts") in (2, 3)
         os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
         await page.screenshot(path="/tmp/browser/voice-latency/after.png")
-        print("PASS: stable interim answers and delayed finals advance 20 questions exactly once, with one 20/20 voice result")
+        print("PASS: 20 answers appended to the same result advance exactly once, including delayed finals and reconnection; one 20/20 voice result")
         await browser.close()
 
 
