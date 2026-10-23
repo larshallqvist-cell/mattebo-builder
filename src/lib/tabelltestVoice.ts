@@ -19,6 +19,7 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
   let pending: { index: number; value: number } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
+  let ended = false;
 
   const cancelPending = () => {
     clearTimeout(timer);
@@ -35,11 +36,11 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
 
   return {
     handle(event: SpeechResultsEvent) {
-      if (stopped) return;
+      if (stopped || ended) return;
       for (let index = event.resultIndex ?? 0; index < event.results.length; index++) {
-        if (consumed.has(index)) continue;
         const result = event.results[index];
         onHeard?.(result?.[0]?.transcript ?? "");
+        if (consumed.has(index)) continue;
         const value = parseSpokenNumber(result?.[0]?.transcript ?? "");
         if (value == null) {
           if (pending?.index === index) cancelPending();
@@ -57,6 +58,11 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
         timer = setTimeout(() => accept(index, value), delay);
         return;
       }
+    },
+    // Natural session endings do not invalidate the last received candidate.
+    // Keep its original compound-number debounce; explicit stops still cancel it.
+    end() {
+      ended = true;
     },
     stop() {
       stopped = true;

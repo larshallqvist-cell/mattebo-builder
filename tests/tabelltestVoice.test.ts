@@ -84,3 +84,48 @@ test("a whole ten is accepted even when the browser never sends final", async ()
   expect(answers).toEqual([40]);
   handler.stop();
 });
+
+test("a natural session end preserves the last received answer", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("42", false)] });
+  handler.end();
+  await wait();
+  expect(answers).toEqual([42]);
+  handler.handle({ results: [result("42", true)] });
+  expect(answers).toEqual([42]);
+  handler.stop();
+});
+
+test("ending a session does not shorten the compound-number delay", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("fyrtio", false)] });
+  handler.end();
+  await wait();
+  expect(answers).toEqual([]);
+  await new Promise((resolve) => setTimeout(resolve, VOICE_TENS_STABILITY_MS));
+  expect(answers).toEqual([40]);
+  handler.stop();
+});
+
+test("explicit stop cancels even an ended session's pending answer", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("42", false)] });
+  handler.end();
+  handler.stop();
+  await wait();
+  expect(answers).toEqual([]);
+});
+
+test("revised words remain visible without grading a consumed utterance twice", () => {
+  const answers: number[] = [];
+  const heard: string[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n), (text) => heard.push(text));
+  handler.handle({ results: [result("12", true)] });
+  handler.handle({ results: [result("24", false)] });
+  expect(heard).toEqual(["12", "24"]);
+  expect(answers).toEqual([12]);
+  handler.stop();
+});
