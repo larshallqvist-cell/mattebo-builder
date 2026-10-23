@@ -55,24 +55,10 @@ const Tabelltest = () => {
     typeof window !== "undefined" &&
     ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
 
-  // Ask for mic permission as soon as the page is open, so the browser
-  // prompt appears before the test instead of during the first question.
-  useEffect(() => {
-    if (!user || !allowed || !speechSupported) return;
-    let stream: MediaStream | null = null;
-    navigator.mediaDevices
-      ?.getUserMedia({ audio: true })
-      .then((s) => {
-        stream = s;
-        setMicReady(true);
-        setMicDenied(false);
-      })
-      .catch(() => {
-        setMicReady(false);
-        setMicDenied(true);
-      })
-      .finally(() => stream?.getTracks().forEach((t) => t.stop()));
-  }, [user, allowed, speechSupported, micRequestKey]);
+  const updateMicReady = useCallback((ready: boolean, unavailable: boolean) => {
+    setMicReady(ready);
+    setMicDenied(unavailable);
+  }, []);
 
   const retryMicPermission = () => {
     setMicReady(false);
@@ -128,6 +114,7 @@ const Tabelltest = () => {
     setSaveError(false);
     setPhase("running");
     questionStartRef.current = performance.now();
+    if (mode === "voice" && speechSupported && !listening) toggleListening();
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
@@ -207,8 +194,13 @@ const Tabelltest = () => {
       setListening(false);
     };
     recognitionRef.current = rec;
-    rec.start();
-    setListening(true);
+    try {
+      rec.start();
+      setListening(true);
+    } catch {
+      stopListening();
+      setMicDenied(true);
+    }
   };
 
   const passed = isPassed(score, avgMs, mode);
@@ -266,6 +258,19 @@ const Tabelltest = () => {
             Tabelltestet
           </h1>
 
+          {mode === "voice" && speechSupported && phase !== "done" && (
+            <div className="mt-5 flex flex-col items-center gap-2 font-nunito">
+              <MicrophoneMeter key={micRequestKey} active={phase === "idle" || listening} onReadyChange={updateMicReady} />
+              <p className={`text-sm ${micDenied ? "text-destructive" : "text-accent"}`} role="status">
+                {micDenied ? "Mikrofonen är blockerad eller inte tillgänglig. Tillåt mikrofonen i webbläsaren."
+                  : micReady ? "Mikrofonen är på – ljudnivån visas ovan."
+                  : phase === "running" && !listening ? "Mikrofonen är avstängd."
+                  : "Ansluter mikrofonen… tillåt den om webbläsaren frågar."}
+              </p>
+              {micDenied && <Button type="button" variant="outline" onClick={retryMicPermission}>Försök igen</Button>}
+            </div>
+          )}
+
           {phase === "idle" && (
             <div className="mt-6 space-y-5 font-nunito">
               <p className="text-muted-foreground">
@@ -300,24 +305,6 @@ const Tabelltest = () => {
                       : "Röstinmatning stöds inte i den här webbläsaren – välj tangentbord."
                     : "Skriv svaren med siffrorna på tangentbordet."}
                 </p>
-                {mode === "voice" && speechSupported && (
-                  micReady ? (
-                    <p className="text-sm text-accent" role="status">Mikrofonen är klar att användas.</p>
-                  ) : micDenied ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-sm text-destructive">
-                        Mikrofonen är blockerad. Tillåt mikrofon för mattebo.com i webbläsaren och försök igen.
-                      </p>
-                      <Button type="button" variant="outline" onClick={retryMicPermission} className="font-nunito">
-                        Försök igen
-                      </Button>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground" role="status">
-                      Frågar efter mikrofon… tillåt den om webbläsaren frågar.
-                    </p>
-                  )
-                )}
               </div>
               {best && (
                 <p className="inline-flex items-center gap-2 rounded-full border border-accent/30 px-4 py-2 text-sm text-accent">
@@ -327,7 +314,7 @@ const Tabelltest = () => {
                 </p>
               )}
               <div>
-                <Button size="lg" onClick={startTest} className="font-nunito text-base">
+                <Button size="lg" onClick={startTest} disabled={mode === "voice" && (!speechSupported || !micReady || micDenied)} className="font-nunito text-base">
                   Starta testet
                 </Button>
               </div>
@@ -366,7 +353,6 @@ const Tabelltest = () => {
                   >
                     {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                     </Button>
-                    <MicrophoneMeter active={listening} />
                   </div>
                 )}
               </div>

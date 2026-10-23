@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 
 /** Local-only audio analysis: no recording and no audio uploads. */
-const MicrophoneMeter = ({ active }: { active: boolean }) => {
+const MicrophoneMeter = ({ active, onReadyChange }: { active: boolean; onReadyChange?: (ready: boolean, unavailable: boolean) => void }) => {
   const [level, setLevel] = useState(0);
   const [state, setState] = useState<"off" | "starting" | "ready" | "unavailable">("off");
+
+  useEffect(() => {
+    onReadyChange?.(state === "ready", state === "unavailable");
+  }, [state, onReadyChange]);
 
   useEffect(() => {
     setLevel(0);
