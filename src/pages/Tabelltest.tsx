@@ -5,8 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import MicrophoneMeter from "@/components/MicrophoneMeter";
+import { createVoiceAnswerHandler } from "@/lib/tabelltestVoice";
 import {
-  generateQuestions, isPassed, parseSpokenNumber, passAvgMs,
+  generateQuestions, isPassed, passAvgMs,
   INPUT_MODE_LABELS, QUESTION_COUNT, PASS_SCORE,
   type InputMode, type TabellQuestion,
 } from "@/lib/tabelltest";
@@ -45,6 +46,7 @@ const Tabelltest = () => {
   const scoreRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
+  const voiceHandlerRef = useRef<ReturnType<typeof createVoiceAnswerHandler> | null>(null);
 
   const speechSupported =
     typeof window !== "undefined" &&
@@ -78,6 +80,8 @@ const Tabelltest = () => {
   }, [user, loadBest]);
 
   const stopListening = useCallback(() => {
+    voiceHandlerRef.current?.stop();
+    voiceHandlerRef.current = null;
     recognitionRef.current?.stop();
     recognitionRef.current = null;
     setListening(false);
@@ -162,18 +166,18 @@ const Tabelltest = () => {
     const rec = new Ctor();
     rec.lang = "sv-SE";
     rec.continuous = true;
-    rec.interimResults = false;
-    rec.onresult = (event: any) => {
-      const last = event.results[event.results.length - 1];
-      const transcript = last?.[0]?.transcript ?? "";
-      const number = parseSpokenNumber(transcript);
-      if (number != null) {
-        setAnswer(String(number));
-        submitAnswerRef.current(String(number));
-      }
-    };
+    rec.interimResults = true;
+    const handler = createVoiceAnswerHandler((number) => {
+      setAnswer(String(number));
+      submitAnswerRef.current(String(number));
+    });
+    voiceHandlerRef.current = handler;
+    rec.onresult = handler.handle;
     rec.onerror = () => stopListening();
-    rec.onend = () => setListening(false);
+    rec.onend = () => {
+      handler.stop();
+      setListening(false);
+    };
     recognitionRef.current = rec;
     rec.start();
     setListening(true);
