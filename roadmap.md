@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Korta väntan vid röstsvar i Tabelltestet och kontrollera sena dubbelsvar
+
 - [x] Kontrollera och rätta fastnad röstinmatning i Tabelltestet
 - [x] Kontrollera och rätta adminbehörighet för lektionsanteckningar (redan rättad; sparning och omladdning verifierade)
 
