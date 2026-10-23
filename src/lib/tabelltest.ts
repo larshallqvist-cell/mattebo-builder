@@ -1,14 +1,14 @@
 // Tabelltestet: multiplikationstabellerna 2-9, 20 slumpvisa uppgifter.
 // Godkänt = minst 18 rätt OCH tillräckligt snabb snittid per uppgift.
-// Tidsgränsen beror på inmatningssätt: röst 2,0 s, tangentbord 3,0 s.
+// Tidsgränsen beror på inmatningssätt: röst 1,7 s, tangentbord 2,7 s.
 
 export const TABLE_MIN = 2;
 export const TABLE_MAX = 9;
 export const FACTOR_MAX = 10;
 export const QUESTION_COUNT = 20;
 export const PASS_SCORE = 18;
-export const PASS_AVG_MS_VOICE = 2000;
-export const PASS_AVG_MS_KEYBOARD = 3000;
+export const PASS_AVG_MS_VOICE = 1700;
+export const PASS_AVG_MS_KEYBOARD = 2700;
 
 export type InputMode = "voice" | "keyboard";
 
