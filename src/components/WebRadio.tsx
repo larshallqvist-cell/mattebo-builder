@@ -43,12 +43,13 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
       streamUrl: "https://mml2.prostream.se/listen/faith_beats_radio/radio.mp3"
     },
     { 
-      id: "piano", 
-      name: "Piano", 
-      emoji: "🎹", 
-      description: "Solo Piano – lugna pianostycken", 
+      id: "lugn", 
+      name: "Lugn", 
+      emoji: "🌊", 
+      description: "Drone Zone – långsam, lugn ambient", 
       color: "from-teal-500 to-cyan-600",
-      streamUrl: "https://air.radioart.online/fSolo_piano.mp3"
+      streamUrl: "https://ice1.somafm.com/dronezone-128-mp3",
+      metadataId: "dronezone"
     },
     { 
       id: "p3", 
