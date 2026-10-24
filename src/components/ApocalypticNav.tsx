@@ -36,7 +36,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
                 <Link
                   key={g}
                   to={`/ak${g}`}
-                  className={`rounded-full px-2 py-0.5 font-orbitron text-xs font-semibold transition-colors sm:text-sm ${
+                  className={`rounded-full px-2.5 py-0.5 font-orbitron text-sm font-semibold transition-colors sm:text-base ${
                     g === grade ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
                   }`}
                 >
