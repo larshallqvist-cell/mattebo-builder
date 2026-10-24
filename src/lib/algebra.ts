@@ -81,9 +81,8 @@ export const LEVELS: Record<Mode, { name: string; example: string }[]> = {
     { name: "Blandat", example: "½(4x + 6) − ¼x" },
   ],
 };
-const EVAL_STRUCT = [(r: Rng): Part[] => [T(ri(r, 2, 9), "x"), T(sgn(r) * ri(r, 1, 9), null)], (r: Rng): Part[] => [T(ri(r, 2, 6), "x"), T(sgn(r) * ri(r, 1, 6), "y"), ...(r() < 0.5 ? [T(sgn(r) * ri(r, 1, 9), null)] : [])], STRUCTURES[2], STRUCTURES[3], STRUCTURES[4], STRUCTURES[5], STRUCTURES[6]];
 const NEG_VALUES: Record<Mode, boolean[]> = {
-  simplify: [], evaluate: [false, false, true, false, true, false, true], both: [false, false, true, false, true, false, true],
+  simplify: [], both: [false, false, true, false, true, false, true],
 };
 
 export type Exercise = { id: string; mode: Mode; level: number; expr: string; simplified: Lin; values: Record<string, number>; value: Frac };
@@ -91,10 +90,10 @@ const lcmDens = (parts: Part[]) => parts.flatMap((p) => ("group" in p ? [p.k.d, 
 
 export function generateExercise(mode: Mode, level: number, r: Rng = Math.random): Exercise {
   for (;;) {
-    const parts = (mode === "evaluate" ? EVAL_STRUCT : STRUCTURES)[level](r);
+    const parts = STRUCTURES[level](r);
     const simplified = parts.reduce((s, p) => linAdd(s, partLin(p)), linConst(fr(0)));
     if (isConst(simplified)) continue; // must keep a variable so the task is meaningful
-    if (mode !== "evaluate" && parts.length < 2) continue;
+    if (parts.length < 2) continue;
     const vars = [...new Set(parts.flatMap((p) => ("group" in p ? p.group.map((t) => t.v) : [p.v])).filter(Boolean) as string[])].sort();
     const L = lcmDens(parts), neg = NEG_VALUES[mode][level];
     const values = mode === "simplify" ? {} : Object.fromEntries(vars.map((v) => [v, (L > 1 ? L * ri(r, 1, 2) : ri(r, 1, 7)) * (neg && r() < 0.6 ? -1 : 1)]));
