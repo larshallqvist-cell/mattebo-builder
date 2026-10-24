@@ -58,6 +58,7 @@ const UserMenu = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {!isAdmin && <DropdownMenuLabel className="text-xs font-normal leading-relaxed text-muted-foreground">Mattebo sparar dina besök, uppskattad aktiv tid och övningsresultat för lärarens uppföljning. Det du skriver eller säger registreras inte av tidsmätningen.</DropdownMenuLabel>}
         {isAdmin && (
           <>
             <DropdownMenuItem asChild className="cursor-pointer">
