@@ -107,15 +107,15 @@ export function createVoiceAnswerHandler(
           continue;
         }
         if (result.isFinal !== false) {
-          accept(index, value, transcript);
+          accept(index, value, transcript, candidate);
           return;
         }
         // Give compound numbers longer to settle, but never wait forever for final.
         const delay = value >= 20 && value % 10 === 0 ? VOICE_TENS_STABILITY_MS : VOICE_STABILITY_MS;
         if (pending?.index === index && pending.value === value && pending.transcript === transcript) return;
         cancelPending();
-        pending = { index, value, transcript };
-        timer = setTimeout(() => accept(index, value, transcript), delay);
+        pending = { index, value, transcript, answerText: candidate };
+        timer = setTimeout(() => accept(index, value, transcript, candidate), delay);
         return;
       }
     },
