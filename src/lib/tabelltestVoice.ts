@@ -17,17 +17,40 @@ export interface SpeechResultsEvent {
 // Compare word boundaries, not the browser's choice of punctuation.
 const normalizeTranscript = (text: string) => text.toLowerCase().replace(/[\s.,;:!?]+/g, " ").trim();
 
+// Largest answer in the table test (9 × 10).
+const MAX_TABLE_ANSWER = 90;
+
 // A separator is required: "4.15" / "4 15" can contain two answers,
 // but "4" -> "42" and "fyrtio" -> "fyrtiotvå" are revisions, not new answers.
 function appendedAnswer(text: string, prefix: string): string | null {
-  if (!text.startsWith(prefix)) return null;
+  if (!prefix || !text.startsWith(prefix)) return null;
   const rest = text.slice(prefix.length);
-  // Browsers sometimes glue digits: accepted "40" then "4015". A two-digit
-  // tail after an accepted number is a new answer; a single digit ("4" -> "42")
-  // stays a revision.
-  if (/\d$/.test(prefix) && /^\d{2}$/.test(rest)) return rest;
+  // Browsers sometimes glue digits: accepted "40" then "4015" or "406".
+  // If the glued number cannot be a table answer, the tail is a new answer;
+  // otherwise ("4" -> "42") it is a revision of the accepted one.
+  const prefixDigits = prefix.match(/\d+$/)?.[0];
+  if (prefixDigits && /^\d{1,2}$/.test(rest)) {
+    return Number(prefixDigits + rest) > MAX_TABLE_ANSWER ? rest : null;
+  }
   if (!/^[\s.,;:!?]/.test(rest)) return null;
   return rest.replace(/^[\s.,;:!?]+/, "") || null;
+}
+
+// iOS sometimes starts a new result that repeats earlier answers ("40 15"
+// or "4015" after 40 was accepted elsewhere). Strip the already graded text.
+function stripAcceptedHistory(text: string, history: string[]): string | null {
+  const prefixes = new Set<string>();
+  for (let start = 0; start < history.length; start++) {
+    const tail = history.slice(start);
+    prefixes.add(tail.join(" "));
+    prefixes.add(tail.join(""));
+  }
+  const ordered = [...prefixes].sort((a, b) => b.length - a.length);
+  for (const prefix of ordered) {
+    const rest = appendedAnswer(text, prefix);
+    if (rest !== null) return rest;
+  }
+  return null;
 }
 
 /** One submission per utterance, including when its final result arrives later. */
