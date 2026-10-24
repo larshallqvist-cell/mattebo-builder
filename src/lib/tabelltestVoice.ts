@@ -1,7 +1,7 @@
 import { parseSpokenNumber } from "./tabelltest";
 
-export const VOICE_STABILITY_MS = 350;
-export const VOICE_TENS_STABILITY_MS = 750;
+export const VOICE_STABILITY_MS = 300;
+export const VOICE_TENS_STABILITY_MS = 700;
 
 interface SpeechResult {
   isFinal?: boolean;
