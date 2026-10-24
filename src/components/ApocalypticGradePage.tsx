@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, LineChart, PieChart, Timer, Sigma } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma } from "lucide-react";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
@@ -31,7 +31,6 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
   { label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
   { label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
-  { label: "ClassPad (Casio)", url: "https://classpad.net/", icon: LineChart },
   { label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
   { label: "Tabelltestet", url: "/tabelltestet", icon: Timer, internal: true },
   { label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
