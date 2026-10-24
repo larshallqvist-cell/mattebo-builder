@@ -23,6 +23,7 @@ import SurveyAdmin from "@/components/SurveyAdmin";
 import CollapsibleAdminSection from "@/components/CollapsibleAdminSection";
 import BraklabbetResults from "@/components/BraklabbetResults";
 import TabelltestResults from "@/components/TabelltestResults";
+import AlgebraResults from "@/components/AlgebraResults";
 
 interface AccessRequest {
   id: string;
@@ -199,6 +200,10 @@ const Admin = () => {
 
         <CollapsibleAdminSection title="Tabelltestet – resultat" icon={<ClipboardList className="w-5 h-5" />}>
           <TabelltestResults />
+        </CollapsibleAdminSection>
+
+        <CollapsibleAdminSection title="Algebra – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
+          <AlgebraResults />
         </CollapsibleAdminSection>
 
         {/* Pending */}

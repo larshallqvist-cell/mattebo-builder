@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Flame, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { checkSimplified, checkValue, fmtValues, generateExercise, LEVELS, MODES, type Check as Result, type Mode } from "@/lib/algebra";
 
 const PRAISE = ["Snyggt!", "Klockrent!", "Grymt jobbat!", "Helt rätt!", "Stabilt!"];
@@ -16,6 +18,8 @@ const Algebra = () => {
   const [result, setResult] = useState<Result | null>(null);
   const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
+  const sessionId = useRef(crypto.randomUUID()); // ett pass = ett sidbesök
 
   useEffect(() => { document.title = "Algebra · Mattebo"; }, []);
 
@@ -34,7 +38,11 @@ const Algebra = () => {
     if (r.correct) r.message = `${PRAISE[Math.floor(Math.random() * PRAISE.length)]} ${r.message}`;
     setResult(r);
     const finished = r.correct && (mode !== "both" || step === "value");
-    if (finished || !r.correct) setScore((s) => ({ right: s.right + (finished ? 1 : 0), total: s.total + 1, streak: finished ? s.streak + 1 : 0 }));
+    if (finished || !r.correct) {
+      setScore((s) => ({ right: s.right + (finished ? 1 : 0), total: s.total + 1, streak: finished ? s.streak + 1 : 0 }));
+      // Logga tyst för lärarens statistik; fel stör aldrig övningen.
+      if (user) void supabase.from("algebra_attempts").insert({ user_id: user.id, session_id: sessionId.current, mode, level, is_correct: finished }).then(() => {});
+    }
   };
   const next = () => {
     if (mode === "both" && step === "simplify" && result?.correct) { setStep("value"); setAnswer(""); setResult(null); setTimeout(() => inputRef.current?.focus(), 0); return; }
