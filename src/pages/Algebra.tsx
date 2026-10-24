@@ -25,7 +25,7 @@ const Algebra = () => {
 
   const fresh = (m = mode, l = level) => {
     setEx(generateExercise(m, l));
-    setStep(m === "evaluate" ? "value" : "simplify");
+    setStep("simplify");
     setAnswer(""); setResult(null);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
@@ -51,7 +51,6 @@ const Algebra = () => {
 
   const prompt = useMemo(() => {
     if (mode === "simplify") return "Förenkla uttrycket";
-    if (mode === "evaluate") return "Beräkna uttryckets värde";
     return step === "simplify" ? "Steg 1 · Förenkla uttrycket" : "Steg 2 · Beräkna värdet";
   }, [mode, step]);
 
