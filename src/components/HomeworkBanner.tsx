@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { GraduationCap, ExternalLink } from "lucide-react";
 import { useHomework } from "@/hooks/useHomework";
 import { openYouTubeOverlay } from "@/lib/youtube";
@@ -76,27 +77,55 @@ const renderContentWithLinks = (text: string) => {
 /** Rectangular highlight box at the very top of a grade page. */
 const HomeworkBanner = ({ grade, className = "", compact = false, dense = false }: HomeworkBannerProps) => {
   const { title, content, loading } = useHomework(grade);
+  const [expanded, setExpanded] = useState(false);
 
   if (loading || !content.trim()) return null;
 
+  const firstMatch = content.match(URL_REGEX)?.[0];
+  const md = firstMatch?.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+  const firstHref = firstMatch ? makeHref(md ? md[2] : firstMatch) : null;
+  const firstLabel = md ? md[1] : undefined;
+  const isLong = content.length > 90 || content.includes("\n");
+
   return (
     <section
-      className={`rounded-xl border ${compact ? "px-2.5 py-1.5 w-full sm:w-[6cm] shrink-0" : dense ? "px-3 py-1.5" : "px-4 py-2.5"} ${className}`}
+      className={`rounded-xl border ${compact ? "px-2.5 py-1.5 w-full sm:w-[6cm] shrink-0" : dense ? "px-3 py-1.5" : "px-3 py-2"} ${className}`}
       style={{
         background:
           "linear-gradient(135deg, hsl(var(--homework-bg-soft)) 0%, hsl(var(--homework-bg)) 100%)",
         borderColor: "hsl(var(--homework-border))",
         color: "hsl(var(--homework-text))",
-        boxShadow: "0 12px 28px -18px hsl(var(--homework-border) / 0.9)",
       }}
     >
-      <h2 className={`flex items-center gap-2 font-orbitron font-bold uppercase tracking-wide ${compact ? "text-base" : dense ? "text-xs" : "text-sm md:text-base"}`}>
-        <GraduationCap className={`${compact ? "h-4 w-4" : "h-4 w-4"}`} />
-        {title}
-      </h2>
-      <p className={`whitespace-pre-line font-nunito leading-snug ${compact ? "mt-1 text-sm line-clamp-3" : dense ? "mt-0.5 line-clamp-2 text-xs" : "mt-1 text-sm md:text-[0.95rem]"}`}>
-        {renderContentWithLinks(content)}
-      </p>
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="flex items-center gap-2 font-orbitron font-bold uppercase tracking-wide text-xs">
+            <GraduationCap className="h-4 w-4" />
+            {title}
+          </h2>
+          <p className={`whitespace-pre-line font-nunito leading-snug mt-0.5 text-sm ${expanded ? "" : "line-clamp-2"}`}>
+            {renderContentWithLinks(content)}
+          </p>
+          {isLong && (
+            <button type="button" onClick={() => setExpanded((v) => !v)} className="mt-0.5 text-xs font-semibold underline underline-offset-2 opacity-80 hover:opacity-100">
+              {expanded ? "Visa mindre" : "Visa mer"}
+            </button>
+          )}
+        </div>
+        {firstHref && isSafeHref(firstHref) && (
+          <button
+            type="button"
+            onClick={() => {
+              if (openYouTubeOverlay(firstHref, firstLabel)) return;
+              window.open(firstHref, "_blank", "noopener,noreferrer");
+            }}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--homework-text))/50] bg-[hsl(var(--homework-text))/15] px-3 py-2 text-sm font-semibold hover:bg-[hsl(var(--homework-text))/25] transition-colors"
+          >
+            Öppna läxa
+            <ExternalLink className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </section>
   );
 };
