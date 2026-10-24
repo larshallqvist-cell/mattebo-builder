@@ -13,7 +13,9 @@ export interface SpeechResultsEvent {
   results: ArrayLike<SpeechResult>;
 }
 
-const normalizeTranscript = (text: string) => text.toLowerCase().trim().replace(/\s+/g, " ");
+// Browsers revise punctuation as words accumulate ("10." -> "10:12").
+// Compare word boundaries, not the browser's choice of punctuation.
+const normalizeTranscript = (text: string) => text.toLowerCase().replace(/[\s.,;:!?]+/g, " ").trim();
 
 // A separator is required: "4.15" / "4 15" can contain two answers,
 // but "4" -> "42" and "fyrtio" -> "fyrtiotvå" are revisions, not new answers.
@@ -59,7 +61,11 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
           if (pending?.index === index) cancelPending();
           continue;
         }
-        const value = parseSpokenNumber(candidate);
+        // The general parser extracts the first digit group. Here that would
+        // silently grade "10:12" as 10 if no previous answer was accepted.
+        // Only one numeric token is safe after removing the accepted prefix.
+        const value = /\d/.test(candidate) && !/^\d{1,3}$/.test(candidate)
+          ? null : parseSpokenNumber(candidate);
         if (value == null) {
           if (pending?.index === index) cancelPending();
           continue;

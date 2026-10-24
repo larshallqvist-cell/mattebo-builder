@@ -1,7 +1,7 @@
 """Run with python3 tests/tabelltest-voice.e2e.py after minting the owner's preview session.
 
 Uses a synthetic speech recognizer, not microphone hardware, including answers
-appended with dots to the same browser result. Result writes are
+appended with changing punctuation to the same browser result. Result writes are
 intercepted so this regression never adds a test result to the owner's history.
 """
 import asyncio
@@ -63,8 +63,11 @@ async def main():
             value = int(a) * int(b)
             await page.evaluate("""([index, answer]) => {
                 window.voiceResults ??= [];
+                // Change old separators and add a new colon, as iPad can do
+                // when revising "10." to "10:12" after a question advances.
                 window.voiceTranscript = window.voiceTranscript
-                    ? window.voiceTranscript + '.' + answer : String(answer);
+                    ? window.voiceTranscript.replace(/[.,:;!?]+/g, ', ') + ':' + answer + '.'
+                    : String(answer) + '.';
                 const result = [{transcript: window.voiceTranscript}];
                 result.isFinal = false;
                 window.voiceResults[index] = result;
@@ -92,7 +95,7 @@ async def main():
         assert await page.evaluate("window.recognitionStarts") in (2, 3)
         os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
         await page.screenshot(path="/tmp/browser/voice-latency/after.png")
-        print("PASS: 20 answers appended to the same result advance exactly once, including delayed finals and reconnection; one 20/20 voice result")
+        print("PASS: 20 answers with revised punctuation advance exactly once, including delayed finals and reconnection; one 20/20 voice result")
         await browser.close()
 
 
