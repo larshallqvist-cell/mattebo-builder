@@ -22,6 +22,10 @@ const normalizeTranscript = (text: string) => text.toLowerCase().replace(/[\s.,;
 function appendedAnswer(text: string, prefix: string): string | null {
   if (!text.startsWith(prefix)) return null;
   const rest = text.slice(prefix.length);
+  // Browsers sometimes glue digits: accepted "40" then "4015". A two-digit
+  // tail after an accepted number is a new answer; a single digit ("4" -> "42")
+  // stays a revision.
+  if (/\d$/.test(prefix) && /^\d{2}$/.test(rest)) return rest;
   if (!/^[\s.,;:!?]/.test(rest)) return null;
   return rest.replace(/^[\s.,;:!?]+/, "") || null;
 }

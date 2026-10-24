@@ -221,3 +221,14 @@ test("a combined 10:12 without an accepted prefix is not guessed as 10", async (
   expect(answers).toEqual([]);
   handler.stop();
 });
+test("glued digits 40 then 4015 grade 40 and 15 once each", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("40", false)] });
+  await new Promise((r) => setTimeout(r, VOICE_TENS_STABILITY_MS + 60));
+  handler.handle({ results: [result("4015", false)] });
+  await wait();
+  handler.handle({ results: [result("4015", true)] });
+  expect(answers).toEqual([40, 15]);
+  handler.stop();
+});
