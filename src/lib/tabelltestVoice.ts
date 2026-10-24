@@ -17,23 +17,51 @@ export interface SpeechResultsEvent {
 // Compare word boundaries, not the browser's choice of punctuation.
 const normalizeTranscript = (text: string) => text.toLowerCase().replace(/[\s.,;:!?]+/g, " ").trim();
 
+// Largest answer in the table test (9 × 10).
+const MAX_TABLE_ANSWER = 90;
+
 // A separator is required: "4.15" / "4 15" can contain two answers,
 // but "4" -> "42" and "fyrtio" -> "fyrtiotvå" are revisions, not new answers.
 function appendedAnswer(text: string, prefix: string): string | null {
-  if (!text.startsWith(prefix)) return null;
+  if (!prefix || !text.startsWith(prefix)) return null;
   const rest = text.slice(prefix.length);
-  // Browsers sometimes glue digits: accepted "40" then "4015". A two-digit
-  // tail after an accepted number is a new answer; a single digit ("4" -> "42")
-  // stays a revision.
-  if (/\d$/.test(prefix) && /^\d{2}$/.test(rest)) return rest;
+  // Browsers sometimes glue digits: accepted "40" then "4015" or "406".
+  // If the glued number cannot be a table answer, the tail is a new answer;
+  // otherwise ("4" -> "42") it is a revision of the accepted one.
+  const prefixDigits = prefix.match(/\d+$/)?.[0];
+  if (prefixDigits && /^\d{1,2}$/.test(rest)) {
+    return Number(prefixDigits + rest) > MAX_TABLE_ANSWER ? rest : null;
+  }
   if (!/^[\s.,;:!?]/.test(rest)) return null;
   return rest.replace(/^[\s.,;:!?]+/, "") || null;
 }
 
+// iOS sometimes starts a new result that repeats earlier answers ("40 15"
+// or "4015" after 40 was accepted elsewhere). Strip the already graded text.
+function stripAcceptedHistory(text: string, history: string[]): string | null {
+  const prefixes = new Set<string>();
+  for (let start = 0; start < history.length; start++) {
+    const tail = history.slice(start);
+    prefixes.add(tail.join(" "));
+    prefixes.add(tail.join(""));
+  }
+  const ordered = [...prefixes].sort((a, b) => b.length - a.length);
+  for (const prefix of ordered) {
+    const rest = appendedAnswer(text, prefix);
+    if (rest !== null) return rest;
+  }
+  return null;
+}
+
 /** One submission per utterance, including when its final result arrives later. */
-export function createVoiceAnswerHandler(submit: (answer: number) => void, onHeard?: (text: string) => void) {
+export function createVoiceAnswerHandler(
+  submit: (answer: number) => void,
+  onHeard?: (text: string) => void,
+  /** Accepted answer texts, shared across reconnected sessions in one test. */
+  history: string[] = [],
+) {
   const consumed = new Map<number, string>();
-  let pending: { index: number; value: number; transcript: string } | undefined;
+  let pending: { index: number; value: number; transcript: string; answerText: string } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
   let ended = false;
@@ -44,10 +72,12 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
     pending = undefined;
   };
 
-  const accept = (index: number, value: number, transcript: string) => {
+  const accept = (index: number, value: number, transcript: string, answerText: string) => {
     cancelPending();
     if (stopped || consumed.get(index) === transcript) return;
     consumed.set(index, transcript);
+    history.push(answerText);
+    if (history.length > 6) history.splice(0, history.length - 6);
     submit(value);
   };
 
@@ -59,7 +89,9 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
         onHeard?.(result?.[0]?.transcript ?? "");
         const transcript = normalizeTranscript(result?.[0]?.transcript ?? "");
         const prefix = consumed.get(index);
-        const candidate = prefix === undefined ? transcript : appendedAnswer(transcript, prefix);
+        const candidate = prefix === undefined
+          ? stripAcceptedHistory(transcript, history) ?? transcript
+          : appendedAnswer(transcript, prefix);
         // A late final or a correction of already graded words is not another answer.
         if (candidate === null) {
           if (pending?.index === index) cancelPending();
@@ -75,15 +107,15 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
           continue;
         }
         if (result.isFinal !== false) {
-          accept(index, value, transcript);
+          accept(index, value, transcript, candidate);
           return;
         }
         // Give compound numbers longer to settle, but never wait forever for final.
         const delay = value >= 20 && value % 10 === 0 ? VOICE_TENS_STABILITY_MS : VOICE_STABILITY_MS;
         if (pending?.index === index && pending.value === value && pending.transcript === transcript) return;
         cancelPending();
-        pending = { index, value, transcript };
-        timer = setTimeout(() => accept(index, value, transcript), delay);
+        pending = { index, value, transcript, answerText: candidate };
+        timer = setTimeout(() => accept(index, value, transcript, candidate), delay);
         return;
       }
     },
