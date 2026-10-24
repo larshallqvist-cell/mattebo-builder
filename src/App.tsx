@@ -19,6 +19,7 @@ import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
 import YouTubeOverlay from "./components/YouTubeOverlay";
 import PostLoginRedirect from "./components/PostLoginRedirect";
+import StudentActivityTracker from "./components/StudentActivityTracker";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
         <BrowserRouter>
           <SheetConfig />
           <PostLoginRedirect />
+          <StudentActivityTracker />
           <AnimatedRoutes />
         </BrowserRouter>
       </TooltipProvider>
