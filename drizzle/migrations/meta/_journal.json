@@ -71,6 +71,13 @@
       "when": 1792871477307,
       "tag": "0009_admin_student_directory",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792871758201,
+      "tag": "0010_restrict_student_visit_writes",
+      "breakpoints": true
     }
   ]
 }
