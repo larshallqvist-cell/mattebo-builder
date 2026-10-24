@@ -4,6 +4,11 @@ import { createVoiceAnswerHandler, VOICE_STABILITY_MS, VOICE_TENS_STABILITY_MS }
 const result = (transcript: string, isFinal: boolean) => Object.assign([{ transcript }], { isFinal });
 const wait = () => new Promise((resolve) => setTimeout(resolve, VOICE_STABILITY_MS + 60));
 
+test("voice stability waits are reduced cautiously by five hundredths of a second", () => {
+  expect(VOICE_STABILITY_MS).toBe(350);
+  expect(VOICE_TENS_STABILITY_MS).toBe(750);
+});
+
 test("stable interim answers advance before the final result, exactly once", async () => {
   const answers: number[] = [];
   const handler = createVoiceAnswerHandler((n) => answers.push(n));
