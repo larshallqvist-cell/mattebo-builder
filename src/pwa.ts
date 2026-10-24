@@ -53,6 +53,39 @@ if ("serviceWorker" in navigator) {
 void purgeStaleCaches();
 
 /**
+ * Självläkning vid trasiga kodbitar: om en dynamisk import misslyckas
+ * (t.ex. för att en ny version ersatt de gamla filerna medan sidan var öppen)
+ * laddas sidan om en gång för att hämta färsk kod. Vakten i sessionStorage
+ * hindrar oändliga omladdningsloopar om felet kvarstår.
+ */
+const CHUNK_RELOAD_KEY = "mattebo-chunk-reload";
+
+const reloadOnceForStaleChunks = () => {
+  try {
+    if (window.sessionStorage.getItem(CHUNK_RELOAD_KEY)) return;
+    window.sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
+    // Tillåt ett nytt försök om sidan lever vidare en stund efter omladdningen.
+    window.setTimeout(() => window.sessionStorage.removeItem(CHUNK_RELOAD_KEY), 60_000);
+  } catch {
+    /* ignore */
+  }
+  hardReload();
+};
+
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  reloadOnceForStaleChunks();
+});
+
+// Safari rapporterar samma fel som ett avvisat löfte utan vite-händelsen.
+window.addEventListener("unhandledrejection", (event) => {
+  const msg = String(event.reason?.message ?? event.reason ?? "");
+  if (/importing a module script failed|failed to fetch dynamically imported module|error loading dynamically imported module/i.test(msg)) {
+    reloadOnceForStaleChunks();
+  }
+});
+
+/**
  * Manuell escape-hatch för fastnad iOS/PWA-cache.
  * Avregistrerar service workers, tömmer alla cache-poster (förutom Google-fonts),
  * rensar versionsnyckeln och laddar om siden hårt.
