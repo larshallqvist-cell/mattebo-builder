@@ -176,3 +176,48 @@ test("a revised appended candidate replaces rather than duplicates its pending a
   expect(answers).toEqual([4, 15]);
   handler.stop();
 });
+
+test("10 followed by 12 separated by a colon advances exactly once each", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("10", false)] });
+  await wait();
+  handler.handle({ results: [result("10:12", false)] });
+  await wait();
+  handler.handle({ results: [result("10:12", true)] });
+  expect(answers).toEqual([10, 12]);
+  handler.stop();
+});
+
+test("punctuation revisions in an accepted prefix do not lose the appended 12", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("4", true)] });
+  handler.handle({ results: [result("4. 10.", false)] });
+  await wait();
+  handler.handle({ results: [result("4, 10:12", false)] });
+  await wait();
+  handler.handle({ results: [result("4 10 12.", true)] });
+  expect(answers).toEqual([4, 10, 12]);
+  handler.stop();
+});
+
+test("a trailing full stop on accepted 10 can become the colon in 10:12", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("10.", true)] });
+  handler.handle({ results: [result("10:12", false)] });
+  await wait();
+  expect(answers).toEqual([10, 12]);
+  handler.stop();
+});
+
+test("a combined 10:12 without an accepted prefix is not guessed as 10", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("10:12", false)] });
+  await wait();
+  handler.handle({ results: [result("10:12", true)] });
+  expect(answers).toEqual([]);
+  handler.stop();
+});
