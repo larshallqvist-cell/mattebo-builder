@@ -27,7 +27,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
     }}>
         {/* Logo / Site title — with grade stacked underneath */}
         <div className={`flex shrink-0 flex-col leading-tight ${grade != null ? "py-1" : ""}`}>
-          <Link to="/" className={`font-orbitron font-bold text-accent hover:text-foreground transition-colors ${grade != null ? "text-xl sm:text-2xl" : "text-sm sm:text-lg"}`}>
+          <Link to="/" className={`font-orbitron font-bold text-accent hover:text-foreground transition-colors ${grade != null ? "text-2xl sm:text-3xl" : "text-sm sm:text-lg"}`}>
             Leteboskolan
           </Link>
           {grade != null && isAdmin && (
@@ -47,7 +47,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
           )}
           {grade != null && !isAdmin && (
             <span
-              className="font-orbitron text-lg font-semibold sm:text-xl"
+              className="font-orbitron text-2xl font-bold sm:text-3xl"
               style={glowColor ? { color: glowColor } : undefined}
             >
               Årskurs {grade}
