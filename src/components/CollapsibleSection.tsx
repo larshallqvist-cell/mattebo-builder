@@ -21,6 +21,8 @@ interface CollapsibleSectionProps {
   defaultOpen?: boolean;
   className?: string;
   contentClassName?: string;
+  /** Keep children mounted while closed (e.g. so the radio keeps playing). */
+  keepMounted?: boolean;
 }
 
 const TONE_CLASSES: Record<Tone, string> = {
@@ -41,6 +43,7 @@ const CollapsibleSection = ({
   defaultOpen = true,
   className,
   contentClassName,
+  keepMounted = false,
 }: CollapsibleSectionProps) => {
   const [storedOpen, setOpen] = useSectionOpen(id, defaultOpen);
   const open = alwaysOpen || storedOpen;
@@ -69,7 +72,7 @@ const CollapsibleSection = ({
           {alwaysOpen && headerExtra && <span className="font-nunito text-xs text-muted-foreground">{headerExtra}</span>}
           {headerControls && <div className="ml-auto">{headerControls}</div>}
         </div>
-        <CollapsibleContent className={cn("min-h-0 flex-1 px-4 pb-4", contentClassName)}>{children}</CollapsibleContent>
+        <CollapsibleContent forceMount={keepMounted ? true : undefined} className={cn("min-h-0 data-[state=closed]:hidden flex-1 px-4 pb-4", contentClassName)}>{children}</CollapsibleContent>
       </Collapsible>
     </section>
   );

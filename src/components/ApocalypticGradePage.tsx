@@ -141,6 +141,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 icon={<Wrench className="h-4 w-4 text-muted-foreground" />}
                 headerExtra={activeRadioChannel ? <Volume2 className="inline h-4 w-4 text-primary animate-pulse" /> : undefined}
                 tone="muted"
+                keepMounted
                 defaultOpen={wide}
                 className={left}
                 contentClassName="space-y-3"
