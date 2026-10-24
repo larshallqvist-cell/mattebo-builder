@@ -106,6 +106,14 @@ const Algebra = () => {
           <div className="my-6 text-center">
             <div className="font-orbitron text-3xl font-semibold text-foreground sm:text-4xl break-words">{ex.expr}</div>
             {mode !== "simplify" && <div className="mt-3 font-nunito text-lg text-accent">när {fmtValues(ex.values)}</div>}
+            {result && (
+              <div key={result.message} role="status" className="mt-5">
+                <div className={cn("font-orbitron text-4xl font-bold sm:text-5xl", result.correct ? "animate-answer-correct text-[hsl(var(--survey-good))]" : "text-destructive")}>
+                  {result.correct ? "RÄTT!" : "Inte riktigt"}
+                </div>
+                <p className="mt-2 font-nunito text-base text-foreground">{result.message}{mode === "both" && step === "simplify" && result.correct && " Räkna nu ut värdet."}</p>
+              </div>
+            )}
           </div>
 
           <form onSubmit={(e) => { e.preventDefault(); done ? next() : check(); }} className="space-y-3">
@@ -129,13 +137,6 @@ const Algebra = () => {
             </div>
           </form>
 
-          {result && (
-            <div role="status" className={cn("mt-5 flex items-start gap-3 rounded-xl border p-4 font-nunito",
-              result.correct ? "border-accent/50 bg-accent/15 text-foreground" : "border-destructive/50 bg-destructive/10 text-foreground")}>
-              {result.correct ? <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" /> : <X className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />}
-              <p>{result.message}{mode === "both" && step === "simplify" && result.correct && " Räkna nu ut värdet."}</p>
-            </div>
-          )}
         </section>
       </div>
     </div>
