@@ -54,9 +54,14 @@ function stripAcceptedHistory(text: string, history: string[]): string | null {
 }
 
 /** One submission per utterance, including when its final result arrives later. */
-export function createVoiceAnswerHandler(submit: (answer: number) => void, onHeard?: (text: string) => void) {
+export function createVoiceAnswerHandler(
+  submit: (answer: number) => void,
+  onHeard?: (text: string) => void,
+  /** Accepted answer texts, shared across reconnected sessions in one test. */
+  history: string[] = [],
+) {
   const consumed = new Map<number, string>();
-  let pending: { index: number; value: number; transcript: string } | undefined;
+  let pending: { index: number; value: number; transcript: string; answerText: string } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
   let ended = false;
@@ -67,10 +72,12 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
     pending = undefined;
   };
 
-  const accept = (index: number, value: number, transcript: string) => {
+  const accept = (index: number, value: number, transcript: string, answerText: string) => {
     cancelPending();
     if (stopped || consumed.get(index) === transcript) return;
     consumed.set(index, transcript);
+    history.push(answerText);
+    if (history.length > 6) history.splice(0, history.length - 6);
     submit(value);
   };
 
@@ -82,7 +89,9 @@ export function createVoiceAnswerHandler(submit: (answer: number) => void, onHea
         onHeard?.(result?.[0]?.transcript ?? "");
         const transcript = normalizeTranscript(result?.[0]?.transcript ?? "");
         const prefix = consumed.get(index);
-        const candidate = prefix === undefined ? transcript : appendedAnswer(transcript, prefix);
+        const candidate = prefix === undefined
+          ? stripAcceptedHistory(transcript, history) ?? transcript
+          : appendedAnswer(transcript, prefix);
         // A late final or a correction of already graded words is not another answer.
         if (candidate === null) {
           if (pending?.index === index) cancelPending();
