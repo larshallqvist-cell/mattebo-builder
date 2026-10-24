@@ -1,8 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, Calculator } from "lucide-react";
+import { Home, BookOpen, Calendar, Sun, Wrench } from "lucide-react";
+import { OPEN_SECTION_EVENT } from "@/hooks/useSectionOpen";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import CalculatorModal from "./CalculatorModal";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { DEFAULT_GRADE, GRADE_LABELS, GRADE_NEON_COLORS, SUPPORTED_GRADES } from "@/config/app";
 
@@ -13,57 +12,41 @@ interface MobileBottomNavProps {
 
 const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
   const location = useLocation();
-  const [showCalculator, setShowCalculator] = useState(false);
   
   const isHome = location.pathname === "/";
   const currentGrade = grade || parseInt(location.pathname.replace("/ak", "")) || DEFAULT_GRADE;
 
   const glowColor = GRADE_NEON_COLORS[currentGrade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--primary))";
 
-  const navItems = [
-    { 
-      icon: Home, 
-      label: "Hem", 
-      to: "/", 
-      active: isHome 
-    },
-    ...(grade ? [
-      { 
-        icon: BookOpen, 
-        label: "Resurser", 
-        to: `#resources`, 
-        active: false,
-        scrollTo: "resources"
-      },
-      { 
-        icon: Calendar, 
-        label: "Planering", 
-        to: `#calendar`, 
-        active: false,
-        scrollTo: "calendar"
-      },
-    ] : SUPPORTED_GRADES.map((g) => ({
-      icon: BookOpen,
-      label: GRADE_LABELS[g],
-      to: `/ak${g}`,
-      active: location.pathname === `/ak${g}`,
-    }))),
-  ];
+  type NavItem = { icon: typeof Home; label: string; to: string; active: boolean; scrollTo?: string };
+  const navItems: NavItem[] = grade
+    ? [
+        { icon: Sun, label: "Idag", to: "#today", active: false, scrollTo: "today" },
+        { icon: BookOpen, label: "Resurser", to: "#resources", active: false, scrollTo: "resources" },
+        { icon: Calendar, label: "Planering", to: "#calendar", active: false, scrollTo: "calendar" },
+        { icon: Wrench, label: "Verktyg", to: "#tools", active: false, scrollTo: "tools" },
+      ]
+    : [
+        { icon: Home, label: "Hem", to: "/", active: isHome },
+        ...SUPPORTED_GRADES.map((g) => ({
+          icon: BookOpen,
+          label: GRADE_LABELS[g],
+          to: `/ak${g}`,
+          active: location.pathname === `/ak${g}`,
+        })),
+      ];
 
-  const handleNavClick = (item: typeof navItems[0]) => {
+  const handleNavClick = (e: React.MouseEvent, item: NavItem) => {
     hapticFeedback('light');
-    if ('scrollTo' in item && item.scrollTo) {
+    if (item.scrollTo) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent(OPEN_SECTION_EVENT, { detail: item.scrollTo }));
       const element = document.getElementById(item.scrollTo);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      // Let the section open before scrolling to it.
+      window.setTimeout(() => element?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
     }
   };
   
-  const handleCalculatorClick = () => {
-    hapticFeedback('medium');
-    setShowCalculator(true);
-  };
 
   return (
     <>
@@ -98,7 +81,7 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
               <Link
                 key={index}
                 to={item.to}
-                onClick={() => handleNavClick(item)}
+                onClick={(e) => handleNavClick(e, item)}
                 className="relative flex flex-col items-center justify-center min-w-[65px] py-2 px-3 rounded-xl transition-all duration-200 active:scale-95"
                 style={{
                   background: isActive ? `${glowColor}25` : "transparent",
@@ -137,32 +120,9 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
             );
           })}
           
-          {grade && (
-            <button
-              onClick={handleCalculatorClick}
-              className="relative flex flex-col items-center justify-center min-w-[65px] py-2 px-3 rounded-xl transition-all duration-200 active:scale-95 hover:bg-primary/10"
-            >
-              <motion.div
-                whileTap={{ scale: 0.85 }}
-                transition={{ duration: 0.1 }}
-              >
-                <Calculator 
-                  className="w-7 h-7 mb-1" 
-                  style={{ color: "hsl(var(--neon-green))" }} 
-                />
-              </motion.div>
-              <span 
-                className="text-[11px] font-nunito font-semibold"
-                style={{ color: "hsl(var(--neon-green))" }}
-              >
-                Räknare
-              </span>
-            </button>
-          )}
         </div>
       </motion.nav>
       
-      <CalculatorModal open={showCalculator} onOpenChange={setShowCalculator} />
     </>
   );
 };
