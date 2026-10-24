@@ -8,6 +8,10 @@ export type Visit = { id: string; visit_id: string; user_id: string; path: strin
 export type ActivityEvent = { id: string; userId: string; at: string; label: string };
 export type Student = { user_id: string; full_name: string; last_sign_in_at: string | null };
 
+export function resumeVisit(saved: { userId: string; visitId: string; lastSeen: number } | null, userId: string, now: number, newId: string) {
+  return saved?.userId === userId && now - saved.lastSeen >= 0 && now - saved.lastSeen < VISIT_GAP_MS ? saved.visitId : newId;
+}
+
 /** Count only foreground time up to the inactivity boundary, never the time a hidden tab spent asleep. */
 export function activeElapsed(previous: number, now: number, lastInput: number, foreground: boolean) {
   if (!foreground || now <= previous) return 0;

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { activeElapsed, PAGE_LABELS, VISIT_GAP_MS } from "@/lib/studentActivity";
+import { activeElapsed, PAGE_LABELS, VISIT_GAP_MS, resumeVisit } from "@/lib/studentActivity";
 
 type SavedVisit = { userId: string; visitId: string; lastSeen: number };
 const KEY = "mattebo_activity_visit";
@@ -16,7 +16,7 @@ export default function StudentActivityTracker() {
     const userId = user.id;
     let saved: SavedVisit | null = null;
     try { saved = JSON.parse(sessionStorage.getItem(KEY) ?? "null"); } catch { /* storage may be disabled */ }
-    let visitId = saved?.userId === userId && Date.now() - saved.lastSeen < VISIT_GAP_MS ? saved.visitId : crypto.randomUUID();
+    let visitId = resumeVisit(saved, userId, Date.now(), crypto.randomUUID());
     let rowId = crypto.randomUUID();
     let seconds = 0;
     let previous = Date.now();
@@ -26,6 +26,7 @@ export default function StudentActivityTracker() {
     let pending = false;
     let dirty = true;
     let stopped = false;
+    let finalQueued = false;
     const owner = crypto.randomUUID();
     const leaseKey = `mattebo_activity_foreground_${userId}`;
     const ownsForeground = (now: number) => {
@@ -40,14 +41,18 @@ export default function StudentActivityTracker() {
       try { sessionStorage.setItem(KEY, JSON.stringify({ userId, visitId, lastSeen: lastActive })); } catch { /* optional */ }
     };
     const save = async () => {
-      if (pending || !dirty) return;
+      if (pending) { if (stopped) finalQueued = true; return; }
+      if (!dirty) return;
       pending = true; dirty = false;
       const snapshot = { p_id: rowId, p_visit_id: visitId, p_path: pathname, p_active_seconds: Math.min(28800, Math.floor(seconds)) };
       try {
         const { error } = await supabase.rpc("record_student_visit", snapshot);
         if (error) dirty = true;
       } catch { dirty = true; }
-      finally { pending = false; if (stopped && dirty) { dirty = false; } }
+      finally {
+        pending = false;
+        if (finalQueued) { finalQueued = false; void save(); }
+      }
     };
     const sample = () => {
       const now = Date.now();
