@@ -57,6 +57,13 @@
       "when": 1792862134724,
       "tag": "0007_algebra_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792871444046,
+      "tag": "0008_student_activity_visits",
+      "breakpoints": true
     }
   ]
 }

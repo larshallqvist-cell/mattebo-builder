@@ -345,6 +345,44 @@ export type Database = {
         }
         Relationships: []
       }
+      student_visits: {
+        Row: {
+          active_seconds: number
+          id: string
+          last_seen_at: string
+          path: string
+          started_at: string
+          user_id: string
+          visit_id: string
+        }
+        Insert: {
+          active_seconds?: number
+          id: string
+          last_seen_at?: string
+          path: string
+          started_at?: string
+          user_id: string
+          visit_id: string
+        }
+        Update: {
+          active_seconds?: number
+          id?: string
+          last_seen_at?: string
+          path?: string
+          started_at?: string
+          user_id?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_visits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       survey_responses: {
         Row: {
           created_at: string
@@ -524,6 +562,15 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      record_student_visit: {
+        Args: {
+          p_active_seconds: number
+          p_id: string
+          p_path: string
+          p_visit_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
