@@ -133,7 +133,7 @@ const Tabelltest = () => {
     setScore(0);
     scoreRef.current = 0;
     timesRef.current = [];
-    voiceHistoryRef.current = [];
+    voiceHistoryRef.current.length = 0;
     setSaveError(false);
     setHeard("");
     setVoiceStatus("");

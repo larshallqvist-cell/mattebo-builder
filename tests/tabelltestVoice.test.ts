@@ -232,3 +232,47 @@ test("glued digits 40 then 4015 grade 40 and 15 once each", async () => {
   expect(answers).toEqual([40, 15]);
   handler.stop();
 });
+
+test("a new result repeating the accepted 40 as 4015 grades only 15", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("40", true)] });
+  handler.handle({ resultIndex: 1, results: [result("40", true), result("4015", false)] });
+  await wait();
+  handler.handle({ resultIndex: 1, results: [result("40", true), result("4015", true)] });
+  expect(answers).toEqual([40, 15]);
+  handler.stop();
+});
+
+test("a new result repeating the accepted 40 with a space grades only 15", () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("40", true)] });
+  handler.handle({ resultIndex: 1, results: [result("40", true), result("40 15", true)] });
+  expect(answers).toEqual([40, 15]);
+  handler.stop();
+});
+
+test("a glued single digit that cannot be a table answer is a new answer: 40 then 406", async () => {
+  const answers: number[] = [];
+  const handler = createVoiceAnswerHandler((n) => answers.push(n));
+  handler.handle({ results: [result("40", true)] });
+  handler.handle({ results: [result("406", false)] });
+  await wait();
+  expect(answers).toEqual([40, 6]);
+  handler.stop();
+});
+
+test("a reconnected session that repeats earlier answers grades only the new one", () => {
+  const answers: number[] = [];
+  const history: string[] = [];
+  const first = createVoiceAnswerHandler((n) => answers.push(n), undefined, history);
+  first.handle({ results: [result("40", true)] });
+  first.handle({ resultIndex: 1, results: [result("40", true), result("15", true)] });
+  first.end();
+  const second = createVoiceAnswerHandler((n) => answers.push(n), undefined, history);
+  second.handle({ results: [result("40 15 24", true)] });
+  expect(answers).toEqual([40, 15, 24]);
+  first.stop();
+  second.stop();
+});
