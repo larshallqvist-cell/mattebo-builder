@@ -1,9 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, Calculator, Sun, Wrench } from "lucide-react";
+import { Home, BookOpen, Calendar, Sun, Wrench } from "lucide-react";
 import { OPEN_SECTION_EVENT } from "@/hooks/useSectionOpen";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import CalculatorModal from "./CalculatorModal";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { DEFAULT_GRADE, GRADE_LABELS, GRADE_NEON_COLORS, SUPPORTED_GRADES } from "@/config/app";
 
@@ -14,7 +12,6 @@ interface MobileBottomNavProps {
 
 const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
   const location = useLocation();
-  const [showCalculator, setShowCalculator] = useState(false);
   
   const isHome = location.pathname === "/";
   const currentGrade = grade || parseInt(location.pathname.replace("/ak", "")) || DEFAULT_GRADE;
@@ -45,16 +42,11 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent(OPEN_SECTION_EVENT, { detail: item.scrollTo }));
       const element = document.getElementById(item.scrollTo);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      // Let the section open before scrolling to it.
+      window.setTimeout(() => element?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
     }
   };
   
-  const handleCalculatorClick = () => {
-    hapticFeedback('medium');
-    setShowCalculator(true);
-  };
 
   return (
     <>
@@ -128,32 +120,9 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
             );
           })}
           
-          {!grade && false && (
-            <button
-              onClick={handleCalculatorClick}
-              className="relative flex flex-col items-center justify-center min-w-[65px] py-2 px-3 rounded-xl transition-all duration-200 active:scale-95 hover:bg-primary/10"
-            >
-              <motion.div
-                whileTap={{ scale: 0.85 }}
-                transition={{ duration: 0.1 }}
-              >
-                <Calculator 
-                  className="w-7 h-7 mb-1" 
-                  style={{ color: "hsl(var(--neon-green))" }} 
-                />
-              </motion.div>
-              <span 
-                className="text-[11px] font-nunito font-semibold"
-                style={{ color: "hsl(var(--neon-green))" }}
-              >
-                Räknare
-              </span>
-            </button>
-          )}
         </div>
       </motion.nav>
       
-      <CalculatorModal open={showCalculator} onOpenChange={setShowCalculator} />
     </>
   );
 };
