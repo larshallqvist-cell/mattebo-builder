@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Undersök 10:12 och rätta tapp när webbläsaren ändrar skiljetecken mellan redan räknade röstsvar
+- [x] Undersök 10:12 och rätta tapp när webbläsaren ändrar skiljetecken mellan redan räknade röstsvar (26 tester och simulerat förhör 20/20; faktisk iPad ej verifierad)
 
 - [x] Skilj intilliggande röstsvar som webbläsaren lägger i samma text och verifiera utan dubbelsvar (22 tester och simulerat helt förhör med 20/20)
 
