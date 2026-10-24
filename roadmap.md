@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Elevaktivitet: privata besök, uppskattad aktiv tid, adminöversikt och aktivitetstidslinje
-- [ ] Verifiera elevaktivitet, sparning och behörigheter
+- [x] Elevaktivitet: privata besök, uppskattad aktiv tid, adminöversikt och aktivitetstidslinje
+- [x] Verifiera tidsregler, adminöversikt med befintlig aktivitet, sökning, mobilbredd och adminspärr för registrering
+- [ ] Verifiera nytt elevbesök och tidsmätning hela vägen till adminlistan (väntar på val av elevkonto)
 
 - [x] Undersök 10:12 och rätta tapp när webbläsaren ändrar skiljetecken mellan redan räknade röstsvar (26 tester och simulerat förhör 20/20; faktisk iPad ej verifierad)
 
