@@ -6,6 +6,8 @@ import { CHAPTER_SUBTITLES, CHAPTER_COOKIE_PREFIX, CHAPTER_COOKIE_DAYS, MIN_CHAP
 interface ChapterSelectorProps {
   grade: number;
   onChapterChange?: (chapter: number) => void;
+  /** Compact row without the "Kapitel" label, for use inside a panel title. */
+  variant?: "default" | "title";
 }
 
 const getChapterFromCookie = (grade: number): number => {
@@ -31,7 +33,8 @@ const getChapterSubtitle = (grade: number, chapter: number): string => {
 };
 const ChapterSelector = ({
   grade,
-  onChapterChange
+  onChapterChange,
+  variant = "default"
 }: ChapterSelectorProps) => {
   const [selectedChapter, setSelectedChapter] = useState<number>(() => getChapterFromCookie(grade));
   useEffect(() => {
@@ -48,11 +51,14 @@ const ChapterSelector = ({
   const currentSubtitle = getChapterSubtitle(grade, selectedChapter);
   return (
     <div className="flex flex-col items-center justify-center gap-0.5">
-      <span className="text-[0.6rem] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-none">Kapitel</span>
-      <div className="flex gap-1">
+      {variant === "default" && <span className="text-[0.6rem] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-none">Kapitel</span>}
+      <div className="flex gap-1" role="group" aria-label="Välj kapitel">
         {chapters.map(chapter => (
           <button 
             key={chapter} 
+            type="button"
+            aria-pressed={selectedChapter === chapter}
+            aria-label={`Kapitel ${chapter}`}
             onClick={() => {
               hapticFeedback('light');
               setSelectedChapter(chapter);
