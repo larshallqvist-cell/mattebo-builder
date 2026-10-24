@@ -50,6 +50,13 @@
       "when": 1792709286990,
       "tag": "0006_tabelltest_input_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792862134724,
+      "tag": "0007_algebra_attempts",
+      "breakpoints": true
     }
   ]
 }
