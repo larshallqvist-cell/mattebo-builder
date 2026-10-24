@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Calendar, BookOpen, Volume2, Wrench, Sun } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, LineChart, PieChart, Timer, Sigma } from "lucide-react";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
-import CalculatorThumbnail from "@/components/CalculatorThumbnail";
+import CalculatorModal from "@/components/CalculatorModal";
 import WebRadio from "@/components/WebRadio";
 import LunchMenu from "@/components/LunchMenu";
 import LessonTimer from "@/components/LessonTimer";
@@ -26,36 +27,49 @@ interface ApocalypticGradePageProps {
   grade: number;
 }
 
-const TOOL_LINKS = [
-  { label: "Drills", url: "https://drills.vidma.se" },
-  { label: "Tabellerna", url: "https://multiplication.fluentmath.com/" },
-  { label: "Mathdrop", url: "https://vidma.se/mathdrop/" },
-] as const;
+const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean }[] = [
+  { label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
+  { label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
+  { label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
+  { label: "ClassPad (Casio)", url: "https://classpad.net/", icon: LineChart },
+  { label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
+  { label: "Tabelltestet", url: "/tabelltestet", icon: Timer, internal: true },
+  { label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
+];
 
-const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => (
-  <div className="grid grid-cols-2 gap-3 h-[140px]">
-    <div className="flex flex-col gap-2 min-h-0">
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <CalculatorThumbnail fillSpace />
+const toolBtn =
+  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-xl border border-primary/30 bg-secondary/60 px-2 py-2 text-center text-sm font-semibold text-foreground transition-colors hover:bg-primary/25 hover:border-primary/60";
+
+const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => {
+  const [calcOpen, setCalcOpen] = useState(false);
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <button type="button" onClick={() => setCalcOpen(true)} className={toolBtn}>
+          <Calculator className="h-6 w-6 text-primary" />
+          Kalkylator
+        </button>
+        {TOOL_LINKS.map(({ label, url, icon: Icon, internal }) =>
+          internal ? (
+            <Link key={url} to={url} className={toolBtn}>
+              <Icon className="h-6 w-6 text-primary" />
+              {label}
+            </Link>
+          ) : (
+            <button key={url} type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn}>
+              <Icon className="h-6 w-6 text-primary" />
+              {label}
+            </button>
+          ),
+        )}
       </div>
-      <div className="flex-shrink-0 grid grid-cols-3 gap-1.5">
-        {TOOL_LINKS.map((link) => (
-          <button
-            key={link.url}
-            type="button"
-            onClick={() => window.open(link.url, "_blank", "noopener,noreferrer")}
-            className="rounded-lg bg-primary/80 hover:bg-primary text-primary-foreground text-xs font-semibold py-1.5 transition-colors"
-          >
-            {link.label}
-          </button>
-        ))}
+      <div className="grid grid-cols-3 gap-1.5 h-[64px] [&_span:first-child]:!text-2xl">
+        <WebRadio fillSpace onChannelChange={onChannelChange} />
       </div>
+      <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
     </div>
-    <div className="grid grid-cols-3 gap-1.5 min-h-0 overflow-hidden [&_span:first-child]:!text-2xl">
-      <WebRadio fillSpace onChannelChange={onChannelChange} />
-    </div>
-  </div>
-);
+  );
+};
 
 const formatNext = (date: Date) =>
   date.toLocaleString("sv-SE", { weekday: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
