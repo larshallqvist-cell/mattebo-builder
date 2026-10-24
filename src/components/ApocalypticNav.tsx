@@ -18,44 +18,39 @@ interface ApocalypticNavProps {
 const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
 
-  return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-1 sm:px-6 sm:py-2`}>
-      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-2 px-3 py-1.5 sm:gap-4 sm:px-6 sm:py-[10px]`} style={{
+  return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>
+      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
       border: "1px solid hsl(var(--primary) / 0.2)"
     }}>
         {/* Logo / Site title — with grade stacked underneath */}
-        <div className="flex shrink-0 flex-col leading-tight">
-          <Link to="/" className="font-orbitron text-sm font-bold text-accent hover:text-foreground transition-colors sm:text-lg">
+        <div className={`flex shrink-0 flex-col leading-tight ${grade != null ? "py-1" : ""}`}>
+          <Link to="/" className={`font-orbitron font-bold text-accent hover:text-foreground transition-colors ${grade != null ? "text-xl sm:text-2xl" : "text-sm sm:text-lg"}`}>
             Leteboskolan
           </Link>
           {grade != null && isAdmin && (
-            <div className="mt-0.5 flex items-center gap-0.5 sm:gap-1">
+            <div className="mt-1 flex items-center gap-1">
               {[6, 7, 8, 9].map((g) => (
                 <Link
                   key={g}
                   to={`/ak${g}`}
-                  className={`rounded-full px-1 py-0.5 font-orbitron text-[9px] font-semibold transition-colors sm:px-1.5 sm:text-[11px] ${
+                  className={`rounded-full px-2 py-0.5 font-orbitron text-xs font-semibold transition-colors sm:text-sm ${
                     g === grade ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
                   }`}
                 >
-                  <span className="sm:hidden">{g}</span>
-                  <span className="hidden sm:inline">Åk {g}</span>
+                  Åk {g}
                 </Link>
               ))}
             </div>
           )}
           {grade != null && !isAdmin && (
             <span
-              className="font-orbitron text-xs font-semibold"
-              style={
-                glowColor
-                  ? { color: glowColor, textShadow: `0 0 12px ${glowColor}60` }
-                  : undefined
-              }
+              className="font-orbitron text-lg font-semibold sm:text-xl"
+              style={glowColor ? { color: glowColor } : undefined}
             >
-              Åk {grade}
+              Årskurs {grade}
             </span>
           )}
         </div>
@@ -72,17 +67,21 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
           <Link to="/" className="nav-link">
             Hem
           </Link>
-          <Link to="/braklabbet" className="nav-link">
-            <span className="sm:hidden">Labbet</span>
-            <span className="hidden sm:inline">Bråklabbet</span>
-          </Link>
-          <Link to="/tabelltestet" className="nav-link">
-            <span className="sm:hidden">Testet</span>
-            <span className="hidden sm:inline">Tabelltestet</span>
-          </Link>
-          <Link to="/algebra" className="nav-link">
-            Algebra
-          </Link>
+          {grade == null && (
+            <>
+              <Link to="/braklabbet" className="nav-link">
+                <span className="sm:hidden">Labbet</span>
+                <span className="hidden sm:inline">Bråklabbet</span>
+              </Link>
+              <Link to="/tabelltestet" className="nav-link">
+                <span className="sm:hidden">Testet</span>
+                <span className="hidden sm:inline">Tabelltestet</span>
+              </Link>
+              <Link to="/algebra" className="nav-link">
+                Algebra
+              </Link>
+            </>
+          )}
           <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
             Om
           </a>
