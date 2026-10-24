@@ -45,8 +45,10 @@ const Tabelltest = () => {
   const [micRequestKey, setMicRequestKey] = useState(0);
   const [heard, setHeard] = useState("");
   const [voiceStatus, setVoiceStatus] = useState("");
+  const [feedback, setFeedback] = useState<{ correct: boolean; key: number } | null>(null);
 
   const timesRef = useRef<number[]>([]);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const questionStartRef = useRef(0);
   const scoreRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -111,6 +113,17 @@ const Tabelltest = () => {
 
   useEffect(() => () => stopListening(), [stopListening]);
 
+  const showFeedback = useCallback((correct: boolean) => {
+    clearTimeout(feedbackTimerRef.current);
+    setFeedback({ correct, key: Date.now() });
+    feedbackTimerRef.current = setTimeout(() => setFeedback(null), 1100);
+  }, []);
+
+  const clearFeedback = useCallback(() => {
+    clearTimeout(feedbackTimerRef.current);
+    setFeedback(null);
+  }, []);
+
   const startTest = () => {
     const qs = generateQuestions();
     setQuestions(qs);
@@ -122,6 +135,7 @@ const Tabelltest = () => {
     setSaveError(false);
     setHeard("");
     setVoiceStatus("");
+    clearFeedback();
     setPhase("running");
     questionStartRef.current = performance.now();
     if (mode === "voice" && speechSupported && !listening) toggleListening();
@@ -131,6 +145,7 @@ const Tabelltest = () => {
   const finish = useCallback(
     async (finalScore: number, times: number[]) => {
       stopListening();
+      clearFeedback();
       const avg = times.length ? Math.round(times.reduce((s, t) => s + t, 0) / times.length) : 0;
       setScore(finalScore);
       setAvgMs(avg);
@@ -148,7 +163,7 @@ const Tabelltest = () => {
       if (error) setSaveError(true);
       else loadBest();
     },
-    [user, mode, stopListening, loadBest],
+    [user, mode, stopListening, loadBest, clearFeedback],
   );
 
   const submitAnswer = useCallback(
@@ -159,9 +174,11 @@ const Tabelltest = () => {
       const elapsed = performance.now() - questionStartRef.current;
       timesRef.current.push(elapsed);
       const q = questions[index];
-      const newScore = scoreRef.current + (value === q.answer ? 1 : 0);
+      const correct = value === q.answer;
+      const newScore = scoreRef.current + (correct ? 1 : 0);
       scoreRef.current = newScore;
       setScore(newScore);
+      showFeedback(correct);
       const next = index + 1;
       if (next >= questions.length) {
         void finish(newScore, timesRef.current);
@@ -172,7 +189,7 @@ const Tabelltest = () => {
         setTimeout(() => inputRef.current?.focus(), 30);
       }
     },
-    [phase, questions, index, finish],
+    [phase, questions, index, finish, showFeedback],
   );
 
   // Continuous recognition outlives each question's callback.
@@ -357,13 +374,33 @@ const Tabelltest = () => {
 
           {phase === "running" && q && (
             <div className="mt-6 space-y-6">
-              <p className="font-nunito text-sm text-muted-foreground">
-                Uppgift {index + 1} av {questions.length} · {INPUT_MODE_LABELS[mode]} · gräns{" "}
-                {formatTime(passAvgMs(mode))}
-              </p>
+              <div className="flex items-center justify-center gap-5">
+                <div className="text-center">
+                  <p className="font-orbitron text-4xl font-bold leading-none text-accent">{score}</p>
+                  <p className="mt-1 font-nunito text-xs uppercase tracking-wider text-muted-foreground">rätt</p>
+                </div>
+                <p className="font-nunito text-sm text-muted-foreground">
+                  Uppgift {index + 1} av {questions.length} · {INPUT_MODE_LABELS[mode]} · gräns{" "}
+                  {formatTime(passAvgMs(mode))}
+                </p>
+              </div>
               <p className="font-orbitron text-5xl font-bold text-foreground sm:text-6xl">
                 {q.a} × {q.b}
               </p>
+              <div aria-live="assertive" className="flex min-h-12 items-center justify-center">
+                {feedback && (
+                  <p
+                    key={feedback.key}
+                    className={`font-orbitron text-3xl font-bold ${
+                      feedback.correct
+                        ? "animate-answer-correct text-[hsl(var(--survey-good))]"
+                        : "text-destructive"
+                    }`}
+                  >
+                    {feedback.correct ? "Rätt!" : "Fel"}
+                  </p>
+                )}
+              </div>
               <div className="flex items-center justify-center gap-3">
                 <input
                   ref={inputRef}
