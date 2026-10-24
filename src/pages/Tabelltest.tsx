@@ -56,6 +56,7 @@ const Tabelltest = () => {
   const voiceHandlerRef = useRef<ReturnType<typeof createVoiceAnswerHandler> | null>(null);
   const voiceHandlersRef = useRef(new Set<ReturnType<typeof createVoiceAnswerHandler>>());
   const voiceWantedRef = useRef(false);
+  const voiceHistoryRef = useRef<string[]>([]);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const speechSupported =
@@ -132,6 +133,7 @@ const Tabelltest = () => {
     setScore(0);
     scoreRef.current = 0;
     timesRef.current = [];
+    voiceHistoryRef.current = [];
     setSaveError(false);
     setHeard("");
     setVoiceStatus("");
@@ -216,7 +218,7 @@ const Tabelltest = () => {
     const handler = createVoiceAnswerHandler((number) => {
       setAnswer(String(number));
       submitAnswerRef.current(String(number));
-    }, setHeard);
+    }, setHeard, voiceHistoryRef.current);
     voiceHandlerRef.current = handler;
     voiceHandlersRef.current.add(handler);
     rec.onresult = (event: Parameters<typeof handler.handle>[0]) => {
