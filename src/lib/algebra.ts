@@ -62,10 +62,9 @@ const STRUCTURES: ((r: Rng) => Part[])[] = [
   (r) => { const d = pick(r, [2, 3, 4]); return shuffleTail(r, [{ k: fr(sgn(r), d), group: [T(d * ri(r, 1, 3), "x"), T(sgn(r) * d * ri(r, 1, 4), null)] }, fracTerm(r, [2, 4, 3, 6], "x", sgn(r)), { k: fr(sgn(r) * ri(r, 2, 4)), group: [T(1, r() < 0.5 ? "x" : "y"), T(sgn(r) * ri(r, 1, 6), null)] }]); },
 ];
 
-export type Mode = "simplify" | "evaluate" | "both";
+export type Mode = "simplify" | "both";
 export const MODES: { id: Mode; title: string; blurb: string }[] = [
   { id: "simplify", title: "Förenkla uttryck", blurb: "Slå ihop termer av samma slag." },
-  { id: "evaluate", title: "Beräkna värdet", blurb: "Sätt in talen direkt och räkna." },
   { id: "both", title: "Förenkla och beräkna", blurb: "Förenkla först, räkna sedan." },
 ];
 export const LEVELS: Record<Mode, { name: string; example: string }[]> = {
@@ -75,12 +74,6 @@ export const LEVELS: Record<Mode, { name: string; example: string }[]> = {
     { name: "Minus framför parentes", example: "−2(x − 3) + x" }, { name: "Bråkkoefficienter", example: "½x + ¼x" },
     { name: "Blandat", example: "½(4x + 6) − ¼x" },
   ],
-  evaluate: [
-    { name: "En variabel", example: "3x + 5, x = 4" }, { name: "Två variabler", example: "2x + 3y, x = 2, y = 5" },
-    { name: "Negativa värden", example: "3x − 2y + 4, x = −3" }, { name: "Parenteser", example: "2(x + 3) − x, x = 4" },
-    { name: "Minus och parentes", example: "−2(x − 3), x = −1" }, { name: "Bråk", example: "½x + ¼x, x = 8" },
-    { name: "Blandat", example: "½(4x + 6) − y, y = −2" },
-  ],
   both: [
     { name: "En variabel", example: "3x + 2x − x, x = 3" }, { name: "Två variabler", example: "3x + 2y − x + y" },
     { name: "Konstanter och minus", example: "3x − 4 + x + 7, x = −2" }, { name: "Parenteser", example: "2(x + 3) − x" },
@@ -88,9 +81,8 @@ export const LEVELS: Record<Mode, { name: string; example: string }[]> = {
     { name: "Blandat", example: "½(4x + 6) − ¼x" },
   ],
 };
-const EVAL_STRUCT = [(r: Rng): Part[] => [T(ri(r, 2, 9), "x"), T(sgn(r) * ri(r, 1, 9), null)], (r: Rng): Part[] => [T(ri(r, 2, 6), "x"), T(sgn(r) * ri(r, 1, 6), "y"), ...(r() < 0.5 ? [T(sgn(r) * ri(r, 1, 9), null)] : [])], STRUCTURES[2], STRUCTURES[3], STRUCTURES[4], STRUCTURES[5], STRUCTURES[6]];
 const NEG_VALUES: Record<Mode, boolean[]> = {
-  simplify: [], evaluate: [false, false, true, false, true, false, true], both: [false, false, true, false, true, false, true],
+  simplify: [], both: [false, false, true, false, true, false, true],
 };
 
 export type Exercise = { id: string; mode: Mode; level: number; expr: string; simplified: Lin; values: Record<string, number>; value: Frac };
@@ -98,10 +90,10 @@ const lcmDens = (parts: Part[]) => parts.flatMap((p) => ("group" in p ? [p.k.d, 
 
 export function generateExercise(mode: Mode, level: number, r: Rng = Math.random): Exercise {
   for (;;) {
-    const parts = (mode === "evaluate" ? EVAL_STRUCT : STRUCTURES)[level](r);
+    const parts = STRUCTURES[level](r);
     const simplified = parts.reduce((s, p) => linAdd(s, partLin(p)), linConst(fr(0)));
     if (isConst(simplified)) continue; // must keep a variable so the task is meaningful
-    if (mode !== "evaluate" && parts.length < 2) continue;
+    if (parts.length < 2) continue;
     const vars = [...new Set(parts.flatMap((p) => ("group" in p ? p.group.map((t) => t.v) : [p.v])).filter(Boolean) as string[])].sort();
     const L = lcmDens(parts), neg = NEG_VALUES[mode][level];
     const values = mode === "simplify" ? {} : Object.fromEntries(vars.map((v) => [v, (L > 1 ? L * ri(r, 1, 2) : ri(r, 1, 7)) * (neg && r() < 0.6 ? -1 : 1)]));
