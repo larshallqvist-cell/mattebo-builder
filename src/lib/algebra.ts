@@ -62,10 +62,9 @@ const STRUCTURES: ((r: Rng) => Part[])[] = [
   (r) => { const d = pick(r, [2, 3, 4]); return shuffleTail(r, [{ k: fr(sgn(r), d), group: [T(d * ri(r, 1, 3), "x"), T(sgn(r) * d * ri(r, 1, 4), null)] }, fracTerm(r, [2, 4, 3, 6], "x", sgn(r)), { k: fr(sgn(r) * ri(r, 2, 4)), group: [T(1, r() < 0.5 ? "x" : "y"), T(sgn(r) * ri(r, 1, 6), null)] }]); },
 ];
 
-export type Mode = "simplify" | "evaluate" | "both";
+export type Mode = "simplify" | "both";
 export const MODES: { id: Mode; title: string; blurb: string }[] = [
   { id: "simplify", title: "Förenkla uttryck", blurb: "Slå ihop termer av samma slag." },
-  { id: "evaluate", title: "Beräkna värdet", blurb: "Sätt in talen direkt och räkna." },
   { id: "both", title: "Förenkla och beräkna", blurb: "Förenkla först, räkna sedan." },
 ];
 export const LEVELS: Record<Mode, { name: string; example: string }[]> = {
@@ -74,12 +73,6 @@ export const LEVELS: Record<Mode, { name: string; example: string }[]> = {
     { name: "Variabler och konstanter", example: "3x + 2y − 4 + x + 7" }, { name: "Parenteser", example: "2(x + 3) − x" },
     { name: "Minus framför parentes", example: "−2(x − 3) + x" }, { name: "Bråkkoefficienter", example: "½x + ¼x" },
     { name: "Blandat", example: "½(4x + 6) − ¼x" },
-  ],
-  evaluate: [
-    { name: "En variabel", example: "3x + 5, x = 4" }, { name: "Två variabler", example: "2x + 3y, x = 2, y = 5" },
-    { name: "Negativa värden", example: "3x − 2y + 4, x = −3" }, { name: "Parenteser", example: "2(x + 3) − x, x = 4" },
-    { name: "Minus och parentes", example: "−2(x − 3), x = −1" }, { name: "Bråk", example: "½x + ¼x, x = 8" },
-    { name: "Blandat", example: "½(4x + 6) − y, y = −2" },
   ],
   both: [
     { name: "En variabel", example: "3x + 2x − x, x = 3" }, { name: "Två variabler", example: "3x + 2y − x + y" },
