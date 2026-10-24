@@ -47,7 +47,7 @@ export default function StudentActivityTracker() {
         const { error } = await supabase.rpc("record_student_visit", snapshot);
         if (error) dirty = true;
       } catch { dirty = true; }
-      finally { pending = false; if (stopped && dirty) void save(); }
+      finally { pending = false; if (stopped && dirty) { dirty = false; } }
     };
     const sample = () => {
       const now = Date.now();
