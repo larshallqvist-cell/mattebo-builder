@@ -13,6 +13,7 @@ import Ak9 from "./pages/Ak9";
 import Admin from "./pages/Admin";
 import Braklabbet from "./pages/Braklabbet";
 import Tabelltest from "./pages/Tabelltest";
+import Algebra from "./pages/Algebra";
 import NotFound from "./pages/NotFound";
 import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
@@ -35,6 +36,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin" element={<Admin />} />
         <Route path="/braklabbet" element={<Braklabbet />} />
         <Route path="/tabelltestet" element={<Tabelltest />} />
+        <Route path="/algebra" element={<Algebra />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
