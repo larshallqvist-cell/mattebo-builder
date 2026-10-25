@@ -37,7 +37,7 @@ const UserMenu = () => {
         <button
           className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all hover:opacity-80"
         >
-          <Avatar className="h-7 w-7 border-2 border-primary/30 sm:h-8 sm:w-8">
+          <Avatar className="h-6 w-6 border-2 border-primary/30 sm:h-8 sm:w-8">
             <AvatarImage src={userAvatar} alt={userName} />
             <AvatarFallback className="bg-primary/20 text-primary text-xs">
               {userInitials}
