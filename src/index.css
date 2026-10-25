@@ -243,14 +243,14 @@
     text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
   }
 
-  /* Giant grade headline on the class pages */
+  /* Big grade headline in the class-page header */
   .grade-hero {
     display: block;
     font-family: "Unbounded", "Sora", system-ui, sans-serif;
     font-weight: 800;
-    line-height: 0.85;
+    line-height: 0.95;
     letter-spacing: -0.04em;
-    font-size: clamp(3.5rem, min(19vw, 24vh), 12rem);
+    font-size: clamp(2rem, 5vw, 3.5rem);
     background-image: linear-gradient(
       100deg,
       hsl(var(--grade-tint, var(--accent))) 0%,
@@ -260,8 +260,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 0 18px hsl(var(--grade-tint, var(--accent)) / 0.35))
-      drop-shadow(0 14px 34px hsl(var(--grade-tint, var(--accent)) / 0.3));
+    filter: drop-shadow(0 0 12px hsl(var(--grade-tint, var(--accent)) / 0.3));
   }
 
   .grade-hero-word {
