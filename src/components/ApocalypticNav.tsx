@@ -72,7 +72,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
 
           <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
             {headerAction}
-            <Link to="/" className="nav-link">
+            <Link to="/" className="nav-link hidden sm:inline">
               Hem
             </Link>
             {grade == null && (
