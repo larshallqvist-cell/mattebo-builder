@@ -28,3 +28,5 @@
 - [x] Flytta den stora årskursrubriken upp i headern så att sidan får tillbaka platsen
 
 - [x] Gör skolnamnet så stort som möjligt på en rad och sätt siffran optiskt i mitten
+- [x] Flytta enkätlampan upp i headerns knapprad så att den inte står ensam i en egen remsa
+
