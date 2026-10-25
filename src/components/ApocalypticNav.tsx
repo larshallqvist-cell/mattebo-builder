@@ -11,11 +11,9 @@ interface ApocalypticNavProps {
   hideCenter?: boolean;
   /** Optional grade shown stacked under the logo */
   grade?: number;
-  /** Glow color for the grade label */
-  glowColor?: string;
 }
 
-const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, hideCenter, grade }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
 
   return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>

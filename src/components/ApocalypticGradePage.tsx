@@ -20,7 +20,6 @@ import { useIsWideLayout } from "@/hooks/useSectionOpen";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { GRADE_NEON_COLORS } from "@/config/app";
 import { SuspenseResourceAccordion, SuspenseLessonCalendar, SuspenseMascotPanel } from "@/components/LazyComponents";
 
 interface ApocalypticGradePageProps {
@@ -88,7 +87,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const { nextEvent } = useCalendarEvents(grade);
   const { mode } = useViewMode();
   const wide = useIsWideLayout(mode);
-  const glowColor = GRADE_NEON_COLORS[grade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--neon-copper))";
 
   // Wide layout places planning in a right column; narrow layout stacks everything.
   const left = wide ? "col-span-8 col-start-1" : "";
@@ -102,7 +100,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         >
           <ApocalypticNav
             grade={grade}
-            glowColor={glowColor}
             centerContent={
               <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                 <ViewModeToggle compact />
