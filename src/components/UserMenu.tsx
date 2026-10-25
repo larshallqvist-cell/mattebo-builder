@@ -43,7 +43,7 @@ const UserMenu = () => {
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden md:inline-block text-sm font-medium text-foreground">
+          <span className="hidden lg:inline-block text-sm font-medium text-foreground">
             {userName}
           </span>
         </button>
