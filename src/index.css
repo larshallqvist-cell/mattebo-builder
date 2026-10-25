@@ -274,7 +274,7 @@
   .school-name {
     line-height: 1;
     letter-spacing: 0.06em;
-    font-size: 0.72rem;
+    font-size: 0.66rem;
   }
 
   @media (min-width: 640px) {
