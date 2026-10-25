@@ -250,7 +250,7 @@
     font-weight: 800;
     line-height: 0.85;
     letter-spacing: -0.04em;
-    font-size: clamp(3.5rem, min(18vw, 22vh), 9.5rem);
+    font-size: clamp(3.5rem, min(19vw, 24vh), 12rem);
     background-image: linear-gradient(
       100deg,
       hsl(var(--grade-tint, var(--accent))) 0%,
@@ -260,7 +260,8 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 12px 30px hsl(var(--grade-tint, var(--accent)) / 0.25));
+    filter: drop-shadow(0 0 18px hsl(var(--grade-tint, var(--accent)) / 0.35))
+      drop-shadow(0 14px 34px hsl(var(--grade-tint, var(--accent)) / 0.3));
   }
 
   .grade-hero-word {
