@@ -103,16 +103,17 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             tint={GRADE_TINT[grade] ?? "var(--accent)"}
             headerAction={
               <>
+                <SurveyLamp grade={grade} compact />
                 <ViewModeToggle compact />
                 <LessonNotesButton grade={grade} />
               </>
             }
             centerContent={
               <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                <SurveyLamp grade={grade} />
                 <LessonTimer grade={grade} size={56} hideClock />
               </div>
             }
+
           />
 
           <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pt-3 pb-28 sm:px-4 lg:pb-8 relative z-20" style={{ WebkitOverflowScrolling: "touch" }}>
