@@ -101,10 +101,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           <ApocalypticNav
             grade={grade}
             tint={GRADE_TINT[grade] ?? "var(--accent)"}
-            headerAction={<LessonNotesButton grade={grade} />}
+            headerAction={
+              <>
+                <ViewModeToggle compact />
+                <LessonNotesButton grade={grade} />
+              </>
+            }
             centerContent={
               <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                <ViewModeToggle compact />
                 <SurveyLamp grade={grade} />
                 <LessonTimer grade={grade} size={56} hideClock />
               </div>
