@@ -272,24 +272,18 @@
     margin-right: 0.14em;
   }
 
-  /* School name in the class-page header: kept on one line and grown to the
-     largest size the row can hold without pushing the centered grade headline
-     out of place. The caps track the width the left column gets at each size. */
+  /* School name in the class-page header: a deliberately subordinate label.
+     The big grade headline is the protagonist; the school name is a quiet
+     wordmark that anchors the header without competing with it. */
   .school-name {
     line-height: 1;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
     font-size: 0.66rem;
   }
 
   @media (min-width: 640px) {
     .school-name {
-      font-size: clamp(1.4rem, calc(4.6vw - 8px), 2.6rem);
-    }
-  }
-
-  @media (min-width: 1120px) {
-    .school-name {
-      font-size: clamp(2.6rem, calc(5.4vw - 17px), 3.3rem);
+      font-size: clamp(0.95rem, 1.8vw, 1.4rem);
     }
   }
 }
