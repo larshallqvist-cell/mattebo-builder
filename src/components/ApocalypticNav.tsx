@@ -48,8 +48,12 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
         {/* School name | big class headline in the middle | links and auth */}
         <div className="flex w-full items-center gap-2 sm:gap-4">
           <div className="flex min-w-0 flex-1 flex-col leading-none">
-            <Link to="/" className="school-name font-orbitron font-semibold uppercase text-accent transition-colors hover:text-foreground">
-              Leteboskolan
+            <Link to="/" className="font-orbitron uppercase text-accent transition-colors hover:text-foreground">
+              <span className="school-name font-semibold sm:hidden">Leteboskolan</span>
+              <span className="school-logo font-extrabold hidden sm:flex">
+                <span>Letebo</span>
+                <span>Skolan</span>
+              </span>
             </Link>
             {grade != null && isAdmin && (
               <div className="mt-1.5 flex items-center gap-1">
