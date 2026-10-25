@@ -269,17 +269,29 @@
     margin-right: 0.14em;
   }
 
-  /* School name in the class-page header. Sized to match the "Åk" word of the
-     big headline (0.38em of the hero) on screens wide enough to hold both. */
+  /* School wordmark in the class-page header. Phones keep a compact single
+     line; from sm and up the name becomes a two-line logotype so it can grow
+     without stealing width from the centered grade headline. */
   .school-name {
     line-height: 1;
     letter-spacing: 0.06em;
     font-size: 0.66rem;
   }
 
+  .school-logo {
+    display: none;
+    flex-direction: column;
+    line-height: 0.86;
+    letter-spacing: -0.005em;
+    font-size: clamp(1.6rem, 6vw, 4.5rem);
+  }
+
   @media (min-width: 640px) {
     .school-name {
-      font-size: clamp(1.25rem, 3.6vw, 2.66rem);
+      display: none;
+    }
+    .school-logo {
+      display: flex;
     }
   }
 }
