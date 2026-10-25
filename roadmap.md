@@ -27,4 +27,4 @@
 - [x] Tabelltestet: sida, röstinmatning, resultatsparning, adminlista och headerlänk
 - [x] Flytta den stora årskursrubriken upp i headern så att sidan får tillbaka platsen
 
-- [x] Gör skolnamnet till en tvåradig logga ("Letebo"/"Skolan") i headern, cirka tre gånger större
+- [x] Gör skolnamnet så stort som möjligt på en rad och sätt siffran optiskt i mitten
