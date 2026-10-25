@@ -273,6 +273,7 @@
      line; from sm and up the name becomes a two-line logotype so it can grow
      without stealing width from the centered grade headline. */
   .school-name {
+    display: block;
     line-height: 1;
     letter-spacing: 0.06em;
     font-size: 0.66rem;
