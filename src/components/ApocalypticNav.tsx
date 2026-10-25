@@ -45,14 +45,6 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, glowColor }: Apocaly
               ))}
             </div>
           )}
-          {grade != null && !isAdmin && (
-            <span
-              className="font-orbitron text-2xl font-bold sm:text-3xl"
-              style={glowColor ? { color: glowColor } : undefined}
-            >
-              Årskurs {grade}
-            </span>
-          )}
         </div>
 
         {/* Center content (grade + chapter selector + homework) */}

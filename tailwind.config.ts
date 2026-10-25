@@ -23,6 +23,7 @@ export default {
         mathematics: ['"Mathematics"', "serif"],
         pecita: ['"Pecita"', "cursive"],
         caveat: ['"Caveat"', "cursive"],
+        display: ['"Unbounded"', '"Sora"', "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
