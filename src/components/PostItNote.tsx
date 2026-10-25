@@ -9,8 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { parseLessonContent } from "@/lib/lessonContent";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-
-
 interface PostItNoteProps {
   grade: number;
 }
@@ -22,38 +20,38 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const isMobile = useIsMobile();
-  
+
   // Current event to display
   const currentEvent = upcomingEvents[eventIndex] || null;
-  
+
   // Navigation handlers
   const goToPrevious = () => {
     if (eventIndex > 0) setEventIndex(eventIndex - 1);
   };
-  
+
   const goToNext = () => {
     if (eventIndex < upcomingEvents.length - 1) setEventIndex(eventIndex + 1);
   };
-  
+
   // Secret toggle
   const handleSecretToggle = () => {
     setNavigationUnlocked(!navigationUnlocked);
   };
-  
+
   // Format date for display
   const formatEventDate = (date: Date) => {
     return date
       .toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "short" })
       .replace(/^./, (c) => c.toUpperCase());
   };
-  
+
   // Format time
   const formatEventTime = (date: Date) => {
     return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
   };
   const planContent = currentEvent ? getLessonPlan(plans, currentEvent) : undefined;
   const content = (planContent && planContent.trim()) || currentEvent?.description || "";
-  
+
   if (loading) {
     return <PostItSkeleton />;
   }
@@ -76,10 +74,10 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         onClick={handleSecretToggle}
         className="absolute -top-1 -right-1 w-4 h-4 rounded-full transition-all z-20 flex items-center justify-center"
         style={{
-          background: navigationUnlocked 
+          background: navigationUnlocked
             ? "radial-gradient(circle at 35% 35%, hsl(var(--primary)), hsl(var(--primary) / 0.6))"
             : "radial-gradient(circle at 35% 35%, hsl(var(--muted-foreground) / 0.5), hsl(var(--muted-foreground) / 0.2))",
-          boxShadow: navigationUnlocked 
+          boxShadow: navigationUnlocked
             ? "inset 1px 1px 2px rgba(255,255,255,0.3), 0 0 8px hsl(var(--primary) / 0.6)"
             : "inset 1px 1px 2px rgba(255,255,255,0.2), inset -1px -1px 2px rgba(0,0,0,0.3)",
           opacity: navigationUnlocked ? 1 : 0.6,
@@ -87,7 +85,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         title="Stega mellan lektioner"
         aria-label="Toggle navigation"
       />
-      
+
       {/* Navigation bar - only visible when unlocked */}
       {navigationUnlocked && upcomingEvents.length > 0 && (
         <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-[hsl(var(--postit-text))/30]">
@@ -98,7 +96,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           >
             <ChevronLeft className="w-5 h-5 text-[hsl(var(--postit-text))]" />
           </button>
-          
+
           <span className="text-xs text-slate-700 font-medium text-center">
             {currentEvent ? (
               <>
@@ -107,9 +105,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                   {eventIndex + 1} av {upcomingEvents.length}
                 </span>
               </>
-            ) : "Inga lektioner"}
+            ) : (
+              "Inga lektioner"
+            )}
           </span>
-          
+
           <button
             onClick={goToNext}
             disabled={eventIndex === upcomingEvents.length - 1}
@@ -119,12 +119,13 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           </button>
         </div>
       )}
-      
+
       {/* Lesson header */}
       {currentEvent && (
         <div className="mb-2">
           <div className="text-sm font-bold text-[hsl(var(--postit-text))]">
-            {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–{formatEventTime(currentEvent.endDate)}
+            {formatEventDate(currentEvent.date)} · {formatEventTime(currentEvent.date)}–
+            {formatEventTime(currentEvent.endDate)}
             {currentEvent.location && ` · ${currentEvent.location}`}
           </div>
         </div>
@@ -133,7 +134,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       {/* Content - no scroll on mobile for natural expansion */}
       {isMobile ? (
         <div className="space-y-0.5 text-black">
-          <ErrorBoundary fallback={<p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>}>
+          <ErrorBoundary
+            fallback={
+              <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>
+            }
+          >
             {content ? (
               parseLessonContent(content)
             ) : (
@@ -144,7 +149,11 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       ) : (
         <ScrollArea className="flex-1">
           <div className="space-y-0.5 text-black pr-3">
-            <ErrorBoundary fallback={<p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>}>
+            <ErrorBoundary
+              fallback={
+                <p className="text-sm italic text-[hsl(var(--postit-text))/70]">Kunde inte visa innehållet just nu.</p>
+              }
+            >
               {content ? (
                 parseLessonContent(content)
               ) : (
@@ -155,7 +164,6 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
         </ScrollArea>
       )}
 
-
       {/* Expand agenda for projector */}
       {content && (
         <button
@@ -163,7 +171,7 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
           className="mt-3 inline-flex items-center justify-center gap-1.5 self-start rounded-md border border-[hsl(var(--postit-text))/30] bg-[hsl(var(--postit-text))/5] px-2.5 py-1 text-xs font-semibold text-[hsl(var(--postit-text))] transition-colors hover:bg-[hsl(var(--postit-text))/12]"
         >
           <Maximize2 className="h-3.5 w-3.5" />
-          Förstora dagens agenda
+          Förstora
         </button>
       )}
 
@@ -182,12 +190,10 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
                 {content ? parseLessonContent(content) : null}
               </ErrorBoundary>
             </div>
-
           </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
-
   );
 };
 
