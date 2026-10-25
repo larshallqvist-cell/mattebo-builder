@@ -269,21 +269,25 @@
     margin-right: 0.14em;
   }
 
-  /* School wordmark in the class-page header. Phones keep a compact single
-     line; from sm and up the name becomes a two-line logotype so it can grow
-     without stealing width from the centered grade headline. Which variant is
-     shown is decided by responsive utilities in ApocalypticNav. */
+  /* School name in the class-page header: kept on one line and grown to the
+     largest size the row can hold without pushing the centered grade headline
+     out of place. The caps track the width the left column gets at each size. */
   .school-name {
     line-height: 1;
     letter-spacing: 0.06em;
     font-size: 0.66rem;
   }
 
-  .school-logo {
-    flex-direction: column;
-    line-height: 0.86;
-    letter-spacing: -0.005em;
-    font-size: clamp(1.6rem, 6vw, 4.5rem);
+  @media (min-width: 640px) {
+    .school-name {
+      font-size: clamp(1.5rem, calc(4.34vw - 1px), 2.7rem);
+    }
+  }
+
+  @media (min-width: 1120px) {
+    .school-name {
+      font-size: clamp(2.7rem, calc(5.2vw - 13px), 3.3rem);
+    }
   }
 }
 
