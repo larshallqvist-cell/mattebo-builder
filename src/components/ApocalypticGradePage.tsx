@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma } from "lucide-react";
 import LoginGate from "@/components/LoginGate";
@@ -26,6 +26,15 @@ import { SuspenseResourceAccordion, SuspenseLessonCalendar, SuspenseMascotPanel 
 interface ApocalypticGradePageProps {
   grade: number;
 }
+
+/** Each class gets its own tint in the giant headline, matching the start-page circles. */
+const GRADE_TINT: Record<number, string> = {
+  6: "var(--grade-6)",
+  7: "var(--grade-7)",
+  8: "var(--grade-8)",
+  9: "var(--grade-9)",
+};
+
 
 const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean }[] = [
   { label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
