@@ -45,7 +45,7 @@ const SheetConfig = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 md:bottom-4 right-4 z-40 p-2.5 bg-secondary/80 hover:bg-secondary rounded-full shadow-lg transition-all hover:scale-110"
+        className="fixed bottom-28 md:bottom-4 right-4 z-40 p-2.5 bg-secondary/80 hover:bg-secondary rounded-full shadow-lg transition-all hover:scale-110"
         title="Konfigurera Google Sheet"
       >
         <Settings className="w-4 h-4 text-secondary-foreground" />
