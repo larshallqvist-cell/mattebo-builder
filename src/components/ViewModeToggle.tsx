@@ -12,13 +12,19 @@ const ViewModeToggle = ({ compact = false }: { compact?: boolean }) => {
   const { mode, cycle } = useViewMode();
   const { icon: Icon, text } = LABELS[mode];
 
+  // In the class-page header there is no room for this control on a phone, so
+  // it stays hidden there while the layout is on "Auto" (a phone already gets
+  // the mobile layout). It reappears as soon as a view is forced, so a device
+  // can always switch back.
+  const hideOnPhone = compact && mode === "auto";
+
   return (
     <button
       type="button"
       onClick={cycle}
       title={`Vy: ${text} — klicka för att byta (Auto → Mobil → Dator)`}
       aria-label={`Byt vy (nu: ${text})`}
-      className="flex items-center gap-1.5 flex-shrink-0 rounded-full border border-accent/50 bg-accent/10 px-1.5 py-0.5 text-xs font-nunito font-semibold text-accent shadow-sm transition-colors hover:bg-accent/20 hover:border-accent sm:px-3 sm:py-1"
+      className={`${hideOnPhone ? "hidden sm:flex" : "flex"} items-center gap-1.5 flex-shrink-0 rounded-full border border-accent/50 bg-accent/10 px-1.5 py-0.5 text-xs font-nunito font-semibold text-accent shadow-sm transition-colors hover:bg-accent/20 hover:border-accent sm:px-3 sm:py-1`}
     >
       <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
       <span className={compact ? "hidden sm:inline" : ""}>Vy: {text}</span>
@@ -26,5 +32,6 @@ const ViewModeToggle = ({ compact = false }: { compact?: boolean }) => {
   );
 
 };
+
 
 export default ViewModeToggle;
