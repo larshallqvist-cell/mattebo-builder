@@ -5,7 +5,7 @@ export const PAGE_LABELS: Record<string, string> = {
   "/algebra": "Algebra", "/tabelltestet": "Tabelltestet", "/braklabbet": "Bråklabbet",
 };
 export type Visit = { id: string; visit_id: string; user_id: string; path: string; started_at: string; last_seen_at: string; active_seconds: number };
-export type ActivityEvent = { id: string; userId: string; at: string; label: string };
+export type ActivityEvent = { id: string; userId: string; at: string; label: string; url?: string };
 export type Student = { user_id: string; full_name: string; last_sign_in_at: string | null };
 
 export function resumeVisit(saved: { userId: string; visitId: string; lastSeen: number } | null, userId: string, now: number, newId: string) {

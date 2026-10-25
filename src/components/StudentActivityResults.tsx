@@ -43,7 +43,7 @@ export default function StudentActivityResults() {
         const [directory, visitRows, resources, algebra, tables, fractions, missions] = await Promise.all([
           supabase.rpc("admin_student_directory"),
           pages((from) => supabase.from("student_visits").select("*").gte("last_seen_at", start).order("last_seen_at", { ascending: false }).order("id").range(from, from + 999)),
-          pages((from) => supabase.from("activity_logs").select("id,user_id,grade,chapter,resource_title,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
+          pages((from) => supabase.from("activity_logs").select("id,user_id,grade,chapter,resource_title,resource_url,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("algebra_attempts").select("id,user_id,mode,level,is_correct,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("tabelltest_results").select("id,user_id,score,total,passed,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("braklabbet_attempts").select("id,user_id,exercise_id,is_correct,answered_at").gte("answered_at", start).order("answered_at", { ascending: false }).order("id").range(from, from + 999)),
