@@ -25,3 +25,4 @@
 - [x] Spara och kontrollera privata elevresultat samt läraröversikt
 - [x] Kontrollera alla 20 facit och verifiera träningen och sparningen
 - [x] Tabelltestet: sida, röstinmatning, resultatsparning, adminlista och headerlänk
+- [x] Flytta den stora årskursrubriken upp i headern så att sidan får tillbaka platsen
