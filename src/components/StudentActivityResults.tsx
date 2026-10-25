@@ -43,7 +43,7 @@ export default function StudentActivityResults() {
         const [directory, visitRows, resources, algebra, tables, fractions, missions] = await Promise.all([
           supabase.rpc("admin_student_directory"),
           pages((from) => supabase.from("student_visits").select("*").gte("last_seen_at", start).order("last_seen_at", { ascending: false }).order("id").range(from, from + 999)),
-          pages((from) => supabase.from("activity_logs").select("id,user_id,grade,chapter,resource_title,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
+          pages((from) => supabase.from("activity_logs").select("id,user_id,grade,chapter,resource_title,resource_url,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("algebra_attempts").select("id,user_id,mode,level,is_correct,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("tabelltest_results").select("id,user_id,score,total,passed,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("braklabbet_attempts").select("id,user_id,exercise_id,is_correct,answered_at").gte("answered_at", start).order("answered_at", { ascending: false }).order("id").range(from, from + 999)),
@@ -53,7 +53,7 @@ export default function StudentActivityResults() {
         if (cancelled) return;
         setStudents(directory.data ?? []); setVisits(visitRows); setSince(Date.parse(start));
         setEvents([
-          ...resources.map((r) => ({ id: `resource-${r.id}`, userId: r.user_id, at: r.created_at, label: `Resurs – Åk ${r.grade}${r.chapter ? `, kapitel ${r.chapter}` : ""}: ${r.resource_title || "Länk öppnad"}` })),
+          ...resources.map((r) => ({ id: `resource-${r.id}`, userId: r.user_id, at: r.created_at, label: `Resurs – Åk ${r.grade}${r.chapter ? `, kapitel ${r.chapter}` : ""}: ${r.resource_title || "Länk öppnad"}`, url: r.resource_url?.startsWith("http") ? r.resource_url : undefined })),
           ...algebra.map((r) => ({ id: `algebra-${r.id}`, userId: r.user_id, at: r.created_at, label: `Algebra – nivå ${r.level + 1}, ${r.is_correct ? "rätt" : "fel"} (${r.mode === "simplify" ? "förenkla" : r.mode === "both" ? "förenkla och beräkna" : "beräkna"})` })),
           ...tables.map((r) => ({ id: `table-${r.id}`, userId: r.user_id, at: r.created_at, label: `Tabelltestet – ${r.score}/${r.total} rätt, ${r.passed ? "godkänt" : "ej godkänt"}` })),
           ...fractions.map((r) => ({ id: `fraction-${r.id}`, userId: r.user_id, at: r.answered_at, label: `Bråklabbet – uppgift ${r.exercise_id}, ${r.is_correct ? "rätt" : "fel"}` })),
@@ -71,7 +71,7 @@ export default function StudentActivityResults() {
   const current = students.find((s) => s.user_id === selected);
   const timeline = [
     ...events.filter((e) => e.userId === selected),
-    ...visits.filter((v) => v.user_id === selected).map((v) => ({ id: `visit-${v.id}`, userId: v.user_id, at: v.started_at, label: `Besök – ${PAGE_LABELS[v.path] ?? "Mattebo"}, aktiv tid ${formatActiveTime(v.active_seconds)}` })),
+    ...visits.filter((v) => v.user_id === selected).map((v): ActivityEvent => ({ id: `visit-${v.id}`, userId: v.user_id, at: v.started_at, label: `Besök – ${PAGE_LABELS[v.path] ?? "Mattebo"}, aktiv tid ${formatActiveTime(v.active_seconds)}` })),
   ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 
   return <div className="space-y-4 p-5">
@@ -92,7 +92,7 @@ export default function StudentActivityResults() {
       </Table>}
     {!loading && !error && current && <section className="space-y-3 border-t border-border pt-4" aria-label={`Aktiviteter för ${current.full_name}`}>
       <h3 className="font-semibold text-foreground">{current.full_name} · senaste {days === 1 ? "24 timmarna" : `${days} dagarna`}</h3>
-      {timeline.length === 0 ? <p className="text-sm text-muted-foreground">Ingen registrerad aktivitet under perioden.</p> : <ol className="space-y-3">{timeline.slice(0, timelineLimit).map((e) => <li key={e.id} className="flex flex-col gap-1 border-b border-border pb-2 text-sm sm:flex-row sm:gap-4"><time className="shrink-0 text-xs text-muted-foreground">{fmt(e.at)}</time><span className="min-w-0 break-words">{e.label}</span></li>)}</ol>}
+      {timeline.length === 0 ? <p className="text-sm text-muted-foreground">Ingen registrerad aktivitet under perioden.</p> : <ol className="space-y-3">{timeline.slice(0, timelineLimit).map((e) => <li key={e.id} className="flex flex-col gap-1 border-b border-border pb-2 text-sm sm:flex-row sm:gap-4"><time className="shrink-0 text-xs text-muted-foreground">{fmt(e.at)}</time><span className="min-w-0 break-words">{e.label}{e.url && <> – <a href={e.url} target="_blank" rel="noopener noreferrer" className="break-all text-accent underline underline-offset-2 hover:opacity-80">{e.url}</a></>}</span></li>)}</ol>}
       {timeline.length > timelineLimit && <Button size="sm" variant="outline" onClick={() => setTimelineLimit((n) => n + 50)}>Visa fler</Button>}
     </section>}
   </div>;
