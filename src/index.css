@@ -283,13 +283,13 @@
 
   @media (min-width: 640px) {
     .school-name {
-      font-size: clamp(1.5rem, calc(4.34vw - 1px), 2.7rem);
+      font-size: clamp(1.4rem, calc(4.6vw - 8px), 2.6rem);
     }
   }
 
   @media (min-width: 1120px) {
     .school-name {
-      font-size: clamp(2.7rem, calc(5.2vw - 13px), 3.3rem);
+      font-size: clamp(2.6rem, calc(5.4vw - 17px), 3.3rem);
     }
   }
 }
