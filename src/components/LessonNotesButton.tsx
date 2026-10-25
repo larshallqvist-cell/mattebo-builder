@@ -39,7 +39,7 @@ const Inner = ({ grade }: { grade: number }) => {
         onClick={() => setOpen(true)}
         aria-label="Lektionsanteckningar"
         title="Lektionsanteckningar"
-        className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-card/60 text-foreground hover:bg-accent/30 transition-colors flex-shrink-0"
+        className="relative flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-card/60 text-foreground hover:bg-accent/30 transition-colors flex-shrink-0 sm:h-9 sm:w-9"
       >
         <NotebookPen className="h-4 w-4" />
         {hasNote && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-accent" />}
