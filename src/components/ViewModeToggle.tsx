@@ -18,7 +18,7 @@ const ViewModeToggle = ({ compact = false }: { compact?: boolean }) => {
       onClick={cycle}
       title={`Vy: ${text} — klicka för att byta (Auto → Mobil → Dator)`}
       aria-label={`Byt vy (nu: ${text})`}
-      className="flex items-center gap-1.5 flex-shrink-0 rounded-full border border-accent/50 bg-accent/10 px-3 py-1 text-xs font-nunito font-semibold text-accent shadow-sm transition-colors hover:bg-accent/20 hover:border-accent"
+      className="flex items-center gap-1.5 flex-shrink-0 rounded-full border border-accent/50 bg-accent/10 px-2 py-1 text-xs font-nunito font-semibold text-accent shadow-sm transition-colors hover:bg-accent/20 hover:border-accent sm:px-3"
     >
       <Icon className="w-4 h-4" />
       <span className={compact ? "hidden sm:inline" : ""}>Vy: {text}</span>
