@@ -71,7 +71,7 @@ export default function StudentActivityResults() {
   const current = students.find((s) => s.user_id === selected);
   const timeline = [
     ...events.filter((e) => e.userId === selected),
-    ...visits.filter((v) => v.user_id === selected).map((v) => ({ id: `visit-${v.id}`, userId: v.user_id, at: v.started_at, label: `Besök – ${PAGE_LABELS[v.path] ?? "Mattebo"}, aktiv tid ${formatActiveTime(v.active_seconds)}` })),
+    ...visits.filter((v) => v.user_id === selected).map((v): ActivityEvent => ({ id: `visit-${v.id}`, userId: v.user_id, at: v.started_at, label: `Besök – ${PAGE_LABELS[v.path] ?? "Mattebo"}, aktiv tid ${formatActiveTime(v.active_seconds)}` })),
   ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 
   return <div className="space-y-4 p-5">
