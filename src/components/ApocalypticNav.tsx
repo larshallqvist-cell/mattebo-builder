@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginButton from "./LoginButton";
@@ -9,11 +9,13 @@ interface ApocalypticNavProps {
   centerContent?: ReactNode;
   /** Hide center content entirely (used when mobile view is forced) */
   hideCenter?: boolean;
-  /** Optional grade shown stacked under the logo */
+  /** Optional grade shown as the big headline in the header */
   grade?: number;
+  /** CSS color token used to tint the grade headline */
+  tint?: string;
 }
 
-const ApocalypticNav = ({ centerContent, hideCenter, grade }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, hideCenter, grade, tint }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
 
   return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>
@@ -23,27 +25,35 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade }: ApocalypticNavProp
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
       border: "1px solid hsl(var(--primary) / 0.2)"
     }}>
-        {/* Logo / Site title — with grade stacked underneath */}
-        <div className={`flex shrink-0 flex-col leading-tight ${grade != null ? "py-1" : ""}`}>
-          <Link to="/" className={`font-orbitron font-bold text-accent hover:text-foreground transition-colors ${grade != null ? "text-2xl sm:text-3xl" : "text-sm sm:text-lg"}`}>
-            Leteboskolan
-          </Link>
-          {grade != null && isAdmin && (
-            <div className="mt-1 flex items-center gap-1">
-              {[6, 7, 8, 9].map((g) => (
-                <Link
-                  key={g}
-                  to={`/ak${g}`}
-                  className={`rounded-full px-2.5 py-0.5 font-orbitron text-sm font-semibold transition-colors sm:text-base ${
-                    g === grade ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
-                  }`}
-                >
-                  Åk {g}
-                </Link>
-              ))}
+        {/* School name with the class the page belongs to, as the big headline */}
+        {grade != null ? (
+          <div className="flex shrink-0 flex-col leading-none" style={{ "--grade-tint": tint ?? "var(--accent)" } as CSSProperties}>
+            <Link to="/" className="font-orbitron text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-accent transition-colors hover:text-foreground sm:text-xs">
+              Leteboskolan
+            </Link>
+            <div className="mt-1 flex items-baseline gap-2 sm:gap-3">
+              <h1 className="grade-hero">
+                <span className="grade-hero-word">Åk</span>
+                {grade}
+              </h1>
+              {isAdmin && (
+                <div className="flex items-center gap-1">
+                  {[6, 7, 8, 9].filter((g) => g !== grade).map((g) => (
+                    <Link key={g} to={`/ak${g}`} className="rounded-full px-2 py-0.5 font-orbitron text-xs font-semibold text-muted-foreground transition-colors hover:bg-primary/20 hover:text-foreground sm:text-sm">
+                      Åk {g}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex shrink-0 flex-col leading-tight">
+            <Link to="/" className="font-orbitron font-bold text-accent hover:text-foreground transition-colors text-sm sm:text-lg">
+              Leteboskolan
+            </Link>
+          </div>
+        )}
 
         {/* Center content (grade + chapter selector + homework) */}
         {centerContent && !hideCenter && (
