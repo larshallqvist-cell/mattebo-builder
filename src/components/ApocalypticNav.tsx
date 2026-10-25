@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +14,7 @@ interface ApocalypticNavProps {
   grade?: number;
   /** CSS color token used to tint the grade headline */
   tint?: string;
-  /** Optional action (e.g. lesson notes) shown in the link row, left of "Hem" */
+  /** Optional action (e.g. view switch, lesson notes) shown in the link row, left of "Hem" */
   headerAction?: ReactNode;
 }
 
@@ -21,8 +22,24 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
   const { user, loading, isAdmin } = useAuth();
   const tintStyle = { "--grade-tint": tint ?? "var(--accent)" } as CSSProperties;
 
+  // The second header row only holds widgets that may render nothing (no open
+  // survey, no ongoing lesson). Drop its divider and padding when it is empty
+  // so the header doesn't show a stray empty strip.
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [rowVisible, setRowVisible] = useState(true);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const measure = () => setRowVisible(el.getBoundingClientRect().height > 2);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [centerContent]);
+
   return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>
-      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3`} style={{
+      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-x-3 px-3 py-2.5 sm:gap-x-4 sm:px-6 sm:py-3`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
@@ -53,7 +70,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
             </h1>
           )}
 
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 font-nunito text-xs sm:gap-4 sm:text-sm">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1 font-nunito text-xs sm:gap-4 sm:text-sm">
             {headerAction}
             <Link to="/" className="nav-link">
               Hem
@@ -92,10 +109,15 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
           </div>
         </div>
 
-        {/* Center content (grade + chapter selector + homework) */}
+        {/* Extra header row: widgets that appear only when there is something to show */}
         {centerContent && !hideCenter && (
-          <div className="order-last flex w-full min-w-0 flex-wrap items-center gap-3 border-t border-primary/20 pt-3">
-            {centerContent}
+          <div className="order-last w-full" style={rowVisible ? {
+            borderTop: "1px solid hsl(var(--primary) / 0.2)",
+            paddingTop: "0.75rem"
+          } : undefined}>
+            <div ref={rowRef} className="flex min-w-0 flex-wrap items-center gap-3">
+              {centerContent}
+            </div>
           </div>
         )}
       </div>
