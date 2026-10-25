@@ -39,7 +39,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
   }, [centerContent]);
 
   return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>
-      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-x-3 px-4 py-2.5 sm:gap-x-4 sm:px-6 sm:py-3`} style={{
+      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-x-3 px-3 py-2.5 sm:gap-x-4 sm:px-6 sm:py-3`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
@@ -70,7 +70,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
             </h1>
           )}
 
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5 font-nunito text-xs sm:gap-4 sm:text-sm">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1 font-nunito text-xs sm:gap-4 sm:text-sm">
             {headerAction}
             <Link to="/" className="nav-link">
               Hem
