@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma } from "lucide-react";
 import LoginGate from "@/components/LoginGate";
@@ -20,12 +20,20 @@ import { useIsWideLayout } from "@/hooks/useSectionOpen";
 import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { GRADE_NEON_COLORS } from "@/config/app";
 import { SuspenseResourceAccordion, SuspenseLessonCalendar, SuspenseMascotPanel } from "@/components/LazyComponents";
 
 interface ApocalypticGradePageProps {
   grade: number;
 }
+
+/** Each class gets its own tint in the giant headline, matching the start-page circles. */
+const GRADE_TINT: Record<number, string> = {
+  6: "var(--grade-6)",
+  7: "var(--grade-7)",
+  8: "var(--grade-8)",
+  9: "var(--grade-9)",
+};
+
 
 const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean }[] = [
   { label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
@@ -79,7 +87,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const { nextEvent } = useCalendarEvents(grade);
   const { mode } = useViewMode();
   const wide = useIsWideLayout(mode);
-  const glowColor = GRADE_NEON_COLORS[grade as keyof typeof GRADE_NEON_COLORS] || "hsl(var(--neon-copper))";
 
   // Wide layout places planning in a right column; narrow layout stacks everything.
   const left = wide ? "col-span-8 col-start-1" : "";
@@ -93,7 +100,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         >
           <ApocalypticNav
             grade={grade}
-            glowColor={glowColor}
             centerContent={
               <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                 <ViewModeToggle compact />
@@ -104,7 +110,14 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             }
           />
 
-          <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pt-3 pb-28 sm:px-4 lg:pb-8 relative z-20" style={{ WebkitOverflowScrolling: "touch" }}>
+          <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pt-2 pb-28 sm:px-4 lg:pb-8 relative z-20" style={{ WebkitOverflowScrolling: "touch" }}>
+            <h1
+              className="grade-hero mb-4 sm:mb-6"
+              style={{ "--grade-tint": GRADE_TINT[grade] ?? "var(--accent)" } as CSSProperties}
+            >
+              <span className="grade-hero-word">Åk</span>
+              {grade}
+            </h1>
             <div className={`max-w-7xl mx-auto ${wide ? "grid grid-cols-12 gap-5 items-start" : "flex flex-col gap-5"}`}>
               {/* 1. Idag – always open, strongest accent */}
               <CollapsibleSection
