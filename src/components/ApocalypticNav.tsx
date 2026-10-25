@@ -13,9 +13,11 @@ interface ApocalypticNavProps {
   grade?: number;
   /** CSS color token used to tint the grade headline */
   tint?: string;
+  /** Optional action (e.g. lesson notes) shown in the link row, left of "Hem" */
+  headerAction?: ReactNode;
 }
 
-const ApocalypticNav = ({ centerContent, hideCenter, grade, tint }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
   const tintStyle = { "--grade-tint": tint ?? "var(--accent)" } as CSSProperties;
 
