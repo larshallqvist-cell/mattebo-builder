@@ -9,7 +9,7 @@ interface ApocalypticNavProps {
   centerContent?: ReactNode;
   /** Hide center content entirely (used when mobile view is forced) */
   hideCenter?: boolean;
-  /** Optional grade shown as the big headline in the header */
+  /** Optional grade shown as the big headline in the middle of the header */
   grade?: number;
   /** CSS color token used to tint the grade headline */
   tint?: string;
@@ -17,6 +17,7 @@ interface ApocalypticNavProps {
 
 const ApocalypticNav = ({ centerContent, hideCenter, grade, tint }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
+  const tintStyle = { "--grade-tint": tint ?? "var(--accent)" } as CSSProperties;
 
   return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>
       <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3`} style={{
@@ -25,35 +26,68 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint }: ApocalypticN
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
       border: "1px solid hsl(var(--primary) / 0.2)"
     }}>
-        {/* School name with the class the page belongs to, as the big headline */}
-        {grade != null ? (
-          <div className="flex shrink-0 flex-col leading-none" style={{ "--grade-tint": tint ?? "var(--accent)" } as CSSProperties}>
-            <Link to="/" className="font-orbitron text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-accent transition-colors hover:text-foreground sm:text-xs">
+        {/* School name | big class headline in the middle | links and auth */}
+        <div className="flex w-full items-center gap-2 sm:gap-4">
+          <div className="flex min-w-0 flex-1 flex-col leading-none">
+            <Link to="/" className="font-orbitron text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent transition-colors hover:text-foreground sm:text-xs">
               Leteboskolan
             </Link>
-            <div className="mt-1 flex items-baseline gap-2 sm:gap-3">
-              <h1 className="grade-hero">
-                <span className="grade-hero-word">Åk</span>
-                {grade}
-              </h1>
-              {isAdmin && (
-                <div className="flex items-center gap-1">
-                  {[6, 7, 8, 9].filter((g) => g !== grade).map((g) => (
-                    <Link key={g} to={`/ak${g}`} className="rounded-full px-2 py-0.5 font-orbitron text-xs font-semibold text-muted-foreground transition-colors hover:bg-primary/20 hover:text-foreground sm:text-sm">
-                      Åk {g}
-                    </Link>
-                  ))}
+            {grade != null && isAdmin && (
+              <div className="mt-1.5 flex items-center gap-1">
+                {[6, 7, 8, 9].filter((g) => g !== grade).map((g) => (
+                  <Link key={g} to={`/ak${g}`} className="rounded-full px-1.5 py-0.5 font-orbitron text-xs font-semibold text-muted-foreground transition-colors hover:bg-primary/20 hover:text-foreground sm:px-2 sm:text-sm">
+                    <span className="sm:hidden">{g}</span>
+                    <span className="hidden sm:inline">Åk {g}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {grade != null && (
+            <h1 className="grade-hero shrink-0 text-center" style={tintStyle}>
+              <span className="grade-hero-word">Åk</span>
+              {grade}
+            </h1>
+          )}
+
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 font-nunito text-xs sm:gap-4 sm:text-sm">
+            <Link to="/" className="nav-link">
+              Hem
+            </Link>
+            {grade == null && (
+              <>
+                <Link to="/braklabbet" className="nav-link">
+                  <span className="sm:hidden">Labbet</span>
+                  <span className="hidden sm:inline">Bråklabbet</span>
+                </Link>
+                <Link to="/tabelltestet" className="nav-link">
+                  <span className="sm:hidden">Testet</span>
+                  <span className="hidden sm:inline">Tabelltestet</span>
+                </Link>
+                <Link to="/algebra" className="nav-link">
+                  Algebra
+                </Link>
+              </>
+            )}
+            <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
+              Om
+            </a>
+            <a href="#contact" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
+              Kontakt
+            </a>
+            {!loading && (
+              user ? <UserMenu /> : (
+                <div className="flex items-center gap-2">
+                  <span className="hidden md:inline text-xs text-muted-foreground/70 font-nunito">
+                    Logga in med Google →
+                  </span>
+                  <LoginButton variant="ghost" size="sm" />
                 </div>
-              )}
-            </div>
+              )
+            )}
           </div>
-        ) : (
-          <div className="flex shrink-0 flex-col leading-tight">
-            <Link to="/" className="font-orbitron font-bold text-accent hover:text-foreground transition-colors text-sm sm:text-lg">
-              Leteboskolan
-            </Link>
-          </div>
-        )}
+        </div>
 
         {/* Center content (grade + chapter selector + homework) */}
         {centerContent && !hideCenter && (
@@ -61,44 +95,6 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint }: ApocalypticN
             {centerContent}
           </div>
         )}
-
-        {/* Navigation links and auth */}
-        <div className="flex flex-wrap items-center justify-end gap-2 font-nunito text-xs sm:gap-4 sm:text-sm">
-          <Link to="/" className="nav-link">
-            Hem
-          </Link>
-          {grade == null && (
-            <>
-              <Link to="/braklabbet" className="nav-link">
-                <span className="sm:hidden">Labbet</span>
-                <span className="hidden sm:inline">Bråklabbet</span>
-              </Link>
-              <Link to="/tabelltestet" className="nav-link">
-                <span className="sm:hidden">Testet</span>
-                <span className="hidden sm:inline">Tabelltestet</span>
-              </Link>
-              <Link to="/algebra" className="nav-link">
-                Algebra
-              </Link>
-            </>
-          )}
-          <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
-            Om
-          </a>
-          <a href="#contact" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
-            Kontakt
-          </a>
-          {!loading && (
-            user ? <UserMenu /> : (
-              <div className="flex items-center gap-2">
-                <span className="hidden md:inline text-xs text-muted-foreground/70 font-nunito">
-                  Logga in med Google →
-                </span>
-                <LoginButton variant="ghost" size="sm" />
-              </div>
-            )
-          )}
-        </div>
       </div>
     </nav>;
 };
