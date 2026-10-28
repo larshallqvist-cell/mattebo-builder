@@ -35,21 +35,20 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
   
   const channels: RadioChannel[] = [
     { 
-      id: "faith", 
-      name: "Faith", 
+      id: "kristet", 
+      name: "Kristet", 
       emoji: "✝️", 
-      description: "Kristen pop & lovsång", 
+      description: "Kristen pop (Hope FM)", 
       color: "from-indigo-500 to-blue-600",
-      streamUrl: "https://mml2.prostream.se/listen/faith_beats_radio/radio.mp3"
+      streamUrl: "https://ice26.securenetsystems.net/WVBV"
     },
     { 
       id: "lugn", 
       name: "Lugn", 
-      emoji: "🌊", 
-      description: "Drone Zone – långsam, lugn ambient", 
+      emoji: "🎹", 
+      description: "Lugnt solopiano i bakgrunden", 
       color: "from-teal-500 to-cyan-600",
-      streamUrl: "https://ice1.somafm.com/dronezone-128-mp3",
-      metadataId: "dronezone"
+      streamUrl: "https://air.radioart.online/fSolo_piano.mp3"
     },
     { 
       id: "p3", 

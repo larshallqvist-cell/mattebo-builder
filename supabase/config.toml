@@ -6,8 +6,6 @@ verify_jwt = true
 [functions.get-calendar]
 verify_jwt = true
 
-[functions.mascot-message]
-verify_jwt = true
 
 [functions.delete-user]
 verify_jwt = true
