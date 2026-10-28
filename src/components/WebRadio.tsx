@@ -36,11 +36,11 @@ const WebRadio = ({ onChannelChange, compact = false, fillSpace = false, horizon
   const channels: RadioChannel[] = [
     { 
       id: "kristet", 
-      name: "Kristet", 
+      name: "Faith", 
       emoji: "✝️", 
-      description: "Kristen pop (Hope FM)", 
+      description: "Kristen musik (K-LOVE)", 
       color: "from-indigo-500 to-blue-600",
-      streamUrl: "https://ice26.securenetsystems.net/WVBV"
+      streamUrl: "https://maestro.emfcdn.com/stream_for/k-love/web/aac"
     },
     { 
       id: "lugn", 
