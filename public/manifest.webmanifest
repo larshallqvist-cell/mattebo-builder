@@ -1,0 +1,15 @@
+{
+  "name": "Mattebo - Lasses mattegrejor",
+  "short_name": "Mattebo",
+  "description": "Modern webbresurs för matematikundervisning åk 6-9",
+  "theme_color": "#0c2340",
+  "background_color": "#0c2340",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "start_url": "/",
+  "icons": [
+    { "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pwa-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/pwa-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
