@@ -26,8 +26,21 @@ const Algebra = () => {
   const fastStreak = useRef(0);
   const suggested = useRef(new Set<string>());
   const [showSuggestion, setShowSuggestion] = useState(false);
+  const [profileName, setProfileName] = useState("");
   const displayName = user?.user_metadata?.given_name || user?.user_metadata?.full_name || user?.user_metadata?.name;
-  const firstName = typeof displayName === "string" ? displayName.trim().split(/\s+/)[0] : "";
+  const metadataName = typeof displayName === "string" ? displayName.trim() : "";
+  const firstName = (metadataName || profileName).split(/\s+/)[0];
+
+  useEffect(() => {
+    let active = true;
+    setProfileName("");
+    if (user && !metadataName) {
+      void supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle().then(({ data }) => {
+        if (active) setProfileName(data?.full_name?.trim() ?? "");
+      });
+    }
+    return () => { active = false; };
+  }, [user?.id, metadataName]);
 
   useEffect(() => { document.title = "Algebra · Mattebo"; }, []);
   useEffect(() => {
