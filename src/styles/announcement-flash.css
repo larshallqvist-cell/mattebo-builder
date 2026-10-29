@@ -5,7 +5,7 @@
   width: min(7cm, calc(100vw - 2rem));
   min-height: min(10cm, calc(100dvh - 2rem));
   max-height: calc(100dvh - 2rem);
-  font-size: clamp(1.6rem, 4.6vw, 2.6rem);
+  font-size: clamp(1.5rem, 4.4vw, 2rem);
   font-family: "Sora", system-ui, sans-serif;
 }
 
