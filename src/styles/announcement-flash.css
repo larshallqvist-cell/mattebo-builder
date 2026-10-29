@@ -1,11 +1,11 @@
 /* ============ Anslagstavlan: "flash"-ruta ============
-   Storlek angiven i fysiska centimeter: 7 cm bred x 10 cm hög.
-   Krymper bara om fönstret är mindre än så. */
+   Liggande poster i fysiska centimeter: 10-15 cm bred (vuxer med skärmen)
+   och 7 cm hög. Krymper bara om fönstret är mindre än så. */
 .flash-card {
-  width: min(7cm, calc(100vw - 2rem));
-  min-height: min(10cm, calc(100dvh - 2rem));
+  width: min(clamp(10cm, 40vw, 15cm), calc(100vw - 2rem));
+  min-height: min(7cm, calc(100dvh - 2rem));
   max-height: calc(100dvh - 2rem);
-  font-size: clamp(1.5rem, 4.4vw, 2rem);
+  font-size: clamp(0.9cm, 3.6vw, 1.35cm);
   font-family: "Sora", system-ui, sans-serif;
 }
 
