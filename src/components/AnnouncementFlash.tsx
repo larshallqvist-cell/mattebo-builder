@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Megaphone } from "lucide-react";
 import { useAnnouncement } from "@/hooks/useAnnouncement";
 import { flashDurationMs, localDay, seenKey, shouldShow } from "@/lib/announcement";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
+import "@/styles/announcement-flash.css";
 
 const STORAGE = (grade: number) => `mattebo-flash-seen-${grade}`;
 
@@ -32,7 +34,7 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
 
   if (!visible || !announcement) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[90] flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm animate-in fade-in duration-300"
       onClick={() => setVisible(false)}
@@ -40,25 +42,27 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
       aria-label="Anslag"
     >
       <div
-        className="relative w-full max-w-xl rounded-3xl border border-accent/40 bg-card p-6 pr-12 shadow-2xl animate-in zoom-in-95 duration-300"
+        className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4 shadow-2xl animate-in zoom-in-95 duration-300"
+        lang="sv"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={() => setVisible(false)}
           aria-label="Stäng"
-          className="absolute right-3 top-3 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="absolute right-3 top-3 z-10 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
-          <X className="h-5 w-5" />
+          <X className="h-6 w-6" />
         </button>
-        <div className="mb-3 flex items-center gap-2 text-accent">
-          <Megaphone className="h-5 w-5" />
-          <span className="text-xs font-semibold uppercase tracking-widest">Åk {grade}</span>
+        <div className="flex items-center gap-2 pr-10 text-accent">
+          <Megaphone className="h-6 w-6 shrink-0" />
+          <span className="font-body text-base font-semibold uppercase tracking-widest">Åk {grade}</span>
         </div>
-        <div className="text-lg text-card-foreground">
+        <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold text-card-foreground">
           {parseLessonContent(sanitizeLessonText(announcement.content))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

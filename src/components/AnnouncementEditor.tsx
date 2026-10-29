@@ -7,6 +7,7 @@ import { Save, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAnnouncement } from "@/hooks/useAnnouncement";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
+import "@/styles/announcement-flash.css";
 
 const MAX_LENGTH = 400;
 
@@ -62,8 +63,10 @@ const AnnouncementEditor = () => {
         {expires && <Button size="sm" variant="ghost" onClick={() => setExpires("")}>Inget slutdatum</Button>}
       </div>
       {draft.trim() && (
-        <div className="rounded-2xl border border-accent/40 bg-card p-4">
-          {parseLessonContent(sanitizeLessonText(draft))}
+        <div className="flash-card mx-auto rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4" lang="sv">
+          <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold text-card-foreground">
+            {parseLessonContent(sanitizeLessonText(draft))}
+          </div>
         </div>
       )}
       <div className="flex items-center justify-between gap-3">

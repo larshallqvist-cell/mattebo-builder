@@ -1,0 +1,38 @@
+/* ============ Anslagstavlan: "flash"-ruta ============
+   Storlek angiven i fysiska centimeter: 7 cm bred x 10 cm hög.
+   Krymper bara om fönstret är mindre än så. */
+.flash-card {
+  width: min(7cm, calc(100vw - 2rem));
+  min-height: min(10cm, calc(100dvh - 2rem));
+  max-height: calc(100dvh - 2rem);
+  font-size: clamp(1.5rem, 4.4vw, 2rem);
+  font-family: "Sora", system-ui, sans-serif;
+}
+
+/* Texten i rutan skalas upp (rendern satter egen text-sm) och blir ett utrop. */
+.flash-body p,
+.flash-body li {
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1.16;
+  margin: 0.14em 0;
+  min-width: 0;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+}
+.flash-body h3 {
+  font-size: 1.2em;
+  line-height: 1.1;
+  margin: 0 0 0.35em;
+}
+.flash-body ul {
+  margin: 0.25em 0;
+}
+.flash-body > :first-child {
+  margin-top: 0;
+}
+.flash-body > :last-child {
+  margin-bottom: 0;
+}
