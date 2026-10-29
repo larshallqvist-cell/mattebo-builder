@@ -115,6 +115,27 @@ export type Database = {
           },
         ]
       }
+      announcements: {
+        Row: {
+          content: string
+          expires_on: string | null
+          grade: number
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          expires_on?: string | null
+          grade: number
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          expires_on?: string | null
+          grade?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       braklabbet_attempts: {
         Row: {
           answer: string
