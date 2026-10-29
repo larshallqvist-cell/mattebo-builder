@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { buildStats, type Attempt } from "@/lib/algebraStats";
 import { PAGE_LABELS, formatActiveTime } from "@/lib/studentActivity";
-import { CLASS_GRADES, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
+import { CLASS_GRADES, NOT_STUDENT, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
 import {
   summarizeActivity, summarizeTabelltest, surveyHistory,
   type ResourceRow, type SurveyMeta, type SurveyRow, type TabelltestRow, type VisitRow,
@@ -78,7 +78,7 @@ export default function Elevkort() {
   const students = useMemo(
     () =>
       roster.filter((s) =>
-        classFilter === "all" ? true : classFilter === "none" ? !isClassGrade(s.class_grade) : s.class_grade === Number(classFilter),
+        s.class_grade !== NOT_STUDENT && (classFilter === "all" ? true : classFilter === "none" ? !isClassGrade(s.class_grade) : s.class_grade === Number(classFilter)),
       ),
     [roster, classFilter],
   );
@@ -152,7 +152,7 @@ export default function Elevkort() {
             {CLASS_GRADES.map((grade) => (
               <SelectItem key={grade} value={String(grade)}>Åk {grade}</SelectItem>
             ))}
-            <SelectItem value="none">Okländ klass</SelectItem>
+            <SelectItem value="none">Okänd klass</SelectItem>
           </SelectContent>
         </Select>
         <Select value={active || undefined} onValueChange={setSelected}>

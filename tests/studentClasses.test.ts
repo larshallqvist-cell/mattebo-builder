@@ -10,7 +10,7 @@ describe("student class roster", () => {
     expect(isClassGrade(9)).toBe(true);
     expect(isClassGrade(10)).toBe(false);
     expect(isClassGrade(null)).toBe(false);
-    expect(classLabel(null)).toBe("Okländ klass");
+    expect(classLabel(null)).toBe("Okänd klass");
     expect(classLabel(7)).toBe("Åk 7");
   });
 
@@ -21,7 +21,7 @@ describe("student class roster", () => {
       s("u3", "Bella", 6),
       s("u4", "David", 7),
     ]);
-    expect(groups.map((g) => g.label)).toEqual(["Åk 6", "Åk 7", "Åk 8", "Åk 9", "Okländ klass"]);
+    expect(groups.map((g) => g.label)).toEqual(["Åk 6", "Åk 7", "Åk 8", "Åk 9", "Okänd klass"]);
     expect(groups[0].students.map((x) => x.full_name)).toEqual(["Bella"]);
     expect(groups.at(-1)!.students.map((x) => x.full_name)).toEqual(["Anton"]);
   });
@@ -44,5 +44,15 @@ describe("student class roster", () => {
   test("missing classes are counted so the admin can fill them in", () => {
     expect(missingClassCount([s("u1", "Elsa", 6), s("u2", "Anton", null), s("u3", "Bella", 9)])).toBe(1);
     expect(missingClassCount([s("u1", "Elsa", 6)])).toBe(0);
+  });
+});
+
+describe("people who are not students", () => {
+  test("parents marked 'Inte elev' get their own group last and are not counted as missing", () => {
+    const groups = groupByClass([s("u1", "Elsa", 6), s("u2", "Ann-Sofie", 0), s("u3", "Anton", null)]);
+    expect(groups.map((g) => g.label)).toEqual(["Åk 6", "Åk 7", "Åk 8", "Åk 9", "Okänd klass", "Inte elev"]);
+    expect(groups.at(-1)!.students.map((x) => x.full_name)).toEqual(["Ann-Sofie"]);
+    expect(missingClassCount([s("u2", "Ann-Sofie", 0), s("u3", "Anton", null)])).toBe(1);
+    expect(classLabel(0)).toBe("Inte elev");
   });
 });
