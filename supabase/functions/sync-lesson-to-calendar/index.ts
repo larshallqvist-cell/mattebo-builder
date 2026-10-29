@@ -150,7 +150,7 @@ async function loadMasterRows(
 
   const quoted = `'${tab}'`;
   const res = await sheetFetch(
-    `${SHEETS_URL}/spreadsheets/${sheetId}/values/${quoted}!A:F?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,
+    `${SHEETS_URL}/spreadsheets/${sheetId}/values/${quoted}!A:J?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,
     { headers },
   );
   if (!res.ok) return { tab, rows: [], error: `read ${res.status}: ${(await res.text()).slice(0, 300)}` };
@@ -188,17 +188,29 @@ async function writeToMasterSheet(
   const tab = loaded.tab;
   const quoted = `'${tab.replace(/'/g, "''")}'`;
   let rows = loaded.rows;
+  // Columns are found by header name so inserted columns (e.g. Veckodag) never shift writes.
+  const colsFor = (rs: unknown[][]) => {
+    const h = (rs[0] ?? []).map((c) => String(c ?? "").trim().toLowerCase());
+    const f = (n: string) => h.indexOf(n);
+    return { title: f("titel"), start: f("starttid"), desc: f("beskrivning"), id: f("kalendereventid") };
+  };
+  let cols = colsFor(rows);
+  const colsOk = () => cols.title >= 0 && cols.start >= 0 && cols.desc >= 0 && cols.id >= 0;
+  if (!colsOk()) return { written: false, tab, error: "Rubrikraden saknar Titel/Starttid/Beskrivning/KalenderEventID" };
+  const letter = (i: number) => String.fromCharCode(65 + i);
 
   // 1) KalenderEventID i F (med eller utan @google.com)
   const target = eventIdFromUid(uid.split("::")[0]).toLowerCase();
-  let idx = rows.findIndex((r, i) => i > 0 && r[5] && eventIdFromUid(String(r[5])).toLowerCase() === target);
+  let idx = rows.findIndex((r, i) => i > 0 && r[cols.id] && eventIdFromUid(String(r[cols.id])).toLowerCase() === target);
 
   // The cached snapshot may predate a newly added sheet row. Refresh only on a cache miss.
   if (idx < 0) {
     loaded = await loadMasterRows(sheetId, grade, headers, true);
     if (loaded.error) return { written: false, tab, error: loaded.error };
     rows = loaded.rows;
-    idx = rows.findIndex((r, i) => i > 0 && r[5] && eventIdFromUid(String(r[5])).toLowerCase() === target);
+    cols = colsFor(rows);
+    if (!colsOk()) return { written: false, tab, error: "Rubrikraden saknar Titel/Starttid/Beskrivning/KalenderEventID" };
+    idx = rows.findIndex((r, i) => i > 0 && r[cols.id] && eventIdFromUid(String(r[cols.id])).toLowerCase() === target);
   }
 
   // 2) Fallback: starttid (Stockholm, minutprecision) + titel — bara om exakt en träff.
@@ -207,15 +219,15 @@ async function writeToMasterSheet(
     const t = originalTitle.trim().toLowerCase();
     const hits = rows
       .map((r, i) => ({ r, i }))
-      .filter(({ r, i }) => i > 0 && cellToStockholmKey(r[1]) === wanted && (!t || String(r[0] ?? "").trim().toLowerCase() === t));
+      .filter(({ r, i }) => i > 0 && cellToStockholmKey(r[cols.start]) === wanted && (!t || String(r[cols.title] ?? "").trim().toLowerCase() === t));
     if (hits.length === 1) idx = hits[0].i;
     else if (hits.length > 1) return { written: false, tab, error: "Flera rader matchar starttid/titel – skriver inte" };
   }
   if (idx < 0) return { written: false, tab, error: "Lektionen hittades inte i bladet (varken KalenderEventID eller starttid+titel)" };
   const row = idx + 1;
 
-  const data = [{ range: `${quoted}!E${row}`, values: [[content]] }];
-  if (title) data.push({ range: `${quoted}!A${row}`, values: [[title]] });
+  const data = [{ range: `${quoted}!${letter(cols.desc)}${row}`, values: [[content]] }];
+  if (title) data.push({ range: `${quoted}!${letter(cols.title)}${row}`, values: [[title]] });
   const upd = await sheetFetch(`${SHEETS_URL}/spreadsheets/${sheetId}/values:batchUpdate`, {
     method: "POST",
     headers,
@@ -226,8 +238,8 @@ async function writeToMasterSheet(
   const nextRows = rows.map((existing, rowIndex) => {
     if (rowIndex !== idx) return existing;
     const next = [...existing];
-    next[4] = content;
-    if (title) next[0] = title;
+    next[cols.desc] = content;
+    if (title) next[cols.title] = title;
     return next;
   });
   const { error: cacheError } = await admin.from("google_sheet_cache").upsert({
