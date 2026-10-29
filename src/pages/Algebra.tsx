@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { checkSimplified, checkValue, fmtValues, generateExercise, LEVELS, MODES, type Check as Result, type Mode } from "@/lib/algebra";
+import { nextFastStreak, shouldSuggestNextLevel } from "@/lib/algebraEncouragement";
 
 const PRAISE = ["Snyggt!", "Klockrent!", "Grymt jobbat!", "Helt rätt!", "Stabilt!"];
 
@@ -20,24 +21,61 @@ const Algebra = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const sessionId = useRef(crypto.randomUUID()); // ett pass = ett sidbesök
+  const startedAt = useRef(performance.now());
+  const firstTry = useRef(true);
+  const fastStreak = useRef(0);
+  const suggested = useRef(new Set<string>());
+  const [showSuggestion, setShowSuggestion] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const displayName = user?.user_metadata?.given_name || user?.user_metadata?.full_name || user?.user_metadata?.name;
+  const metadataName = typeof displayName === "string" ? displayName.trim() : "";
+  const firstName = (metadataName || profileName).split(/\s+/)[0];
+
+  useEffect(() => {
+    let active = true;
+    setProfileName("");
+    if (user && !metadataName) {
+      void supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle().then(({ data }) => {
+        if (active) setProfileName(data?.full_name?.trim() ?? "");
+      });
+    }
+    return () => { active = false; };
+  }, [user?.id, metadataName]);
 
   useEffect(() => { document.title = "Algebra · Mattebo"; }, []);
+  useEffect(() => {
+    const onHidden = () => { if (document.hidden) { firstTry.current = false; fastStreak.current = 0; } };
+    document.addEventListener("visibilitychange", onHidden);
+    return () => document.removeEventListener("visibilitychange", onHidden);
+  }, []);
 
   const fresh = (m = mode, l = level) => {
+    startedAt.current = performance.now();
+    firstTry.current = true;
+    setShowSuggestion(false);
     setEx(generateExercise(m, l));
     setStep("simplify");
     setAnswer(""); setResult(null);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
-  const choose = (m: Mode, l: number) => { setMode(m); setLevel(l); fresh(m, l); };
+  const choose = (m: Mode, l: number) => { fastStreak.current = 0; setMode(m); setLevel(l); fresh(m, l); };
 
   const done = result?.correct && (mode !== "both" || step === "value");
   const check = () => {
-    if (!answer.trim() || done) return;
+    if (!answer.trim() || result?.correct) return;
     const r = step === "simplify" ? checkSimplified(ex, answer) : checkValue(ex, answer);
     if (r.correct) r.message = `${PRAISE[Math.floor(Math.random() * PRAISE.length)]} ${r.message}`;
     setResult(r);
     const finished = r.correct && (mode !== "both" || step === "value");
+    if (!r.correct) { firstTry.current = false; fastStreak.current = 0; }
+    if (finished) {
+      fastStreak.current = nextFastStreak(fastStreak.current, firstTry.current, performance.now() - startedAt.current, mode, level);
+      const key = `${mode}:${level}`;
+      if (shouldSuggestNextLevel(fastStreak.current, mode, level, suggested.current.has(key))) {
+        suggested.current.add(key);
+        setShowSuggestion(true);
+      }
+    }
     if (finished || !r.correct) {
       setScore((s) => ({ right: s.right + (finished ? 1 : 0), total: s.total + 1, streak: finished ? s.streak + 1 : 0 }));
       // Logga tyst för lärarens statistik; fel stör aldrig övningen.
@@ -46,6 +84,7 @@ const Algebra = () => {
   };
   const next = () => {
     if (mode === "both" && step === "simplify" && result?.correct) { setStep("value"); setAnswer(""); setResult(null); setTimeout(() => inputRef.current?.focus(), 0); return; }
+    if (!done) fastStreak.current = 0;
     fresh();
   };
 
@@ -114,6 +153,20 @@ const Algebra = () => {
               </div>
             )}
           </div>
+
+          {showSuggestion && (
+            <div role="status" className="mb-6 border-l-4 border-accent bg-accent/10 px-4 py-4">
+              <p className="font-orbitron text-lg font-semibold text-foreground break-words">
+                {firstName ? `Du ${firstName}, du` : "Du"} verkar ha riktigt bra koll på detta – dags att testa nästa nivå?
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Button type="button" onClick={() => choose(mode, level + 1)}>
+                  Nästa nivå <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="outline" onClick={() => fresh()}>Öva vidare</Button>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={(e) => { e.preventDefault(); done ? next() : check(); }} className="space-y-3">
             <label htmlFor="algebra-answer" className="font-nunito text-sm text-muted-foreground">
