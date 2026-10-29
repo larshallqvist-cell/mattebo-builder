@@ -60,7 +60,8 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
           {parseLessonContent(sanitizeLessonText(announcement.content))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
