@@ -36,3 +36,9 @@
 .flash-body > :last-child {
   margin-bottom: 0;
 }
+
+/* Standardfärg vit; {färg}-taggar i texten skriver över. */
+.flash-body { color: hsl(0 0% 100%); }
+/* Tre storlekar: Liten / Mellan (standard) / Stor */
+.flash-card[data-size="small"] { font-size: clamp(0.65cm, 2.6vw, 0.95cm); }
+.flash-card[data-size="large"] { font-size: clamp(1.15cm, 4.6vw, 1.8cm); }

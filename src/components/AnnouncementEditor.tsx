@@ -1,11 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SUPPORTED_GRADES } from "@/config/app";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Save, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAnnouncement } from "@/hooks/useAnnouncement";
+import { useAnnouncement, type AnnouncementSize } from "@/hooks/useAnnouncement";
+
+const SIZES: { id: AnnouncementSize; label: string }[] = [
+  { id: "small", label: "Liten" },
+  { id: "medium", label: "Mellan" },
+  { id: "large", label: "Stor" },
+];
+const COLORS: { tag: string; hex: string }[] = [
+  { tag: "gul", hex: "#ca8a04" }, { tag: "röd", hex: "#e02424" }, { tag: "grön", hex: "#15803d" },
+  { tag: "blå", hex: "#1d4ed8" }, { tag: "orange", hex: "#ea580c" }, { tag: "lila", hex: "#7c3aed" },
+];
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import "@/styles/announcement-flash.css";
 
@@ -18,16 +28,29 @@ const AnnouncementEditor = () => {
   const [draft, setDraft] = useState("");
   const [expires, setExpires] = useState("");
   const [saving, setSaving] = useState(false);
+  const [size, setSize] = useState<AnnouncementSize>("medium");
+  const taRef = useRef<HTMLTextAreaElement>(null);
+
+  const wrapColor = (tag: string) => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const { selectionStart: a, selectionEnd: b } = ta;
+    const inner = draft.slice(a, b) || "text";
+    const next = `${draft.slice(0, a)}{${tag}}${inner}{/}${draft.slice(b)}`;
+    setDraft(next.slice(0, MAX_LENGTH));
+    requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a + tag.length + 2, a + tag.length + 2 + inner.length); });
+  };
 
   useEffect(() => {
     setDraft(announcement?.content ?? "");
     setExpires(announcement?.expiresOn ?? "");
+    setSize(announcement?.size ?? "medium");
   }, [announcement, grade]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await save(draft.slice(0, MAX_LENGTH), expires || null);
+      await save(draft.slice(0, MAX_LENGTH), expires || null, size);
       toast({ title: "Sparat!", description: draft.trim() ? `Anslaget för Åk ${grade} visas vid nästa besök.` : "Anslaget är borttaget." });
     } catch (err) {
       toast({ title: "Kunde inte spara", description: (err as { message?: string })?.message ?? "Okänt fel", variant: "destructive" });
@@ -48,7 +71,19 @@ const AnnouncementEditor = () => {
           </Button>
         ))}
       </div>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Storlek:</span>
+        {SIZES.map((o) => (
+          <Button key={o.id} size="sm" variant={size === o.id ? "default" : "outline"} onClick={() => setSize(o.id)}>{o.label}</Button>
+        ))}
+        <span className="ml-3 text-muted-foreground">Färg på markerad text:</span>
+        {COLORS.map((c) => (
+          <button key={c.tag} type="button" onClick={() => wrapColor(c.tag)} aria-label={c.tag} title={c.tag}
+            className="h-7 w-7 rounded-full border-2 border-border" style={{ backgroundColor: c.hex }} />
+        ))}
+      </div>
       <Textarea
+        ref={taRef}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         maxLength={MAX_LENGTH}
@@ -63,8 +98,8 @@ const AnnouncementEditor = () => {
         {expires && <Button size="sm" variant="ghost" onClick={() => setExpires("")}>Inget slutdatum</Button>}
       </div>
       {draft.trim() && (
-        <div className="flash-card mx-auto rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4" lang="sv">
-          <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold text-card-foreground">
+        <div data-size={size} className="flash-card mx-auto rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4" lang="sv">
+          <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold">
             {parseLessonContent(sanitizeLessonText(draft))}
           </div>
         </div>
