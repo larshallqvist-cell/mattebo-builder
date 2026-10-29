@@ -345,6 +345,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          class_grade: number | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -353,6 +354,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          class_grade?: number | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -361,6 +363,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          class_grade?: number | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -562,6 +565,8 @@ export type Database = {
           user_id: string
         }[]
       }
+      fill_missing_classes: { Args: never; Returns: number }
+      first_recorded_grade: { Args: { p_user_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
