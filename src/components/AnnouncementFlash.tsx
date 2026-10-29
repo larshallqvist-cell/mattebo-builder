@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Megaphone } from "lucide-react";
 import { useAnnouncement } from "@/hooks/useAnnouncement";
-import { flashDurationMs, localDay, seenKey, shouldShow } from "@/lib/announcement";
+import { localDay, seenKey, shouldShow } from "@/lib/announcement";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import "@/styles/announcement-flash.css";
 
 const STORAGE = (grade: number) => `mattebo-flash-seen-${grade}`;
 
-/** Shows the grade's announcement once per day, auto-hides after a few seconds. */
+/** Shows the grade's announcement once per day; stays open until dismissed. */
 const AnnouncementFlash = ({ grade }: { grade: number }) => {
   const { announcement } = useAnnouncement(grade);
   const [visible, setVisible] = useState(false);
@@ -21,8 +21,6 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
     if (!shouldShow({ ...announcement, grade, today, lastSeen })) return;
     try { localStorage.setItem(STORAGE(grade), seenKey(grade, announcement.updatedAt, today)); } catch { /* ignore */ }
     setVisible(true);
-    const t = window.setTimeout(() => setVisible(false), flashDurationMs(announcement.content));
-    return () => window.clearTimeout(t);
   }, [announcement, grade]);
 
   useEffect(() => {
