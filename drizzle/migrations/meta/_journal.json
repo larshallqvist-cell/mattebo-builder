@@ -99,6 +99,13 @@
       "when": 1793310321719,
       "tag": "0013_add_student_class_grade",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793310534675,
+      "tag": "0014_fix_has_role_execute_grant",
+      "breakpoints": true
     }
   ]
 }
