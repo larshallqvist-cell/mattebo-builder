@@ -3,6 +3,7 @@ import { X, Megaphone } from "lucide-react";
 import { useAnnouncement } from "@/hooks/useAnnouncement";
 import { flashDurationMs, localDay, seenKey, shouldShow } from "@/lib/announcement";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
+import "@/styles/announcement-flash.css";
 
 const STORAGE = (grade: number) => `mattebo-flash-seen-${grade}`;
 
