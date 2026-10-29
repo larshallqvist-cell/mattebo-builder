@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { buildStats, pct, type Attempt } from "@/lib/algebraStats";
+import { buildStats, type Attempt } from "@/lib/algebraStats";
 import { PAGE_LABELS, formatActiveTime } from "@/lib/studentActivity";
 import { CLASS_GRADES, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
 import {
@@ -210,7 +210,7 @@ export default function Elevkort() {
                     </ul>
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Inga测试结果 testade ännu.</p>
+                  <p className="text-sm text-muted-foreground">Testet är inte gjort ännu.</p>
                 )}
               </section>
 

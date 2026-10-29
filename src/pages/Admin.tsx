@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/table";
 import {
   Check, X, ArrowLeft, Shield, Trash2, Pencil, ClipboardList,
-  CalendarDays, Inbox, Users, Mail, RefreshCw,
+  CalendarDays, Inbox, Users, Mail, RefreshCw, IdCard,
 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { forceAppUpdate } from "@/pwa";
@@ -26,6 +26,8 @@ import BraklabbetResults from "@/components/BraklabbetResults";
 import TabelltestResults from "@/components/TabelltestResults";
 import AlgebraResults from "@/components/AlgebraResults";
 import StudentActivityResults from "@/components/StudentActivityResults";
+import StudentClassRoster from "@/components/StudentClassRoster";
+import Elevkort from "@/components/Elevkort";
 
 interface AccessRequest {
   id: string;
