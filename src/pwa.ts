@@ -1,4 +1,3 @@
-import { registerSW } from "virtual:pwa-register";
 import { APP_VERSION } from "@/lib/version";
 
 // Tvinga fram ny version direkt (iOS Safari/PWA fastnar annars i gammal cache).
@@ -142,20 +141,11 @@ export async function forceAppUpdate() {
   window.location.reload();
 }
 
-const updateSW = registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    updateSW(true);
-  },
-  onRegisteredSW(_url, registration) {
-    if (!registration) return;
-    // Leta efter ny version vid start, vid fokus och var 5:e minut.
-    const check = () => {
-      if (document.visibilityState === "visible") registration.update();
-    };
-    check();
-    document.addEventListener("visibilitychange", check);
-    window.addEventListener("focus", check);
-    window.setInterval(check, 5 * 60 * 1000);
-  },
-});
+// Appen använder inte längre någon service worker – den höll kvar gamla versioner.
+// Avregistrera eventuella kvarvarande så att alla alltid får senaste publicerade versionen.
+if ("serviceWorker" in navigator) {
+  void navigator.serviceWorker.getRegistrations().then((regs) => {
+    if (regs.length === 0) return;
+    void Promise.all(regs.map((r) => r.unregister())).then(() => hardReload());
+  });
+}
