@@ -17,6 +17,9 @@
   font-weight: 700;
   line-height: 1.16;
   margin: 0.14em 0;
+  min-width: 0;
+  hyphens: auto;
+  -webkit-hyphens: auto;
   overflow-wrap: break-word;
 }
 .flash-body h3 {
