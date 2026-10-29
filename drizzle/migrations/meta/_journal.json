@@ -92,6 +92,13 @@
       "when": 1793304425936,
       "tag": "0012_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793310321719,
+      "tag": "0013_add_student_class_grade",
+      "breakpoints": true
     }
   ]
 }
