@@ -112,7 +112,7 @@ export default function StudentClassRoster() {
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Klass sätts automatiskt från den årskurs eleven först var aktiv i, och kan rättas här. {missing} elever har ingen klass ännu.
+        Klass föreslås automatiskt från den årskurs personen först var aktiv i – rätta här, och markera föräldrar som "Inte elev". {missing} elever har ingen klass ännu.
       </p>
 
       {loading ? (
@@ -155,6 +155,7 @@ export default function StudentClassRoster() {
                             <SelectItem key={grade} value={String(grade)}>Åk {grade}</SelectItem>
                           ))}
                           <SelectItem value="none">Okänd klass</SelectItem>
+                          <SelectItem value="0">Inte elev (t.ex. förälder)</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>

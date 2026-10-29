@@ -46,3 +46,13 @@ describe("student class roster", () => {
     expect(missingClassCount([s("u1", "Elsa", 6)])).toBe(0);
   });
 });
+
+describe("people who are not students", () => {
+  test("parents marked 'Inte elev' get their own group last and are not counted as missing", () => {
+    const groups = groupByClass([s("u1", "Elsa", 6), s("u2", "Ann-Sofie", 0), s("u3", "Anton", null)]);
+    expect(groups.map((g) => g.label)).toEqual(["Åk 6", "Åk 7", "Åk 8", "Åk 9", "Okänd klass", "Inte elev"]);
+    expect(groups.at(-1)!.students.map((x) => x.full_name)).toEqual(["Ann-Sofie"]);
+    expect(missingClassCount([s("u2", "Ann-Sofie", 0), s("u3", "Anton", null)])).toBe(1);
+    expect(classLabel(0)).toBe("Inte elev");
+  });
+});
