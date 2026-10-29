@@ -131,7 +131,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               >
                 <PostItNote grade={grade} />
                 <HomeworkBanner grade={grade} />
-                <AnnouncementFlash grade={grade} />
               </CollapsibleSection>
 
               {/* 2. Resurser – chapter selector lives in the header */}
@@ -187,6 +186,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           </main>
 
           <MobileBottomNav grade={grade} />
+          <AnnouncementFlash grade={grade} />
         </div>
       </PageTransition>
     </LoginGate>
