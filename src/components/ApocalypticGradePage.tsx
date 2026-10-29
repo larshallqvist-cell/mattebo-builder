@@ -11,6 +11,7 @@ import LunchMenu from "@/components/LunchMenu";
 import LessonTimer from "@/components/LessonTimer";
 import PostItNote from "@/components/PostItNote";
 import HomeworkBanner from "@/components/HomeworkBanner";
+import AnnouncementFlash from "@/components/AnnouncementFlash";
 import SurveyLamp from "@/components/SurveyLamp";
 import LessonNotesButton from "@/components/LessonNotesButton";
 import ViewModeToggle from "@/components/ViewModeToggle";
@@ -130,6 +131,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
               >
                 <PostItNote grade={grade} />
                 <HomeworkBanner grade={grade} />
+                <AnnouncementFlash grade={grade} />
               </CollapsibleSection>
 
               {/* 2. Resurser – chapter selector lives in the header */}
