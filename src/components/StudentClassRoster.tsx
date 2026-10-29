@@ -154,7 +154,7 @@ export default function StudentClassRoster() {
                           {CLASS_GRADES.map((grade) => (
                             <SelectItem key={grade} value={String(grade)}>Åk {grade}</SelectItem>
                           ))}
-                          <SelectItem value="none">Okländ klass</SelectItem>
+                          <SelectItem value="none">Okänd klass</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>

@@ -17,7 +17,7 @@ export function isClassGrade(value: unknown): value is number {
 }
 
 export function classLabel(grade: number | null): string {
-  return isClassGrade(grade) ? `Åk ${grade}` : "Okländ klass";
+  return isClassGrade(grade) ? `Åk ${grade}` : "Okänd klass";
 }
 
 const byName = (a: RosterStudent, b: RosterStudent) => a.full_name.localeCompare(b.full_name, "sv");
@@ -30,7 +30,7 @@ export function groupByClass(students: RosterStudent[]): ClassGroup[] {
     students: students.filter((s) => s.class_grade === grade).sort(byName),
   }));
   const unknown = students.filter((s) => !isClassGrade(s.class_grade)).sort(byName);
-  if (unknown.length > 0) groups.push({ grade: null, label: "Okländ klass", students: unknown });
+  if (unknown.length > 0) groups.push({ grade: null, label: "Okänd klass", students: unknown });
   return groups;
 }
 

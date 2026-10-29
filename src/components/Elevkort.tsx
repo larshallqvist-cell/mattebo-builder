@@ -152,7 +152,7 @@ export default function Elevkort() {
             {CLASS_GRADES.map((grade) => (
               <SelectItem key={grade} value={String(grade)}>Åk {grade}</SelectItem>
             ))}
-            <SelectItem value="none">Okländ klass</SelectItem>
+            <SelectItem value="none">Okänd klass</SelectItem>
           </SelectContent>
         </Select>
         <Select value={active || undefined} onValueChange={setSelected}>
