@@ -1,0 +1,1 @@
+ALTER TABLE public.announcements ADD COLUMN IF NOT EXISTS size text NOT NULL DEFAULT 'medium' CHECK (size IN ('small','medium','large'));

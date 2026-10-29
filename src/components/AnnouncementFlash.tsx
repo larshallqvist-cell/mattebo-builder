@@ -42,7 +42,7 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
       aria-label="Anslag"
     >
       <div
-        className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4 shadow-2xl animate-in zoom-in-95 duration-300"
+        data-size={announcement.size} className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4 shadow-2xl animate-in zoom-in-95 duration-300"
         lang="sv"
         onClick={(e) => e.stopPropagation()}
       >
@@ -57,7 +57,7 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
           <Megaphone className="h-6 w-6 shrink-0" />
           <span className="font-body text-base font-semibold uppercase tracking-widest">Åk {grade}</span>
         </div>
-        <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold text-card-foreground">
+        <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold">
           {parseLessonContent(sanitizeLessonText(announcement.content))}
         </div>
       </div>
