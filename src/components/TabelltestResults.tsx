@@ -12,7 +12,7 @@ interface Row {
   passed: boolean;
   input_mode: "voice" | "keyboard";
   created_at: string;
-  profiles: { full_name: string | null; email: string | null } | null;
+  profiles: { full_name: string | null; email: string | null; class_grade: number | null } | null;
 }
 
 const formatTime = (ms: number) => (ms / 1000).toFixed(1).replace(".", ",") + " s";
@@ -27,7 +27,7 @@ const TabelltestResults = () => {
     (async () => {
       const { data, error: err } = await supabase
         .from("tabelltest_results")
-        .select("user_id,score,total,avg_time_ms,passed,input_mode,created_at,profiles(full_name,email)")
+        .select("user_id,score,total,avg_time_ms,passed,input_mode,created_at,profiles(full_name,email,class_grade)")
         .order("created_at", { ascending: false });
       if (err) setError(true);
       else setRows((data ?? []) as unknown as Row[]);
@@ -69,6 +69,7 @@ const TabelltestResults = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Namn</TableHead>
+                <TableHead>Klass</TableHead>
                 <TableHead>Resultat</TableHead>
                 <TableHead>Godkänt</TableHead>
                 <TableHead>Snittid</TableHead>
@@ -80,6 +81,7 @@ const TabelltestResults = () => {
               {latestList.map((r) => (
                 <TableRow key={r.user_id}>
                   <TableCell>{r.profiles?.full_name || "—"}</TableCell>
+                  <TableCell>{r.profiles?.class_grade ? `Åk ${r.profiles.class_grade}` : "—"}</TableCell>
                   <TableCell>{r.score}/{r.total}</TableCell>
                   <TableCell>
                     {r.passed ? (
@@ -105,6 +107,7 @@ const TabelltestResults = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Namn</TableHead>
+                <TableHead>Klass</TableHead>
                 <TableHead>E-post</TableHead>
                 <TableHead>Bästa resultat</TableHead>
                 <TableHead>Snittid</TableHead>
@@ -116,6 +119,7 @@ const TabelltestResults = () => {
               {approved.map((r) => (
                 <TableRow key={r.user_id}>
                   <TableCell>{r.profiles?.full_name || "—"}</TableCell>
+                  <TableCell>{r.profiles?.class_grade ? `Åk ${r.profiles.class_grade}` : "—"}</TableCell>
                   <TableCell>{r.profiles?.email || "—"}</TableCell>
                   <TableCell>{r.score}/{r.total}</TableCell>
                   <TableCell>{formatTime(r.avg_time_ms)}</TableCell>

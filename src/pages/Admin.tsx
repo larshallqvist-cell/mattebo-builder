@@ -201,6 +201,14 @@ const Admin = () => {
           <LessonPlanEditor />
         </CollapsibleAdminSection>
 
+        <CollapsibleAdminSection title="Elever och klasser" icon={<Users className="w-5 h-5" />}>
+          <StudentClassRoster />
+        </CollapsibleAdminSection>
+
+        <CollapsibleAdminSection title="Elevkort" icon={<IdCard className="w-5 h-5" />}>
+          <Elevkort />
+        </CollapsibleAdminSection>
+
         {/* Pending */}
         <CollapsibleAdminSection title="Bråklabbet – elevresultat" icon={<ClipboardList className="w-5 h-5" />}>
           <BraklabbetResults />
