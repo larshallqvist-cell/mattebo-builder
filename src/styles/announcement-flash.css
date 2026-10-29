@@ -12,6 +12,7 @@
 /* Texten i rutan skalas upp (rendern satter egen text-sm) och blir ett utrop. */
 .flash-body p,
 .flash-body li {
+  font-family: inherit;
   font-size: 1em;
   font-weight: 700;
   line-height: 1.16;
