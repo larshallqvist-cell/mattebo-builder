@@ -1,10 +1,7 @@
 /** Rules for the per-grade announcement flash. */
 
-/** Visible time: 3 s for short text, +1 s per 40 characters beyond 60, max 8 s. */
-export const flashDurationMs = (text: string): number => {
-  const extra = Math.max(0, Math.ceil((text.trim().length - 60) / 40));
-  return Math.min(8000, 3000 + extra * 1000);
-};
+/** The flash has no timed auto-hide: it stays open until the user closes it. */
+export const autoClosesAfterMs: number | null = null;
 
 /** Local date as YYYY-MM-DD (Stockholm-time for users in Sweden). */
 export const localDay = (d: Date = new Date()): string => {
