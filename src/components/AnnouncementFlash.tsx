@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Megaphone } from "lucide-react";
 import { useAnnouncement } from "@/hooks/useAnnouncement";
 import { flashDurationMs, localDay, seenKey, shouldShow } from "@/lib/announcement";
