@@ -18,6 +18,7 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import LessonPlanEditor from "@/components/LessonPlanEditor";
+import AnnouncementEditor from "@/components/AnnouncementEditor";
 import HomeworkEditor from "@/components/HomeworkEditor";
 import SurveyAdmin from "@/components/SurveyAdmin";
 import CollapsibleAdminSection from "@/components/CollapsibleAdminSection";
@@ -184,6 +185,10 @@ const Admin = () => {
 
         <CollapsibleAdminSection title="Läxruta" icon={<Pencil className="w-5 h-5" />}>
           <HomeworkEditor />
+        </CollapsibleAdminSection>
+
+        <CollapsibleAdminSection title="Anslag" icon={<Mail className="w-5 h-5" />}>
+          <AnnouncementEditor />
         </CollapsibleAdminSection>
 
         <CollapsibleAdminSection title="Veckoavstämning" icon={<ClipboardList className="w-5 h-5" />}>
