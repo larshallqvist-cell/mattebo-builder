@@ -120,18 +120,21 @@ export type Database = {
           content: string
           expires_on: string | null
           grade: number
+          size: string
           updated_at: string
         }
         Insert: {
           content?: string
           expires_on?: string | null
           grade: number
+          size?: string
           updated_at?: string
         }
         Update: {
           content?: string
           expires_on?: string | null
           grade?: number
+          size?: string
           updated_at?: string
         }
         Relationships: []
