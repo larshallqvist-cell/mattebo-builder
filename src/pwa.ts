@@ -86,6 +86,26 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 /**
+ * React kan få en null intern dispatcher när webbläsaren blandar två generationer
+ * av dev-serverns förpackade beroenden (olika ?v=-hash i samma modultavla).
+ * Det ger ett synkront fel under render, t.ex. "Cannot read properties of null
+ * (reading 'useEffect')", som varken är en preload-error eller ett avvisat löfte.
+ * Fångas här så att sidan hämtar en konsekvent modultavla i stället för att
+ * blanka skärmen permanent.
+ */
+const REACT_DISPATCHER_ERROR =
+  /reading '(?:useEffect|useState|useRef|useMemo|useCallback|useContext|useReducer|useLayoutEffect|useSyncExternalStore|useId|useTransition)'|dispatcher\.(?:useState|useEffect|isMounted|scheduleCallback)|reading 'dispatcher'|cannot read properties of (?:null|undefined) \(reading 'createElement'\)/i;
+
+window.addEventListener(
+  "error",
+  (event) => {
+    const msg = `${event.message ?? ""} ${event.error?.message ?? ""}`;
+    if (REACT_DISPATCHER_ERROR.test(msg)) reloadOnceForStaleChunks();
+  },
+  true,
+);
+
+/**
  * Manuell escape-hatch för fastnad iOS/PWA-cache.
  * Avregistrerar service workers, tömmer alla cache-poster (förutom Google-fonts),
  * rensar versionsnyckeln och laddar om siden hårt.
