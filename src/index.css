@@ -571,3 +571,42 @@ body::after {
   .lab-primary:hover { background: hsl(var(--lab-accent) / 0.88); }
   .lab-frame { background: hsl(0 0% 100%); border: 1px solid hsl(var(--lab-line)); }
 }
+
+/* Övningssidor (Procent, Algebra, Tabelltestet): ljus, varm yta med marinblå text, turkos och sparsam korall.
+   Byter bara variablerna inom .exercise-light så att knappar och kort följer med utan egna färgklasser. */
+:root { --coral: 10 72% 60%; --coral-foreground: 0 0% 100%; --choc: 22 48% 30%; --choc-soft: 30 38% 88%; }
+.exercise-light {
+  --background: 40 33% 97%;
+  --foreground: 216 55% 16%;
+  --card: 0 0% 100%;
+  --card-foreground: 216 55% 16%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 216 55% 16%;
+  --primary: 184 72% 29%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 40 26% 92%;
+  --secondary-foreground: 216 55% 16%;
+  --muted: 40 22% 93%;
+  --muted-foreground: 216 18% 38%;
+  --accent: 182 64% 31%;
+  --accent-foreground: 0 0% 100%;
+  --coral: 10 70% 50%;
+  --coral-foreground: 0 0% 100%;
+  --destructive: 6 66% 45%;
+  --border: 36 18% 85%;
+  --input: 36 18% 82%;
+  --ring: 184 72% 29%;
+  --survey-good: 152 60% 29%;
+  --exercise-shadow: 0 1px 2px hsl(216 55% 16% / 0.05), 0 22px 48px -28px hsl(216 55% 16% / 0.28);
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  color-scheme: light;
+}
+.exercise-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: var(--exercise-shadow); }
+.exercise-light :focus-visible { outline: 3px solid hsl(var(--ring)); outline-offset: 2px; }
+@keyframes exercise-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.exercise-rise { animation: exercise-rise 0.28s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .exercise-rise { animation: none; } }

@@ -27,6 +27,7 @@ export default {
       },
       colors: {
         border: "hsl(var(--border))",
+        coral: { DEFAULT: "hsl(var(--coral))", foreground: "hsl(var(--coral-foreground))" },
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
