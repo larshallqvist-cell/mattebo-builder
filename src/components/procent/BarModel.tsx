@@ -38,7 +38,7 @@ const BarModel = ({ task, solved }: { task: TriangleTask; solved: boolean }) => 
         {Array.from({ length: pieces }, (_, i) => {
           const x = X + i * pw;
           const on = i < filled;
-          if (!countable && on) return null;
+          if (!countable) return null;
           return <rect key={i} x={x + 2} y={Y + 2} width={pw - 4} height={H - 4} rx={5}
             fill="none" stroke={on ? "hsl(0 0% 100%)" : FG} strokeOpacity={on ? 0.28 : 0.14} strokeWidth={1.5} />;
         })}
