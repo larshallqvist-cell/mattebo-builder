@@ -109,7 +109,7 @@ const Procent = () => {
     : step === "factor" ? "Steg 1 · Förändringsfaktorn" : "Steg 2 · Det nya värdet";
   const label = mode === "triangel" ? (tri.kind === "andel" ? "Svar (%)" : `Svar (${tri.unit})`) : step === "factor" ? "Förändringsfaktor" : `Nytt värde (${chg.unit})`;
   const placeholder = mode === "triangel"
-    ? (tri.kind === "andel" ? "t.ex. 35" : `t.ex. ${fmt(Math.round(tri.whole * 0.7) || 35)}`)
+    ? (tri.kind === "andel" ? "t.ex. 35" : "t.ex. 120")
     : step === "factor" ? "t.ex. 1,25 eller 0,8" : "t.ex. 960";
   const question = mode === "triangel" ? tri.question : step === "factor" ? "Vilken är förändringsfaktorn?" : "Vad blir det nya värdet?";
   const roundPos = completed % ROUND;
@@ -161,7 +161,7 @@ const Procent = () => {
         {showModels && (
           <div className="exercise-rise mt-5 grid items-center gap-4 sm:grid-cols-2">
             <BarModel task={tri} solved={!!result?.correct} />
-            <PercentTriangle task={tri} marked={support === 0} solved={!!result?.correct} />
+            <PercentTriangle task={tri} marked solved={!!result?.correct} />
           </div>
         )}
         {mode === "faktor" && <div className="mt-5"><ChangeBar task={chg} factorKnown={step === "value"} valueKnown={done} /></div>}
