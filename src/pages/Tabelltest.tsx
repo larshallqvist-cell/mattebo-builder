@@ -4,6 +4,7 @@ import { ArrowLeft, LogIn, Mic, MicOff, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import ExerciseShell from "@/components/exercise/ExerciseShell";
 import MicrophoneMeter from "@/components/MicrophoneMeter";
 import { createVoiceAnswerHandler } from "@/lib/tabelltestVoice";
 import {
@@ -261,7 +262,7 @@ const Tabelltest = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="exercise-light flex h-screen items-center justify-center">
         <p className="text-muted-foreground font-nunito">Laddar…</p>
       </div>
     );
@@ -269,7 +270,7 @@ const Tabelltest = () => {
 
   if (!user || !allowed) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
+      <div className="exercise-light flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
         <h1 className="font-orbitron text-3xl font-bold text-foreground">Tabelltestet</h1>
         <p className="max-w-md font-nunito text-muted-foreground">
           {!user
@@ -291,22 +292,11 @@ const Tabelltest = () => {
   const q = questions[index];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="flex items-center justify-between px-4 py-3 sm:px-6">
-        <Link to="/" className="nav-link inline-flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" /> Mattebo
-        </Link>
-        <span className="font-nunito text-sm text-muted-foreground">{displayName}</span>
-      </header>
-
-      <main className="flex flex-1 items-center justify-center px-4 pb-16">
-        <div
-          className="w-full max-w-lg rounded-[2rem] border border-primary/20 bg-secondary/40 p-8 text-center backdrop-blur-sm"
-          style={{
-            boxShadow:
-              "0 24px 50px -24px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
-          }}
-        >
+    <ExerciseShell title="Tabelltestet"
+      progress={phase === "running" && questions.length ? { value: index, total: questions.length, showLabel: false } : phase === "done" ? { value: 1, total: 1, showLabel: false } : undefined}>
+      <div className="flex justify-center pt-2 sm:pt-6">
+        <div className="exercise-card w-full max-w-lg rounded-[1.75rem] p-6 text-center sm:p-8">
+          {displayName && <p className="mb-1 text-xs font-semibold text-muted-foreground">{displayName}</p>}
           <h1 className="font-orbitron text-2xl font-bold text-foreground sm:text-3xl">
             Tabelltestet
           </h1>
@@ -412,7 +402,7 @@ const Tabelltest = () => {
                   inputMode="numeric"
                   autoComplete="off"
                   aria-label="Ditt svar"
-                  className="w-32 rounded-2xl border border-primary/30 bg-background/60 px-4 py-3 text-center font-orbitron text-3xl text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="w-32 rounded-2xl border border-primary/30 bg-background px-4 py-3 text-center font-orbitron text-3xl text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                 />
                 {speechSupported && mode === "voice" && (
                   <div className="flex w-16 flex-shrink-0 flex-col items-center gap-1">
@@ -487,8 +477,8 @@ const Tabelltest = () => {
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </ExerciseShell>
   );
 };
 
