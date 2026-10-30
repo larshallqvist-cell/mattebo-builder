@@ -17,7 +17,7 @@ const PercentTriangle = ({ task, marked, solved }: { task: TriangleTask; marked:
   const formula = kind === "andel" ? "Andelen = Delen ÷ Det hela" : kind === "delen" ? "Delen = Andelen · Det hela" : "Det hela = Delen ÷ Andelen";
 
   return (
-    <figure className="mx-auto w-full max-w-sm">
+    <figure className="mx-auto w-full max-w-[16rem] sm:max-w-sm">
       <svg viewBox="0 0 320 262" className="w-full" role="img" aria-label={`Procenttriangel. Sökt: ${cells[kind].label}. ${formula}`}>
         {(Object.keys(cells) as (keyof typeof cells)[]).map((k) => {
           const sought = k === kind;
