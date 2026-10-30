@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent } from "lucide-react";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
@@ -43,6 +43,7 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
   { label: "Tabelltestet", url: "/tabelltestet", icon: Timer, internal: true },
   { label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
+  { label: "Procent", url: "/procent", icon: Percent, internal: true },
 ];
 
 const toolBtn =
