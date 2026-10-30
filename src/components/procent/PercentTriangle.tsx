@@ -23,7 +23,7 @@ const PercentTriangle = ({ task, marked, solved }: { task: TriangleTask; marked:
           const sought = k === kind;
           return (
             <polygon key={k} points={cells[k].poly}
-              fill={sought ? SOUGHT : KNOWN} fillOpacity={sought ? 0.32 : 0.24}
+              fill={sought ? SOUGHT : KNOWN} fillOpacity={sought ? 0.38 : 0.32}
               stroke={FG} strokeOpacity={0.25} strokeWidth={1} />
           );
         })}
