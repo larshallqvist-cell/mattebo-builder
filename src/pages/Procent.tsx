@@ -43,6 +43,7 @@ const Procent = () => {
   const [result, setResult] = useState<Result | null>(null);
   const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
   const missed = useRef(false);
+  const usedHint = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const sessionId = useRef(crypto.randomUUID()); // ett pass = ett sidbesök
@@ -53,7 +54,7 @@ const Procent = () => {
   const fresh = (m = mode, l = level) => {
     if (m === "triangel") setTri((prev) => { let t = generateTriangle(); for (let i = 0; i < 5 && t.text === prev.text; i++) t = generateTriangle(); return t; });
     else setChg(generateChange(l as ChangeLevel));
-    setStep("factor"); setHint(false); setAnswer(""); setResult(null); missed.current = false; focus();
+    setStep("factor"); setHint(false); setAnswer(""); setResult(null); missed.current = false; usedHint.current = false; focus();
   };
   const choose = (m: Mode, l: number) => { setMode(m); setLevel(l); fresh(m, l); };
 
@@ -69,7 +70,7 @@ const Procent = () => {
       void supabase.from("procent_attempts").insert({
         user_id: user.id, session_id: sessionId.current, mode, level,
         task_kind: mode === "triangel" ? tri.kind : chg.percent > 0 ? "okning" : "minskning",
-        hint_used: mode === "triangel" && level === 1 && hint, is_correct: finished,
+        hint_used: mode === "triangel" && usedHint.current, is_correct: finished,
       }).then(() => {});
     }
     if (!r.correct) { missed.current = true; setScore((s) => ({ ...s, total: s.total + 1, streak: 0 })); return; }
@@ -146,7 +147,7 @@ const Procent = () => {
             </p>
 
             {mode === "triangel" && support === 1 && (
-              <Button type="button" variant="outline" size="sm" onClick={() => setHint((h) => !h)} className="gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => { if (!hint) usedHint.current = true; setHint(!hint); }} className="gap-2">
                 {hint ? <><EyeOff className="h-4 w-4" /> Dölj triangeln</> : <><Eye className="h-4 w-4" /> Visa triangeln som ledtråd</>}
               </Button>
             )}
