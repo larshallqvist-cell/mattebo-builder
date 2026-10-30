@@ -1,9 +1,9 @@
 import { fmt, fmtDec, type TriangleTask } from "@/lib/procent";
 
 const ACCENT = "hsl(var(--accent))";
-const PRIMARY = "hsl(var(--primary))";
 const FG = "hsl(var(--foreground))";
-const MUTED = "hsl(var(--muted-foreground))";
+const KNOWN = "hsl(var(--survey-good))";
+const SOUGHT = "hsl(var(--destructive))";
 
 /** Procenttriangeln: Delen överst, Andelen och Det hela i botten. `marked` visar vilken räkning som gäller. */
 const PercentTriangle = ({ task, marked, solved }: { task: TriangleTask; marked: boolean; solved: boolean }) => {
@@ -21,10 +21,9 @@ const PercentTriangle = ({ task, marked, solved }: { task: TriangleTask; marked:
       <svg viewBox="0 0 320 262" className="w-full" role="img" aria-label={`Procenttriangel. Sökt: ${cells[kind].label}. ${formula}`}>
         {(Object.keys(cells) as (keyof typeof cells)[]).map((k) => {
           const sought = k === kind;
-          const given = marked && !sought;
           return (
             <polygon key={k} points={cells[k].poly}
-              fill={sought ? ACCENT : PRIMARY} fillOpacity={sought ? 0.3 : given ? 0.22 : 0.08}
+              fill={sought ? SOUGHT : KNOWN} fillOpacity={sought ? 0.38 : 0.32}
               stroke={FG} strokeOpacity={0.25} strokeWidth={1} />
           );
         })}
@@ -42,7 +41,7 @@ const PercentTriangle = ({ task, marked, solved }: { task: TriangleTask; marked:
           const sought = k === kind;
           return (
             <g key={k} className="font-nunito">
-              <text x={c.x} y={c.y} textAnchor="middle" fontSize="13" fontWeight="700" letterSpacing="0.06em" fill={sought ? ACCENT : MUTED}>{c.label.toUpperCase()}</text>
+              <text x={c.x} y={c.y} textAnchor="middle" fontSize="13" fontWeight="700" letterSpacing="0.06em" fill={sought ? SOUGHT : KNOWN}>{c.label.toUpperCase()}</text>
               <text x={c.x} y={c.y + 24} textAnchor="middle" fontSize={k === "andel" ? 15 : 20} fontWeight="700" fill={FG} className="font-orbitron">
                 {sought && !solved ? "?" : c.value}
               </text>

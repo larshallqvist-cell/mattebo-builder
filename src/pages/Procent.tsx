@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import PercentTriangle from "@/components/procent/PercentTriangle";
 import ChangeBar from "@/components/procent/ChangeBar";
 import {
@@ -41,7 +43,10 @@ const Procent = () => {
   const [result, setResult] = useState<Result | null>(null);
   const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
   const missed = useRef(false);
+  const usedHint = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
+  const sessionId = useRef(crypto.randomUUID()); // ett pass = ett sidbesök
 
   useEffect(() => { document.title = "Procent · Mattebo"; }, []);
 
@@ -49,7 +54,7 @@ const Procent = () => {
   const fresh = (m = mode, l = level) => {
     if (m === "triangel") setTri((prev) => { let t = generateTriangle(); for (let i = 0; i < 5 && t.text === prev.text; i++) t = generateTriangle(); return t; });
     else setChg(generateChange(l as ChangeLevel));
-    setStep("factor"); setHint(false); setAnswer(""); setResult(null); missed.current = false; focus();
+    setStep("factor"); setHint(false); setAnswer(""); setResult(null); missed.current = false; usedHint.current = false; focus();
   };
   const choose = (m: Mode, l: number) => { setMode(m); setLevel(l); fresh(m, l); };
 
@@ -59,6 +64,15 @@ const Procent = () => {
     const r = mode === "triangel" ? checkTriangle(tri, answer) : step === "factor" ? checkFactor(chg, answer) : checkNewValue(chg, answer);
     if (r.correct) r.message = `${praise()} ${r.message}`;
     setResult(r);
+    const finished = r.correct && (mode === "triangel" || step === "value");
+    // Logga tyst för lärarens statistik: varje fel svar och varje färdig uppgift. Fel stör aldrig övningen.
+    if (user && (finished || !r.correct)) {
+      void supabase.from("procent_attempts").insert({
+        user_id: user.id, session_id: sessionId.current, mode, level,
+        task_kind: mode === "triangel" ? tri.kind : chg.percent > 0 ? "okning" : "minskning",
+        hint_used: mode === "triangel" && usedHint.current, is_correct: finished,
+      }).then(() => {});
+    }
     if (!r.correct) { missed.current = true; setScore((s) => ({ ...s, total: s.total + 1, streak: 0 })); return; }
     if (mode === "triangel" || step === "value") {
       setScore((s) => ({ right: s.right + (missed.current ? 0 : 1), total: s.total + (missed.current ? 0 : 1), streak: missed.current ? 0 : s.streak + 1 }));
@@ -133,7 +147,7 @@ const Procent = () => {
             </p>
 
             {mode === "triangel" && support === 1 && (
-              <Button type="button" variant="outline" size="sm" onClick={() => setHint((h) => !h)} className="gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => { if (!hint) usedHint.current = true; setHint(!hint); }} className="gap-2">
                 {hint ? <><EyeOff className="h-4 w-4" /> Dölj triangeln</> : <><Eye className="h-4 w-4" /> Visa triangeln som ledtråd</>}
               </Button>
             )}

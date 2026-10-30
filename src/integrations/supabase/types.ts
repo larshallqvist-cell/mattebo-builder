@@ -342,6 +342,50 @@ export type Database = {
         }
         Relationships: []
       }
+      procent_attempts: {
+        Row: {
+          created_at: string
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          task_kind: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hint_used?: boolean
+          id?: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          task_kind: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hint_used?: boolean
+          id?: string
+          is_correct?: boolean
+          level?: number
+          mode?: string
+          session_id?: string
+          task_kind?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "procent_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
