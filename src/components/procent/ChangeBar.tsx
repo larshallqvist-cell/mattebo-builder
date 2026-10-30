@@ -7,7 +7,7 @@ const MUTED = "hsl(var(--muted-foreground))";
 const DANGER = "hsl(var(--destructive))";
 
 const X0 = 20;
-const L0 = 340; // 100 %
+const L0 = 260; // 100 %
 const BAR_Y = 78;
 const BAR_H = 60;
 
@@ -26,11 +26,11 @@ const ChangeBar = ({ task, factorKnown, valueKnown }: { task: ChangeTask; factor
   const sign = up ? "+" : "−";
   const newPct = factorKnown ? `${100 + task.percent} %` : "? %";
   const newVal = valueKnown ? `${fmt(task.newValue)} ${task.unit}` : "?";
-  const changeMid = up ? X0 + (L0 + L1) / 2 : X0 + (L1 + L0) / 2;
+  const changeMid = Math.min(X0 + (L0 + L1) / 2, 430);
 
   return (
     <figure className="w-full">
-      <svg viewBox="0 0 640 236" className="mx-auto w-full max-w-2xl" role="img"
+      <svg viewBox="0 0 500 236" className="mx-auto w-full max-w-xl" role="img"
         aria-label={`Ursprungsvärde ${fmt(task.original)} ${task.unit} är 100 %. ${up ? "Ökning" : "Minskning"} med ${Math.abs(task.percent)} %.`}>
         {/* bas: det som finns kvar / det ursprungliga */}
         <rect x={X0} y={BAR_Y} width={up ? L0 : L1} height={BAR_H} rx={10} fill={PRIMARY} fillOpacity={0.85} />
