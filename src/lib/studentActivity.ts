@@ -2,7 +2,7 @@ export const IDLE_MS = 60_000;
 export const VISIT_GAP_MS = 30 * 60_000;
 export const PAGE_LABELS: Record<string, string> = {
   "/": "Startsidan", "/ak6": "Åk 6", "/ak7": "Åk 7", "/ak8": "Åk 8", "/ak9": "Åk 9",
-  "/algebra": "Algebra", "/tabelltestet": "Tabelltestet", "/braklabbet": "Bråklabbet",
+  "/algebra": "Algebra", "/tabelltestet": "Tabelltestet", "/braklabbet": "Bråklabbet", "/procent": "Procent",
 };
 export type Visit = { id: string; visit_id: string; user_id: string; path: string; started_at: string; last_seen_at: string; active_seconds: number };
 export type ActivityEvent = { id: string; userId: string; at: string; label: string; url?: string };
