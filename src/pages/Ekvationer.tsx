@@ -11,7 +11,7 @@ import { checkAnswer, explain, generatePuzzle, LEVELS, type Puzzle, type Result,
 const PRAISE = ["Snyggt löst!", "Pusselmästare!", "Klockrent!", "Grymt!", "Helt rätt!"];
 const THEMES: { id: Theme; title: string; blurb: string }[] = [
   { id: "djur", title: "Djur & Frukt", blurb: "🐮 🍌 🍕 🍦" },
-  { id: "profiler", title: "Profiler & Kändisar", blurb: "Zlatan, Kungen, Carola, Taylor – och Magdalena" },
+  { id: "profiler", title: "Profiler & Kändisar", blurb: "Kända ansikten – och Magdalena. Känner du igen dem?" },
 ];
 const BEST_KEY = "mattebo:ekvationer-best";
 

@@ -25,20 +25,19 @@ export const LEVELS = [
 ] as const;
 
 export const ANIMALS = ["🐮", "🍌", "🍕", "🍦", "🐷", "🍎", "🐸", "🍓", "🐔", "🍉", "🐶", "🍩"];
-/** photo: true = visas som porträtt utan namnetikett, så eleverna själva känner igen personen. */
 export const PROFILES = [
-  { id: "zlatan", name: "Zlatan", icon: "⚽", photo: true },
-  { id: "kungen", name: "Carl XVI Gustaf", short: "Kungen", icon: "👑", photo: true },
-  { id: "carola", name: "Carola", icon: "🎤", photo: false },
-  { id: "taylor", name: "Taylor Swift", short: "Taylor", icon: "🎸", photo: true },
-  { id: "magdalena", name: "Magdalena", icon: "🏫", photo: true },
-  { id: "ronaldo", name: "Cristiano Ronaldo", short: "Ronaldo", icon: "⚽", photo: true },
-  { id: "messi", name: "Lionel Messi", short: "Messi", icon: "⚽", photo: true },
-  { id: "pernilla", name: "Pernilla Wahlgren", short: "Pernilla", icon: "🎤", photo: true },
-  { id: "benjamin", name: "Benjamin Ingrosso", short: "Benjamin", icon: "🎤", photo: true },
-  { id: "mrbeast", name: "MrBeast", icon: "📹", photo: true },
-  { id: "therock", name: "Dwayne Johnson", short: "The Rock", icon: "💪", photo: true },
-  { id: "bieber", name: "Justin Bieber", short: "Bieber", icon: "🎤", photo: true },
+  { id: "zlatan", name: "Zlatan", icon: "⚽" },
+  { id: "kungen", name: "Carl XVI Gustaf", short: "Kungen", icon: "👑" },
+  { id: "carola", name: "Carola", icon: "🎤" },
+  { id: "taylor", name: "Taylor Swift", short: "Taylor", icon: "🎸" },
+  { id: "magdalena", name: "Magdalena", icon: "🏫" },
+  { id: "ronaldo", name: "Cristiano Ronaldo", short: "Ronaldo", icon: "⚽" },
+  { id: "messi", name: "Lionel Messi", short: "Messi", icon: "⚽" },
+  { id: "pernilla", name: "Pernilla Wahlgren", short: "Pernilla", icon: "🎤" },
+  { id: "benjamin", name: "Benjamin Ingrosso", short: "Benjamin", icon: "🎤" },
+  { id: "mrbeast", name: "MrBeast", icon: "📹" },
+  { id: "therock", name: "Dwayne Johnson", short: "The Rock", icon: "💪" },
+  { id: "bieber", name: "Justin Bieber", short: "Bieber", icon: "🎤" },
 ] as const;
 export const VARIABLES = ["x", "y", "z"];
 
