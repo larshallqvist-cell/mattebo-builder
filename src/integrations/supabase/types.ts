@@ -216,6 +216,50 @@ export type Database = {
         }
         Relationships: []
       }
+      ekvation_attempts: {
+        Row: {
+          created_at: string
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          theme: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hint_used?: boolean
+          id?: string
+          is_correct: boolean
+          level: number
+          mode?: string
+          session_id: string
+          theme: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hint_used?: boolean
+          id?: string
+          is_correct?: boolean
+          level?: number
+          mode?: string
+          session_id?: string
+          theme?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ekvation_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       google_sheet_cache: {
         Row: {
           cache_key: string
