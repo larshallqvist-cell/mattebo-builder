@@ -104,7 +104,7 @@ export function rowOrder(lv: number, n: number, rng: Rng = Math.random): number[
 /** Radnummer som eleven ser för den logiska raden i. */
 export const shownRow = (p: Puzzle, i: number) => p.order.indexOf(i) + 1;
 
-export function generatePuzzle(level: number, rng: Rng = Math.random): Puzzle {
+export function generatePuzzle(level: number, rng: Rng = Math.random, tries = 0): Puzzle {
   const lv = Math.max(0, Math.min(3, level));
   const n = lv === 0 ? 2 : 3;
   const values = pickDistinct(rng, lv === 0 ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2, 3, 4, 5, 6, 7, 8, 9, 10], n);
@@ -135,6 +135,11 @@ export function generatePuzzle(level: number, rng: Rng = Math.random): Puzzle {
       question = [one(x), { coef: 1, syms: [y, z] }];
     }
   }
+
+  // Slutfrågan får aldrig vara en befintlig rad i annan ordning (då står svaret redan där).
+  const sig = (t: Term[]) => t.map((x) => `${x.coef}*${[...x.syms].sort().join(".")}`).sort().join("+");
+  const asked = sig(question);
+  if (tries < 50 && rows.some((r) => sig(r) === asked)) return generatePuzzle(level, rng, tries + 1);
 
   const symbols = pickFigures(lv, n, rng);
   return {
