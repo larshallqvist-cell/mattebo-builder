@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, Flame, Trophy } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, Check, Flame, PartyPopper, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, HintToggle, Option, OptionGroup, ROUND, useExerciseSound } from "@/components/exercise/ExerciseParts";
@@ -7,11 +7,13 @@ import { PuzzleLine, symbolName } from "@/components/ekvationer/PuzzleFigure";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { checkAnswer, explain, generatePuzzle, LEVELS, type Puzzle, type Result, type Theme } from "@/lib/ekvationer";
+import { justMastered, recommendedNext, summarize, type EkvationRow } from "@/lib/ekvationStats";
+import EkvationProgress, { LevelStatusLine, Stars } from "@/components/ekvationer/EkvationProgress";
 
 const PRAISE = ["Snyggt löst!", "Pusselmästare!", "Klockrent!", "Grymt!", "Helt rätt!"];
 const THEMES: { id: Theme; title: string; blurb: string }[] = [
   { id: "djur", title: "Djur & Frukt", blurb: "🐮 🍌 🍕 🍦" },
-  { id: "profiler", title: "Profiler & Kändisar", blurb: "Zlatan, Kungen, Carola, Taylor – och Magdalena" },
+  { id: "profiler", title: "Profiler & Kändisar", blurb: "Kända ansikten – och Magdalena. Känner du igen dem?" },
 ];
 const BEST_KEY = "mattebo:ekvationer-best";
 
@@ -25,6 +27,10 @@ const Ekvationer = () => {
   const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
   const [best, setBest] = useState(() => { try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch { return 0; } });
   const [completed, setCompleted] = useState(0);
+  const [history, setHistory] = useState<EkvationRow[]>([]);
+  const [celebrate, setCelebrate] = useState<{ level: number; next: number | null } | null>(null);
+  const puzzleId = useRef(crypto.randomUUID());
+  const lastMark = useRef(Date.now());
   const missed = useRef(false);
   const usedHint = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,17 +39,47 @@ const Ekvationer = () => {
   const { user } = useAuth();
 
   useEffect(() => { document.title = "Ekvationspusslet · Mattebo"; }, []);
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const all: EkvationRow[] = [];
+      for (let from = 0; ; from += 1000) {
+        const r = await supabase.from("ekvation_attempts").select("session_id,level,is_correct,hint_used,created_at,puzzle_id,error_kind,seconds_spent")
+          .eq("user_id", user.id).order("created_at", { ascending: true }).range(from, from + 999);
+        if (r.error || cancelled) return;
+        all.push(...(r.data ?? []));
+        if ((r.data?.length ?? 0) < 1000) break;
+      }
+      if (!cancelled) setHistory((local) => [...all, ...local.filter((l) => !all.some((a) => a.created_at === l.created_at && a.puzzle_id === l.puzzle_id))]);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+  const summary = useMemo(() => summarize(history), [history]);
+  const record = Math.max(best, summary.bestStreak);
 
   const fresh = (l = level, t = theme) => {
     setP(generatePuzzle(l, t));
     setAnswer(""); setResult(null); setTip(false); missed.current = false; usedHint.current = false;
+    puzzleId.current = crypto.randomUUID(); lastMark.current = Date.now();
     setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
   };
-  const choose = (l: number, t: Theme) => { setLevel(l); setTheme(t); setCompleted(0); fresh(l, t); };
+  const choose = (l: number, t: Theme) => { setLevel(l); setTheme(t); setCompleted(0); setCelebrate(null); fresh(l, t); };
 
-  const log = (isCorrect: boolean) => {
+  const log = (r: Result) => {
+    const now = Date.now();
+    const row: EkvationRow = {
+      session_id: sessionId.current, level, hint_used: usedHint.current, is_correct: r.correct, created_at: new Date(now).toISOString(),
+      puzzle_id: puzzleId.current, error_kind: r.correct ? null : r.priorityError ? "priority" : "other",
+      seconds_spent: Math.min(300, Math.max(0, Math.round((now - lastMark.current) / 1000))),
+    };
+    lastMark.current = now;
+    const after = summarize([...history, row]);
+    if (r.correct && justMastered(summary, after, level)) setCelebrate({ level, next: recommendedNext(after, level) });
+    setHistory((h) => [...h, row]);
     if (user) void supabase.from("ekvation_attempts").insert({
-      user_id: user.id, session_id: sessionId.current, theme, level, hint_used: usedHint.current, is_correct: isCorrect,
+      user_id: user.id, session_id: row.session_id, theme, level, hint_used: row.hint_used, is_correct: row.is_correct,
+      puzzle_id: row.puzzle_id, error_kind: row.error_kind, seconds_spent: row.seconds_spent,
     }).then(() => {});
   };
 
@@ -66,7 +102,7 @@ const Ekvationer = () => {
       if (!missed.current) setScore((s) => ({ ...s, streak: 0 }));
       missed.current = true;
     }
-    log(r.correct);
+    log(r);
   };
   const next = () => { setCompleted((c) => c + 1); fresh(); };
 
@@ -88,9 +124,11 @@ const Ekvationer = () => {
         {LEVELS.map((l, i) => (
           <Option key={i} active={level === i} onClick={() => choose(i, theme)} title={l.blurb}>
             <span className="font-bold">{i + 1}</span> {l.name}
+            <Stars n={summary.levels[i].stars} className="ml-1.5 align-middle" />
           </Option>
         ))}
       </OptionGroup>
+      <LevelStatusLine l={summary.levels[level]} level={level} />
       {variables && <p className="text-xs text-muted-foreground">På nivå 4 byts figurerna mot x, y och z, oavsett tema.</p>}
     </>
   );
@@ -99,11 +137,29 @@ const Ekvationer = () => {
     <ExerciseShell title="Ekvationspusslet" current={`${variables ? "x, y och z" : THEMES.find((t) => t.id === theme)?.title} · Nivå ${level + 1}`}
       progress={{ value: completed % ROUND, total: ROUND }} sound={sound} settings={settings}>
       <section className="exercise-card rounded-[1.75rem] p-4 sm:p-8">
+        {celebrate && (
+          <div className="exercise-rise mb-5 flex flex-wrap items-center gap-3 rounded-2xl border-2 border-accent bg-accent/15 p-4" role="status">
+            <PartyPopper className="h-7 w-7 shrink-0 text-coral" />
+            <div className="min-w-0 flex-1">
+              <p className="font-bold text-foreground">Nivå {celebrate.level + 1} bemästrad!</p>
+              <p className="text-sm text-muted-foreground">{celebrate.next !== null ? `Du har full koll. Vi rekommenderar nivå ${celebrate.next + 1}: ${LEVELS[celebrate.next].name}.` : "Du har bemästrat alla nivåer – starkt jobbat!"}</p>
+            </div>
+            <div className="flex gap-2">
+              {celebrate.next !== null && <Button size="sm" className="rounded-full" onClick={() => choose(celebrate.next!, theme)}>Till nivå {celebrate.next + 1}</Button>}
+              <Button size="sm" variant="ghost" className="rounded-full" onClick={() => setCelebrate(null)}>Öva vidare</Button>
+            </div>
+          </div>
+        )}
+        <div className="mb-4 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
+          <span className="shrink-0">Nivå {level + 1}</span>
+          <div className="flex-1"><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${summary.levels[level].mastery}%` }} /></div></div>
+          <Stars n={summary.levels[level].stars} />
+        </div>
         <div className="flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
           <span className="uppercase tracking-widest">Vad är värdet på sista raden?</span>
           <span className="flex items-center gap-3">
             <span className="flex items-center gap-1 text-coral" aria-label={`${score.streak} rätt i rad`}><Flame className="h-4 w-4" />{score.streak} i rad</span>
-            {best > 0 && <span className="hidden items-center gap-1 sm:flex" title="Ditt rekord på den här enheten"><Trophy className="h-3.5 w-3.5" />{best}</span>}
+            {record > 0 && <span className="hidden items-center gap-1 sm:flex" title="Ditt rekord"><Trophy className="h-3.5 w-3.5" />{record}</span>}
           </span>
         </div>
 
@@ -147,7 +203,8 @@ const Ekvationer = () => {
           </div>
         </form>
       </section>
-      <p className="px-1 text-center text-xs text-muted-foreground">{score.right} rätt på första försöket av {score.total} lösta pussel.</p>
+      <p className="px-1 text-center text-xs text-muted-foreground">Det här passet: {score.right} rätt på första försöket av {score.total} lösta pussel.</p>
+      <EkvationProgress s={summary} current={level} onPick={(l) => choose(l, theme)} />
     </ExerciseShell>
   );
 };

@@ -127,6 +127,13 @@
       "when": 1793467129393,
       "tag": "0017_ekvation_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793470151841,
+      "tag": "0018_ekvation_attempt_details",
+      "breakpoints": true
     }
   ]
 }

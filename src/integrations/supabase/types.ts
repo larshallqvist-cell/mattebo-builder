@@ -219,33 +219,42 @@ export type Database = {
       ekvation_attempts: {
         Row: {
           created_at: string
+          error_kind: string | null
           hint_used: boolean
           id: string
           is_correct: boolean
           level: number
           mode: string
+          puzzle_id: string | null
+          seconds_spent: number | null
           session_id: string
           theme: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          error_kind?: string | null
           hint_used?: boolean
           id?: string
           is_correct: boolean
           level: number
           mode?: string
+          puzzle_id?: string | null
+          seconds_spent?: number | null
           session_id: string
           theme: string
           user_id: string
         }
         Update: {
           created_at?: string
+          error_kind?: string | null
           hint_used?: boolean
           id?: string
           is_correct?: boolean
           level?: number
           mode?: string
+          puzzle_id?: string | null
+          seconds_spent?: number | null
           session_id?: string
           theme?: string
           user_id?: string

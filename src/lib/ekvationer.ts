@@ -31,6 +31,13 @@ export const PROFILES = [
   { id: "carola", name: "Carola", icon: "🎤" },
   { id: "taylor", name: "Taylor Swift", short: "Taylor", icon: "🎸" },
   { id: "magdalena", name: "Magdalena", icon: "🏫" },
+  { id: "ronaldo", name: "Cristiano Ronaldo", short: "Ronaldo", icon: "⚽" },
+  { id: "messi", name: "Lionel Messi", short: "Messi", icon: "⚽" },
+  { id: "pernilla", name: "Pernilla Wahlgren", short: "Pernilla", icon: "🎤" },
+  { id: "benjamin", name: "Benjamin Ingrosso", short: "Benjamin", icon: "🎤" },
+  { id: "mrbeast", name: "MrBeast", icon: "📹" },
+  { id: "therock", name: "Dwayne Johnson", short: "The Rock", icon: "💪" },
+  { id: "bieber", name: "Justin Bieber", short: "Bieber", icon: "🎤" },
 ] as const;
 export const VARIABLES = ["x", "y", "z"];
 
@@ -141,7 +148,7 @@ export function explain(p: Puzzle, name: (s: number) => string): string[] {
   return steps;
 }
 
-export type Result = { correct: boolean; message: string; showSolution: boolean };
+export type Result = { correct: boolean; message: string; showSolution: boolean; priorityError?: boolean };
 
 export function checkAnswer(p: Puzzle, raw: string): Result {
   const cleaned = raw.replace(/[\s\u00a0]/g, "").replace(/[−–]/g, "-");
@@ -149,7 +156,7 @@ export function checkAnswer(p: Puzzle, raw: string): Result {
   const v = Number(cleaned);
   if (v === p.answer) return { correct: true, message: `${p.answer} är rätt.`, showSolution: false };
   if (p.level >= 2 && v === p.leftToRight) {
-    return { correct: false, message: "Du räknade från vänster till höger. Kom ihåg: gånger går före plus!", showSolution: true };
+    return { correct: false, message: "Du räknade från vänster till höger. Kom ihåg: gånger går före plus!", showSolution: true, priorityError: true };
   }
   return { correct: false, message: "Lös ut en figur i taget, uppifrån och ned. Så här går det till:", showSolution: true };
 }

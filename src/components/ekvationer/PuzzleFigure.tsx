@@ -1,10 +1,29 @@
 import magdalena from "@/assets/magdalena.webp.asset.json";
+import zlatan from "@/assets/profiles/zlatan.webp.asset.json";
+import kungen from "@/assets/profiles/kungen.webp.asset.json";
+import taylor from "@/assets/profiles/taylor.webp.asset.json";
+import ronaldo from "@/assets/profiles/ronaldo.webp.asset.json";
+import messi from "@/assets/profiles/messi.webp.asset.json";
+import pernilla from "@/assets/profiles/pernilla.webp.asset.json";
+import benjamin from "@/assets/profiles/benjamin.webp.asset.json";
+import mrbeast from "@/assets/profiles/mrbeast.webp.asset.json";
+import therock from "@/assets/profiles/therock.webp.asset.json";
+import bieber from "@/assets/profiles/bieber.webp.asset.json";
 import { PROFILES, type Puzzle, type Term } from "@/lib/ekvationer";
 import { cn } from "@/lib/utils";
 
+/** Frilagda porträtt (lärarens egna uppladdningar). */
+const PHOTOS: Record<string, string> = {
+  magdalena: magdalena.url, zlatan: zlatan.url, kungen: kungen.url, taylor: taylor.url,
+  ronaldo: ronaldo.url, messi: messi.url, pernilla: pernilla.url, benjamin: benjamin.url,
+  mrbeast: mrbeast.url, therock: therock.url, bieber: bieber.url,
+};
+
 const PROFILE_TINT: Record<string, string> = {
   zlatan: "bg-[hsl(45_90%_85%)]", kungen: "bg-[hsl(210_70%_88%)]", carola: "bg-[hsl(330_70%_90%)]",
-  taylor: "bg-[hsl(270_60%_90%)]", magdalena: "bg-[hsl(170_45%_85%)]",
+  taylor: "bg-[hsl(270_60%_90%)]", magdalena: "bg-[hsl(170_45%_85%)]", ronaldo: "bg-[hsl(0_70%_90%)]",
+  messi: "bg-[hsl(200_75%_88%)]", pernilla: "bg-[hsl(320_60%_90%)]", benjamin: "bg-[hsl(30_80%_88%)]",
+  mrbeast: "bg-[hsl(190_70%_86%)]", therock: "bg-[hsl(25_60%_86%)]", bieber: "bg-[hsl(150_45%_86%)]",
 };
 
 /** Kort namn för förklaringstexten. */
@@ -17,14 +36,15 @@ export function symbolName(id: string) {
 export const Figure = ({ id }: { id: string }) => {
   const profile = PROFILES.find((p) => p.id === id);
   if (profile) {
+    const photo = PHOTOS[id];
     return (
-      <span className="inline-flex w-14 flex-col items-center gap-0.5 align-middle sm:w-20" title={id === "magdalena" ? undefined : profile.name} aria-label={id === "magdalena" ? "Porträtt" : undefined}>
+      <span className="inline-flex w-14 flex-col items-center gap-0.5 align-middle sm:w-20" title={photo ? undefined : profile.name} aria-label={photo ? "Porträtt" : undefined}>
         <span className={cn("flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-background shadow-md sm:h-16 sm:w-16", PROFILE_TINT[id])}>
-          {id === "magdalena"
-            ? <img src={magdalena.url} alt="" className="h-full w-full object-cover" draggable={false} />
+          {photo
+            ? <img src={photo} alt="" className="h-full w-full object-cover" draggable={false} />
             : <span className="text-xl sm:text-3xl" aria-hidden="true">{profile.icon}</span>}
         </span>
-        {id !== "magdalena" && <span className="max-w-full truncate text-[10px] font-bold leading-tight text-foreground sm:text-xs">{"short" in profile ? profile.short : profile.name}</span>}
+        {!photo && <span className="max-w-full truncate text-[10px] font-bold leading-tight text-foreground sm:text-xs">{"short" in profile ? profile.short : profile.name}</span>}
       </span>
     );
   }
