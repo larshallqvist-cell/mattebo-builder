@@ -9,3 +9,4 @@
 - [x] Ekvationspusslet: Lasses frilagda porträtt (11 st) utan namnetikett
 - [x] Ekvationspusslet: elevens framsteg per nivå, bemästringsuppmuntran, lärarstatistik (tid, ledtrådar, prioritetsfel, bedömningsunderlag)
 - [x] Ekvationspusslet: ta bort temaväljaren, blanda in kändisar gradvis per nivå
+- [ ] Ekvationspusslet: blanda raderna från nivå 2, förklaring pekar ut startraden
