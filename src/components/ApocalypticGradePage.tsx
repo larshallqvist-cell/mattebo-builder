@@ -44,6 +44,7 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { label: "Tabelltestet", url: "/tabelltestet", icon: Timer, internal: true },
   { label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
   { label: "Procent", url: "/procent", icon: Percent, internal: true },
+  { label: "Ekvationer", url: "/ekvationer", icon: Puzzle, internal: true },
 ];
 
 const toolBtn =

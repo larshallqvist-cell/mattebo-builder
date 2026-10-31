@@ -91,6 +91,10 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
                 <Link to="/procent" className="nav-link">
                   Procent
                 </Link>
+                <Link to="/ekvationer" className="nav-link">
+                  <span className="sm:hidden">Pusslet</span>
+                  <span className="hidden sm:inline">Ekvationspusslet</span>
+                </Link>
               </>
             )}
             <a href="#about" className={centerContent ? "nav-link hidden xl:inline" : "nav-link"}>
