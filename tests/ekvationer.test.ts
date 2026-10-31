@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { ANIMALS, checkAnswer, evaluate, explain, generatePuzzle, pickFigures, PROFILES } from "../src/lib/ekvationer";
+import { ANIMALS, shownRow, checkAnswer, evaluate, explain, generatePuzzle, pickFigures, PROFILES } from "../src/lib/ekvationer";
 
 const PEOPLE = new Set<string>(PROFILES.map((p) => p.id));
 const EMOJI = new Set(ANIMALS);
@@ -19,6 +19,29 @@ describe("ekvationspusslet", () => {
       expect(evaluate(p.question, p.values)).toBe(p.answer);
       expect(explain(p, String).at(-1)).toContain(`= ${p.answer}.`);
       expect(checkAnswer(p, String(p.answer)).correct).toBe(true);
+    }
+  });
+
+  test("level 1 keeps rows in order; levels 2–4 always shuffle rows but the question stays last", () => {
+    for (let k = 0; k < 300; k++) {
+      expect(generatePuzzle(0).order).toEqual([0, 1]);
+      for (const level of [1, 2, 3]) {
+        const p = generatePuzzle(level);
+        expect([...p.order].sort()).toEqual([0, 1, 2]);
+        expect(p.order).not.toEqual([0, 1, 2]);
+      }
+    }
+  });
+
+  test("explanation starts at the key row wherever it is shown and then follows the logic", () => {
+    for (let k = 0; k < 300; k++) {
+      const p = generatePuzzle(1 + (k % 3));
+      const steps = explain(p, String);
+      expect(steps[0]).toContain(`Börja med rad ${shownRow(p, 0)}`);
+      expect(steps[1]).toContain(`rad ${shownRow(p, 1)}`);
+      expect(steps[2]).toContain(`rad ${shownRow(p, 2)}`);
+      expect(steps[0]).toContain(`= ${p.values[0]}.`);
+      expect(steps.at(-1)).toContain("Sista raden");
     }
   });
 
