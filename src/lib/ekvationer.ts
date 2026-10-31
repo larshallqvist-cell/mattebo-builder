@@ -166,7 +166,7 @@ export function explain(p: Puzzle, name: (s: number) => string): string[] {
     const row = shownRow(p, i);
     let s = i === 0
       ? `Börja med rad ${row} – det är den enda raden med bara en sorts figur. `
-      : `Leta sedan upp rad ${row}, där bara en ny figur är okänd: `;
+      : `Leta sedan upp rad ${row}, där bara en ny figur är okänd. `;
     if (known.length) {
       const named = known.map((t) => termText(t, name, variables)).join(" + ");
       const nums = known.map((t) => termText(t, (k) => String(p.values[k]), false)).join(" + ");
@@ -200,5 +200,5 @@ export function checkAnswer(p: Puzzle, raw: string): Result {
   if (p.level >= 2 && v === p.leftToRight) {
     return { correct: false, message: "Du räknade från vänster till höger. Kom ihåg: gånger går före plus!", showSolution: true, priorityError: true };
   }
-  return { correct: false, message: "Lös ut en figur i taget, uppifrån och ned. Så här går det till:", showSolution: true };
+  return { correct: false, message: "Lös ut en figur i taget – börja med raden som bara har en sorts figur. Så här går det till:", showSolution: true };
 }
