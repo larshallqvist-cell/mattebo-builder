@@ -149,7 +149,7 @@ const Admin = () => {
       className="h-screen w-full overflow-y-auto overscroll-contain bg-background p-6 pt-24"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
-      <div className="max-w-4xl mx-auto space-y-4 pb-24">
+      <div className="max-w-5xl mx-auto space-y-4 pb-24">
         <div className="flex items-center gap-4">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -187,56 +187,56 @@ const Admin = () => {
           </Button>
         </div>
 
-        <CollapsibleAdminSection title="Läxruta" icon={<Pencil className="w-5 h-5" />}>
-          <HomeworkEditor />
-        </CollapsibleAdminSection>
-
-        <CollapsibleAdminSection title="Anslag" icon={<Mail className="w-5 h-5" />}>
-          <AnnouncementEditor />
-        </CollapsibleAdminSection>
-
-        <CollapsibleAdminSection title="Veckoavstämning" icon={<ClipboardList className="w-5 h-5" />}>
-          <SurveyAdmin />
-        </CollapsibleAdminSection>
-
+        <h2 className="pt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Planera och meddela</h2>
+        <div className="grid grid-flow-dense grid-cols-1 gap-3 md:grid-cols-2">
         <CollapsibleAdminSection title="Lektionsplanering" icon={<CalendarDays className="w-5 h-5" />}>
           <LessonPlanEditor />
         </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Läxruta" icon={<Pencil className="w-5 h-5" />}>
+          <HomeworkEditor />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Anslag" icon={<Mail className="w-5 h-5" />}>
+          <AnnouncementEditor />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Veckoavstämning" icon={<ClipboardList className="w-5 h-5" />}>
+          <SurveyAdmin />
+        </CollapsibleAdminSection>
+        </div>
 
+        <h2 className="pt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Elever</h2>
+        <div className="grid grid-flow-dense grid-cols-1 gap-3 md:grid-cols-2">
         <CollapsibleAdminSection title="Elever och klasser" icon={<Users className="w-5 h-5" />}>
           <StudentClassRoster />
         </CollapsibleAdminSection>
-
         <CollapsibleAdminSection title="Elevkort" icon={<IdCard className="w-5 h-5" />}>
           <Elevkort />
         </CollapsibleAdminSection>
-
-        {/* Pending */}
-        <CollapsibleAdminSection title="Bråklabbet – elevresultat" icon={<ClipboardList className="w-5 h-5" />}>
-          <BraklabbetResults />
-        </CollapsibleAdminSection>
-
-        <CollapsibleAdminSection title="Tabelltestet – resultat" icon={<ClipboardList className="w-5 h-5" />}>
-          <TabelltestResults />
-        </CollapsibleAdminSection>
-
-        <CollapsibleAdminSection title="Algebra – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
-          <AlgebraResults />
-        </CollapsibleAdminSection>
-
-        <CollapsibleAdminSection title="Procent – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
-          <ProcentResults />
-        </CollapsibleAdminSection>
-
-        <CollapsibleAdminSection title="Ekvationspusslet – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
-          <EkvationResults />
-        </CollapsibleAdminSection>
-
         <CollapsibleAdminSection title="Elevaktivitet" icon={<Users className="w-5 h-5" />}>
           <StudentActivityResults />
         </CollapsibleAdminSection>
+        </div>
 
-        {/* Pending */}
+        <h2 className="pt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Resultat i övningarna</h2>
+        <div className="grid grid-flow-dense grid-cols-1 gap-3 md:grid-cols-2">
+        <CollapsibleAdminSection title="Ekvationspusslet – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
+          <EkvationResults />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Algebra – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
+          <AlgebraResults />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Procent – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
+          <ProcentResults />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Tabelltestet – resultat" icon={<ClipboardList className="w-5 h-5" />}>
+          <TabelltestResults />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Bråklabbet – elevresultat" icon={<ClipboardList className="w-5 h-5" />}>
+          <BraklabbetResults />
+        </CollapsibleAdminSection>
+        </div>
+
+        <h2 className="pt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Inloggning och behörighet</h2>
+        <div className="grid grid-flow-dense grid-cols-1 gap-3 md:grid-cols-2">
         <CollapsibleAdminSection
           title={`Väntande förfrågningar (${pending.length})`}
           icon={<Inbox className="w-5 h-5" />}
@@ -290,8 +290,6 @@ const Admin = () => {
             )}
           </div>
         </CollapsibleAdminSection>
-
-        {/* Handled */}
         <CollapsibleAdminSection
           title={`Insläppta och hanterade (${handled.length})`}
           icon={<Users className="w-5 h-5" />}
@@ -349,6 +347,22 @@ const Admin = () => {
             )}
           </div>
         </CollapsibleAdminSection>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       </div>
     </div>
   );
