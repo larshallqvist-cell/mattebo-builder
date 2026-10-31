@@ -26,6 +26,7 @@ import BraklabbetResults from "@/components/BraklabbetResults";
 import TabelltestResults from "@/components/TabelltestResults";
 import AlgebraResults from "@/components/AlgebraResults";
 import ProcentResults from "@/components/ProcentResults";
+import EkvationResults from "@/components/EkvationResults";
 import StudentActivityResults from "@/components/StudentActivityResults";
 import StudentClassRoster from "@/components/StudentClassRoster";
 import Elevkort from "@/components/Elevkort";
@@ -225,6 +226,10 @@ const Admin = () => {
 
         <CollapsibleAdminSection title="Procent – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
           <ProcentResults />
+        </CollapsibleAdminSection>
+
+        <CollapsibleAdminSection title="Ekvationspusslet – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
+          <EkvationResults />
         </CollapsibleAdminSection>
 
         <CollapsibleAdminSection title="Elevaktivitet" icon={<Users className="w-5 h-5" />}>

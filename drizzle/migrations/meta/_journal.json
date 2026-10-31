@@ -120,6 +120,13 @@
       "when": 1793376266029,
       "tag": "0016_procent_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793467129393,
+      "tag": "0017_ekvation_attempts",
+      "breakpoints": true
     }
   ]
 }

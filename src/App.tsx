@@ -15,6 +15,7 @@ import Braklabbet from "./pages/Braklabbet";
 import Tabelltest from "./pages/Tabelltest";
 import Algebra from "./pages/Algebra";
 import Procent from "./pages/Procent";
+import Ekvationer from "./pages/Ekvationer";
 import NotFound from "./pages/NotFound";
 import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
@@ -40,6 +41,7 @@ const AnimatedRoutes = () => {
         <Route path="/tabelltestet" element={<Tabelltest />} />
         <Route path="/algebra" element={<Algebra />} />
         <Route path="/procent" element={<Procent />} />
+        <Route path="/ekvationer" element={<Ekvationer />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

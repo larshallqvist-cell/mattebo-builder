@@ -5,3 +5,4 @@
 - [x] Procentmodul (/procent): procenttriangeln i tre stödnivåer + förändringsfaktor med rektangelmodell
 - [x] Procent: resultat sparas (admin-statistik + elevkort), kända värden gröna och sökt rött i triangeln
 - [x] Övningssidorna (Procent, Algebra, Tabelltestet) i ljus design med robotguide, framsteg, tips och stapelmodell bredvid triangeln
+- [x] Ekvationspusslet (/ekvationer): figurpussel i 4 nivåer, två teman (Djur & Frukt, Profiler med Magdalenas bild), förklaring vid fel, rätt i rad, resultat i admin + elevkort
