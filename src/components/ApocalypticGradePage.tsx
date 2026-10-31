@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
