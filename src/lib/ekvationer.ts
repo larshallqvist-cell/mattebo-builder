@@ -148,7 +148,7 @@ export function explain(p: Puzzle, name: (s: number) => string): string[] {
   return steps;
 }
 
-export type Result = { correct: boolean; message: string; showSolution: boolean };
+export type Result = { correct: boolean; message: string; showSolution: boolean; priorityError?: boolean };
 
 export function checkAnswer(p: Puzzle, raw: string): Result {
   const cleaned = raw.replace(/[\s\u00a0]/g, "").replace(/[−–]/g, "-");
@@ -156,7 +156,7 @@ export function checkAnswer(p: Puzzle, raw: string): Result {
   const v = Number(cleaned);
   if (v === p.answer) return { correct: true, message: `${p.answer} är rätt.`, showSolution: false };
   if (p.level >= 2 && v === p.leftToRight) {
-    return { correct: false, message: "Du räknade från vänster till höger. Kom ihåg: gånger går före plus!", showSolution: true };
+    return { correct: false, message: "Du räknade från vänster till höger. Kom ihåg: gånger går före plus!", showSolution: true, priorityError: true };
   }
   return { correct: false, message: "Lös ut en figur i taget, uppifrån och ned. Så här går det till:", showSolution: true };
 }
