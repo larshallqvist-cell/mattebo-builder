@@ -119,8 +119,10 @@ export function explain(p: Puzzle, name: (s: number) => string): string[] {
     const lhs = count > 1 ? (variables ? `${count}${N}` : `${count} · ${N}`) : N;
     let s = `Rad ${i + 1}: `;
     if (known.length) {
-      const subs = known.map((t) => termText(t, (k) => String(p.values[k]), false)).join(" + ");
-      s += `Sätt in det du vet: ${subs} = ${knownSum}. Då är ${lhs} = ${line.result} − ${knownSum} = ${rest}`;
+      const named = known.map((t) => termText(t, name, variables)).join(" + ");
+      const nums = known.map((t) => termText(t, (k) => String(p.values[k]), false)).join(" + ");
+      const simple = known.length === 1 && known[0].coef === 1 && known[0].syms.length === 1;
+      s += `Du vet redan att ${named} = ${simple ? knownSum : `${nums} = ${knownSum}`}. Då är ${lhs} = ${line.result} − ${knownSum} = ${rest}`;
     } else {
       s += `${lhs} = ${line.result}`;
     }

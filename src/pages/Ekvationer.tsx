@@ -98,7 +98,7 @@ const Ekvationer = () => {
   return (
     <ExerciseShell title="Ekvationspusslet" current={`${variables ? "x, y och z" : THEMES.find((t) => t.id === theme)?.title} · Nivå ${level + 1}`}
       progress={{ value: completed % ROUND, total: ROUND }} sound={sound} settings={settings}>
-      <section className="exercise-card rounded-[1.75rem] p-5 sm:p-8">
+      <section className="exercise-card rounded-[1.75rem] p-4 sm:p-8">
         <div className="flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
           <span className="uppercase tracking-widest">Vad är värdet på sista raden?</span>
           <span className="flex items-center gap-3">
