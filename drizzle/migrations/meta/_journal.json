@@ -134,6 +134,13 @@
       "when": 1793470151841,
       "tag": "0018_ekvation_attempt_details",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793470937302,
+      "tag": "0019_ekvation_theme_default",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,5 @@
 // Ekvationspusslet: figurer med okända värden, en ny figur per rad, frågan på sista raden.
 
-export type Theme = "djur" | "profiler";
 /** coef · (produkten av figurerna i syms). syms har en eller två figurer (index). */
 export type Term = { coef: number; syms: number[] };
 export type Line = { terms: Term[]; result: number };
@@ -64,7 +63,31 @@ export function evaluateLeftToRight(terms: Term[], v: number[]) {
   return acc ?? 0;
 }
 
-export function generatePuzzle(level: number, theme: Theme, rng: Rng = Math.random): Puzzle {
+/**
+ * Hur kändisar smyger in per nivå (inget temaval):
+ * nivå 1 – ibland (≈28 % av pusslen) en kändis bland emojis, nivå 2 – varje figur 50 % kändis,
+ * nivå 3 – oftast bara kändisar (85 %), annars två kändisar och en emoji. Nivå 4 använder x, y, z.
+ */
+export const CELEBRITY_MIX = { level1Puzzle: 0.28, level2Figure: 0.5, level3AllCelebrities: 0.85 } as const;
+
+export function pickFigures(lv: number, n: number, rng: Rng = Math.random): string[] {
+  if (lv >= 3) return VARIABLES.slice(0, n);
+  let celeb: boolean[];
+  if (lv === 0) {
+    const slot = rng() < CELEBRITY_MIX.level1Puzzle ? Math.floor(rng() * n) : -1;
+    celeb = Array.from({ length: n }, (_, i) => i === slot);
+  } else if (lv === 1) {
+    celeb = Array.from({ length: n }, () => rng() < CELEBRITY_MIX.level2Figure);
+  } else {
+    const emojiSlot = rng() < CELEBRITY_MIX.level3AllCelebrities ? -1 : Math.floor(rng() * n);
+    celeb = Array.from({ length: n }, (_, i) => i !== emojiSlot);
+  }
+  const people = pickDistinct(rng, PROFILES.map((p) => p.id), n);
+  const emojis = pickDistinct(rng, ANIMALS, n);
+  return celeb.map((c, i) => (c ? people[i] : emojis[i]));
+}
+
+export function generatePuzzle(level: number, rng: Rng = Math.random): Puzzle {
   const lv = Math.max(0, Math.min(3, level));
   const n = lv === 0 ? 2 : 3;
   const values = pickDistinct(rng, lv === 0 ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2, 3, 4, 5, 6, 7, 8, 9, 10], n);
@@ -96,9 +119,7 @@ export function generatePuzzle(level: number, theme: Theme, rng: Rng = Math.rand
     }
   }
 
-  const symbols = lv === 3 ? VARIABLES.slice(0, n)
-    : theme === "profiler" ? pickDistinct(rng, PROFILES.map((p) => p.id), n)
-    : pickDistinct(rng, ANIMALS, n);
+  const symbols = pickFigures(lv, n, rng);
   return {
     level: lv, symbols, values,
     lines: rows.map((terms) => ({ terms, result: evaluate(terms, values) })),
