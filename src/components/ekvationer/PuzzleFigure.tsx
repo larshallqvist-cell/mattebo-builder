@@ -8,6 +8,7 @@ import pernilla from "@/assets/profiles/pernilla.webp.asset.json";
 import benjamin from "@/assets/profiles/benjamin.webp.asset.json";
 import mrbeast from "@/assets/profiles/mrbeast.webp.asset.json";
 import therock from "@/assets/profiles/therock.webp.asset.json";
+import carola from "@/assets/profiles/carola.webp.asset.json";
 import bieber from "@/assets/profiles/bieber.webp.asset.json";
 import { PROFILES, type Puzzle, type Term } from "@/lib/ekvationer";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,7 @@ import { cn } from "@/lib/utils";
 const PHOTOS: Record<string, string> = {
   magdalena: magdalena.url, zlatan: zlatan.url, kungen: kungen.url, taylor: taylor.url,
   ronaldo: ronaldo.url, messi: messi.url, pernilla: pernilla.url, benjamin: benjamin.url,
-  mrbeast: mrbeast.url, therock: therock.url, bieber: bieber.url,
+  mrbeast: mrbeast.url, therock: therock.url, bieber: bieber.url, carola: carola.url,
 };
 
 const PROFILE_TINT: Record<string, string> = {
