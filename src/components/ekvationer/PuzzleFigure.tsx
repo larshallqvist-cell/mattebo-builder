@@ -71,9 +71,13 @@ const TermView = ({ term, p }: { term: Term; p: Puzzle }) => {
 };
 
 /** En rad i pusslet, t.ex. 🐮 · 2 + 🍌 = 25. */
-export const PuzzleLine = ({ terms, result, p, question }: { terms: Term[]; result?: number; p: Puzzle; question?: boolean }) => (
-  <div className={cn("flex flex-wrap items-center justify-center gap-x-1 gap-y-1 rounded-2xl px-2 py-2 font-orbitron text-xl sm:gap-x-2 sm:px-3 sm:text-2xl font-bold text-foreground sm:text-3xl",
+export const PuzzleLine = ({ terms, result, p, question, row }: { terms: Term[]; result?: number; p: Puzzle; question?: boolean; row?: number }) => (
+  <div className={cn("relative flex flex-wrap items-center justify-center gap-x-1 gap-y-1 rounded-2xl px-2 py-2 font-orbitron text-xl sm:gap-x-2 sm:px-3 sm:text-2xl font-bold text-foreground sm:text-3xl",
+    row !== undefined && "pl-7 sm:pl-9",
     question ? "border-2 border-dashed border-coral/60 bg-coral/5" : "bg-secondary/60")}>
+    {row !== undefined && (
+      <span className="absolute left-2 top-1/2 -translate-y-1/2 font-sans text-[11px] font-semibold text-muted-foreground sm:left-3 sm:text-xs" aria-label={`Rad ${row}`}>{row}</span>
+    )}
     {terms.map((t, i) => (
       <span key={i} className="inline-flex items-center gap-1 sm:gap-2">
         {i > 0 && <Op>+</Op>}

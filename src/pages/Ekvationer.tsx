@@ -6,7 +6,7 @@ import { Feedback, HintToggle, Option, OptionGroup, ROUND, useExerciseSound } fr
 import { PuzzleLine, symbolName } from "@/components/ekvationer/PuzzleFigure";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { checkAnswer, explain, generatePuzzle, LEVELS, type Puzzle, type Result } from "@/lib/ekvationer";
+import { checkAnswer, explain, generatePuzzle, LEVELS, shownRow, type Puzzle, type Result } from "@/lib/ekvationer";
 import { justMastered, recommendedNext, summarize, type EkvationRow } from "@/lib/ekvationStats";
 import EkvationProgress, { LevelStatusLine, Stars } from "@/components/ekvationer/EkvationProgress";
 
@@ -151,7 +151,7 @@ const Ekvationer = () => {
         </div>
 
         <div key={p.lines.map((l) => l.result).join("-") + p.symbols.join()} className="exercise-rise my-6 space-y-3">
-          {p.lines.map((l, i) => <PuzzleLine key={i} terms={l.terms} result={l.result} p={p} />)}
+          {p.order.map((i, pos) => <PuzzleLine key={i} terms={p.lines[i].terms} result={p.lines[i].result} p={p} row={pos + 1} />)}
           <PuzzleLine terms={p.question} p={p} question />
         </div>
 
@@ -179,7 +179,7 @@ const Ekvationer = () => {
           <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
             {!done && (
               <HintToggle open={tip} onToggle={() => { setTip(!tip); usedHint.current = true; }}>
-                Börja med rad 1 – där finns bara {variables ? first : symbolName(first)}. {variables ? "Vad måste x vara?" : "Hur mycket är en av dem värd?"}
+                {p.level === 0 ? "Börja med rad 1" : `Leta upp raden med bara en sorts figur (rad ${shownRow(p, 0)})`} – där finns bara {variables ? first : symbolName(first)}. {variables ? "Vad måste x vara?" : "Hur mycket är en av dem värd?"}
               </HintToggle>
             )}
             {!done && (

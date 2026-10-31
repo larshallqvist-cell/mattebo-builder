@@ -8,7 +8,10 @@ export type Puzzle = {
   /** Figur-id per index: emoji, profil-id eller variabelnamn. */
   symbols: string[];
   values: number[];
+  /** I logisk ordning: rad i introducerar figur i. */
   lines: Line[];
+  /** Visningsordning: order[plats] = index i lines. Nivå 1 i ordning, från nivå 2 blandad. */
+  order: number[];
   question: Term[];
   answer: number;
   /** Svaret om man räknar sista raden från vänster till höger (vanligt fel på nivå 3–4). */
@@ -18,7 +21,7 @@ export type Rng = () => number;
 
 export const LEVELS = [
   { name: "Två figurer", blurb: "Bara addition. Rad 1 avslöjar en figur direkt." },
-  { name: "Tre figurer", blurb: "Gånger smyger sig in: 🐮 · 2." },
+  { name: "Tre figurer", blurb: "Gånger smyger sig in – och raderna är blandade." },
   { name: "Gånger först", blurb: "Sista raden kräver prioriteringsregeln." },
   { name: "x, y och z", blurb: "Figurerna blir bokstäver – riktiga ekvationer." },
 ] as const;
@@ -87,6 +90,20 @@ export function pickFigures(lv: number, n: number, rng: Rng = Math.random): stri
   return celeb.map((c, i) => (c ? people[i] : emojis[i]));
 }
 
+/** Nivå 1 i ordning. Från nivå 2 alltid blandad (aldrig startnyckeln först i ordning). */
+export function rowOrder(lv: number, n: number, rng: Rng = Math.random): number[] {
+  const id = Array.from({ length: n }, (_, i) => i);
+  if (lv === 0 || n < 2) return id;
+  for (let tries = 0; tries < 20; tries++) {
+    const o = pickDistinct(rng, id, n);
+    if (o.some((v, i) => v !== i)) return o;
+  }
+  return [...id.slice(1), id[0]];
+}
+
+/** Radnummer som eleven ser för den logiska raden i. */
+export const shownRow = (p: Puzzle, i: number) => p.order.indexOf(i) + 1;
+
 export function generatePuzzle(level: number, rng: Rng = Math.random): Puzzle {
   const lv = Math.max(0, Math.min(3, level));
   const n = lv === 0 ? 2 : 3;
@@ -123,6 +140,7 @@ export function generatePuzzle(level: number, rng: Rng = Math.random): Puzzle {
   return {
     level: lv, symbols, values,
     lines: rows.map((terms) => ({ terms, result: evaluate(terms, values) })),
+    order: rowOrder(lv, rows.length, rng),
     question, answer: evaluate(question, values), leftToRight: evaluateLeftToRight(question, values),
   };
 }
@@ -145,7 +163,10 @@ export function explain(p: Puzzle, name: (s: number) => string): string[] {
     const rest = line.result - knownSum;
     const N = name(newSym);
     const lhs = count > 1 ? (variables ? `${count}${N}` : `${count} · ${N}`) : N;
-    let s = `Rad ${i + 1}: `;
+    const row = shownRow(p, i);
+    let s = i === 0
+      ? `Börja med rad ${row} – det är den enda raden med bara en sorts figur. `
+      : `Leta sedan upp rad ${row}, där bara en ny figur är okänd. `;
     if (known.length) {
       const named = known.map((t) => termText(t, name, variables)).join(" + ");
       const nums = known.map((t) => termText(t, (k) => String(p.values[k]), false)).join(" + ");
@@ -179,5 +200,5 @@ export function checkAnswer(p: Puzzle, raw: string): Result {
   if (p.level >= 2 && v === p.leftToRight) {
     return { correct: false, message: "Du räknade från vänster till höger. Kom ihåg: gånger går före plus!", showSolution: true, priorityError: true };
   }
-  return { correct: false, message: "Lös ut en figur i taget, uppifrån och ned. Så här går det till:", showSolution: true };
+  return { correct: false, message: "Lös ut en figur i taget – börja med raden som bara har en sorts figur. Så här går det till:", showSolution: true };
 }
