@@ -18,7 +18,7 @@ export const Figure = ({ id }: { id: string }) => {
   const profile = PROFILES.find((p) => p.id === id);
   if (profile) {
     return (
-      <span className="inline-flex w-12 flex-col items-center gap-0.5 align-middle sm:w-20" title={profile.name}>
+      <span className="inline-flex w-14 flex-col items-center gap-0.5 align-middle sm:w-20" title={profile.name}>
         <span className={cn("flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-background shadow-md sm:h-16 sm:w-16", PROFILE_TINT[id])}>
           {id === "magdalena"
             ? <img src={magdalena.url} alt="" className="h-full w-full object-cover" draggable={false} />
