@@ -40,7 +40,7 @@ describe("ekvationspusslet", () => {
         expect(p.leftToRight).not.toBe(p.answer);
         expect(checkAnswer(p, String(p.leftToRight)).message).toContain("gånger går före plus");
         expect(checkAnswer(p, String(p.leftToRight)).priorityError).toBe(true);
-        expect(checkAnswer(p, String(p.answer + 1)).priorityError).toBeFalsy();
+        expect(checkAnswer(p, String(p.answer + (p.answer + 1 === p.leftToRight ? 2 : 1))).priorityError).toBeFalsy();
       }
     }
   });
