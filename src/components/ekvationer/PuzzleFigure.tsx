@@ -18,13 +18,13 @@ export const Figure = ({ id }: { id: string }) => {
   const profile = PROFILES.find((p) => p.id === id);
   if (profile) {
     return (
-      <span className="inline-flex w-14 flex-col items-center gap-0.5 align-middle sm:w-20" title={profile.name}>
+      <span className="inline-flex w-14 flex-col items-center gap-0.5 align-middle sm:w-20" title={id === "magdalena" ? undefined : profile.name} aria-label={id === "magdalena" ? "Porträtt" : undefined}>
         <span className={cn("flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-background shadow-md sm:h-16 sm:w-16", PROFILE_TINT[id])}>
           {id === "magdalena"
             ? <img src={magdalena.url} alt="" className="h-full w-full object-cover" draggable={false} />
             : <span className="text-xl sm:text-3xl" aria-hidden="true">{profile.icon}</span>}
         </span>
-        <span className="max-w-full truncate text-[10px] font-bold leading-tight text-foreground sm:text-xs">{"short" in profile ? profile.short : profile.name}</span>
+        {id !== "magdalena" && <span className="max-w-full truncate text-[10px] font-bold leading-tight text-foreground sm:text-xs">{"short" in profile ? profile.short : profile.name}</span>}
       </span>
     );
   }
