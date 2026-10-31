@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { buildStats, type Attempt } from "@/lib/algebraStats";
 import { PROCENT_MODES } from "@/components/ProcentResults";
+import { EKVATION_LEVELS } from "@/components/EkvationResults";
 import { PAGE_LABELS, formatActiveTime } from "@/lib/studentActivity";
 import { CLASS_GRADES, NOT_STUDENT, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
 import {
@@ -25,6 +26,7 @@ type CardData = {
   tabell: TabelltestRow[];
   algebra: Attempt[];
   procent: Attempt[];
+  ekvation: Attempt[];
   fractions: { exercise_id: number; is_correct: boolean; attempt_number: number; hint_used: boolean; answered_at: string }[];
   missions: { mission_id: string; completed_at: string }[];
   responses: SurveyRow[];
@@ -95,7 +97,7 @@ export default function Elevkort() {
     let cancelled = false;
     setCardLoading(true);
     (async () => {
-      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent] = await Promise.all([
+      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation] = await Promise.all([
         supabase.from("tabelltest_results").select("score,total,avg_time_ms,passed,input_mode,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("algebra_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("braklabbet_attempts").select("exercise_id,is_correct,attempt_number,hint_used,answered_at").eq("user_id", active).order("answered_at", { ascending: false }),
@@ -105,9 +107,10 @@ export default function Elevkort() {
         supabase.from("student_visits").select("visit_id,path,started_at,last_seen_at,active_seconds").eq("user_id", active).order("last_seen_at", { ascending: false }),
         supabase.from("activity_logs").select("grade,chapter,resource_title,created_at").eq("user_id", active).order("created_at", { ascending: false }).limit(300),
         supabase.from("procent_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
+        supabase.from("ekvation_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
-      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent];
+      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation];
       if (results.some((r) => r.error)) {
         setError(true);
         setData(null);
@@ -117,6 +120,7 @@ export default function Elevkort() {
           tabell: (tabell.data ?? []) as TabelltestRow[],
           algebra: (algebra.data ?? []) as Attempt[],
           procent: (procent.data ?? []) as Attempt[],
+          ekvation: (ekvation.data ?? []) as Attempt[],
           fractions: (fractions.data ?? []) as CardData["fractions"],
           missions: (missions.data ?? []) as CardData["missions"],
           responses: (responses.data ?? []) as SurveyRow[],
@@ -255,6 +259,22 @@ export default function Elevkort() {
                 ) : (
                   <p className="text-sm text-muted-foreground">Inga procentövningar ännu.</p>
                 )}
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Ekvationspusslet</h4>
+                {(() => {
+                  const st = buildStats(data.ekvation, "pussel")[0];
+                  return st ? (
+                    <ul className="flex flex-wrap gap-2">
+                      {EKVATION_LEVELS.map((name, i) => (
+                        <li key={i} className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                          Nivå {i + 1} · {name}: {st.levels[i].right}/{st.levels[i].total} · {LEVEL_LABEL[st.levels[i].status] ?? st.levels[i].status}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p className="text-sm text-muted-foreground">Inga ekvationspussel ännu.</p>;
+                })()}
               </section>
 
               <section className="space-y-2">
