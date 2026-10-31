@@ -116,7 +116,7 @@ const Ekvationer = () => {
         ))}
       </OptionGroup>
       <LevelStatusLine l={summary.levels[level]} level={level} />
-      {variables && <p className="text-xs text-muted-foreground">På nivå 4 byts figurerna mot x, y och z, oavsett tema.</p>}
+      {variables && <p className="text-xs text-muted-foreground">Kändisar smyger in allt oftare ju högre nivå. På nivå 4 byts figurerna mot x, y och z.</p>}
     </>
   );
 

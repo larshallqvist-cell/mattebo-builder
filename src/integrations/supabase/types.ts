@@ -242,7 +242,7 @@ export type Database = {
           puzzle_id?: string | null
           seconds_spent?: number | null
           session_id: string
-          theme: string
+          theme?: string
           user_id: string
         }
         Update: {
