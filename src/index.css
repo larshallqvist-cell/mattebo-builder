@@ -73,6 +73,15 @@
     --grade-7: 30 62% 74%;
     --grade-8: 205 55% 72%;
     --grade-9: 280 38% 76%;
+    --pastel-1: 160 55% 72%;
+    --pastel-2: 20 85% 78%;
+    --pastel-3: 260 60% 82%;
+    --pastel-4: 48 90% 74%;
+    --pastel-5: 200 75% 78%;
+    --pastel-6: 320 55% 80%;
+    --pastel-7: 95 50% 72%;
+    --pastel-8: 0 75% 80%;
+    --pastel-9: 180 50% 72%;
 
     /* Weekly check-in scale (soft, matching the pastel grade circles) */
     --survey-good: 152 48% 62%;

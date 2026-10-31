@@ -48,26 +48,31 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
 ];
 
 const toolBtn =
-  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-xl border border-primary/30 bg-secondary/60 px-2 py-2 text-center text-sm font-semibold text-foreground transition-colors hover:bg-primary/25 hover:border-primary/60";
+  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border-2 px-2 py-2 text-center text-base font-bold text-background shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg [font-family:'Short_Stack',cursive]";
+
+const pastel = (i: number) => ({
+  backgroundColor: `hsl(var(--pastel-${(i % 9) + 1}))`,
+  borderColor: `hsl(var(--pastel-${(i % 9) + 1}) / 0.6)`,
+});
 
 const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => {
   const [calcOpen, setCalcOpen] = useState(false);
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button type="button" onClick={() => setCalcOpen(true)} className={toolBtn}>
-          <Calculator className="h-6 w-6 text-primary" />
+        <button type="button" onClick={() => setCalcOpen(true)} className={toolBtn} style={pastel(0)}>
+          <Calculator className="h-6 w-6" />
           Kalkylator
         </button>
-        {TOOL_LINKS.map(({ label, url, icon: Icon, internal }) =>
+        {TOOL_LINKS.map(({ label, url, icon: Icon, internal }, i) =>
           internal ? (
-            <Link key={url} to={url} className={toolBtn}>
-              <Icon className="h-6 w-6 text-primary" />
+            <Link key={url} to={url} className={toolBtn} style={pastel(i + 1)}>
+              <Icon className="h-6 w-6" />
               {label}
             </Link>
           ) : (
-            <button key={url} type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn}>
-              <Icon className="h-6 w-6 text-primary" />
+            <button key={url} type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn} style={pastel(i + 1)}>
+              <Icon className="h-6 w-6" />
               {label}
             </button>
           ),
