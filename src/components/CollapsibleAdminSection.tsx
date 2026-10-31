@@ -25,7 +25,7 @@ const CollapsibleAdminSection = ({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className={`overflow-hidden ${open ? "md:col-span-2" : ""}`}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
