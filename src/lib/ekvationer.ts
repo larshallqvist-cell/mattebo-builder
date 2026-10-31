@@ -136,6 +136,11 @@ export function generatePuzzle(level: number, rng: Rng = Math.random): Puzzle {
     }
   }
 
+  // Slutfrågan får aldrig vara en befintlig rad i annan ordning (då står svaret redan där).
+  const sig = (t: Term[]) => t.map((x) => `${x.coef}*${[...x.syms].sort().join(".")}`).sort().join("+");
+  const asked = sig(question);
+  if (rows.some((r) => sig(r) === asked)) return generatePuzzle(level, rng);
+
   const symbols = pickFigures(lv, n, rng);
   return {
     level: lv, symbols, values,
