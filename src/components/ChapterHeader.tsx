@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const EDIT_SECTIONS_EVENT = "mattebo:edit-chapter-sections";
 import { Pencil, Check, X, ChevronDown } from "lucide-react";
 import { getChapterSubtitle, setChapterCookie } from "@/components/ChapterSelector";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,7 @@ interface ChapterProps {
 
 /** Chapter title under "Matte Åk X" in the header; tapping it opens the chapter picker. */
 export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps & { onChapterChange: (chapter: number) => void }) => {
+  const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const subtitle = getChapterSubtitle(grade, chapter);
   const chapters = Array.from({ length: MAX_CHAPTER - MIN_CHAPTER + 1 }, (_, i) => MIN_CHAPTER + i);
@@ -69,6 +72,18 @@ export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps &
             );
           })}
         </div>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              window.dispatchEvent(new Event(EDIT_SECTIONS_EVENT));
+            }}
+            className="mt-1 flex w-full items-center gap-2 border-t border-border/60 px-2 pt-2 pb-1 text-left font-manrope text-xs text-muted-foreground hover:text-foreground"
+          >
+            <Pencil className="h-3.5 w-3.5" /> Ändra delkapitel för kapitel {chapter}
+          </button>
+        )}
       </PopoverContent>
     </Popover>
   );
@@ -96,17 +111,23 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
     }
   };
 
-  const startEdit = () => {
-    setDraft(sections.join("\n"));
-    setEditing(true);
-  };
-
   const saveDraft = async () => {
     const next = parseSections(draft);
     if (await persist(next, carryCurrent(sections, current, next))) setEditing(false);
   };
 
-  if (!sections.length && !isAdmin) return null;
+  // The chapter picker in the header opens editing, so no extra button takes room here.
+  useEffect(() => {
+    if (!isAdmin) return;
+    const open = () => {
+      setDraft(sections.join("\n"));
+      setEditing(true);
+    };
+    window.addEventListener(EDIT_SECTIONS_EVENT, open);
+    return () => window.removeEventListener(EDIT_SECTIONS_EVENT, open);
+  }, [isAdmin, sections]);
+
+  if (!sections.length && !editing) return null;
 
   if (editing) {
     return (
@@ -159,17 +180,6 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
           </span>
         );
       })}
-      {isAdmin && (
-        <button
-          type="button"
-          onClick={startEdit}
-          aria-label="Ändra delkapitel"
-          title="Ändra delkapitel"
-          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/15 hover:text-foreground"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-        </button>
-      )}
     </div>
   );
 };
