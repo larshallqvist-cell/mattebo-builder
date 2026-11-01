@@ -161,14 +161,14 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
   }
 
   return (
-    <div id="chapter" className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+    <div id="chapter" className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
       {sections.map((name, i) => {
         const active = i === current;
         const chip = cn(
-          "rounded-full border px-2.5 py-1 font-sora text-xs font-semibold transition-colors sm:text-sm",
+          "rounded-full border px-2 py-0.5 font-manrope text-[10px] font-normal leading-tight transition-colors sm:text-[11px]",
           active
-            ? "border-accent bg-accent text-accent-foreground shadow-md"
-            : "border-primary/30 bg-background/30 text-foreground/80",
+            ? "border-accent bg-accent text-accent-foreground"
+            : "border-transparent bg-transparent text-foreground/35 hover:text-foreground/70",
         );
         return isAdmin ? (
           <button
