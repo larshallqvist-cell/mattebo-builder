@@ -96,8 +96,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   const { mode } = useViewMode();
   const wide = useIsWideLayout(mode);
 
-  // Wide layout places planning in a right column; narrow layout stacks everything.
-  const left = wide ? "col-span-8 col-start-1" : "";
+  // Wide layout: chapter work in a ~70% main column, a calmer notice board (~30%) on the right.
+  // Narrow layout stacks everything and folds the notice board into one card.
+  const main = wide ? "col-span-7 col-start-1" : "";
 
   return (
     <LoginGate>
@@ -125,70 +126,70 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
           />
 
           <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pt-3 pb-28 sm:px-4 lg:pb-8 relative z-20" style={{ WebkitOverflowScrolling: "touch" }}>
-            <div className={`max-w-7xl mx-auto ${wide ? "grid grid-cols-12 gap-5 items-start" : "flex flex-col gap-5"}`}>
-              {/* 1. Idag – always open, strongest accent */}
+            <div className={`max-w-7xl mx-auto ${wide ? "grid grid-cols-10 gap-5 items-start" : "flex flex-col gap-4"}`}>
+              {/* 1. Kapitlet – what we are working on now */}
+              <div className={main}>
+                <ChapterHeader grade={grade} chapter={selectedChapter} onChapterChange={setSelectedChapter} />
+              </div>
+
+              {/* Anslagstavla – right column on wide screens, one folded card on mobile */}
               <CollapsibleSection
-                id="today"
-                title="Idag"
-                icon={<Sun className="h-5 w-5" />}
-                tone="accent"
-                alwaysOpen
-                className={left}
-                contentClassName="space-y-3"
+                id="board"
+                title="Anslagstavla"
+                icon={<Pin className="h-4 w-4 text-primary" />}
+                headerExtra={!wide && nextEvent ? `nästa lektion ${formatNext(nextEvent.date)}` : undefined}
+                tone="muted"
+                alwaysOpen={wide}
+                defaultOpen={false}
+                keepMounted
+                className={wide ? "col-span-3 col-start-8 row-start-1 row-span-3 sticky top-0 max-h-[calc(100vh-11rem)] overflow-y-auto industrial-scrollbar" : ""}
+                contentClassName="space-y-4"
               >
                 <PostItNote grade={grade} />
                 <HomeworkBanner grade={grade} />
+                <div id="calendar" className="scroll-mt-4">
+                  <h3 className="mb-2 flex items-center gap-2 font-sora text-sm font-extrabold tracking-tight text-foreground/90">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    Planering Åk {grade}
+                  </h3>
+                  <div className="h-[340px] overflow-y-auto industrial-scrollbar rounded-xl">
+                    <SuspenseLessonCalendar grade={grade} />
+                  </div>
+                </div>
+                <div className="border-t border-border/40 pt-3">
+                  <LunchMenu compact />
+                </div>
+                <div className="opacity-90">
+                  <SuspenseMascotPanel compact />
+                </div>
               </CollapsibleSection>
 
-              {/* 2. Resurser – chapter selector lives in the header */}
+              {/* 2. Resurser för valt kapitel */}
               <CollapsibleSection
                 id="resources"
-                title={`Kapitel ${selectedChapter} — ${getChapterSubtitle(grade, selectedChapter)}`}
-                icon={<BookOpen className="h-4 w-4 text-primary" />}
+                title="Resurser"
+                icon={<BookOpen className="h-5 w-5 text-primary" />}
+                headerExtra={`Kapitel ${selectedChapter}`}
                 alwaysOpen
-                headerControls={<ChapterSelector grade={grade} onChapterChange={setSelectedChapter} variant="title" />}
-                className={left}
+                className={main}
                 contentClassName="-mx-1"
               >
                 <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
               </CollapsibleSection>
 
-              {/* 3. Planering – right column on wide screens, collapsed by default on mobile */}
-              <CollapsibleSection
-                id="calendar"
-                title={`Planering Åk ${grade}`}
-                icon={<Calendar className="h-4 w-4 text-primary" />}
-                headerExtra={!wide && nextEvent ? `nästa: ${formatNext(nextEvent.date)}` : undefined}
-                alwaysOpen={wide}
-                defaultOpen={false}
-                className={wide ? "col-span-4 col-start-9 row-start-1 row-span-4 sticky top-0" : ""}
-                contentClassName={wide ? "h-[calc(100vh-14rem)] overflow-y-auto industrial-scrollbar" : "h-[340px] overflow-y-auto"}
-              >
-                <SuspenseLessonCalendar grade={grade} />
-              </CollapsibleSection>
-
-              {/* 4. Verktyg – muted; open on wide screens, closed on mobile */}
+              {/* 3. Övningar, spel och verktyg */}
               <CollapsibleSection
                 id="tools"
-                title="Verktyg"
-                icon={<Wrench className="h-4 w-4 text-muted-foreground" />}
+                title="Övningar och spel"
+                icon={<Wrench className="h-5 w-5 text-primary" />}
                 headerExtra={activeRadioChannel ? <Volume2 className="inline h-4 w-4 text-primary animate-pulse" /> : undefined}
-                tone="muted"
+                alwaysOpen
                 keepMounted
-                defaultOpen={wide}
-                className={left}
+                className={main}
                 contentClassName="space-y-3"
               >
                 <ToolsGrid onChannelChange={setActiveRadioChannel} />
-                <div className="pt-3 border-t border-border/40">
-                  <LunchMenu compact />
-                </div>
               </CollapsibleSection>
-
-              {/* Mat-t-e – last and small */}
-              <div className={`${left} opacity-90`}>
-                <SuspenseMascotPanel compact />
-              </div>
             </div>
           </main>
 
