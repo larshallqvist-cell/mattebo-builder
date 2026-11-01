@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, UtensilsCrossed, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
 import ChapterHeader from "@/components/ChapterHeader";
 import LoginGate from "@/components/LoginGate";
 
@@ -17,6 +17,7 @@ import SurveyLamp from "@/components/SurveyLamp";
 import LessonNotesButton from "@/components/LessonNotesButton";
 import ViewModeToggle from "@/components/ViewModeToggle";
 import CollapsibleSection from "@/components/CollapsibleSection";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useViewMode } from "@/hooks/useViewMode";
 import { useIsWideLayout } from "@/hooks/useSectionOpen";
 import { getChapterFromCookie } from "@/components/ChapterSelector";
@@ -49,43 +50,61 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
 ];
 
 const toolBtn =
-  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border-2 px-2 py-2 text-center text-base font-bold text-background shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg [font-family:'Short_Stack',cursive]";
+  "flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-xl border-2 px-1.5 py-1.5 text-center text-sm font-bold text-background shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg [font-family:'Short_Stack',cursive]";
 
 const pastel = (i: number) => ({
   backgroundColor: `hsl(var(--pastel-${(i % 9) + 1}))`,
   borderColor: `hsl(var(--pastel-${(i % 9) + 1}) / 0.6)`,
 });
 
-const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => {
+const headerBtn =
+  "relative flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-card/60 text-foreground hover:bg-accent/30 transition-colors flex-shrink-0 sm:h-9 sm:w-9";
+
+/** Calculator and today's lunch live in the header so the page body stays about the chapter. */
+const HeaderTools = () => {
   const [calcOpen, setCalcOpen] = useState(false);
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button type="button" onClick={() => setCalcOpen(true)} className={toolBtn} style={pastel(0)}>
-          <Calculator className="h-6 w-6" />
-          Kalkylator
-        </button>
-        {TOOL_LINKS.map(({ label, url, icon: Icon, internal }, i) =>
-          internal ? (
-            <Link key={url} to={url} className={toolBtn} style={pastel(i + 1)}>
-              <Icon className="h-6 w-6" />
-              {label}
-            </Link>
-          ) : (
-            <button key={url} type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn} style={pastel(i + 1)}>
-              <Icon className="h-6 w-6" />
-              {label}
-            </button>
-          ),
-        )}
-      </div>
-      <div className="grid grid-cols-3 gap-1.5 h-[64px] [&_span:first-child]:!text-2xl">
-        <WebRadio fillSpace onChannelChange={onChannelChange} />
-      </div>
+    <>
+      <button type="button" onClick={() => setCalcOpen(true)} aria-label="Kalkylator" title="Kalkylator" className={headerBtn}>
+        <Calculator className="h-4 w-4" />
+      </button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button type="button" aria-label="Dagens lunch" title="Dagens lunch" className={headerBtn}>
+            <UtensilsCrossed className="h-4 w-4" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-80 max-h-[70vh] overflow-y-auto industrial-scrollbar">
+          <LunchMenu compact />
+        </PopoverContent>
+      </Popover>
       <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
-    </div>
+    </>
   );
 };
+
+const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => (
+  <div className="space-y-3">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-2">
+      {TOOL_LINKS.map(({ label, url, icon: Icon, internal }, i) =>
+        internal ? (
+          <Link key={url} to={url} className={toolBtn} style={pastel(i + 1)}>
+            <Icon className="h-5 w-5" />
+            {label}
+          </Link>
+        ) : (
+          <button key={url} type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn} style={pastel(i + 1)}>
+            <Icon className="h-5 w-5" />
+            {label}
+          </button>
+        ),
+      )}
+    </div>
+    <div className="grid grid-cols-3 gap-1.5 h-[52px] [&_span:first-child]:!text-xl">
+      <WebRadio fillSpace onChannelChange={onChannelChange} />
+    </div>
+  </div>
+);
 
 const formatNext = (date: Date) =>
   date.toLocaleString("sv-SE", { weekday: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
@@ -99,7 +118,10 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
   // Wide layout: chapter work in a ~70% main column, a calmer notice board (~30%) on the right.
   // Narrow layout stacks everything and folds the notice board into one card.
+  // From 1280px the resources narrow to ~half and the games get their own middle column.
   const main = wide ? "col-span-7 col-start-1" : "";
+  const resourcesCol = wide ? "col-span-7 col-start-1 xl:col-span-5 xl:row-start-2" : "";
+  const toolsCol = wide ? "col-span-7 col-start-1 xl:col-span-2 xl:col-start-6 xl:row-start-2" : "";
 
   return (
     <LoginGate>
@@ -113,6 +135,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
             tint={GRADE_TINT[grade] ?? "var(--accent)"}
             headerAction={
               <>
+                <HeaderTools />
                 <SurveyLamp grade={grade} compact />
                 <ViewModeToggle compact />
                 <LessonNotesButton grade={grade} />
@@ -157,9 +180,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                     <SuspenseLessonCalendar grade={grade} />
                   </div>
                 </div>
-                <div className="border-t border-border/40 pt-3">
-                  <LunchMenu compact />
-                </div>
                 <div className="opacity-90">
                   <SuspenseMascotPanel compact />
                 </div>
@@ -172,7 +192,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 icon={<BookOpen className="h-5 w-5 text-primary" />}
                 headerExtra={`Kapitel ${selectedChapter}`}
                 alwaysOpen
-                className={main}
+                className={resourcesCol}
                 contentClassName="-mx-1"
               >
                 <SuspenseResourceAccordion grade={grade} chapter={selectedChapter} />
@@ -186,7 +206,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 headerExtra={activeRadioChannel ? <Volume2 className="inline h-4 w-4 text-primary animate-pulse" /> : undefined}
                 alwaysOpen
                 keepMounted
-                className={main}
+                className={toolsCol}
                 contentClassName="space-y-3"
               >
                 <ToolsGrid onChannelChange={setActiveRadioChannel} />
