@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginButton from "./LoginButton";
 import UserMenu from "./UserMenu";
+import HeaderGif from "./HeaderGif";
 
 interface ApocalypticNavProps {
   /** Optional content rendered in the middle of the nav bar (desktop only) */
@@ -66,12 +67,15 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
           </div>
 
           {grade != null && (
-            <div className="flex min-w-0 shrink flex-col items-center">
-              <h1 className="grade-hero text-center" style={tintStyle}>
-                <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
-                {grade}
-              </h1>
-              {subtitle}
+            <div className="flex min-w-0 shrink items-center gap-3">
+              <div className="hidden sm:block"><HeaderGif /></div>
+              <div className="flex min-w-0 flex-col items-center">
+                <h1 className="grade-hero text-center" style={tintStyle}>
+                  <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
+                  {grade}
+                </h1>
+                {subtitle}
+              </div>
             </div>
           )}
 
