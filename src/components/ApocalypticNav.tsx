@@ -65,7 +65,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
 
           {grade != null && (
             <h1 className="grade-hero shrink-0 text-center" style={tintStyle}>
-              <span className="grade-hero-word">Åk</span>
+              <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
               {grade}
             </h1>
           )}

@@ -216,6 +216,30 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_sections: {
+        Row: {
+          chapter: number
+          current_index: number | null
+          grade: number
+          sections: string[]
+          updated_at: string
+        }
+        Insert: {
+          chapter: number
+          current_index?: number | null
+          grade: number
+          sections?: string[]
+          updated_at?: string
+        }
+        Update: {
+          chapter?: number
+          current_index?: number | null
+          grade?: number
+          sections?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ekvation_attempts: {
         Row: {
           created_at: string
