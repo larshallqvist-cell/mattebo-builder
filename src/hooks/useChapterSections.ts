@@ -23,6 +23,10 @@ export const useChapterSections = (grade: number, chapter: number) => {
     setSections([]);
     setCurrent(null);
     load();
+    // Keep every copy on the page (header title and chips) in step after a save.
+    const refresh = () => load();
+    window.addEventListener("mattebo:chapter-sections-saved", refresh);
+    return () => window.removeEventListener("mattebo:chapter-sections-saved", refresh);
   }, [load]);
 
   const save = useCallback(
@@ -34,7 +38,7 @@ export const useChapterSections = (grade: number, chapter: number) => {
           { onConflict: "grade,chapter" },
         );
       if (error) throw error;
-      await load();
+      window.dispatchEvent(new Event("mattebo:chapter-sections-saved"));
     },
     [grade, chapter, load],
   );
