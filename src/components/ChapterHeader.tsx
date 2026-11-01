@@ -25,8 +25,11 @@ export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps &
   const [open, setOpen] = useState(false);
   const { sections, current } = useChapterSections(grade, chapter);
   // Show the current sub-chapter ("Kapitel 2.1 – Uttryck") when one is marked; the picker still switches whole chapters.
-  const subName = current != null ? sections[current]?.replace(/^\s*\d+(\.\d+)*\s*[:.\-–]?\s*/, "") : undefined;
-  const number = subName ? `${chapter}.${current! + 1}` : `${chapter}`;
+  const rawSub = current != null ? sections[current] : undefined;
+  const subName = rawSub?.replace(/^\s*\d+(\.\d+)*\s*[:.\-–]?\s*/, "") || undefined;
+  // Prefer the book's own number written in the name ("2.5 Ränta"), else the position in the list.
+  const written = rawSub?.match(/^\s*(\d+\.\d+)/)?.[1];
+  const number = subName ? (written && written.startsWith(`${chapter}.`) ? written : `${chapter}.${current! + 1}`) : `${chapter}`;
   const subtitle = subName ?? getChapterSubtitle(grade, chapter);
   const sep = subName ? " – " : ": ";
   const chapters = Array.from({ length: MAX_CHAPTER - MIN_CHAPTER + 1 }, (_, i) => MIN_CHAPTER + i);
