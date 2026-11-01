@@ -59,7 +59,7 @@ void purgeStaleCaches();
  */
 const CHUNK_RELOAD_KEY = "mattebo-chunk-reload";
 
-const reloadOnceForStaleChunks = () => {
+export const reloadOnceForStaleChunks = () => {
   try {
     if (window.sessionStorage.getItem(CHUNK_RELOAD_KEY)) return;
     window.sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
@@ -71,6 +71,11 @@ const reloadOnceForStaleChunks = () => {
   hardReload();
 };
 
+const CHUNK_ERROR = /importing a module script failed|failed to fetch dynamically imported module|error loading dynamically imported module/i;
+
+export const isChunkLoadError = (err: unknown) =>
+  CHUNK_ERROR.test(String((err as { message?: string })?.message ?? err ?? ""));
+
 window.addEventListener("vite:preloadError", (event) => {
   event.preventDefault();
   reloadOnceForStaleChunks();
@@ -78,8 +83,7 @@ window.addEventListener("vite:preloadError", (event) => {
 
 // Safari rapporterar samma fel som ett avvisat löfte utan vite-händelsen.
 window.addEventListener("unhandledrejection", (event) => {
-  const msg = String(event.reason?.message ?? event.reason ?? "");
-  if (/importing a module script failed|failed to fetch dynamically imported module|error loading dynamically imported module/i.test(msg)) {
+  if (isChunkLoadError(event.reason)) {
     reloadOnceForStaleChunks();
   }
 });
