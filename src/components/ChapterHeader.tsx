@@ -163,10 +163,11 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
         <button
           type="button"
           onClick={startEdit}
-          className="inline-flex items-center gap-1 rounded-full px-2 py-1 font-manrope text-xs text-muted-foreground hover:text-foreground"
+          aria-label="Ändra delkapitel"
+          title="Ändra delkapitel"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/15 hover:text-foreground"
         >
           <Pencil className="h-3.5 w-3.5" />
-          {sections.length ? "Ändra" : "Lägg till delkapitel"}
         </button>
       )}
     </div>

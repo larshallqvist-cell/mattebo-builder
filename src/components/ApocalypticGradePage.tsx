@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, UtensilsCrossed, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
-import ChapterHeader from "@/components/ChapterHeader";
+import ChapterSections, { ChapterTitle } from "@/components/ChapterHeader";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
@@ -119,9 +119,9 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   // Wide layout: chapter work in a ~70% main column, a calmer notice board (~30%) on the right.
   // Narrow layout stacks everything and folds the notice board into one card.
   // From 1280px the resources narrow to ~half and the games get their own middle column.
-  const main = wide ? "col-span-7 col-start-1" : "";
-  const resourcesCol = wide ? "col-span-7 col-start-1 xl:col-span-5 xl:row-start-2" : "";
-  const toolsCol = wide ? "col-span-7 col-start-1 xl:col-span-2 xl:col-start-6 xl:row-start-2" : "";
+  // The chapter title and sub-chapters live in the header, so resources and games start at the top.
+  const resourcesCol = wide ? "col-span-7 col-start-1 row-start-1 xl:col-span-5" : "";
+  const toolsCol = wide ? "col-span-7 col-start-1 row-start-2 xl:col-span-2 xl:col-start-6 xl:row-start-1" : "";
 
   return (
     <LoginGate>
@@ -141,21 +141,20 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 <LessonNotesButton grade={grade} />
               </>
             }
+            subtitle={<ChapterTitle grade={grade} chapter={selectedChapter} onChapterChange={setSelectedChapter} />}
             centerContent={
-              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                <LessonTimer grade={grade} size={56} hideClock />
-              </div>
+              <>
+                <ChapterSections grade={grade} chapter={selectedChapter} />
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                  <LessonTimer grade={grade} size={44} hideClock />
+                </div>
+              </>
             }
 
           />
 
           <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pt-3 pb-28 sm:px-4 lg:pb-8 relative z-20" style={{ WebkitOverflowScrolling: "touch" }}>
             <div className={`max-w-7xl mx-auto ${wide ? "grid grid-cols-10 gap-5 items-start" : "flex flex-col gap-4"}`}>
-              {/* 1. Kapitlet – what we are working on now */}
-              <div className={main}>
-                <ChapterHeader grade={grade} chapter={selectedChapter} onChapterChange={setSelectedChapter} />
-              </div>
-
               {/* Anslagstavla – right column on wide screens, one folded card on mobile */}
               <CollapsibleSection
                 id="board"
@@ -166,7 +165,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 alwaysOpen={wide}
                 defaultOpen={false}
                 keepMounted
-                className={wide ? "col-span-3 col-start-8 row-start-1 row-span-3 sticky top-0 max-h-[calc(100vh-11rem)] overflow-y-auto industrial-scrollbar" : ""}
+                className={wide ? "col-span-3 col-start-8 row-start-1 row-span-2 sticky top-0 max-h-[calc(100vh-11rem)] overflow-y-auto industrial-scrollbar" : ""}
                 contentClassName="space-y-4"
               >
                 <PostItNote grade={grade} />
