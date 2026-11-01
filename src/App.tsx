@@ -17,6 +17,7 @@ import Algebra from "./pages/Algebra";
 import Procent from "./pages/Procent";
 import Ekvationer from "./pages/Ekvationer";
 import NotFound from "./pages/NotFound";
+import LoginGate from "./components/LoginGate";
 import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
 import YouTubeOverlay from "./components/YouTubeOverlay";
@@ -37,11 +38,11 @@ const AnimatedRoutes = () => {
         <Route path="/ak8" element={<Ak8 />} />
         <Route path="/ak9" element={<Ak9 />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/braklabbet" element={<Braklabbet />} />
-        <Route path="/tabelltestet" element={<Tabelltest />} />
-        <Route path="/algebra" element={<Algebra />} />
-        <Route path="/procent" element={<Procent />} />
-        <Route path="/ekvationer" element={<Ekvationer />} />
+        <Route path="/braklabbet" element={<LoginGate><Braklabbet /></LoginGate>} />
+        <Route path="/tabelltestet" element={<LoginGate><Tabelltest /></LoginGate>} />
+        <Route path="/algebra" element={<LoginGate><Algebra /></LoginGate>} />
+        <Route path="/procent" element={<LoginGate><Procent /></LoginGate>} />
+        <Route path="/ekvationer" element={<LoginGate><Ekvationer /></LoginGate>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
