@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// eslint-disable-next-line react-refresh/only-export-components
 import { cn } from "@/lib/utils";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { CHAPTER_SUBTITLES, CHAPTER_COOKIE_PREFIX, CHAPTER_COOKIE_DAYS, MIN_CHAPTER, MAX_CHAPTER } from "@/config/app";
@@ -23,7 +22,7 @@ const getChapterFromCookie = (grade: number): number => {
   }
   return 1; // Default to chapter 1
 };
-const setChapterCookie = (grade: number, chapter: number) => {
+export const setChapterCookie = (grade: number, chapter: number) => {
   const cookieName = `${CHAPTER_COOKIE_PREFIX}${grade}`;
   const expires = new Date();
   expires.setDate(expires.getDate() + CHAPTER_COOKIE_DAYS);
