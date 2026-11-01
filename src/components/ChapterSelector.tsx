@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+// eslint-disable-next-line react-refresh/only-export-components
 import { cn } from "@/lib/utils";
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { CHAPTER_SUBTITLES, CHAPTER_COOKIE_PREFIX, CHAPTER_COOKIE_DAYS, MIN_CHAPTER, MAX_CHAPTER } from "@/config/app";
