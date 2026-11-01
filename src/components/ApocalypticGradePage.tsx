@@ -43,7 +43,7 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
   { label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
   { label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
-  { label: "Tabelltestet", url: "/tabelltestet", icon: Timer, internal: true },
+  { label: "Tabelltest", url: "/tabelltestet", icon: Timer, internal: true },
   { label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
   { label: "Procent", url: "/procent", icon: Percent, internal: true },
   { label: "Ekvationer", url: "/ekvationer", icon: Puzzle, internal: true },
