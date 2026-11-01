@@ -23,7 +23,12 @@ interface ChapterProps {
 export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps & { onChapterChange: (chapter: number) => void }) => {
   const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
-  const subtitle = getChapterSubtitle(grade, chapter);
+  const { sections, current } = useChapterSections(grade, chapter);
+  // Show the current sub-chapter ("Kapitel 2.1 – Uttryck") when one is marked; the picker still switches whole chapters.
+  const subName = current != null ? sections[current]?.replace(/^\s*\d+(\.\d+)*\s*[:.\-–]?\s*/, "") : undefined;
+  const number = subName ? `${chapter}.${current! + 1}` : `${chapter}`;
+  const subtitle = subName ?? getChapterSubtitle(grade, chapter);
+  const sep = subName ? " – " : ": ";
   const chapters = Array.from({ length: MAX_CHAPTER - MIN_CHAPTER + 1 }, (_, i) => MIN_CHAPTER + i);
 
   const pick = (n: number) => {
@@ -42,9 +47,9 @@ export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps &
           className="group mx-auto mt-1 inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 font-sora text-xs font-bold leading-tight text-foreground transition-colors hover:bg-primary/20 sm:mt-1.5 sm:gap-1.5 sm:px-3 sm:text-lg"
         >
           <span className="truncate">
-            <span className="sm:hidden">Kap {chapter}</span>
-            <span className="hidden sm:inline">Kapitel {chapter}</span>
-            {subtitle && <span className="text-accent">: {subtitle}</span>}
+            <span className="sm:hidden">Kap {number}</span>
+            <span className="hidden sm:inline">Kapitel {number}</span>
+            {subtitle && <span className="text-accent">{sep}{subtitle}</span>}
           </span>
           <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180 sm:h-4 sm:w-4" />
         </button>
