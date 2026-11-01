@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, Sun, Wrench } from "lucide-react";
+import { Home, BookOpen, Calendar, Wrench } from "lucide-react";
 import { OPEN_SECTION_EVENT } from "@/hooks/useSectionOpen";
 import { motion } from "framer-motion";
 import { hapticFeedback } from "@/hooks/useHaptic";
