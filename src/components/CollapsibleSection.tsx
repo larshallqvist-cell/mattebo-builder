@@ -48,8 +48,8 @@ const CollapsibleSection = ({
   const [storedOpen, setOpen] = useSectionOpen(id, defaultOpen);
   const open = alwaysOpen || storedOpen;
   const titleClass = cn(
-    "flex items-center gap-2 font-orbitron font-bold text-left",
-    tone === "accent" ? "text-base sm:text-lg text-accent" : "text-sm sm:text-base text-foreground/90",
+    "flex items-center gap-2 font-sora font-extrabold tracking-tight text-left",
+    tone === "accent" ? "text-lg sm:text-xl text-accent" : tone === "muted" ? "text-base sm:text-lg text-foreground/90" : "text-lg sm:text-xl text-foreground",
   );
 
   return (

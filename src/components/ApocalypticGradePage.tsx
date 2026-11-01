@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Sun, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
+import ChapterHeader from "@/components/ChapterHeader";
 import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
@@ -18,7 +19,7 @@ import ViewModeToggle from "@/components/ViewModeToggle";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import { useViewMode } from "@/hooks/useViewMode";
 import { useIsWideLayout } from "@/hooks/useSectionOpen";
-import ChapterSelector, { getChapterFromCookie, getChapterSubtitle } from "@/components/ChapterSelector";
+import { getChapterFromCookie } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { SuspenseResourceAccordion, SuspenseLessonCalendar, SuspenseMascotPanel } from "@/components/LazyComponents";
