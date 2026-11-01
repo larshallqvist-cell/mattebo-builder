@@ -11,5 +11,5 @@
 - [x] Ekvationspusslet: ta bort temaväljaren, blanda in kändisar gradvis per nivå
 - [x] Ekvationspusslet: blanda raderna från nivå 2, förklaring pekar ut startraden
 
-- [ ] Klassidan: kapiteltitel i headern under Matte ÅkX, en header, spelen upp, kapitelval i headern
-- [ ] Ta bort knappen "Lägg till delkapitel"
+- [x] Klassidan: kapiteltitel i headern under Matte ÅkX, en header, spelen upp, kapitelval i headern
+- [x] Ta bort knappen "Lägg till delkapitel"

@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-
-const EDIT_SECTIONS_EVENT = "mattebo:edit-chapter-sections";
 import { Pencil, Check, X, ChevronDown } from "lucide-react";
 import { getChapterSubtitle, setChapterCookie } from "@/components/ChapterSelector";
 import { Button } from "@/components/ui/button";
@@ -13,6 +11,8 @@ import { hapticFeedback } from "@/hooks/useHaptic";
 import { carryCurrent, parseSections } from "@/lib/chapterSections";
 import { MIN_CHAPTER, MAX_CHAPTER } from "@/config/app";
 import { cn } from "@/lib/utils";
+
+const EDIT_SECTIONS_EVENT = "mattebo:edit-chapter-sections";
 
 interface ChapterProps {
   grade: number;
