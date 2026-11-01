@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, Sun, Wrench } from "lucide-react";
+import { Home, BookOpen, Calendar, Wrench } from "lucide-react";
 import { OPEN_SECTION_EVENT } from "@/hooks/useSectionOpen";
 import { motion } from "framer-motion";
 import { hapticFeedback } from "@/hooks/useHaptic";
@@ -21,7 +21,6 @@ const MobileBottomNav = ({ grade }: MobileBottomNavProps) => {
   type NavItem = { icon: typeof Home; label: string; to: string; active: boolean; scrollTo?: string };
   const navItems: NavItem[] = grade
     ? [
-        { icon: Sun, label: "Kapitel", to: "#chapter", active: false, scrollTo: "chapter" },
         { icon: BookOpen, label: "Resurser", to: "#resources", active: false, scrollTo: "resources" },
         { icon: Wrench, label: "Spel", to: "#tools", active: false, scrollTo: "tools" },
         { icon: Calendar, label: "Tavlan", to: "#board", active: false, scrollTo: "board" },

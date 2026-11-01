@@ -259,7 +259,7 @@
     font-weight: 800;
     line-height: 0.95;
     letter-spacing: -0.04em;
-    font-size: clamp(4rem, 10vw, 7rem);
+    font-size: clamp(2.75rem, 7vw, 5rem);
     /* The word "Åk" is small next to the digit, so the block sits a touch left
        of its own centre to make the number itself land in the middle. */
     transform: translateX(-0.36em);

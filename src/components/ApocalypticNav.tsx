@@ -16,9 +16,11 @@ interface ApocalypticNavProps {
   tint?: string;
   /** Optional action (e.g. view switch, lesson notes) shown in the link row, left of "Hem" */
   headerAction?: ReactNode;
+  /** Optional line under the grade headline (the current chapter) */
+  subtitle?: ReactNode;
 }
 
-const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, subtitle }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
   const tintStyle = { "--grade-tint": tint ?? "var(--accent)" } as CSSProperties;
 
@@ -64,10 +66,13 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction }
           </div>
 
           {grade != null && (
-            <h1 className="grade-hero shrink-0 text-center" style={tintStyle}>
-              <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
-              {grade}
-            </h1>
+            <div className="flex min-w-0 shrink flex-col items-center">
+              <h1 className="grade-hero text-center" style={tintStyle}>
+                <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
+                {grade}
+              </h1>
+              {subtitle}
+            </div>
           )}
 
           <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
