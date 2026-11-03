@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, UtensilsCrossed, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
 import ChapterSections, { ChapterTitle } from "@/components/ChapterHeader";
 import LoginGate from "@/components/LoginGate";
 
@@ -17,7 +17,6 @@ import SurveyLamp from "@/components/SurveyLamp";
 import LessonNotesButton from "@/components/LessonNotesButton";
 import ViewModeToggle from "@/components/ViewModeToggle";
 import CollapsibleSection from "@/components/CollapsibleSection";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useViewMode } from "@/hooks/useViewMode";
 import { useIsWideLayout } from "@/hooks/useSectionOpen";
 import { getChapterFromCookie } from "@/components/ChapterSelector";
