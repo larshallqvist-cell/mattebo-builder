@@ -12,8 +12,6 @@ import { carryCurrent, parseSections } from "@/lib/chapterSections";
 import { MIN_CHAPTER, MAX_CHAPTER } from "@/config/app";
 import { cn } from "@/lib/utils";
 import SelfAssessmentDialog from "@/components/SelfAssessmentDialog";
-import { useWebMCP } from "use-webmcp-tool";
-import { runWebMCPTool } from "@/lib/webmcp-telemetry";
 
 const EDIT_SECTIONS_EVENT = "mattebo:edit-chapter-sections";
 
@@ -43,30 +41,6 @@ export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps &
     onChapterChange(n);
     setOpen(false);
   };
-
-  useWebMCP({
-    name: "get_current_chapter",
-    description: "Read the grade, chapter and sub-chapters shown on this class page, including which sub-chapter is highlighted.",
-    annotations: { readOnlyHint: true, untrustedContentHint: true },
-    execute: () => runWebMCPTool("get_current_chapter", () =>
-      [`Åk ${grade}, kapitel ${number}${subtitle ? `${sep}${subtitle}` : ""}`,
-        ...sections.map((name, i) => `${i === current ? "* " : "  "}${name}`)].join("\n")),
-  });
-
-  useWebMCP({
-    name: "switch_chapter",
-    description: `Switch this class page to another chapter (${MIN_CHAPTER}–${MAX_CHAPTER}).`,
-    inputSchema: {
-      type: "object",
-      properties: { chapter: { type: "integer", minimum: MIN_CHAPTER, maximum: MAX_CHAPTER, description: "Chapter number." } },
-      required: ["chapter"],
-    },
-    execute: ({ chapter: n }: { chapter: number }) => runWebMCPTool("switch_chapter", () => {
-      if (!Number.isInteger(n) || n < MIN_CHAPTER || n > MAX_CHAPTER) throw new Error(`Chapter must be ${MIN_CHAPTER}–${MAX_CHAPTER}.`);
-      pick(n);
-      return `Showing chapter ${n}.`;
-    }),
-  });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

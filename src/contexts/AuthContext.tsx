@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { isAllowedReturnPath } from "@/lib/braklabbetGate";
-import { consentReturnPath } from "@/lib/oauth-return-path";
 
 type AccessStatus = "loading" | "approved" | "pending" | "denied" | null;
 
@@ -106,10 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async (returnPath?: unknown) => {
     try {
       // Remember where to land after OAuth; PostLoginRedirect navigates there once the session exists.
-      const consent = consentReturnPath(returnPath);
-      if (consent) {
-        sessionStorage.setItem(POST_LOGIN_PATH_KEY, consent);
-      } else if (isAllowedReturnPath(returnPath)) {
+      if (isAllowedReturnPath(returnPath)) {
         sessionStorage.setItem(POST_LOGIN_PATH_KEY, returnPath);
       } else {
         sessionStorage.removeItem(POST_LOGIN_PATH_KEY);
