@@ -1,18 +1,16 @@
 /** Self-assessment after each sub-chapter: scale, default questions and summaries. */
 
-/** 1–4 are levels; 0 means "Jag vet inte – jag behöver prova" and is never a low level. */
-export const NEED_TO_TRY = 0;
-
+/** Three levels, 1–3. Older answers saved on the earlier 0–4 scale are ignored. */
 export const SCALE: { value: number; label: string }[] = [
-  { value: 1, label: "Jag kan inte än" },
-  { value: 2, label: "Jag kan med hjälp" },
-  { value: 3, label: "Jag kan själv ibland" },
-  { value: 4, label: "Jag kan själv nästan varje gång" },
+  { value: 1, label: "Nja, kanske med lite hjälp" },
+  { value: 2, label: "Ja, jag är ganska säker" },
+  { value: 3, label: "Jag känner mig helt säker" },
 ];
-export const NEED_TO_TRY_LABEL = "Jag vet inte – jag behöver prova";
+
+export const isScaleValue = (v: unknown): v is number => SCALE.some((s) => s.value === v);
 
 export const INSTRUCTION =
-  "Hur går det för dig just nu? Välj det svar som passar bäst för varje rad. Det här är inget prov. Dina svar hjälper oss att se vad du behöver öva på.";
+  "Det här är inget prov. Svara ärligt – dina svar hjälper oss att se vad du behöver öva på.";
 
 type Bank = Record<string, string[][]>; // "grade-chapter" -> per section index
 

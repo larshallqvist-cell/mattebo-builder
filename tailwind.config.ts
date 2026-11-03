@@ -24,6 +24,7 @@ export default {
         pecita: ['"Pecita"', "cursive"],
         caveat: ['"Caveat"', "cursive"],
         display: ['"Unbounded"', '"Sora"', "system-ui", "sans-serif"],
+        playful: ['"Short Stack"', "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
