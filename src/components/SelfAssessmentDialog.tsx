@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { ClipboardCheck } from "lucide-react";
+import { ArrowLeft, ClipboardCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { INSTRUCTION, NEED_TO_TRY, NEED_TO_TRY_LABEL, SCALE, defaultQuestions, resolveQuestions } from "@/lib/selfAssessment";
+import { INSTRUCTION, SCALE, defaultQuestions, isScaleValue, resolveQuestions } from "@/lib/selfAssessment";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -15,7 +15,9 @@ interface Props {
   sectionName: string;
 }
 
-/** One sub-chapter at a time: "Jag kan …" statements rated on the formative scale. */
+/** One sub-chapter at a time, one "Jag kan …" statement per card; the last answer saves. */
+const OPTION_TONES = ["--pastel-4", "--pastel-5", "--pastel-1"];
+
 const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Props) => {
   const { user, accessStatus } = useAuth();
   const { toast } = useToast();
@@ -24,6 +26,7 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
   const [ratings, setRatings] = useState<(number | null)[]>([]);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -40,21 +43,21 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
       setQuestions(list);
       setRatings(list.map((text) => {
         const i = r?.questions.indexOf(text) ?? -1;
-        return i >= 0 ? r!.ratings[i] : null;
+        const v = i >= 0 ? r!.ratings[i] : null;
+        return isScaleValue(v) ? v : null;
       }));
       setDone(false);
+      setStep(0);
     })();
     return () => { alive = false; };
   }, [open, user, grade, chapter, sectionIndex]);
 
   if (!user || accessStatus !== "approved") return null;
 
-  const complete = questions.length > 0 && ratings.every((v) => v != null);
-
-  const submit = async () => {
+  const submit = async (final: number[]) => {
     setSaving(true);
     const { error } = await supabase.from("self_assessment_responses").upsert(
-      { user_id: user.id, grade, chapter, section_index: sectionIndex, questions, ratings: ratings as number[], updated_at: new Date().toISOString() },
+      { user_id: user.id, grade, chapter, section_index: sectionIndex, questions, ratings: final, updated_at: new Date().toISOString() },
       { onConflict: "user_id,grade,chapter,section_index" },
     );
     setSaving(false);
@@ -62,7 +65,14 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
     else setDone(true);
   };
 
-  const set = (i: number, v: number) => setRatings((prev) => prev.map((x, j) => (j === i ? v : x)));
+  const choose = (v: number) => {
+    if (saving) return;
+    const next = ratings.map((x, j) => (j === step ? v : x));
+    setRatings(next);
+    if (step < questions.length - 1) setTimeout(() => setStep((s) => s + 1), 280);
+    else if (next.every((x) => x != null)) submit(next as number[]);
+    else setStep(next.findIndex((x) => x == null));
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -77,42 +87,53 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-sora">{sectionName}</DialogTitle>
+          <DialogTitle className="font-playful text-xl">{sectionName}</DialogTitle>
           <DialogDescription className="font-manrope">{INSTRUCTION}</DialogDescription>
         </DialogHeader>
         {done ? (
-          <div className="space-y-3 py-4 text-center font-manrope">
-            <p className="text-lg font-semibold">Tack! Dina svar är sparade.</p>
-            <p className="text-sm text-muted-foreground">Du kan göra om skattningen när du har övat mer.</p>
+          <div className="space-y-3 py-6 text-center">
+            <p className="text-4xl" aria-hidden>🎉</p>
+            <p className="font-playful text-2xl font-bold">Tack! Dina svar är sparade.</p>
+            <p className="font-manrope text-sm text-muted-foreground">Du kan göra om det här när du har övat mer.</p>
             <Button onClick={() => setOpen(false)}>Stäng</Button>
           </div>
         ) : questions.length === 0 ? (
           <p className="py-4 font-manrope text-sm text-muted-foreground">Det finns inga frågor för det här delkapitlet än.</p>
         ) : (
-          <div className="space-y-4">
-            <p className="font-sora text-sm font-bold">Hur bra kan du det här just nu?</p>
-            {questions.map((q, i) => (
-              <fieldset key={q} className="space-y-2 rounded-lg border border-border/60 p-3">
-                <legend className="px-1 font-manrope text-sm font-semibold">{q}</legend>
-                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                  {SCALE.map((s) => (
-                    <button key={s.value} type="button" aria-pressed={ratings[i] === s.value} onClick={() => set(i, s.value)}
-                      className={cn("rounded-md border px-2 py-1.5 font-manrope text-xs leading-tight transition-colors",
-                        ratings[i] === s.value ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-primary/15")}>
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-                <button type="button" aria-pressed={ratings[i] === NEED_TO_TRY} onClick={() => set(i, NEED_TO_TRY)}
-                  className={cn("w-full rounded-md border border-dashed px-2 py-1 font-manrope text-xs",
-                    ratings[i] === NEED_TO_TRY ? "border-accent bg-accent text-accent-foreground" : "border-border text-muted-foreground hover:bg-accent/15")}>
-                  {NEED_TO_TRY_LABEL}
-                </button>
-              </fieldset>
-            ))}
-            <Button className="w-full" disabled={!complete || saving} onClick={submit}>
-              {complete ? "Spara mina svar" : "Svara på alla rader först"}
-            </Button>
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}
+                aria-label="Föregående fråga"
+                className="rounded-full p-1.5 text-muted-foreground hover:bg-muted disabled:invisible">
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              <div className="flex flex-1 gap-1.5" aria-hidden>
+                {questions.map((_, i) => (
+                  <span key={i} className={cn("h-2 flex-1 rounded-full transition-colors",
+                    i === step ? "bg-accent" : ratings[i] != null ? "bg-primary" : "bg-muted")} />
+                ))}
+              </div>
+              <span className="font-manrope text-xs text-muted-foreground">Fråga {step + 1} av {questions.length}</span>
+            </div>
+
+            <div key={step} className="animate-fade-in rounded-2xl border border-accent/40 bg-accent/10 px-5 py-6 shadow-lg">
+              <p className="font-playful text-xl font-bold leading-snug sm:text-2xl">{questions[step]}</p>
+            </div>
+
+            <div className="grid gap-2.5" role="group" aria-label="Hur säker känner du dig?">
+              {SCALE.map((s, i) => {
+                const picked = ratings[step] === s.value;
+                return (
+                  <button key={s.value} type="button" aria-pressed={picked} onClick={() => choose(s.value)} disabled={saving}
+                    style={{ backgroundColor: `hsl(var(${OPTION_TONES[i]}))` }}
+                    className={cn("min-h-[52px] rounded-full border-2 px-5 py-3 text-left font-manrope text-base font-semibold text-background shadow-md transition-transform hover:-translate-y-0.5",
+                      picked ? "border-foreground ring-2 ring-foreground/60" : "border-transparent")}>
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
+            {saving && <p className="text-center font-manrope text-xs text-muted-foreground">Sparar …</p>}
           </div>
         )}
       </DialogContent>
