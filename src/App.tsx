@@ -17,6 +17,7 @@ import Algebra from "./pages/Algebra";
 import Procent from "./pages/Procent";
 import Ekvationer from "./pages/Ekvationer";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 import LoginGate from "./components/LoginGate";
 import ChalkDust from "./components/ChalkDust";
 import SheetConfig from "./components/SheetConfig";
@@ -43,6 +44,7 @@ const AnimatedRoutes = () => {
         <Route path="/algebra" element={<LoginGate><Algebra /></LoginGate>} />
         <Route path="/procent" element={<LoginGate><Procent /></LoginGate>} />
         <Route path="/ekvationer" element={<LoginGate><Ekvationer /></LoginGate>} />
+        <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
