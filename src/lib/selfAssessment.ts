@@ -10,7 +10,7 @@ export const SCALE: { value: number; label: string }[] = [
 export const isScaleValue = (v: unknown): v is number => SCALE.some((s) => s.value === v);
 
 export const INSTRUCTION =
-  "Det här är inget prov. Svara ärligt – dina svar hjälper oss att se vad du behöver öva på.";
+  "Svara ärligt – dina svar hjälper oss att se vad du behöver öva på.";
 
 type Bank = Record<string, string[][]>; // "grade-chapter" -> per section index
 
