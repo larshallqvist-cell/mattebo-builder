@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useChapterSections } from "@/hooks/useChapterSections";
-import { NEED_TO_TRY_LABEL, SCALE, defaultQuestions, parseQuestions, resolveQuestions, summarize, type QuestionSummary } from "@/lib/selfAssessment";
+import { SCALE, defaultQuestions, parseQuestions, resolveQuestions, summarize, type QuestionSummary } from "@/lib/selfAssessment";
 import { cn } from "@/lib/utils";
 
 const GRADES = [6, 7, 8, 9];
@@ -83,8 +83,7 @@ const SelfAssessmentAdmin = () => {
                   <div key={s.question} className="rounded-lg border border-border/60 p-2">
                     <p className="text-sm">{s.question}</p>
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                      {SCALE.map((l) => <span key={l.value}>{l.label}: <b className="text-foreground">{s.counts[l.value]}</b></span>)}
-                      <span>{NEED_TO_TRY_LABEL}: <b className="text-foreground">{s.counts[0]}</b></span>
+                      {SCALE.map((l) => <span key={l.value}>{l.label}: <b className="text-foreground">{s.counts[l.value - 1]}</b></span>)}
                     </div>
                   </div>
                 ))}
