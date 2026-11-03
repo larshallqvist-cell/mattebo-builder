@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoginButton from "./LoginButton";
 import UserMenu from "./UserMenu";
 import HeaderGif from "./HeaderGif";
+import LunchMenu from "./LunchMenu";
 
 interface ApocalypticNavProps {
   /** Optional content rendered in the middle of the nav bar (desktop only) */
@@ -41,8 +42,8 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
     return () => observer.disconnect();
   }, [centerContent]);
 
-  return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-2 sm:px-6 sm:py-3`}>
-      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-x-3 px-3 py-2.5 sm:gap-x-4 sm:px-6 sm:py-3`} style={{
+  return <nav className={`${grade != null ? "relative shrink-0" : "fixed top-0 left-0 right-0"} z-50 px-2 py-1.5 sm:px-6 sm:py-2`}>
+      <div className={`${centerContent ? "max-w-7xl flex-wrap rounded-2xl" : "max-w-5xl rounded-full"} mx-auto flex items-center justify-between gap-x-3 px-3 py-2 sm:gap-x-4 sm:px-6 sm:py-2`} style={{
       background: "hsl(var(--secondary) / 0.6)",
       backdropFilter: "blur(14px)",
       boxShadow: "0 18px 40px -22px hsl(211 69% 6% / 0.9), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
@@ -79,7 +80,8 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
             </div>
           )}
 
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
+          <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
             {headerAction}
             {/* The start page shows only the sign-in button; links live on the class pages. */}
             {grade != null && (
@@ -97,6 +99,12 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
                 </div>
               )
             )}
+          </div>
+          {grade != null && user && (
+            <div className="w-full max-w-[18rem] rounded-md border border-border/40 bg-card/40 px-2 py-0.5 [&_*]:text-[11px]">
+              <LunchMenu compact />
+            </div>
+          )}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, UtensilsCrossed, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle } from "lucide-react";
 import ChapterSections, { ChapterTitle } from "@/components/ChapterHeader";
 import LoginGate from "@/components/LoginGate";
 
@@ -17,7 +17,6 @@ import SurveyLamp from "@/components/SurveyLamp";
 import LessonNotesButton from "@/components/LessonNotesButton";
 import ViewModeToggle from "@/components/ViewModeToggle";
 import CollapsibleSection from "@/components/CollapsibleSection";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useViewMode } from "@/hooks/useViewMode";
 import { useIsWideLayout } from "@/hooks/useSectionOpen";
 import { getChapterFromCookie } from "@/components/ChapterSelector";
@@ -68,16 +67,6 @@ const HeaderTools = () => {
       <button type="button" onClick={() => setCalcOpen(true)} aria-label="Kalkylator" title="Kalkylator" className={headerBtn}>
         <Calculator className="h-4 w-4" />
       </button>
-      <Popover>
-        <PopoverTrigger asChild>
-          <button type="button" aria-label="Dagens lunch" title="Dagens lunch" className={headerBtn}>
-            <UtensilsCrossed className="h-4 w-4" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-80 max-h-[70vh] overflow-y-auto industrial-scrollbar">
-          <LunchMenu compact />
-        </PopoverContent>
-      </Popover>
       <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
     </>
   );
