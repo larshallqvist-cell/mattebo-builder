@@ -493,6 +493,66 @@ export type Database = {
         }
         Relationships: []
       }
+      self_assessment_questions: {
+        Row: {
+          chapter: number
+          grade: number
+          questions: string[]
+          section_index: number
+          updated_at: string
+        }
+        Insert: {
+          chapter: number
+          grade: number
+          questions?: string[]
+          section_index: number
+          updated_at?: string
+        }
+        Update: {
+          chapter?: number
+          grade?: number
+          questions?: string[]
+          section_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      self_assessment_responses: {
+        Row: {
+          chapter: number
+          created_at: string
+          grade: number
+          id: string
+          questions: string[]
+          ratings: number[]
+          section_index: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chapter: number
+          created_at?: string
+          grade: number
+          id?: string
+          questions: string[]
+          ratings: number[]
+          section_index: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chapter?: number
+          created_at?: string
+          grade?: number
+          id?: string
+          questions?: string[]
+          ratings?: number[]
+          section_index?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_visits: {
         Row: {
           active_seconds: number
