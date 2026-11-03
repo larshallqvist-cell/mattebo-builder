@@ -98,19 +98,19 @@ export const parseQuestions = (text: string): string[] =>
 
 export interface QuestionSummary {
   question: string;
-  /** counts[v] = number of students who chose value v (0 = need to try, 1–4 levels). */
-  counts: [number, number, number, number, number];
+  /** counts[v - 1] = number of students who chose level v (1–3). */
+  counts: [number, number, number];
   answered: number;
 }
 
 /** Counts per question; a response saved for another question list only counts on matching texts. */
 export const summarize = (questions: string[], responses: { questions: string[]; ratings: number[] }[]): QuestionSummary[] =>
   questions.map((question) => {
-    const counts: QuestionSummary["counts"] = [0, 0, 0, 0, 0];
+    const counts: QuestionSummary["counts"] = [0, 0, 0];
     for (const r of responses) {
       const i = r.questions.indexOf(question);
       const v = i >= 0 ? r.ratings[i] : undefined;
-      if (v != null && v >= 0 && v <= 4) counts[v]++;
+      if (isScaleValue(v)) counts[v - 1]++;
     }
     return { question, counts, answered: counts.reduce((a, b) => a + b, 0) };
   });
