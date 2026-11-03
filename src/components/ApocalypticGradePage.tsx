@@ -68,16 +68,6 @@ const HeaderTools = () => {
       <button type="button" onClick={() => setCalcOpen(true)} aria-label="Kalkylator" title="Kalkylator" className={headerBtn}>
         <Calculator className="h-4 w-4" />
       </button>
-      <Popover>
-        <PopoverTrigger asChild>
-          <button type="button" aria-label="Dagens lunch" title="Dagens lunch" className={headerBtn}>
-            <UtensilsCrossed className="h-4 w-4" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-80 max-h-[70vh] overflow-y-auto industrial-scrollbar">
-          <LunchMenu compact />
-        </PopoverContent>
-      </Popover>
       <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
     </>
   );

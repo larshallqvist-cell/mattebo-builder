@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoginButton from "./LoginButton";
 import UserMenu from "./UserMenu";
 import HeaderGif from "./HeaderGif";
+import LunchMenu from "./LunchMenu";
 
 interface ApocalypticNavProps {
   /** Optional content rendered in the middle of the nav bar (desktop only) */
@@ -79,7 +80,8 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
             </div>
           )}
 
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
+          <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
             {headerAction}
             {/* The start page shows only the sign-in button; links live on the class pages. */}
             {grade != null && (
@@ -97,6 +99,12 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
                 </div>
               )
             )}
+          </div>
+          {grade != null && user && (
+            <div className="w-full max-w-[18rem] rounded-md border border-border/40 bg-card/40 px-2 py-0.5 [&_*]:text-[11px]">
+              <LunchMenu compact />
+            </div>
+          )}
           </div>
         </div>
 
