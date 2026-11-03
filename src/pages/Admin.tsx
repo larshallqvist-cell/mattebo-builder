@@ -21,6 +21,7 @@ import LessonPlanEditor from "@/components/LessonPlanEditor";
 import AnnouncementEditor from "@/components/AnnouncementEditor";
 import HomeworkEditor from "@/components/HomeworkEditor";
 import SurveyAdmin from "@/components/SurveyAdmin";
+import SelfAssessmentAdmin from "@/components/SelfAssessmentAdmin";
 import CollapsibleAdminSection from "@/components/CollapsibleAdminSection";
 import BraklabbetResults from "@/components/BraklabbetResults";
 import TabelltestResults from "@/components/TabelltestResults";
@@ -200,6 +201,9 @@ const Admin = () => {
         </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Veckoavstämning" icon={<ClipboardList className="w-5 h-5" />}>
           <SurveyAdmin />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Självskattning per delkapitel" icon={<ClipboardList className="w-5 h-5" />}>
+          <SelfAssessmentAdmin />
         </CollapsibleAdminSection>
         </div>
 

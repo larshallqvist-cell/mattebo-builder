@@ -11,6 +11,7 @@ import { hapticFeedback } from "@/hooks/useHaptic";
 import { carryCurrent, parseSections } from "@/lib/chapterSections";
 import { MIN_CHAPTER, MAX_CHAPTER } from "@/config/app";
 import { cn } from "@/lib/utils";
+import SelfAssessmentDialog from "@/components/SelfAssessmentDialog";
 
 const EDIT_SECTIONS_EVENT = "mattebo:edit-chapter-sections";
 
@@ -188,6 +189,9 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
           </span>
         );
       })}
+      {current != null && sections[current] && (
+        <SelfAssessmentDialog grade={grade} chapter={chapter} sectionIndex={current} sectionName={sections[current]} />
+      )}
     </div>
   );
 };
