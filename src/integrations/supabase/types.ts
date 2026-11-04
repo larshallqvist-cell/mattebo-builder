@@ -240,6 +240,24 @@ export type Database = {
         }
         Relationships: []
       }
+      class_presentations: {
+        Row: {
+          grade: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          grade: number
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          grade?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       ekvation_attempts: {
         Row: {
           created_at: string
