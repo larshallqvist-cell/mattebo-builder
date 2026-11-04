@@ -166,37 +166,45 @@ const Procent = () => {
         )}
         {mode === "faktor" && <div className="mt-5"><ChangeBar task={chg} factorKnown={step === "value"} valueKnown={done} /></div>}
 
-        <form onSubmit={(e) => { e.preventDefault(); if (result?.correct) next(); else check(); }} className="mt-6 space-y-3">
-          <label htmlFor="procent-answer" className="block text-sm font-bold text-foreground">{label}</label>
-          <input id="procent-answer" ref={inputRef} value={answer}
-            onChange={(e) => { setAnswer(e.target.value); if (result && !result.correct) setResult(null); }}
-            autoComplete="off" autoCapitalize="off" spellCheck={false} inputMode="decimal" enterKeyHint="done" placeholder={placeholder}
-            readOnly={!!result?.correct}
-            className="w-full rounded-2xl border-2 border-input bg-background px-4 py-3 font-orbitron text-2xl text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary" />
-          <Button type="submit" size="lg" disabled={!answer.trim() && !result?.correct} className="h-12 w-full gap-2 rounded-2xl text-base font-bold">
-            {done ? <>Nästa uppgift <ArrowRight className="h-5 w-5" /></>
-              : result?.correct ? <>Fortsätt till steg 2 <ArrowRight className="h-5 w-5" /></>
-              : <>Kontrollera svar <Check className="h-5 w-5" /></>}
-          </Button>
-
+        <form onSubmit={(e) => { e.preventDefault(); if (result?.correct) next(); else check(); }} className="mt-4 space-y-2">
           {result && (
-            <Feedback key={result.message} correct={result.correct}>
-              {result.correct ? (
-                mode === "triangel" ? <><p className="font-semibold">{rightLine(tri)}</p><p className="mt-1 text-sm text-muted-foreground">{result.message}</p></>
-                  : <p>{result.message}{step === "factor" && " Räkna nu ut det nya värdet."}</p>
-              ) : <p>{result.message} {!tip && "Ta gärna hjälp av tipset nedan."}</p>}
-            </Feedback>
+            result.correct ? (
+              <div role="status" className="exercise-rise flex items-center gap-3 rounded-2xl border-2 border-[hsl(var(--survey-good))] bg-[hsl(var(--survey-good)/0.12)] px-4 py-2 shadow-lg">
+                <span className="animate-answer-correct flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--survey-good))] text-background"><Check className="h-6 w-6" strokeWidth={3} /></span>
+                <div className="min-w-0">
+                  <p className="animate-answer-correct font-orbitron text-2xl font-black leading-none tracking-wide text-[hsl(var(--survey-good))]">RÄTT!</p>
+                  {mode === "triangel" ? <p className="mt-1 text-sm font-semibold text-foreground">{rightLine(tri)}</p>
+                    : <p className="mt-1 text-sm text-foreground">{result.message}{step === "factor" && " Räkna nu ut det nya värdet."}</p>}
+                </div>
+              </div>
+            ) : (
+              <Feedback key={result.message} correct={false}><p className="text-sm">{result.message} {!tip && "Ta gärna hjälp av tipset nedan."}</p></Feedback>
+            )
           )}
-
-          <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
-            <HintToggle open={tip} onToggle={toggleTip}>{mode === "triangel" ? triangleTip(tri) : changeTip(chg, step)}</HintToggle>
-            {!result?.correct && (
-              <button type="button" onClick={next} className="rounded-full px-2 py-1 text-sm font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
-                Hoppa över →
-              </button>
-            )}
+          <label htmlFor="procent-answer" className="sr-only">{label}</label>
+          <div className="flex items-stretch gap-2">
+            <input id="procent-answer" ref={inputRef} value={answer}
+              onChange={(e) => { setAnswer(e.target.value); if (result && !result.correct) setResult(null); }}
+              autoComplete="off" autoCapitalize="off" spellCheck={false} inputMode="decimal" enterKeyHint="done" placeholder={placeholder || label}
+              readOnly={!!result?.correct} aria-label={label}
+              className="min-w-0 flex-1 rounded-2xl border-2 border-input bg-background px-3 py-1.5 font-orbitron text-xl text-foreground outline-none transition-colors placeholder:text-sm placeholder:text-muted-foreground/60 focus:border-primary" />
+            <Button type="submit" disabled={!answer.trim() && !result?.correct} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
+              {done ? <>Nästa <ArrowRight className="h-4 w-4" /></>
+                : result?.correct ? <>Steg 2 <ArrowRight className="h-4 w-4" /></>
+                : <>Kontrollera <Check className="h-4 w-4" /></>}
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground">Decimaltal kan skrivas med komma eller punkt.</p>
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <HintToggle open={tip} onToggle={toggleTip}>{mode === "triangel" ? triangleTip(tri) : changeTip(chg, step)}</HintToggle>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              Komma eller punkt går bra.
+              {!result?.correct && (
+                <button type="button" onClick={next} className="rounded-full px-2 py-1 text-sm font-semibold transition-colors hover:bg-secondary hover:text-foreground">
+                  Hoppa över →
+                </button>
+              )}
+            </span>
+          </div>
         </form>
       </section>
     </ExerciseShell>
