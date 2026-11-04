@@ -66,7 +66,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
               </div>
             )}
             {grade != null && user && (
-              <div className="mt-1 hidden w-full max-w-[18rem] rounded-md border border-border/40 bg-card/40 px-2 py-0.5 sm:block [&_*]:text-[11px]">
+              <div className="mt-1 w-full max-w-[18rem] rounded-md border border-border/40 bg-card/40 px-2 py-0.5 [&_*]:text-[11px]">
                 <LunchMenu compact />
               </div>
             )}
