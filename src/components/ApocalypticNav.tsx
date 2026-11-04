@@ -6,6 +6,7 @@ import LoginButton from "./LoginButton";
 import UserMenu from "./UserMenu";
 import HeaderGif from "./HeaderGif";
 import LunchMenu from "./LunchMenu";
+import ClassPresentationLink from "./ClassPresentationLink";
 
 interface ApocalypticNavProps {
   /** Optional content rendered in the middle of the nav bar (desktop only) */
@@ -77,7 +78,13 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
               <div className="hidden sm:block"><HeaderGif /></div>
               <div className="flex min-w-0 flex-col items-center">
                 <h1 className="grade-hero text-center" style={tintStyle}>
-                  <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
+                  {isAdmin ? (
+                    <ClassPresentationLink grade={grade}>
+                      <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
+                    </ClassPresentationLink>
+                  ) : (
+                    <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
+                  )}
                   {grade}
                 </h1>
                 {subtitle}
