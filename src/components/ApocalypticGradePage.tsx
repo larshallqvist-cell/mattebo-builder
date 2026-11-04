@@ -6,7 +6,7 @@ import LoginGate from "@/components/LoginGate";
 
 import PageTransition from "@/components/PageTransition";
 import ApocalypticNav from "@/components/ApocalypticNav";
-import CalculatorModal from "@/components/DesmosCalculatorModal";
+import CalculatorModal from "@/components/CalculatorModal";
 import WebRadio from "@/components/WebRadio";
 import LunchMenu from "@/components/LunchMenu";
 import LessonTimer from "@/components/LessonTimer";
