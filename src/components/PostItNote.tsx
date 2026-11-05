@@ -19,6 +19,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [zoom, setZoom] = useState(() => Number(localStorage.getItem("postit-zoom")) || 2);
+  const changeZoom = (d: number) => setZoom((z) => { const n = Math.min(3.5, Math.max(1, Math.round((z + d) * 4) / 4)); localStorage.setItem("postit-zoom", String(n)); return n; });
   const isMobile = useIsMobile();
 
   // Current event to display
@@ -176,16 +178,20 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
       )}
 
       <Dialog open={expanded} onOpenChange={setExpanded}>
-        <DialogContent className="max-w-5xl bg-[hsl(var(--postit-light))] text-[hsl(var(--postit-text))] font-nunito">
-          <DialogHeader>
+        <DialogContent className="max-w-[96vw] w-[96vw] h-[94vh] flex flex-col bg-[hsl(var(--postit-light))] text-[hsl(var(--postit-text))] font-nunito">
+          <DialogHeader className="flex-row items-center gap-3 pr-10">
+            <div className="flex shrink-0 gap-1">
+              <button type="button" onClick={() => changeZoom(-0.25)} aria-label="Mindre text" className="rounded border border-[hsl(var(--postit-text))/30] px-2 py-1 text-sm font-bold">A−</button>
+              <button type="button" onClick={() => changeZoom(0.25)} aria-label="Större text" className="rounded border border-[hsl(var(--postit-text))/30] px-2 py-1 text-lg font-bold">A+</button>
+            </div>
             <DialogTitle className="text-xl md:text-2xl font-bold underline underline-offset-4 decoration-[hsl(var(--postit-text))/60] text-left">
               {currentEvent
                 ? `${formatEventDate(currentEvent.date)} · ${formatEventTime(currentEvent.date)}–${formatEventTime(currentEvent.endDate)}${currentEvent.location ? ` · ${currentEvent.location}` : ""}`
                 : "Dagens agenda"}
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[70vh]">
-            <div className="pr-4 text-black [&_p]:text-xl [&_p]:leading-relaxed [&_li]:text-xl [&_li]:leading-relaxed [&_span.font-orbitron]:text-base [&_a]:text-lg">
+          <ScrollArea className="flex-1 min-h-0">
+            <div style={{ zoom }} className="pr-4 text-black [&_p]:text-xl [&_p]:leading-relaxed [&_li]:text-xl [&_li]:leading-relaxed [&_span.font-orbitron]:text-base [&_a]:text-lg">
               <ErrorBoundary fallback={<p className="text-lg italic">Kunde inte visa innehållet just nu.</p>}>
                 {content ? parseLessonContent(content) : null}
               </ErrorBoundary>
