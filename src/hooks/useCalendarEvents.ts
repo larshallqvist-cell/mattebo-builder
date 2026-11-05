@@ -349,6 +349,12 @@ export const useCalendarEvents = (grade: number) => {
     fetchCalendar();
   }, [grade, refreshKey]);
 
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const now = new Date();
   const threeWeeksFromNow = new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000);
   
