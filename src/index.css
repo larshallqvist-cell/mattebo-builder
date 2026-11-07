@@ -252,6 +252,12 @@
     text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
   }
 
+  /* The headline column keeps a fixed width, so the small GIF box that sits
+     beside it never slides sideways when a chapter title is longer or shorter. */
+  .header-headline {
+    width: min(24rem, 37vw);
+  }
+
   /* Big grade headline in the class-page header */
   .grade-hero {
     display: block;
