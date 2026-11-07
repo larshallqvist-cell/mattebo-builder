@@ -23,6 +23,7 @@
   overflow-wrap: break-word;
 }
 .flash-body h3 {
+  color: inherit;
   font-size: 1.2em;
   line-height: 1.1;
   margin: 0 0 0.35em;
@@ -54,8 +55,24 @@
   border-color: currentColor;
 }
 
-/* Standardfärg vit; {färg}-taggar i texten skriver över. */
-.flash-body { color: hsl(0 0% 100%); }
+/* Pastellbakgrund per årskurs med mörk text; {färg}-taggar i texten skriver över. */
+.flash-card {
+  --flash-a: 200 80% 90%;
+  --flash-b: 185 60% 86%;
+  --flash-ink: 203 70% 20%;
+  background: linear-gradient(145deg, hsl(var(--flash-a)), hsl(var(--flash-b)));
+  border: 2px solid hsl(0 0% 100% / 0.75);
+  color: hsl(var(--flash-ink));
+  box-shadow: 0 1px 0 hsl(0 0% 100% / 0.6) inset, 0 18px 40px -16px hsl(var(--flash-ink) / 0.45);
+}
+.flash-card[data-grade="6"] { --flash-a: 20 90% 90%;  --flash-b: 345 75% 89%; --flash-ink: 350 45% 25%; }
+.flash-card[data-grade="7"] { --flash-a: 155 55% 87%; --flash-b: 95 50% 87%;  --flash-ink: 160 50% 18%; }
+.flash-card[data-grade="8"] { --flash-a: 200 80% 90%; --flash-b: 220 70% 91%; --flash-ink: 215 60% 22%; }
+.flash-card[data-grade="9"] { --flash-a: 265 65% 91%; --flash-b: 315 55% 90%; --flash-ink: 270 40% 25%; }
+.flash-body { color: hsl(var(--flash-ink)); }
+.flash-kicker { color: hsl(var(--flash-ink) / 0.7); }
+.flash-close { color: hsl(var(--flash-ink) / 0.6); }
+.flash-close:hover { color: hsl(var(--flash-ink)); background-color: hsl(0 0% 100% / 0.5); }
 /* Tre storlekar: Liten / Mellan (standard) / Stor */
 .flash-card[data-size="small"] { font-size: clamp(0.65cm, 2.6vw, 0.95cm); }
 .flash-card[data-size="large"] { font-size: clamp(1.15cm, 4.6vw, 1.8cm); }

@@ -13,3 +13,4 @@
 
 - [x] Klassidan: kapiteltitel i headern under Matte ÅkX, en header, spelen upp, kapitelval i headern
 - [x] Ta bort knappen "Lägg till delkapitel"
+- [x] Anslaget i pastellfärger (egen ton per årskurs, mörk text)
