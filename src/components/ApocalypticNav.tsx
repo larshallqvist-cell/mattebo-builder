@@ -52,7 +52,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
     }}>
         {/* School name | big class headline in the middle | links and auth */}
         <div className="flex w-full items-center gap-2 sm:gap-4">
-          <div className="flex min-w-0 flex-1 flex-col leading-none">
+          <div className="flex min-w-0 flex-1 flex-col leading-none pr-2">
             <Link to="/" className="school-name font-orbitron font-semibold uppercase text-accent transition-colors hover:text-foreground">
               Leteboskolan
             </Link>
@@ -75,8 +75,8 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
 
           {grade != null && (
             <div className="flex min-w-0 shrink items-center gap-3">
-              <div className="hidden sm:block"><HeaderGif /></div>
-              <div className="flex min-w-0 flex-col items-center">
+              <div className="hidden shrink-0 sm:block"><HeaderGif /></div>
+              <div className="header-headline flex min-w-0 flex-col items-center">
                 <h1 className="grade-hero text-center" style={tintStyle}>
                   {isAdmin ? (
                     <ClassPresentationLink grade={grade}>
