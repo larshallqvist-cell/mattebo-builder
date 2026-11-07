@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
-  advance, checkFactor, checkNewValue, checkTriangle, DRILL_LEVELS, DRILL_START, generateChange, generateDrill, generateTriangle,
+  advance, checkFactor, checkFactorDrill, checkNewValue, checkTriangle, DRILL_LEVELS, DRILL_START, FACTOR_LEVELS, factorAnswer,
+  generateChange, generateDrill, generateFactorDrill, generateTriangle, type FactorTask,
   parseNumber, tierOf, triangleAnswer, type TriangleTask,
 } from "../src/lib/procent";
 
@@ -99,5 +100,62 @@ describe("förändringsfaktor", () => {
     expect(parseNumber("12,5 %")).toBe(12.5);
     expect(parseNumber("1 200")).toBe(1200);
     expect(parseNumber("abc")).toBeNull();
+  });
+});
+
+describe("mängdträning med förändringsfaktor", () => {
+  const ft = (kind: FactorTask["kind"], percent: number, original = 800): FactorTask => {
+    const factor = Math.round((1 + percent / 100) * 1e6) / 1e6;
+    return { kind, percent, factor, original, newValue: Math.round(original * factor * 1e6) / 1e6, text: "", unit: "", question: "" };
+  };
+  test("steg 1 bara ökningar, steg 2 bara minskningar, båda med 10, 20, 25 eller 50 %", () => {
+    for (let i = 0; i < 300; i++) {
+      const a = generateFactorDrill("mix", 0), b = generateFactorDrill("mix", 1);
+      expect([10, 20, 25, 50]).toContain(a.percent);
+      expect([-10, -20, -25, -50]).toContain(b.percent);
+    }
+  });
+  test("vald träning styr uppgiftstypen; MIX blandar alla tre", () => {
+    for (const k of ["faktor", "nytt", "procent"] as const) for (let i = 0; i < 50; i++) expect(generateFactorDrill(k, 3).kind).toBe(k);
+    expect(new Set(Array.from({ length: 200 }, () => generateFactorDrill("mix", 2).kind)).size).toBe(3);
+  });
+  test("alla steg: nya värdet = ursprung · faktor, rätt svar godkänns, steg 1–4 ger heltal", () => {
+    for (let tier = 0; tier < FACTOR_LEVELS.length; tier++) for (let i = 0; i < 300; i++) {
+      const t = generateFactorDrill("mix", tier);
+      expect(t.newValue).toBeCloseTo(t.original * t.factor, 6);
+      expect(t.newValue).toBeGreaterThan(0);
+      expect(checkFactorDrill(t, String(factorAnswer(t)).replace(".", ",")).correct).toBe(true);
+      if (tier <= 3) expect(Number.isInteger(t.newValue)).toBe(true);
+    }
+  });
+  test("ökning 20 % ger faktor 1,2; minskning 25 % ger 0,75; 125 eller 0,25 är fel", () => {
+    expect(checkFactorDrill(ft("faktor", 20), "1,2").correct).toBe(true);
+    expect(checkFactorDrill(ft("faktor", 20), "1.20").correct).toBe(true);
+    expect(checkFactorDrill(ft("faktor", 20), "120").correct).toBe(false);
+    expect(checkFactorDrill(ft("faktor", -25), "0,75").correct).toBe(true);
+    expect(checkFactorDrill(ft("faktor", -25), "0,25").correct).toBe(false);
+    expect(checkFactorDrill(ft("faktor", -25), "1,25").correct).toBe(false);
+  });
+  test("faktorer jämförs exakt: minskning 2,5 % är 0,975, inte 0,97", () => {
+    expect(checkFactorDrill(ft("faktor", -2.5), "0,975").correct).toBe(true);
+    expect(checkFactorDrill(ft("faktor", -2.5), "0,97").correct).toBe(false);
+  });
+  test("nya värdet: 800 ökar 25 % blir 1000; förändringen 200 räknas inte", () => {
+    expect(checkFactorDrill(ft("nytt", 25), "1 000").correct).toBe(true);
+    expect(checkFactorDrill(ft("nytt", 25), "200").correct).toBe(false);
+    expect(checkFactorDrill(ft("nytt", -25), "600").correct).toBe(true);
+  });
+  test("förändringen: faktor 0,85 betyder 15 % minskning; 85 räknas inte", () => {
+    expect(checkFactorDrill(ft("procent", -15), "15").correct).toBe(true);
+    expect(checkFactorDrill(ft("procent", -15), "85").correct).toBe(false);
+    expect(checkFactorDrill(ft("procent", 150), "150").correct).toBe(true);
+  });
+  test("samma uppgift kommer inte två gånger i rad", () => {
+    let prev = generateFactorDrill("faktor", 0);
+    for (let i = 0; i < 200; i++) {
+      const t = generateFactorDrill("faktor", 0, Math.random, prev);
+      expect(t.percent).not.toBe(prev.percent);
+      prev = t;
+    }
   });
 });

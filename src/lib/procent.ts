@@ -153,8 +153,8 @@ export function generateChange(level: ChangeLevel, rnd = Math.random): ChangeTas
 }
 
 export const explainFactor = (t: ChangeTask) =>
-  `100 % ${t.percent > 0 ? "+" : "−"} ${Math.abs(t.percent)} % = ${100 + t.percent} % = ${fmtDec(t.factor)}`;
-export const explainNewValue = (t: ChangeTask) => `${fmt(t.original)} · ${fmtDec(t.factor)} = ${fmt(t.newValue)} ${t.unit}`;
+  `100 % ${t.percent > 0 ? "+" : "−"} ${fmt(Math.abs(t.percent))} % = ${fmt(100 + t.percent)} % = ${fmtDec(t.factor)}`;
+export const explainNewValue = (t: ChangeTask) => `${fmt(t.original)} · ${fmtDec(t.factor)} = ${fmt(t.newValue)} ${t.unit}`.trim();
 
 export function checkFactor(t: ChangeTask, raw: string): Check {
   const v = parseNumber(raw);
@@ -173,3 +173,86 @@ export function checkNewValue(t: ChangeTask, raw: string): Check {
   if (same(v, Math.abs(t.newValue - t.original))) return { correct: false, message: "Det är förändringen. Vad blir det nya värdet?" };
   return { correct: false, message: `Multiplicera ursprungsvärdet med faktorn ${fmtDec(t.factor)}.` };
 }
+
+// ---------- Mängdträning med förändringsfaktor ----------
+/** faktor = hitta faktorn, nytt = räkna nya värdet, procent = från faktor tillbaka till förändringen i procent. */
+export type FactorKind = "faktor" | "nytt" | "procent";
+export type FactorFocus = FactorKind | "mix";
+export type FactorTask = ChangeTask & { kind: FactorKind; question: string };
+const FACTOR_KINDS = ["faktor", "nytt", "procent"] as const;
+const EASY_ORIGINALS = [100, 200, 300, 400, 500, 600, 800, 1000] as const;
+
+/** Svårighetssteg: först bara ökning, sedan bara minskning, sedan blandat med allt fler procentsatser, decimaler och över 100 %. */
+export const FACTOR_LEVELS: { up: readonly number[]; down: readonly number[]; originals: readonly number[]; decimals: number }[] = [
+  { up: [10, 20, 25, 50], down: [], originals: EASY_ORIGINALS, decimals: 0 },
+  { up: [], down: [10, 20, 25, 50], originals: EASY_ORIGINALS, decimals: 0 },
+  { up: range(5, 95, 5), down: range(5, 95, 5), originals: [20, 40, 60, 80, 100, 120, 160, 200, 240, 300, 400, 500, 600, 800, 1000, 1200, 2000], decimals: 0 },
+  { up: range(1, 99), down: range(1, 99), originals: range(100, 2000, 100), decimals: 0 },
+  { up: [...range(1, 99), 2.5, 12.5, 110, 120, 125, 150, 200], down: [...range(1, 99), 2.5, 12.5, 37.5], originals: range(40, 2000, 40), decimals: 1 },
+  { up: [...range(1, 99), 2.5, 7.5, 12.5, 17.5, 110, 125, 150, 175, 200, 250, 300], down: [...range(1, 99), 2.5, 7.5, 12.5, 17.5, 37.5, 62.5], originals: range(10, 2500, 10), decimals: 2 },
+];
+
+export function factorQuestion(t: Pick<FactorTask, "kind" | "percent" | "factor" | "original">) {
+  const up = t.percent > 0, p = fmt(Math.abs(t.percent)) + "\u00a0";
+  if (t.kind === "faktor") return `${up ? "Ökning" : "Minskning"} med ${p}%. Vilken är förändringsfaktorn?`;
+  if (t.kind === "nytt") return `${fmt(t.original)} ${up ? "ökar" : "minskar"} med ${p}%. Vad blir det nya värdet?`;
+  return `Förändringsfaktorn är ${fmtDec(t.factor)}. Med hur många procent ${up ? "ökar" : "minskar"} värdet?`;
+}
+
+/** En snabb uppgift med förändringsfaktor. Upprepar inte exakt samma uppgift två gånger i rad. */
+export function generateFactorDrill(focus: FactorFocus, tier: number, rnd = Math.random, prev?: FactorTask): FactorTask {
+  const lv = FACTOR_LEVELS[tierOf(tier * TIER_STEP)];
+  for (let i = 0; i < 1000; i++) {
+    const kind = focus === "mix" ? pick(FACTOR_KINDS, rnd) : focus;
+    const up = lv.down.length === 0 || (lv.up.length > 0 && rnd() < 0.5);
+    const p = pick(up ? lv.up : lv.down, rnd);
+    const original = pick(lv.originals, rnd);
+    const percent = up ? p : -p;
+    const factor = round(1 + percent / 100);
+    const newValue = round(original * factor);
+    if (newValue <= 0 || !decimalsOk(newValue, lv.decimals)) continue;
+    if (prev && i < 50 && prev.kind === kind && prev.percent === percent && (kind !== "nytt" || prev.original === original)) continue;
+    const t = { kind, percent, factor, original, newValue, text: "", unit: "" };
+    return { ...t, question: factorQuestion(t) };
+  }
+  const t = { kind: focus === "mix" ? "faktor" as const : focus, percent: 10, factor: 1.1, original: 100, newValue: 110, text: "", unit: "" };
+  return { ...t, question: factorQuestion(t) };
+}
+
+export const factorAnswer = (t: FactorTask) => (t.kind === "faktor" ? t.factor : t.kind === "nytt" ? t.newValue : Math.abs(t.percent));
+/** Faktorer och procent jämförs exakt (t.ex. 0,975 ≠ 0,97), nya värden med två decimalers noggrannhet. */
+const exact = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+
+export function explainFactorDrill(t: FactorTask) {
+  if (t.kind === "faktor") return explainFactor(t);
+  if (t.kind === "nytt") return `${explainFactor(t)}, så ${explainNewValue(t)}`;
+  return `${fmtDec(t.factor)} = ${fmt(100 + t.percent)} %. Det är ${fmt(Math.abs(t.percent))} % ${t.percent > 0 ? "mer" : "mindre"} än 100 %.`;
+}
+
+export function checkFactorDrill(t: FactorTask, raw: string): Check {
+  const v = parseNumber(raw);
+  if (v === null) return { correct: false, message: t.kind === "faktor" ? "Skriv faktorn som decimaltal, t.ex. 1,25." : "Skriv ett tal, t.ex. 25 eller 12,5." };
+  const ch = Math.abs(t.percent), up = t.percent > 0;
+  if (t.kind === "faktor") {
+    if (exact(v, t.factor)) return { correct: true, message: explainFactor(t) };
+    if (exact(v, 100 + t.percent)) return { correct: false, message: `Rätt procent! Skriv ${fmt(100 + t.percent)} % som decimaltal.` };
+    if (exact(v, ch / 100)) return { correct: false, message: `Det är bara förändringen. Utgå från 100 % och ${up ? "lägg till" : "dra bort"} ${fmt(ch)} %.` };
+    if (exact(v, 1 - t.percent / 100)) return { correct: false, message: up ? "Vid ökning blir faktorn större än 1." : "Vid minskning blir faktorn mindre än 1." };
+    return { correct: false, message: "Hur många procent finns efter förändringen? Skriv det som decimaltal." };
+  }
+  if (t.kind === "nytt") {
+    if (same(v, t.newValue)) return { correct: true, message: explainNewValue(t) };
+    if (same(v, Math.abs(t.newValue - t.original))) return { correct: false, message: "Det är förändringen. Vad blir det nya värdet?" };
+    if (same(v, t.original * (1 - t.percent / 100))) return { correct: false, message: up ? "Värdet ökar – det nya värdet ska bli större." : "Värdet minskar – det nya värdet ska bli mindre." };
+    return { correct: false, message: `Multiplicera ${fmt(t.original)} med förändringsfaktorn ${fmtDec(t.factor)}.` };
+  }
+  if (exact(v, ch)) return { correct: true, message: explainFactorDrill(t) };
+  if (exact(v, 100 + t.percent)) return { correct: false, message: up ? `${fmt(v)} % är hela det nya värdet. Hur mycket mer än 100 % är det?` : `${fmt(v)} % finns kvar. Hur mycket fattas till 100 %?` };
+  if (exact(v, t.factor) || exact(v, ch / 100)) return { correct: false, message: "Svara i procent, inte som decimaltal." };
+  return { correct: false, message: `Skriv ${fmtDec(t.factor)} i procent och jämför med 100 %.` };
+}
+
+export const factorTip = (t: FactorTask) => t.kind === "faktor"
+  ? `Utgå från 100 %. ${t.percent > 0 ? "Lägg till ökningen" : "Dra bort minskningen"} och skriv svaret som decimaltal.`
+  : t.kind === "nytt" ? `Förändringsfaktorn är ${fmtDec(t.factor)}. Multiplicera ${fmt(t.original)} med den.`
+  : `${fmtDec(t.factor)} = ${fmt(100 + t.percent)} %. Hur långt är det från 100 %?`;
