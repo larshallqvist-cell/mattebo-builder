@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, Check, Flame, Trophy } from "lucide-react";
+import { ArrowRight, Calculator, Check, Flame, Lock, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import CalculatorModal from "@/components/CalculatorModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, HintToggle, useExerciseSound } from "@/components/exercise/ExerciseParts";
-import { advance, DRILL_START, DRILL_TIERS, parseNumber, TIER_STEP, tierOf, type Check as Result, type DrillProgress } from "@/lib/procent";
+import { advance, CALCULATOR_FROM_STEP, calculatorAllowed, DRILL_START, DRILL_TIERS, parseNumber, TIER_STEP, tierOf, type Check as Result, type DrillProgress } from "@/lib/procent";
 
 /** Beskriver en mängdträning: hur uppgifter skapas, rättas och visas. */
 export type DrillConfig<T extends { kind: string; question: string }, F extends string> = {
@@ -44,6 +46,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
   const [tip, setTip] = useState(false);
   const [record, setRecord] = useState(0);
   const [newRecord, setNewRecord] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
   const startRecord = useRef(0);
   const usedHint = useRef(false);
   const timer = useRef<number>();
@@ -94,6 +97,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
   };
 
   const top = tier === DRILL_TIERS - 1;
+  const calcAllowed = calculatorAllowed(tier);
   const stepValue = top ? TIER_STEP : prog.xp % TIER_STEP;
   const placeholder = c.placeholder(task);
 
