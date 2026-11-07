@@ -193,9 +193,9 @@ export const FACTOR_LEVELS: { up: readonly number[]; down: readonly number[]; or
 ];
 
 export function factorQuestion(t: Pick<FactorTask, "kind" | "percent" | "factor" | "original">) {
-  const up = t.percent > 0, p = fmt(Math.abs(t.percent));
-  if (t.kind === "faktor") return `${up ? "Ökning" : "Minskning"} med ${p} %. Vilken är förändringsfaktorn?`;
-  if (t.kind === "nytt") return `${fmt(t.original)} ${up ? "ökar" : "minskar"} med ${p} %. Vad blir det nya värdet?`;
+  const up = t.percent > 0, p = fmt(Math.abs(t.percent)) + "\u00a0";
+  if (t.kind === "faktor") return `${up ? "Ökning" : "Minskning"} med ${p}%. Vilken är förändringsfaktorn?`;
+  if (t.kind === "nytt") return `${fmt(t.original)} ${up ? "ökar" : "minskar"} med ${p}%. Vad blir det nya värdet?`;
   return `Förändringsfaktorn är ${fmtDec(t.factor)}. Med hur många procent ${up ? "ökar" : "minskar"} värdet?`;
 }
 
