@@ -776,6 +776,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      procent_leaderboard: {
+        Args: { p_mode: string }
+        Returns: {
+          best: number
+          is_me: boolean
+          name: string
+          place: number
+          scope: number
+        }[]
+      }
       record_braklabbet_attempt: {
         Args: {
           p_answer: string

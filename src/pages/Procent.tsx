@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PercentTriangle from "@/components/procent/PercentTriangle";
 import FactorBar from "@/components/procent/FactorBar";
 import StreakDrill, { type DrillConfig } from "@/components/procent/StreakDrill";
+import ProcentIntro from "@/components/procent/ProcentIntro";
 import { cn } from "@/lib/utils";
 import {
   checkFactorDrill, checkTriangle, drillMarked, drillShowsDecimal, drillTip, explainFactorDrill, explainTriangle,
@@ -61,9 +62,14 @@ const Procent = () => {
     </div>
   );
 
-  return area === "triangel"
-    ? <StreakDrill key="triangel" config={TRIANGLE} switcher={switcher} />
-    : <StreakDrill key="faktor" config={FACTOR} switcher={switcher} />;
+  return (
+    <>
+      <ProcentIntro />
+      {area === "triangel"
+        ? <StreakDrill key="triangel" config={TRIANGLE} switcher={switcher} />
+        : <StreakDrill key="faktor" config={FACTOR} switcher={switcher} />}
+    </>
+  );
 };
 
 export default Procent;

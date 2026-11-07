@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, Calculator, Check, Flame, Lock, Trophy } from "lucide-react";
+import { ArrowRight, Calculator, Check, Flame, Lock, Medal, Trophy } from "lucide-react";
+import Leaderboard from "./Leaderboard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CalculatorModal from "@/components/CalculatorModal";
@@ -47,6 +48,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
   const [record, setRecord] = useState(0);
   const [newRecord, setNewRecord] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [boardOpen, setBoardOpen] = useState(false);
   const startRecord = useRef(0);
   const usedHint = useRef(false);
   const timer = useRef<number>();
@@ -118,6 +120,10 @@ export default function StreakDrill<T extends { kind: string; question: string }
             </button>
             <span className="flex items-center gap-1 text-coral" title="Rätt i rad"><Flame className="h-4 w-4" />{prog.streak} i rad</span>
             <span className="flex items-center gap-1" title="Ditt rekord"><Trophy className="h-4 w-4" />{record}</span>
+            <button type="button" onClick={() => setBoardOpen(true)} aria-label="Topplista" title="Topplista"
+              className="flex h-7 shrink-0 items-center gap-1 rounded-full border border-input bg-background px-2 text-foreground transition-colors hover:border-primary hover:text-primary">
+              <Medal className="h-4 w-4" /><span className="hidden sm:inline">Topplista</span>
+            </button>
           </span>
         </div>
 
@@ -167,6 +173,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
         </div>
       </section>
       <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
+      <Leaderboard mode={c.mode} title={c.mode === "mangd" ? "Procenttriangeln" : "Förändringsfaktor"} open={boardOpen} onOpenChange={setBoardOpen} />
     </ExerciseShell>
   );
 }
