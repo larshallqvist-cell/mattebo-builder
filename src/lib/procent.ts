@@ -153,8 +153,8 @@ export function generateChange(level: ChangeLevel, rnd = Math.random): ChangeTas
 }
 
 export const explainFactor = (t: ChangeTask) =>
-  `100 % ${t.percent > 0 ? "+" : "−"} ${Math.abs(t.percent)} % = ${100 + t.percent} % = ${fmtDec(t.factor)}`;
-export const explainNewValue = (t: ChangeTask) => `${fmt(t.original)} · ${fmtDec(t.factor)} = ${fmt(t.newValue)} ${t.unit}`;
+  `100 % ${t.percent > 0 ? "+" : "−"} ${fmt(Math.abs(t.percent))} % = ${fmt(100 + t.percent)} % = ${fmtDec(t.factor)}`;
+export const explainNewValue = (t: ChangeTask) => `${fmt(t.original)} · ${fmtDec(t.factor)} = ${fmt(t.newValue)} ${t.unit}`.trim();
 
 export function checkFactor(t: ChangeTask, raw: string): Check {
   const v = parseNumber(raw);
