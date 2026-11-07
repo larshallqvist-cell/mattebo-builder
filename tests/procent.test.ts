@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  advance, checkFactor, checkFactorDrill, checkNewValue, checkTriangle, DRILL_LEVELS, DRILL_START, FACTOR_LEVELS, factorAnswer,
+  advance, CALCULATOR_FROM_STEP, calculatorAllowed, checkFactor, checkFactorDrill, checkNewValue, checkTriangle, DRILL_LEVELS, DRILL_START, DRILL_TIERS, FACTOR_LEVELS, factorAnswer,
   generateChange, generateDrill, generateFactorDrill, generateTriangle, type FactorTask,
   parseNumber, tierOf, triangleAnswer, type TriangleTask,
 } from "../src/lib/procent";
@@ -157,5 +157,16 @@ describe("mängdträning med förändringsfaktor", () => {
       expect(t.percent).not.toBe(prev.percent);
       prev = t;
     }
+  });
+});
+
+describe("miniräknare i mängdträningen", () => {
+  test("låst i steg 1–3, öppet från steg 4", () => {
+    expect(CALCULATOR_FROM_STEP).toBe(4);
+    expect(calculatorAllowed(0)).toBe(false);
+    expect(calculatorAllowed(1)).toBe(false);
+    expect(calculatorAllowed(2)).toBe(false);
+    expect(calculatorAllowed(3)).toBe(true);
+    expect(calculatorAllowed(DRILL_TIERS - 1)).toBe(true);
   });
 });

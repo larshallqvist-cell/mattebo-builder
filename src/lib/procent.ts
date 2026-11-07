@@ -87,6 +87,9 @@ export const advance = (p: DrillProgress, correct: boolean): DrillProgress => co
 /** Räknesättet markeras i triangeln på de första stegen, decimalformen av andelen visas lite längre. */
 export const drillMarked = (tier: number) => tier < 2;
 export const drillShowsDecimal = (tier: number) => tier < 3;
+/** Från steg 4 är talen inte huvudräkningsvänliga längre, så då öppnas miniräknaren. */
+export const CALCULATOR_FROM_STEP = 4;
+export const calculatorAllowed = (tier: number) => tier + 1 >= CALCULATOR_FROM_STEP;
 
 const range = (a: number, b: number, s = 1) => Array.from({ length: Math.floor((b - a) / s) + 1 }, (_, i) => a + i * s);
 /** Svårighetssteg: snälla procentsatser och jämna tal först, sedan alla procent, decimaler och över 100 %. */

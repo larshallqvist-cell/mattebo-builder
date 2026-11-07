@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, Check, Flame, Trophy } from "lucide-react";
+import { ArrowRight, Calculator, Check, Flame, Lock, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import CalculatorModal from "@/components/CalculatorModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, HintToggle, useExerciseSound } from "@/components/exercise/ExerciseParts";
-import { advance, DRILL_START, DRILL_TIERS, parseNumber, TIER_STEP, tierOf, type Check as Result, type DrillProgress } from "@/lib/procent";
+import { advance, CALCULATOR_FROM_STEP, calculatorAllowed, DRILL_START, DRILL_TIERS, parseNumber, TIER_STEP, tierOf, type Check as Result, type DrillProgress } from "@/lib/procent";
 
 /** Beskriver en mängdträning: hur uppgifter skapas, rättas och visas. */
 export type DrillConfig<T extends { kind: string; question: string }, F extends string> = {
@@ -44,6 +46,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
   const [tip, setTip] = useState(false);
   const [record, setRecord] = useState(0);
   const [newRecord, setNewRecord] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
   const startRecord = useRef(0);
   const usedHint = useRef(false);
   const timer = useRef<number>();
@@ -94,6 +97,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
   };
 
   const top = tier === DRILL_TIERS - 1;
+  const calcAllowed = calculatorAllowed(tier);
   const stepValue = top ? TIER_STEP : prog.xp % TIER_STEP;
   const placeholder = c.placeholder(task);
 
@@ -103,7 +107,15 @@ export default function StreakDrill<T extends { kind: string; question: string }
         {switcher}
         <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
           <span className="uppercase tracking-widest">Steg {tier + 1} av {DRILL_TIERS} · {c.focusLabel[focus]}</span>
-          <span className="flex items-center gap-3">
+          <span className="flex items-center gap-2 sm:gap-3">
+            <button type="button" onClick={() => calcAllowed && setCalcOpen(true)} disabled={!calcAllowed}
+              aria-label={calcAllowed ? "Miniräknare" : `Miniräknare öppnas i steg ${CALCULATOR_FROM_STEP}`}
+              title={calcAllowed ? "Miniräknare" : `Miniräknaren öppnas i steg ${CALCULATOR_FROM_STEP}`}
+              className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors",
+                calcAllowed ? "border-input bg-background text-foreground hover:border-primary hover:text-primary"
+                  : "cursor-not-allowed border-border/50 bg-secondary/40 text-muted-foreground/50")}>
+              {calcAllowed ? <Calculator className="h-4 w-4" /> : <Lock className="h-3.5 w-3.5" />}
+            </button>
             <span className="flex items-center gap-1 text-coral" title="Rätt i rad"><Flame className="h-4 w-4" />{prog.streak} i rad</span>
             <span className="flex items-center gap-1" title="Ditt rekord"><Trophy className="h-4 w-4" />{record}</span>
           </span>
@@ -145,12 +157,16 @@ export default function StreakDrill<T extends { kind: string; question: string }
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <HintToggle open={tip} onToggle={() => { if (!tip) usedHint.current = true; setTip(!tip); }}>{c.tip(task)}</HintToggle>
-                <span className="pt-1 text-xs text-muted-foreground">Komma eller punkt går bra.</span>
+                <span className="flex flex-wrap items-center justify-end gap-x-3 pt-1 text-xs text-muted-foreground">
+                  {!calcAllowed && <span>Miniräknare från steg {CALCULATOR_FROM_STEP}</span>}
+                  <span>Komma eller punkt går bra.</span>
+                </span>
               </div>
             </form>
           </div>
         </div>
       </section>
+      <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
     </ExerciseShell>
   );
 }
