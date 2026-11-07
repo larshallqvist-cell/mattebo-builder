@@ -37,6 +37,12 @@
   margin-bottom: 0;
 }
 
+/* Länkar i samma storlek som resten av texten (rendern sätter en fast liten storlek). */
+.flash-body a {
+  font-size: 1em;
+  line-height: 1.16;
+}
+
 /* Standardfärg vit; {färg}-taggar i texten skriver över. */
 .flash-body { color: hsl(0 0% 100%); }
 /* Tre storlekar: Liten / Mellan (standard) / Stor */
