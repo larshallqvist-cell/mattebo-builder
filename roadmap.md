@@ -14,4 +14,4 @@
 - [x] Klassidan: kapiteltitel i headern under Matte ÅkX, en header, spelen upp, kapitelval i headern
 - [x] Ta bort knappen "Lägg till delkapitel"
 - [x] Anslaget: pastellfärger på texten (mörk ruta kvar)
-- [ ] Genomgångar/presentationer per klass: datorlänk (file:///) godkänns inte – väntar på Lasses val av lösning
+- [x] Genomgångar per klass: ladda upp HTML-bildspel (eller Slides-länk) via pennan vid "Åk"

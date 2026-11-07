@@ -242,16 +242,22 @@ export type Database = {
       }
       class_presentations: {
         Row: {
+          file_name: string | null
+          file_path: string | null
           grade: number
           updated_at: string
           url: string
         }
         Insert: {
+          file_name?: string | null
+          file_path?: string | null
           grade: number
           updated_at?: string
           url: string
         }
         Update: {
+          file_name?: string | null
+          file_path?: string | null
           grade?: number
           updated_at?: string
           url?: string
