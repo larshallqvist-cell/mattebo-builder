@@ -40,7 +40,7 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
       aria-label="Anslag"
     >
       <div
-        data-size={announcement.size} data-grade={grade} className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] px-4 pb-5 pt-4 shadow-2xl animate-in zoom-in-95 duration-300"
+        data-size={announcement.size} data-grade={grade} className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] px-4 pb-5 pt-4 animate-in zoom-in-95 duration-300"
         lang="sv"
         onClick={(e) => e.stopPropagation()}
       >
