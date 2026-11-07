@@ -109,10 +109,10 @@ export default function StreakDrill<T extends { kind: string; question: string }
           </span>
         </div>
 
-        <div className="mt-3 grid items-center gap-4 sm:grid-cols-2 sm:gap-6">
+        <div className="mt-3 grid grid-cols-1 items-center gap-4 sm:grid-cols-2 sm:gap-6">
           {c.visual({ task, tier, solved: !!result, focus, choose })}
 
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             <p key={task.question} className="exercise-rise font-orbitron text-2xl font-bold leading-tight text-foreground sm:text-3xl">{task.question}</p>
 
             <form onSubmit={(e) => { e.preventDefault(); if (result) fresh(focus, tier); else check(); }} className="space-y-2">
