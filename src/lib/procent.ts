@@ -51,7 +51,7 @@ export const triangleAnswer = (t: TriangleTask) => (t.kind === "andel" ? t.rate 
 
 export function explainTriangle(t: TriangleTask) {
   const r = fmtDec(t.rate / 100);
-  if (t.kind === "andel") return `Andelen = Delen / Det hela = ${fmt(t.part)} / ${fmt(t.whole)} = ${r} = ${t.rate} %`;
+  if (t.kind === "andel") return `Andelen = Delen / Det hela = ${fmt(t.part)} / ${fmt(t.whole)} = ${r} = ${fmt(t.rate)} %`;
   if (t.kind === "delen") return `Delen = Andelen · Det hela = ${r} · ${fmt(t.whole)} = ${fmt(t.part)}`;
   return `Det hela = Delen / Andelen = ${fmt(t.part)} / ${r} = ${fmt(t.whole)}`;
 }
@@ -66,6 +66,67 @@ export function checkTriangle(t: TriangleTask, raw: string): Check {
   if (t.kind === "delen" && same(v, t.whole / (t.rate / 100))) return { correct: false, message: "Du delade. Delen får du genom att multiplicera Andelen med Det hela." };
   return { correct: false, message: "Titta på vad som söks och vilka två värden du har." };
 }
+
+// ---------- Mängdträning med procenttriangeln ----------
+/** Vad eleven tränar på: en ruta i triangeln, eller MIX (blandat). */
+export type Focus = Kind | "mix";
+/** xp styr svårighetssteget, streak är antal rätt i rad. */
+export type DrillProgress = { xp: number; streak: number };
+export const DRILL_TIERS = 6;
+/** Antal rätt som behövs för att gå upp ett steg. */
+export const TIER_STEP = 6;
+/** Ett fel backar så här mycket, så att svårigheten följer eleven försiktigt. */
+export const WRONG_PENALTY = 2;
+export const XP_MAX = DRILL_TIERS * TIER_STEP;
+export const DRILL_START: DrillProgress = { xp: 0, streak: 0 };
+
+export const tierOf = (xp: number) => Math.max(0, Math.min(DRILL_TIERS - 1, Math.floor(xp / TIER_STEP)));
+export const advance = (p: DrillProgress, correct: boolean): DrillProgress => correct
+  ? { xp: Math.min(XP_MAX, p.xp + 1), streak: p.streak + 1 }
+  : { xp: Math.max(0, p.xp - WRONG_PENALTY), streak: 0 };
+/** Räknesättet markeras i triangeln på de första stegen, decimalformen av andelen visas lite längre. */
+export const drillMarked = (tier: number) => tier < 2;
+export const drillShowsDecimal = (tier: number) => tier < 3;
+
+const range = (a: number, b: number, s = 1) => Array.from({ length: Math.floor((b - a) / s) + 1 }, (_, i) => a + i * s);
+/** Svårighetssteg: snälla procentsatser och jämna tal först, sedan alla procent, decimaler och över 100 %. */
+export const DRILL_LEVELS: { rates: readonly number[]; wholes: readonly number[]; decimals: number }[] = [
+  { rates: [10, 50], wholes: [20, 40, 60, 80, 100, 200, 300, 400, 500, 600], decimals: 0 },
+  { rates: [10, 20, 25, 50, 75], wholes: [20, 40, 60, 80, 100, 120, 160, 200, 400, 800], decimals: 0 },
+  { rates: range(5, 95, 5), wholes: [20, 40, 60, 80, 100, 120, 140, 160, 200, 240, 300, 400, 500, 600, 800, 1000], decimals: 0 },
+  { rates: range(1, 99), wholes: range(100, 2000, 50), decimals: 0 },
+  { rates: [...range(1, 99), 110, 120, 125, 150, 200], wholes: range(10, 990, 10), decimals: 1 },
+  { rates: [...range(1, 99), 0.5, 2.5, 7.5, 12.5, 37.5, 62.5, 110, 120, 125, 150, 175, 200, 250], wholes: range(4, 2000, 4), decimals: 2 },
+];
+const KINDS = ["andel", "delen", "hela"] as const;
+const decimalsOk = (n: number, d: number) => Math.abs(n * 10 ** d - Math.round(n * 10 ** d)) < 1e-6;
+
+export function drillQuestion(kind: Kind, rate: number, part: number, whole: number) {
+  if (kind === "delen") return `Hur mycket är ${fmt(rate)} % av ${fmt(whole)}?`;
+  if (kind === "andel") return `Hur många procent är ${fmt(part)} av ${fmt(whole)}?`;
+  return `${fmt(rate)} % är ${fmt(part)}. Hur mycket är det hela?`;
+}
+
+/** En snabb uppgift utan textsammanhang. Upprepar inte exakt samma uppgift två gånger i rad. */
+export function generateDrill(focus: Focus, tier: number, rnd = Math.random, prev?: TriangleTask): TriangleTask {
+  const lv = DRILL_LEVELS[tierOf(tier * TIER_STEP)];
+  for (let i = 0; i < 1000; i++) {
+    const kind = focus === "mix" ? pick(KINDS, rnd) : focus;
+    const rate = pick(lv.rates, rnd);
+    const whole = pick(lv.wholes, rnd);
+    const part = round((rate * whole) / 100);
+    if (part <= 0 || !decimalsOk(part, lv.decimals)) continue;
+    if (prev && i < 50 && prev.kind === kind && prev.rate === rate && prev.whole === whole) continue;
+    return { kind, rate, part, whole, unit: "", text: "", question: drillQuestion(kind, rate, part, whole) };
+  }
+  const kind = focus === "mix" ? "delen" : focus;
+  return { kind, rate: 10, part: 4, whole: 40, unit: "", text: "", question: drillQuestion(kind, 10, 4, 40) };
+}
+
+export const drillTip = (t: TriangleTask) => t.kind === "andel"
+  ? "Andelen = Delen ÷ Det hela. Skriv svaret i procent."
+  : t.kind === "delen" ? `${fmt(t.rate)} % = ${fmtDec(t.rate / 100)}. Multiplicera med det hela.`
+  : `${fmt(t.rate)} % = ${fmtDec(t.rate / 100)}. Dela delen med ${fmtDec(t.rate / 100)}.`;
 
 // ---------- Förändringsfaktor ----------
 const UP = [5, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75] as const;
