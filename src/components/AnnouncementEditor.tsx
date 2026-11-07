@@ -13,8 +13,9 @@ const SIZES: { id: AnnouncementSize; label: string }[] = [
   { id: "large", label: "Stor" },
 ];
 const COLORS: { tag: string; hex: string }[] = [
-  { tag: "gul", hex: "#ca8a04" }, { tag: "röd", hex: "#e02424" }, { tag: "grön", hex: "#15803d" },
-  { tag: "blå", hex: "#1d4ed8" }, { tag: "orange", hex: "#ea580c" }, { tag: "lila", hex: "#7c3aed" },
+  { tag: "gul", hex: "hsl(var(--flash-pastel-yellow))" }, { tag: "röd", hex: "hsl(var(--flash-pastel-red))" },
+  { tag: "grön", hex: "hsl(var(--flash-pastel-green))" }, { tag: "blå", hex: "hsl(var(--flash-pastel-blue))" },
+  { tag: "orange", hex: "hsl(var(--flash-pastel-orange))" }, { tag: "lila", hex: "hsl(var(--flash-pastel-purple))" },
 ];
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import "@/styles/announcement-flash.css";
@@ -98,7 +99,7 @@ const AnnouncementEditor = () => {
         {expires && <Button size="sm" variant="ghost" onClick={() => setExpires("")}>Inget slutdatum</Button>}
       </div>
       {draft.trim() && (
-        <div data-size={size} data-grade={grade} className="flash-card mx-auto rounded-[1.75rem] px-4 pb-5 pt-4" lang="sv">
+        <div data-size={size} className="flash-card mx-auto rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4" lang="sv">
           <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold">
             {parseLessonContent(sanitizeLessonText(draft))}
           </div>
