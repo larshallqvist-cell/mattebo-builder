@@ -21,9 +21,11 @@ interface ApocalypticNavProps {
   headerAction?: ReactNode;
   /** Optional line under the grade headline (the current chapter) */
   subtitle?: ReactNode;
+  /** The chapter shown on the class page; picks which sub-chapter slideshows "Åk" opens */
+  chapter?: number;
 }
 
-const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, subtitle }: ApocalypticNavProps) => {
+const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, subtitle, chapter }: ApocalypticNavProps) => {
   const { user, loading, isAdmin } = useAuth();
   const tintStyle = { "--grade-tint": tint ?? "var(--accent)" } as CSSProperties;
 
@@ -79,7 +81,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
               <div className="header-headline flex min-w-0 flex-col items-center">
                 <h1 className="grade-hero text-center" style={tintStyle}>
                   {isAdmin ? (
-                    <ClassPresentationLink grade={grade}>
+                    <ClassPresentationLink grade={grade} chapter={chapter ?? 1}>
                       <span className="grade-hero-word"><span className="hidden sm:inline">Matte </span>Åk</span>
                     </ClassPresentationLink>
                   ) : (
