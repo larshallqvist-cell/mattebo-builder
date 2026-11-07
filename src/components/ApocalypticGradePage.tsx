@@ -121,6 +121,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
         >
           <ApocalypticNav
             grade={grade}
+            chapter={selectedChapter}
             tint={GRADE_TINT[grade] ?? "var(--accent)"}
             headerAction={
               <>
