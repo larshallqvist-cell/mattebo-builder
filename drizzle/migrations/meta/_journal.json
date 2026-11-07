@@ -176,6 +176,13 @@
       "when": 1794056059332,
       "tag": "0024_procent_drill_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794056969603,
+      "tag": "0025_procent_factor_drill",
+      "breakpoints": true
     }
   ]
 }
