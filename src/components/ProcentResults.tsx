@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { buildStats, pct, type Attempt, type LevelStatus } from "@/lib/algebraStats";
 
 export const PROCENT_MODES = [
-  { id: "mangd", title: "Mängdträning", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "mangd", title: "Procenttriangeln", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
   { id: "faktormangd", title: "Förändringsfaktor", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
   { id: "triangel", title: "Procenttriangeln (äldre)", levels: ["Markerad", "Ledtråd", "Utan"] },
   { id: "faktor", title: "Förändringsfaktor (äldre)", levels: ["Ökning", "Minskning", "Blandat"] },
