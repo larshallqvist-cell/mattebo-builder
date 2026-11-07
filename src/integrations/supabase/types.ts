@@ -446,6 +446,7 @@ export type Database = {
           level: number
           mode: string
           session_id: string
+          streak: number | null
           task_kind: string
           user_id: string
         }
@@ -457,6 +458,7 @@ export type Database = {
           level: number
           mode: string
           session_id: string
+          streak?: number | null
           task_kind: string
           user_id: string
         }
@@ -468,6 +470,7 @@ export type Database = {
           level?: number
           mode?: string
           session_id?: string
+          streak?: number | null
           task_kind?: string
           user_id?: string
         }
