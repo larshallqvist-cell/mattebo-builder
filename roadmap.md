@@ -15,4 +15,4 @@
 - [x] Ta bort knappen "Lägg till delkapitel"
 - [x] Anslaget: pastellfärger på texten (mörk ruta kvar)
 - [x] Genomgångar per klass: ladda upp HTML-bildspel (eller Slides-länk) via pennan vid "Åk"
-- [x] Genomgångar per delkapitel: "Åk" öppnar det markerade delkapitlets bildspel, flera filer laddas upp på en gång (Åk 6 kap 2 inlagt)
+- [x] Genomgångar per delkapitel: "Åk" öppnar det markerade delkapitlets bildspel, flera filer laddas upp på en gång (kap 2 inlagt för Åk 6–9)
