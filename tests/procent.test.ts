@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  advance, checkFactor, checkFactorDrill, checkNewValue, checkTriangle, DRILL_LEVELS, DRILL_START, FACTOR_LEVELS, factorAnswer,
+  advance, CALCULATOR_FROM_STEP, calculatorAllowed, checkFactor, checkFactorDrill, checkNewValue, checkTriangle, DRILL_LEVELS, DRILL_START, FACTOR_LEVELS, factorAnswer,
   generateChange, generateDrill, generateFactorDrill, generateTriangle, type FactorTask,
   parseNumber, tierOf, triangleAnswer, type TriangleTask,
 } from "../src/lib/procent";
