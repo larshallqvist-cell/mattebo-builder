@@ -1,211 +1,138 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, Eye, EyeOff, Flame } from "lucide-react";
+import { ArrowRight, Check, Flame, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import PercentTriangle from "@/components/procent/PercentTriangle";
-import BarModel from "@/components/procent/BarModel";
-import ChangeBar from "@/components/procent/ChangeBar";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
-import { Feedback, HintToggle, highlightNumbers, Option, OptionGroup, ROUND, useExerciseSound } from "@/components/exercise/ExerciseParts";
+import { Feedback, HintToggle, useExerciseSound } from "@/components/exercise/ExerciseParts";
 import {
-  checkFactor, checkNewValue, checkTriangle, fmt, fmtDec, generateChange, generateTriangle,
-  type ChangeLevel, type ChangeTask, type Check as Result, type Support, type TriangleTask,
+  advance, checkTriangle, DRILL_START, DRILL_TIERS, drillMarked, drillShowsDecimal, drillTip, explainTriangle,
+  generateDrill, parseNumber, TIER_STEP, tierOf,
+  type Check as Result, type Focus,
 } from "@/lib/procent";
 
-type Mode = "triangel" | "faktor";
-const MODES: { id: Mode; title: string; blurb: string }[] = [
-  { id: "triangel", title: "Andelen, Delen och Det hela", blurb: "Sök andelen, delen eller det hela." },
-  { id: "faktor", title: "Förändringsfaktor", blurb: "Ökning och minskning – faktor och nytt värde." },
-];
-const LEVELS: Record<Mode, { name: string; example: string }[]> = {
-  triangel: [
-    { name: "Modellerna visar vägen", example: "Triangeln och stapeln visas, rätt räknesätt markeras" },
-    { name: "Modeller som ledtråd", example: "Visa triangeln och stapeln när du vill" },
-    { name: "Utan modeller", example: "Räkna helt på egen hand" },
-  ],
-  faktor: [
-    { name: "Ökning", example: "t.ex. +25 % → 1,25" },
-    { name: "Minskning", example: "t.ex. −25 % → 0,75" },
-    { name: "Blandat", example: "Både ökning och minskning" },
-  ],
-};
+const FOCUS_LABEL: Record<Focus, string> = { mix: "MIX", delen: "Sök delen", andel: "Sök andelen", hela: "Sök det hela" };
+const NEXT_DELAY = 900; // rätt svar går vidare av sig självt
 
-/** Rätt-meningen i elevens språk, t.ex. "70 % av 50 g är 35 g." */
-const rightLine = (t: TriangleTask) => {
-  const u = (n: number) => `${fmt(n)} ${t.unit}`;
-  if (t.kind === "delen") return `${t.rate} % av ${u(t.whole)} är ${u(t.part)}.`;
-  if (t.kind === "andel") return `${u(t.part)} av ${u(t.whole)} är ${t.rate} %.`;
-  return `${t.rate} % är ${u(t.part)}, så det hela är ${u(t.whole)}.`;
-};
-const triangleTip = (t: TriangleTask) => t.kind === "andel"
-  ? "Tips: Andelen = Delen ÷ Det hela"
-  : t.kind === "delen" ? `Tips: ${t.rate} % = ${fmtDec(t.rate / 100)}`
-  : `Tips: ${t.rate} % = ${fmtDec(t.rate / 100)}. Dela ${fmt(t.part)} med ${fmtDec(t.rate / 100)}.`;
-const changeTip = (c: ChangeTask, step: "factor" | "value") => step === "factor"
-  ? `Tips: 100 % ${c.percent > 0 ? "+" : "−"} ${Math.abs(c.percent)} % = ${100 + c.percent} % = ?`
-  : `Tips: Nytt värde = ${fmt(c.original)} · förändringsfaktorn`;
-
+/** Mängdträning: oändligt många snabba uppgifter med procenttriangeln, sakta ökande svårighet och svit. */
 const Procent = () => {
-  const [mode, setMode] = useState<Mode>("triangel");
-  const [level, setLevel] = useState(0);
-  const [tri, setTri] = useState<TriangleTask>(() => generateTriangle());
-  const [chg, setChg] = useState<ChangeTask>(() => generateChange(0));
-  const [step, setStep] = useState<"factor" | "value">("factor");
-  const [models, setModels] = useState(false);
-  const [tip, setTip] = useState(false);
+  const [focus, setFocus] = useState<Focus>("mix");
+  const [prog, setProg] = useState(DRILL_START);
+  const tier = tierOf(prog.xp);
+  const [task, setTask] = useState(() => generateDrill("mix", 0));
   const [answer, setAnswer] = useState("");
+  const [notice, setNotice] = useState("");
   const [result, setResult] = useState<Result | null>(null);
-  const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
-  const [completed, setCompleted] = useState(0);
-  const missed = useRef(false);
+  const [lost, setLost] = useState(0); // sviten som bröts vid senaste felet
+  const [tip, setTip] = useState(false);
+  const [record, setRecord] = useState(0);
+  const [newRecord, setNewRecord] = useState(false);
+  const startRecord = useRef(0);
   const usedHint = useRef(false);
+  const timer = useRef<number>();
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const sound = useExerciseSound();
-  const sessionId = useRef(crypto.randomUUID()); // ett pass = ett sidbesök
+  const sessionId = useRef(crypto.randomUUID());
 
-  useEffect(() => { document.title = "Procent · Mattebo"; }, []);
+  useEffect(() => { document.title = "Procent · Mattebo"; return () => window.clearTimeout(timer.current); }, []);
+  // Elevens rekord: längsta svit i tidigare mängdträning.
+  useEffect(() => {
+    if (!user) return;
+    void supabase.from("procent_attempts").select("streak").eq("user_id", user.id).eq("mode", "mangd")
+      .not("streak", "is", null).order("streak", { ascending: false }).limit(1)
+      .then(({ data }) => {
+        const best = data?.[0]?.streak ?? 0;
+        startRecord.current = Math.max(startRecord.current, best);
+        setRecord((r) => Math.max(r, best));
+      });
+  }, [user]);
 
-  const focus = () => setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
-  const fresh = (m = mode, l = level) => {
-    if (m === "triangel") setTri((prev) => { let t = generateTriangle(); for (let i = 0; i < 5 && t.text === prev.text; i++) t = generateTriangle(); return t; });
-    else setChg(generateChange(l as ChangeLevel));
-    setStep("factor"); setModels(false); setTip(false); setAnswer(""); setResult(null); missed.current = false; usedHint.current = false; focus();
+  const focusInput = () => setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
+  const fresh = (f: Focus, t: number) => {
+    window.clearTimeout(timer.current);
+    setTask((prev) => generateDrill(f, t, Math.random, prev));
+    setAnswer(""); setResult(null); setNotice(""); setTip(false); usedHint.current = false; focusInput();
   };
-  const choose = (m: Mode, l: number) => { setMode(m); setLevel(l); setCompleted(0); fresh(m, l); };
+  const choose = (f: Focus) => { setFocus(f); fresh(f, tier); };
 
-  const done = !!result?.correct && (mode === "triangel" || step === "value");
   const check = () => {
-    if (!answer.trim() || result?.correct) return;
-    const r = mode === "triangel" ? checkTriangle(tri, answer) : step === "factor" ? checkFactor(chg, answer) : checkNewValue(chg, answer);
-    setResult(r);
+    if (!answer.trim() || result) return;
+    if (parseNumber(answer) === null) { setNotice("Skriv ett tal, t.ex. 25 eller 12,5."); return; }
+    const r = checkTriangle(task, answer);
+    const p = advance(prog, r.correct);
+    setResult(r); setProg(p); setLost(r.correct ? 0 : prog.streak);
     sound.play(r.correct);
-    const finished = r.correct && (mode === "triangel" || step === "value");
-    // Logga tyst för lärarens statistik: varje fel svar och varje färdig uppgift. Fel stör aldrig övningen.
-    if (user && (finished || !r.correct)) {
+    if (p.streak > record) setRecord(p.streak);
+    if (p.streak > startRecord.current && p.streak >= 3) setNewRecord(true);
+    if (!r.correct) setNewRecord(false);
+    if (user) {
       void supabase.from("procent_attempts").insert({
-        user_id: user.id, session_id: sessionId.current, mode, level,
-        task_kind: mode === "triangel" ? tri.kind : chg.percent > 0 ? "okning" : "minskning",
-        hint_used: mode === "triangel" && usedHint.current, is_correct: finished,
+        user_id: user.id, session_id: sessionId.current, mode: "mangd", level: tier,
+        task_kind: task.kind, hint_used: usedHint.current, is_correct: r.correct, streak: p.streak,
       }).then(() => {});
     }
-    if (!r.correct) { missed.current = true; setScore((s) => ({ ...s, total: s.total + 1, streak: 0 })); return; }
-    if (finished) {
-      setScore((s) => ({ right: s.right + (missed.current ? 0 : 1), total: s.total + (missed.current ? 0 : 1), streak: missed.current ? 0 : s.streak + 1 }));
-    }
-  };
-  const next = () => {
-    if (mode === "faktor" && step === "factor" && result?.correct) { setStep("value"); setAnswer(""); setResult(null); setTip(false); focus(); return; }
-    if (!done) setScore((s) => ({ ...s, streak: 0 }));
-    setCompleted((c) => c + 1);
-    fresh();
+    if (r.correct) { const t = tierOf(p.xp); timer.current = window.setTimeout(() => fresh(focus, t), NEXT_DELAY); }
   };
 
-  const support = level as Support;
-  const showModels = mode === "triangel" && (support === 0 || (support === 1 && models));
-  const prompt = mode === "triangel"
-    ? tri.kind === "andel" ? "Sök andelen" : tri.kind === "delen" ? "Sök delen" : "Sök det hela"
-    : step === "factor" ? "Steg 1 · Förändringsfaktorn" : "Steg 2 · Det nya värdet";
-  const label = mode === "triangel" ? (tri.kind === "andel" ? "Svar (%)" : `Svar (${tri.unit})`) : step === "factor" ? "Förändringsfaktor" : `Nytt värde (${chg.unit})`;
-  const placeholder = mode === "triangel"
-    ? (tri.kind === "andel" ? "t.ex. 35" : "t.ex. 120")
-    : step === "factor" ? "t.ex. 1,25 eller 0,8" : "t.ex. 960";
-  const question = mode === "triangel" ? tri.question : step === "factor" ? "Vilken är förändringsfaktorn?" : "Vad blir det nya värdet?";
-  const roundPos = completed % ROUND;
-  const toggleTip = () => { if (!tip && mode === "triangel") usedHint.current = true; setTip(!tip); };
-
-  const settings = (
-    <>
-      <OptionGroup label="Övning">
-        {MODES.map((m) => (
-          <Option key={m.id} active={mode === m.id} onClick={() => choose(m.id, 0)}>
-            <span className="block font-semibold">{m.title}</span>
-            <span className="block text-xs opacity-80">{m.blurb}</span>
-          </Option>
-        ))}
-      </OptionGroup>
-      <OptionGroup label="Nivå · välj fritt">
-        {LEVELS[mode].map((l, i) => (
-          <Option key={i} active={level === i} onClick={() => choose(mode, i)} title={l.example}>
-            <span className="font-bold">{i + 1}</span> {l.name}
-          </Option>
-        ))}
-      </OptionGroup>
-    </>
-  );
+  const top = tier === DRILL_TIERS - 1;
+  const stepValue = top ? TIER_STEP : prog.xp % TIER_STEP;
+  const label = task.kind === "andel" ? "Svar i procent" : "Svar";
 
   return (
-    <ExerciseShell title="Procent" current={`${MODES.find((m) => m.id === mode)!.title} · Nivå ${level + 1}`}
-      progress={{ value: roundPos, total: ROUND }} sound={sound} settings={settings} showRobot={!tip}>
-      <section className="exercise-card rounded-[1.75rem] p-5 sm:p-8">
+    <ExerciseShell title="Procent · Mängdträning" progress={{ value: stepValue, total: TIER_STEP, showLabel: false }} sound={sound} showRobot={!tip}>
+      <section className="exercise-card rounded-[1.75rem] p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
-          <span className="uppercase tracking-widest">{prompt}</span>
+          <span className="uppercase tracking-widest">Steg {tier + 1} av {DRILL_TIERS} · {FOCUS_LABEL[focus]}</span>
           <span className="flex items-center gap-3">
-            <span>{score.right} rätt</span>
-            {score.streak > 1 && <span className="flex items-center gap-1 text-coral"><Flame className="h-4 w-4" />{score.streak}</span>}
+            <span className="flex items-center gap-1 text-coral" title="Rätt i rad"><Flame className="h-4 w-4" />{prog.streak} i rad</span>
+            <span className="flex items-center gap-1" title="Ditt rekord"><Trophy className="h-4 w-4" />{record}</span>
           </span>
         </div>
 
-        <div key={mode === "triangel" ? tri.text : chg.text + step} className="exercise-rise mt-4 space-y-2">
-          <p className="text-lg leading-relaxed text-foreground sm:text-xl">{highlightNumbers(mode === "triangel" ? tri.text : chg.text)}</p>
-          <p className="font-orbitron text-2xl font-bold leading-tight text-foreground sm:text-3xl">{question}</p>
-        </div>
+        <div className="mt-3 grid items-center gap-4 sm:grid-cols-2 sm:gap-6">
+          <PercentTriangle task={task} marked={drillMarked(tier)} showDecimal={drillShowsDecimal(tier)} solved={!!result} focus={focus} onFocus={choose} />
 
-        {mode === "triangel" && support === 1 && (
-          <Button type="button" variant="outline" size="sm" className="mt-4 gap-2"
-            onClick={() => { if (!models) usedHint.current = true; setModels(!models); }}>
-            {models ? <><EyeOff className="h-4 w-4" /> Dölj modellerna</> : <><Eye className="h-4 w-4" /> Visa stapel och triangel</>}
-          </Button>
-        )}
-        {showModels && (
-          <div className="exercise-rise mt-5 grid items-center gap-4 sm:grid-cols-2">
-            <BarModel task={tri} solved={!!result?.correct} />
-            <PercentTriangle task={tri} marked solved={!!result?.correct} />
-          </div>
-        )}
-        {mode === "faktor" && <div className="mt-5"><ChangeBar task={chg} factorKnown={step === "value"} valueKnown={done} /></div>}
+          <div className="space-y-3">
+            <p key={task.question} className="exercise-rise font-orbitron text-2xl font-bold leading-tight text-foreground sm:text-3xl">{task.question}</p>
 
-        <form onSubmit={(e) => { e.preventDefault(); if (result?.correct) next(); else check(); }} className="mt-4 space-y-2">
-          {result && (
-            result.correct ? (
-              <div role="status" className="exercise-rise flex items-center gap-3 rounded-2xl border-2 border-[hsl(var(--survey-good))] bg-[hsl(var(--survey-good)/0.12)] px-4 py-2 shadow-lg">
-                <span className="animate-answer-correct flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--survey-good))] text-background"><Check className="h-6 w-6" strokeWidth={3} /></span>
-                <div className="min-w-0">
-                  <p className="animate-answer-correct font-orbitron text-2xl font-black leading-none tracking-wide text-[hsl(var(--survey-good))]">RÄTT!</p>
-                  {mode === "triangel" ? <p className="mt-1 text-sm font-semibold text-foreground">{rightLine(tri)}</p>
-                    : <p className="mt-1 text-sm text-foreground">{result.message}{step === "factor" && " Räkna nu ut det nya värdet."}</p>}
+            <form onSubmit={(e) => { e.preventDefault(); if (result) fresh(focus, tier); else check(); }} className="space-y-2">
+              {result && (result.correct ? (
+                <div role="status" className="exercise-rise flex items-center gap-3 rounded-2xl border-2 border-[hsl(var(--survey-good))] bg-[hsl(var(--survey-good)/0.12)] px-4 py-2 shadow-lg">
+                  <span className="animate-answer-correct flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--survey-good))] text-background"><Check className="h-6 w-6" strokeWidth={3} /></span>
+                  <div className="min-w-0">
+                    <p className="animate-answer-correct font-orbitron text-2xl font-black leading-none tracking-wide text-[hsl(var(--survey-good))]">RÄTT!</p>
+                    <p className="mt-1 text-sm font-semibold text-foreground">
+                      {newRecord ? `Nytt rekord – ${prog.streak} i rad!` : prog.streak > 1 ? `${prog.streak} i rad` : "Bra!"}
+                    </p>
+                  </div>
                 </div>
+              ) : (
+                <Feedback key={result.message} correct={false} title={lost >= 2 ? `Sviten stannade på ${lost}` : undefined}>
+                  <p className="text-sm">{result.message}</p>
+                  <p className="mt-1 text-sm font-semibold">{explainTriangle(task)}</p>
+                </Feedback>
+              ))}
+              {notice && !result && <p role="status" className="text-sm font-semibold text-coral">{notice}</p>}
+              <label htmlFor="procent-answer" className="sr-only">{label}</label>
+              <div className="flex items-stretch gap-2">
+                <input id="procent-answer" ref={inputRef} value={answer} autoFocus
+                  onChange={(e) => { setAnswer(e.target.value); setNotice(""); }}
+                  autoComplete="off" autoCapitalize="off" spellCheck={false} inputMode="decimal" enterKeyHint="done"
+                  placeholder={task.kind === "andel" ? "t.ex. 25" : "Ditt svar"} readOnly={!!result} aria-label={label}
+                  className="min-w-0 flex-1 rounded-2xl border-2 border-input bg-background px-3 py-1.5 font-orbitron text-xl text-foreground outline-none transition-colors placeholder:text-sm placeholder:text-muted-foreground/60 focus:border-primary" />
+                <Button type="submit" disabled={!answer.trim() && !result} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
+                  {result ? <>Nästa <ArrowRight className="h-4 w-4" /></> : <>Svara <Check className="h-4 w-4" /></>}
+                </Button>
               </div>
-            ) : (
-              <Feedback key={result.message} correct={false}><p className="text-sm">{result.message} {!tip && "Ta gärna hjälp av tipset nedan."}</p></Feedback>
-            )
-          )}
-          <label htmlFor="procent-answer" className="sr-only">{label}</label>
-          <div className="flex items-stretch gap-2">
-            <input id="procent-answer" ref={inputRef} value={answer}
-              onChange={(e) => { setAnswer(e.target.value); if (result && !result.correct) setResult(null); }}
-              autoComplete="off" autoCapitalize="off" spellCheck={false} inputMode="decimal" enterKeyHint="done" placeholder={placeholder || label}
-              readOnly={!!result?.correct} aria-label={label}
-              className="min-w-0 flex-1 rounded-2xl border-2 border-input bg-background px-3 py-1.5 font-orbitron text-xl text-foreground outline-none transition-colors placeholder:text-sm placeholder:text-muted-foreground/60 focus:border-primary" />
-            <Button type="submit" disabled={!answer.trim() && !result?.correct} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
-              {done ? <>Nästa <ArrowRight className="h-4 w-4" /></>
-                : result?.correct ? <>Steg 2 <ArrowRight className="h-4 w-4" /></>
-                : <>Kontrollera <Check className="h-4 w-4" /></>}
-            </Button>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <HintToggle open={tip} onToggle={() => { if (!tip) usedHint.current = true; setTip(!tip); }}>{drillTip(task)}</HintToggle>
+                <span className="pt-1 text-xs text-muted-foreground">Komma eller punkt går bra.</span>
+              </div>
+            </form>
           </div>
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <HintToggle open={tip} onToggle={toggleTip}>{mode === "triangel" ? triangleTip(tri) : changeTip(chg, step)}</HintToggle>
-            <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              Komma eller punkt går bra.
-              {!result?.correct && (
-                <button type="button" onClick={next} className="rounded-full px-2 py-1 text-sm font-semibold transition-colors hover:bg-secondary hover:text-foreground">
-                  Hoppa över →
-                </button>
-              )}
-            </span>
-          </div>
-        </form>
+        </div>
       </section>
     </ExerciseShell>
   );

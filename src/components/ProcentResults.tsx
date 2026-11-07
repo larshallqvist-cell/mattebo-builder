@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { buildStats, pct, type Attempt, type LevelStatus } from "@/lib/algebraStats";
 
 export const PROCENT_MODES = [
-  { id: "triangel", title: "Procenttriangeln", levels: ["Markerad", "Ledtråd", "Utan"] },
+  { id: "mangd", title: "Mängdträning", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "triangel", title: "Procenttriangeln (äldre)", levels: ["Markerad", "Ledtråd", "Utan"] },
   { id: "faktor", title: "Förändringsfaktor", levels: ["Ökning", "Minskning", "Blandat"] },
 ] as const;
 
@@ -21,17 +22,17 @@ const fmt = (iso: string) => new Date(iso).toLocaleString("sv-SE", { day: "numer
 
 /** Läraröversikt för Procent. Bara admin läser alla rader (RLS). */
 export default function ProcentResults() {
-  const [rows, setRows] = useState<Attempt[]>([]);
+  const [rows, setRows] = useState<(Attempt & { streak: number | null })[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
-  const [mode, setMode] = useState<"triangel" | "faktor">("triangel");
+  const [mode, setMode] = useState<(typeof PROCENT_MODES)[number]["id"]>("mangd");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const load = async () => {
     setLoading(true); setError(false);
-    const all: Attempt[] = [];
+    const all: (Attempt & { streak: number | null })[] = [];
     for (let from = 0; ; from += 1000) {
-      const r = await supabase.from("procent_attempts").select("user_id,session_id,mode,level,is_correct,created_at").order("created_at", { ascending: false }).range(from, from + 999);
+      const r = await supabase.from("procent_attempts").select("user_id,session_id,mode,level,is_correct,created_at,streak").order("created_at", { ascending: false }).range(from, from + 999);
       if (r.error) { setError(true); setLoading(false); return; }
       all.push(...(r.data ?? []));
       if ((r.data?.length ?? 0) < 1000) break;
@@ -44,6 +45,9 @@ export default function ProcentResults() {
 
   const meta = PROCENT_MODES.find((m) => m.id === mode)!;
   const stats = buildStats(rows, mode);
+  const best: Record<string, number> = {};
+  for (const r of rows) if (r.mode === "mangd" && r.streak != null) best[r.user_id] = Math.max(best[r.user_id] ?? 0, r.streak);
+  const drill = mode === "mangd";
   return (
     <div className="space-y-4 p-5">
       <div className="flex flex-wrap items-center gap-2">
@@ -53,7 +57,7 @@ export default function ProcentResults() {
         <Button variant="ghost" size="icon" onClick={() => void load()} disabled={loading} aria-label="Hämta resultat"><RefreshCw className="h-4 w-4" /></Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Nivårutor: <span className="text-accent">grön</span> = bemästrad (minst 5 svar, ≥ 80 %), gul = övar (50–79 %), röd = svårt (&lt; 50 %), grå = ej testad. Varje fel svar och varje färdig uppgift räknas.
+        Nivårutor: <span className="text-accent">grön</span> = bemästrad (minst 5 svar, ≥ 80 %), gul = övar (50–79 %), röd = svårt (&lt; 50 %), grå = ej testad. {drill ? "I mängdträningen räknas varje svar; steget stiger med rätt svar och backar lite vid fel." : "Varje fel svar och varje färdig uppgift räknas."}
       </p>
       {error ? <p className="text-sm text-destructive">Kunde inte hämta resultaten.</p>
         : loading ? <p className="text-sm text-muted-foreground">Laddar…</p>
@@ -61,7 +65,7 @@ export default function ProcentResults() {
         : (
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Elev</TableHead><TableHead>Senaste pass</TableHead><TableHead>Totalt</TableHead><TableHead>Nivåer</TableHead>
+              <TableHead>Elev</TableHead><TableHead>Senaste pass</TableHead><TableHead>Totalt</TableHead>{drill && <TableHead>Bästa svit</TableHead>}<TableHead>Nivåer</TableHead>
             </TableRow></TableHeader>
             <TableBody>
               {stats.map((s) => (
@@ -69,6 +73,7 @@ export default function ProcentResults() {
                   <TableCell className="font-medium">{names[s.userId] ?? "Elev"}<div className="text-xs text-muted-foreground">{fmt(s.lastAt)}</div></TableCell>
                   <TableCell>{pct(s.last.right, s.last.total)} % <span className="text-xs text-muted-foreground">({s.last.right}/{s.last.total})</span></TableCell>
                   <TableCell>{pct(s.right, s.total)} % <span className="text-xs text-muted-foreground">({s.total} svar)</span></TableCell>
+                  {drill && <TableCell className="font-semibold">{best[s.userId] ?? 0} i rad</TableCell>}
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {meta.levels.map((name, i) => {
