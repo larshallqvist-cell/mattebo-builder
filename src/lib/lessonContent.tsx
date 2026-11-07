@@ -187,7 +187,7 @@ const renderInlineHtml = (html: string, keyPrefix = "h"): (string | JSX.Element)
     const inner = match[2];
     if (color) {
       result.push(
-        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }}>
+        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }} data-color={match[1].trim().toLowerCase()}>
           {renderInlineHtml(inner, `${keyPrefix}-c${keyIndex}`)}
         </span>,
       );
@@ -260,7 +260,7 @@ const renderPlainInline = (line: string, keyPrefix = "p"): (string | JSX.Element
     const inner = match[2];
     if (color) {
       result.push(
-        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }}>
+        <span key={`${keyPrefix}-c${keyIndex++}`} style={{ color }} data-color={match[1].trim().toLowerCase()}>
           {renderPlainInline(inner, `${keyPrefix}-c${keyIndex}`)}
         </span>,
       );
