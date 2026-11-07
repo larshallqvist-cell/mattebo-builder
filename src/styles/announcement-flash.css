@@ -23,6 +23,7 @@
   overflow-wrap: break-word;
 }
 .flash-body h3 {
+  color: inherit;
   font-size: 1.2em;
   line-height: 1.1;
   margin: 0 0 0.35em;
