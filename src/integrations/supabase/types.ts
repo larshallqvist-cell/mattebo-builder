@@ -520,6 +520,33 @@ export type Database = {
         }
         Relationships: []
       }
+      section_presentations: {
+        Row: {
+          chapter: number
+          file_name: string
+          file_path: string
+          grade: number
+          section: number
+          updated_at: string
+        }
+        Insert: {
+          chapter: number
+          file_name: string
+          file_path: string
+          grade: number
+          section: number
+          updated_at?: string
+        }
+        Update: {
+          chapter?: number
+          file_name?: string
+          file_path?: string
+          grade?: number
+          section?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       self_assessment_questions: {
         Row: {
           chapter: number
