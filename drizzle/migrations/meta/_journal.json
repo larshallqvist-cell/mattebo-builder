@@ -169,6 +169,13 @@
       "when": 1793813736172,
       "tag": "0023_class_presentations",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794056059332,
+      "tag": "0024_procent_drill_mode",
+      "breakpoints": true
     }
   ]
 }
