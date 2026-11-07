@@ -40,18 +40,18 @@ const AnnouncementFlash = ({ grade }: { grade: number }) => {
       aria-label="Anslag"
     >
       <div
-        data-size={announcement.size} className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4 shadow-2xl animate-in zoom-in-95 duration-300"
+        data-size={announcement.size} data-grade={grade} className="flash-card relative flex flex-col overflow-hidden rounded-[1.75rem] px-4 pb-5 pt-4 shadow-2xl animate-in zoom-in-95 duration-300"
         lang="sv"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={() => setVisible(false)}
           aria-label="Stäng"
-          className="absolute right-3 top-3 z-10 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="flash-close absolute right-3 top-3 z-10 rounded-full p-2 transition-colors"
         >
           <X className="h-6 w-6" />
         </button>
-        <div className="flex items-center gap-2 pr-10 text-accent">
+        <div className="flash-kicker flex items-center gap-2 pr-10">
           <Megaphone className="h-6 w-6 shrink-0" />
           <span className="font-body text-base font-semibold uppercase tracking-widest">Åk {grade}</span>
         </div>

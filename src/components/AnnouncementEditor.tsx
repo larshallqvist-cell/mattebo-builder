@@ -98,7 +98,7 @@ const AnnouncementEditor = () => {
         {expires && <Button size="sm" variant="ghost" onClick={() => setExpires("")}>Inget slutdatum</Button>}
       </div>
       {draft.trim() && (
-        <div data-size={size} className="flash-card mx-auto rounded-[1.75rem] border border-accent/40 bg-card px-4 pb-5 pt-4" lang="sv">
+        <div data-size={size} data-grade={grade} className="flash-card mx-auto rounded-[1.75rem] px-4 pb-5 pt-4" lang="sv">
           <div className="flash-body flex flex-1 flex-col justify-center py-4 text-center font-bold">
             {parseLessonContent(sanitizeLessonText(draft))}
           </div>
