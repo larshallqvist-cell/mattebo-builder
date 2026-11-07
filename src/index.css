@@ -252,6 +252,12 @@
     text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
   }
 
+  /* The headline column keeps a fixed width, so the small GIF box that sits
+     beside it never slides sideways when a chapter title is longer or shorter. */
+  .header-headline {
+    width: min(24rem, 44vw);
+  }
+
   /* Big grade headline in the class-page header */
   .grade-hero {
     display: block;
@@ -293,6 +299,14 @@
   @media (min-width: 640px) {
     .school-name {
       font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+    }
+  }
+
+  /* On narrow windows the header has to hold the wordmark, the GIF box and the
+     chapter title side by side, so the wordmark steps back there. */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .school-name {
+      font-size: 0.8rem;
     }
   }
 }

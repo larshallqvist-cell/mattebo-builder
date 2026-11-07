@@ -48,7 +48,7 @@ export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps &
         <button
           type="button"
           title="Byt kapitel"
-          className="group mx-auto mt-1 inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 font-sora text-xs font-bold leading-tight text-foreground transition-colors hover:bg-primary/20 sm:mt-1.5 sm:gap-1.5 sm:px-3 sm:text-lg"
+          className="group mx-auto mt-1 inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 font-sora text-xs font-bold leading-tight text-foreground transition-colors hover:bg-primary/20 sm:mt-1.5 sm:gap-1.5 sm:px-3 sm:text-base lg:text-lg"
         >
           <span className="truncate">
             <span className="sm:hidden">Kap {number}</span>
