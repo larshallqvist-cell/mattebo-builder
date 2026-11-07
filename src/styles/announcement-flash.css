@@ -37,10 +37,21 @@
   margin-bottom: 0;
 }
 
-/* Länkar i samma storlek som resten av texten (rendern sätter en fast liten storlek). */
+/* Länkar i samma storlek och färg som resten av texten.
+   (Rendern sätter en fast liten storlek och en blå nyans – här ärvs anslagets egen färg.) */
 .flash-body a {
   font-size: 1em;
   line-height: 1.16;
+  color: inherit;
+  border-color: currentColor;
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
+  background-color: transparent;
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+/* Högre specificitet än Tailwinds hover-utilityn, så svävarbetet följer samma färg. */
+.flash-card .flash-body a:hover {
+  background-color: color-mix(in srgb, currentColor 24%, transparent);
+  border-color: currentColor;
 }
 
 /* Standardfärg vit; {färg}-taggar i texten skriver över. */
