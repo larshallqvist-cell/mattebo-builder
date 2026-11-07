@@ -183,6 +183,13 @@
       "when": 1794056969603,
       "tag": "0025_procent_factor_drill",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794057862901,
+      "tag": "0026_header_gif_approved_read",
+      "breakpoints": true
     }
   ]
 }
