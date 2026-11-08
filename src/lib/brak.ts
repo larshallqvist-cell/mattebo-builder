@@ -179,7 +179,7 @@ function genAddSub(tier: number, rnd: Rnd): BrakTask {
 function genMult(tier: number, rnd: Rnd): BrakTask {
   if (tier === 0) { const f = properFrac(rnd, pick(rnd, [2, 3, 4, 5, 6])); const k = int(rnd, 2, 5); return task("mult", "heltal-ggr", [`Beräkna ${k} · `, F(f), "."], mul({ n: k, d: 1 }, f), { kind: "any" }, [f]); }
   let [a, b] = twoFracs(Math.min(tier, 2) + (tier >= 4 ? 2 : 0), rnd);
-  if (tier === 2) { const k = pick(rnd, [2, 3]); b = { n: a.d, d: b.d * k }; b = reduce(b.n < b.d ? b : { n: b.d - 1, d: b.d }); } // kryssförkortning
+  if (tier === 2) b = reduce({ n: a.d, d: a.d + int(rnd, 1, 4) }); // går att kryssförkorta
   const mixed = tier >= 3;
   if (mixed) a = withWhole(rnd, a, 2);
   if (tier >= 5 && rnd() < 0.5) b = withWhole(rnd, b, 2);
@@ -188,7 +188,7 @@ function genMult(tier: number, rnd: Rnd): BrakTask {
 
 function genDiv(tier: number, rnd: Rnd): BrakTask {
   if (tier === 0) { const f = properFrac(rnd, pick(rnd, [2, 3, 4, 5])); const k = int(rnd, 2, 4); return task("div", "brak-delat-heltal", ["Beräkna ", F(f), ` / ${k}.`], div(f, { n: k, d: 1 }), { kind: "any" }, [f]); }
-  if (tier === 1) { const f = { n: 1, d: pick(rnd, [2, 3, 4, 5]) }; const k = int(rnd, 1, 4); return task("div", "heltal-delat-brak", [`Hur många `, F(f), ` går det på ${k}? Beräkna ${k} / `, F(f), "."], div({ n: k, d: 1 }, f), { kind: "any" }, [f]); }
+  if (tier === 1) { const f = { n: 1, d: pick(rnd, [2, 3, 4, 5]) }; const k = int(rnd, 1, 4); return task("div", "heltal-delat-brak", [`Beräkna ${k} / `, F(f), "."], div({ n: k, d: 1 }, f), { kind: "any" }, [f]); }
   let [a, b] = twoFracs(tier >= 4 ? 4 : 2, rnd);
   const mixed = tier >= 3;
   if (mixed) a = withWhole(rnd, a, tier >= 5 ? 4 : 2);
