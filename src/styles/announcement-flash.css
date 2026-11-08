@@ -5,7 +5,7 @@
   width: min(clamp(10cm, 40vw, 15cm), calc(100vw - 2rem));
   min-height: min(7cm, calc(100dvh - 2rem));
   max-height: calc(100dvh - 2rem);
-  font-size: clamp(0.9cm, 3.6vw, 1.35cm);
+  font-size: clamp(0.65cm, 2.6vw, 0.95cm);
   font-family: "Sora", system-ui, sans-serif;
 }
 
@@ -87,4 +87,4 @@
   font-weight: 600;
   line-height: 1.3;
 }
-.flash-card[data-size="large"] { font-size: clamp(1.15cm, 4.6vw, 1.8cm); }
+.flash-card[data-size="large"] { font-size: clamp(0.9cm, 3.6vw, 1.35cm); }
