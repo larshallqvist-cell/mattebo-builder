@@ -7,7 +7,7 @@ const SHOW_MS = 4500;
 /** Var munnen sitter i varje porträtt (andel av höjden), så käken klipps vid läpparna. */
 const JAW: Record<string, number> = {
   benjamin: 66, bieber: 75, carola: 74, kungen: 75, messi: 72, mrbeast: 68, pernilla: 67,
-  ronaldo: 72, taylor: 72, therock: 68, zlatan: 76, magdalena: 70,
+  ronaldo: 69, taylor: 72, therock: 68, zlatan: 76, magdalena: 70,
 };
 
 /** Kändis som glider in med pratbubbla och Monty Python-käke (porträttet klipps i två delar). */
