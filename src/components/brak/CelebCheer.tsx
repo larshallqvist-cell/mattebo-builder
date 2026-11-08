@@ -6,8 +6,8 @@ export type Cheer = { key: number; id: string; text: string };
 const SHOW_MS = 4500;
 /** Var munnen sitter i varje porträtt (andel av höjden), så käken klipps vid läpparna. */
 const JAW: Record<string, number> = {
-  benjamin: 66, bieber: 75, carola: 74, kungen: 75, messi: 72, mrbeast: 68, pernilla: 67,
-  ronaldo: 69, taylor: 72, therock: 68, zlatan: 76, magdalena: 70,
+  benjamin: 66, bieber: 77, carola: 80, kungen: 66, messi: 67, mrbeast: 68, pernilla: 63,
+  ronaldo: 58, taylor: 63, therock: 72, zlatan: 65, magdalena: 67,
 };
 
 /** Kändis som glider in med pratbubbla och Monty Python-käke (porträttet klipps i två delar). */

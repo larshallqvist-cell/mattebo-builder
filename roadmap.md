@@ -17,3 +17,5 @@
 - [x] Genomgångar per klass: ladda upp HTML-bildspel (eller Slides-länk) via pennan vid "Åk"
 - [x] Genomgångar per delkapitel: "Åk" öppnar det markerade delkapitlets bildspel, flera filer laddas upp på en gång (kap 2 inlagt för Åk 6–9)
 - [x] Måluppfyllelse från självskattningen: staplar per klass, delkapitel och elev (Admin + Elevkort)
+- [x] Bråkträning: svarsrutor (heltal + täljare/nämnare), stegförklaring för add/sub
+- [x] Bråkträning: kändisberöm med pratbubbla vid 5/10/20 i rad, nytt steg, nytt rekord
