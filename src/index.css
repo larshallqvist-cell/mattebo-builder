@@ -678,3 +678,14 @@ body::after {
   .assessment-pulse { animation: none; background-color: hsl(var(--attention) / 0.35); }
   .assessment-pulse::after { animation: none; opacity: 0; }
 }
+
+/* Kändisberöm i Bråkträningen: Monty Python-käke */
+@keyframes celeb-in { 0% { transform: translateX(130%) rotate(12deg); } 60% { transform: translateX(-4%) rotate(-3deg); } 100% { transform: none; } }
+@keyframes celeb-out { to { transform: translateX(130%) rotate(10deg); } }
+@keyframes celeb-chomp { 0%, 45% { transform: translateY(0); } 55%, 100% { transform: translateY(8%); } }
+@keyframes celeb-pop { from { opacity: 0; transform: scale(0.6) translateY(10px); } to { opacity: 1; transform: none; } }
+.celeb-cheer { animation: celeb-in 0.55s cubic-bezier(.2,.9,.3,1.2) both, celeb-out 0.4s ease-in 4.1s forwards; }
+.celeb-bubble { animation: celeb-pop 0.3s 0.4s ease-out both; }
+.celeb-top { clip-path: inset(0 0 calc(100% - var(--jaw)) 0); }
+.celeb-jaw { clip-path: inset(var(--jaw) 14% 3% 14% round 0 0 45% 45%); animation: celeb-chomp 0.18s linear 0.5s 14 alternate; }
+@media (prefers-reduced-motion: reduce) { .celeb-cheer, .celeb-bubble, .celeb-jaw { animation: none; } }
