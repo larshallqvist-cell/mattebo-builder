@@ -209,8 +209,33 @@ export function generateBrak(focus: Focus, tier: number, rnd: Rnd = Math.random,
   return GEN[focus === "mix" ? "form" : focus](t, rnd);
 }
 
+/** Svarsrutorna (heltal, täljare, nämnare) som text som checkBrak förstår; null om rutorna är ofullständiga. */
+export function composeBrakAnswer(whole: string, num: string, den: string): string | null {
+  const w = whole.trim(), n = num.trim(), d = den.trim();
+  if (!n && !d) return w || null;
+  if (!n || !d) return null;
+  return w ? `${w} ${n}/${d}` : `${n}/${d}`;
+}
+
+/** Steg för addition/subtraktion: MGN, förlängning, räkna täljarna, förkorta. */
+export function addSubSteps(t: BrakTask): string[] {
+  const [a, b] = t.pictures;
+  if (!a || !b) return [];
+  const m = lcm(a.d, b.d), plus = t.kind === "add";
+  const an = a.n * (m / a.d), bn = b.n * (m / b.d), r = plus ? an + bn : an - bn;
+  const steps = [
+    `MGN för ${a.d} och ${b.d} är ${m}.`,
+    `Förläng: ${a.n}/${a.d} = ${an}/${m} och ${b.n}/${b.d} = ${bn}/${m}.`,
+    `${plus ? "Addera" : "Subtrahera"} täljarna: (${an} ${plus ? "+" : "−"} ${bn})/${m} = ${r}/${m}.`,
+  ];
+  const final = fmtFrac(t.answer, t.expect.kind === "mixed");
+  if (final !== `${r}/${m}`) steps.push(`Förkorta${t.expect.kind === "mixed" ? " och skriv i blandad form" : ""} → ${final}.`);
+  return steps;
+}
+
 export function explainBrak(t: BrakTask): string {
   const a = t.answer;
+  if ((t.kind === "add" || t.kind === "sub") && t.pictures.length === 2) return addSubSteps(t).join(" ");
   switch (t.kind) {
     case "till-blandad": return `${Math.abs(a.n)} / ${a.d} = ${Math.floor(Math.abs(a.n) / a.d)} hela och ${Math.abs(a.n) % a.d} kvar → ${fmtFrac(a, true)}.`;
     case "till-brakform": return `Hela · nämnaren + täljaren: ${Math.floor(a.n / a.d)} · ${a.d} + ${a.n % a.d} = ${a.n} → ${fmtFrac(a)}.`;
