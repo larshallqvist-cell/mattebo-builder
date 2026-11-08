@@ -32,7 +32,9 @@ const BrakTraning = () => {
   const [prog, setProg] = useState(() => loadProg(focus));
   const tier = tierOf(prog.xp);
   const [task, setTask] = useState(() => generateBrak(focus, tier));
-  const [answer, setAnswer] = useState("");
+  const [parts, setParts] = useState<[string, string, string]>(["", "", ""]);
+  const numRef = useRef<HTMLInputElement>(null);
+  const denRef = useRef<HTMLInputElement>(null);
   const [notice, setNotice] = useState("");
   const [result, setResult] = useState<(CheckResult & { points: number; warning: boolean }) | null>(null);
   const [lost, setLost] = useState(0);
@@ -61,14 +63,15 @@ const BrakTraning = () => {
   const fresh = (f: Focus, t: number) => {
     window.clearTimeout(timer.current);
     setTask((prev) => generateBrak(f, t, Math.random, prev));
-    setAnswer(""); setResult(null); setNotice(""); setTip(false); usedHint.current = false; usedCalc.current = false; focusInput();
+    setParts(["", "", ""]); setResult(null); setNotice(""); setTip(false); usedHint.current = false; usedCalc.current = false; focusInput();
   };
   const choose = (f: Focus) => { const p = loadProg(f); setFocus(f); setProg(p); fresh(f, tierOf(p.xp)); };
 
   const check = () => {
-    if (!answer.trim() || result) return;
+    if (result) return;
+    if (!answer) { setNotice(parts[1] || parts[2] ? "Fyll i både täljare och nämnare." : "Skriv ditt svar i rutorna."); return; }
     const r = checkBrak(task, answer);
-    if (!r) { setNotice("Skriv t.ex. 3/4, 1 3/4 eller 12."); return; }
+    if (!r) { setNotice("Skriv bara siffror i rutorna."); return; }
     const s = r.correct ? scoreAnswer(tier, r.unsimplified, warnings, usedCalc.current) : { points: 0, warning: false };
     if (s.warning) setWarnings((w) => w + 1);
     const p = advance(prog, r.correct, s.points);
@@ -85,6 +88,19 @@ const BrakTraning = () => {
     if (r.correct && !r.unsimplified) timer.current = window.setTimeout(() => fresh(focus, tierOf(p.xp)), NEXT_DELAY);
   };
 
+  const refs = [inputRef, numRef, denRef];
+  const box = (i: 0 | 1 | 2, ref: React.RefObject<HTMLInputElement>, label: string, size: string) => (
+    <input ref={ref} value={parts[i]} autoFocus={i === 0} aria-label={label} placeholder={i === 0 && task.expect.kind !== "integer" ? "" : undefined}
+      readOnly={!!result} autoComplete="off" inputMode="numeric" enterKeyHint={i === 2 || task.expect.kind === "integer" ? "done" : "next"}
+      onChange={(e) => { const v = e.target.value.replace(/[^\d-]/g, "").slice(0, 4); setParts((p) => { const q = [...p] as typeof p; q[i] = v; return q; }); setNotice(""); }}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight" && i === 0) refs[1].current?.focus();
+        else if (e.key === "ArrowDown" && i === 1) refs[2].current?.focus();
+        else if (e.key === "ArrowUp" && i === 2) refs[1].current?.focus();
+        else if (e.key === "ArrowLeft" && i > 0) refs[0].current?.focus();
+      }}
+      className={cn(size, "rounded-xl border-2 border-input bg-background text-center font-orbitron text-xl text-foreground outline-none transition-colors focus:border-primary")} />
+  );
   const top = tier === TIERS - 1;
   const pics = showPictures(tier) && task.pictures.length > 0;
   const fmtP = (n: number) => n.toLocaleString("sv-SE");
@@ -153,17 +169,23 @@ const BrakTraning = () => {
                 ))}
                 {notice && !result && <p role="status" className="text-sm font-semibold text-coral">{notice}</p>}
                 <div className="flex items-stretch gap-2">
-                  <input ref={inputRef} value={answer} autoFocus onChange={(e) => { setAnswer(e.target.value); setNotice(""); }}
-                    autoComplete="off" autoCapitalize="off" spellCheck={false} inputMode="text" enterKeyHint="done"
-                    placeholder={placeholderBrak(task)} readOnly={!!result} aria-label="Svar"
-                    className="min-w-0 flex-1 rounded-2xl border-2 border-input bg-background px-3 py-1.5 font-orbitron text-xl text-foreground outline-none transition-colors placeholder:text-sm placeholder:text-muted-foreground/60 focus:border-primary" />
-                  <Button type="submit" disabled={!answer.trim() && !result} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
+                  <div className="flex flex-1 items-center justify-center gap-2">
+                    {box(0, inputRef, task.expect.kind === "integer" ? "Svar" : "Heltal", "h-14 w-16")}
+                    {task.expect.kind !== "integer" && (
+                      <div className="flex flex-col items-center gap-1">
+                        {box(1, numRef, "Täljare", "h-11 w-16")}
+                        <span className="h-0.5 w-16 rounded bg-foreground" aria-hidden />
+                        {box(2, denRef, "Nämnare", "h-11 w-16")}
+                      </div>
+                    )}
+                  </div>
+                  <Button type="submit" disabled={!answer && !result} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
                     {result ? <>Nästa <ArrowRight className="h-4 w-4" /></> : <>Svara <Check className="h-4 w-4" /></>}
                   </Button>
                 </div>
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <HintToggle open={tip} onToggle={() => { if (!tip) usedHint.current = true; setTip(!tip); }}>{tipBrak(task)}</HintToggle>
-                  <span className="pt-1 text-xs text-muted-foreground">Skriv bråk med snedstreck: 3/4. Blandad form: 1 3/4.</span>
+                  <span className="pt-1 text-xs text-muted-foreground">{task.expect.kind === "integer" ? "Skriv ett heltal." : "Lämna heltalsrutan tom om svaret inte har några hela."}</span>
                 </div>
               </form>
             </div>
