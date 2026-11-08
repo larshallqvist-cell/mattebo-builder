@@ -639,8 +639,8 @@ body::after {
 /* "Hur går det?" when the teacher asks for attention: glow, a playful hop-and-wiggle every few seconds,
    and a ring that ripples outwards. Calm (static glow) for reduced motion. */
 @keyframes assessment-glow {
-  0%, 100% { background-color: hsl(var(--accent) / 0.15); box-shadow: 0 0 0 0 hsl(var(--accent) / 0); }
-  50% { background-color: hsl(var(--accent) / 0.45); box-shadow: 0 0 18px 4px hsl(var(--accent) / 0.65); }
+  0%, 100% { background-color: hsl(var(--attention) / 0.15); box-shadow: 0 0 0 0 hsl(var(--attention) / 0); }
+  50% { background-color: hsl(var(--attention) / 0.45); box-shadow: 0 0 18px 4px hsl(var(--attention) / 0.65); }
 }
 @keyframes assessment-wiggle {
   0%, 62%, 100% { transform: none; }
@@ -657,10 +657,12 @@ body::after {
   100% { transform: scale(1.9, 2.4); opacity: 0; }
 }
 .assessment-pulse {
+  /* Light orange-red, used only for this attention effect. */
+  --attention: 14 100% 68%;
   position: relative;
   font-weight: 700;
   color: hsl(var(--foreground));
-  border-color: hsl(var(--accent));
+  border-color: hsl(var(--attention));
   animation: assessment-glow 1.6s ease-in-out infinite, assessment-wiggle 3.2s ease-in-out infinite;
 }
 .assessment-pulse::after {
@@ -668,11 +670,11 @@ body::after {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 2px solid hsl(var(--accent));
+  border: 2px solid hsl(var(--attention));
   pointer-events: none;
   animation: assessment-ring 3.2s ease-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .assessment-pulse { animation: none; background-color: hsl(var(--accent) / 0.35); }
+  .assessment-pulse { animation: none; background-color: hsl(var(--attention) / 0.35); }
   .assessment-pulse::after { animation: none; opacity: 0; }
 }
