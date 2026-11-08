@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Check, X, ChevronDown } from "lucide-react";
+import { Pencil, Check, X, ChevronDown, Sparkles } from "lucide-react";
 import { getChapterSubtitle, setChapterCookie } from "@/components/ChapterSelector";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -102,7 +102,7 @@ export const ChapterTitle = ({ grade, chapter, onChapterChange }: ChapterProps &
 const ChapterSections = ({ grade, chapter }: ChapterProps) => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
-  const { sections, current, save } = useChapterSections(grade, chapter);
+  const { sections, current, pulse, save, setPulse } = useChapterSections(grade, chapter);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
@@ -190,7 +190,32 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
         );
       })}
       {current != null && sections[current] && (
-        <SelfAssessmentDialog grade={grade} chapter={chapter} sectionIndex={current} sectionName={sections[current]} />
+        <SelfAssessmentDialog grade={grade} chapter={chapter} sectionIndex={current} sectionName={sections[current]} pulse={pulse} />
+      )}
+      {isAdmin && current != null && sections[current] && (
+        <button
+          type="button"
+          aria-pressed={pulse}
+          disabled={saving}
+          onClick={async () => {
+            setSaving(true);
+            try {
+              await setPulse(!pulse);
+            } catch {
+              toast({ title: "Kunde inte ändra blinkningen", description: "Försök igen om en stund.", variant: "destructive" });
+            } finally {
+              setSaving(false);
+            }
+          }}
+          title={pulse ? "Sluta blinka \"Hur går det?\"" : "Låt \"Hur går det?\" blinka för eleverna"}
+          aria-label={pulse ? "Sluta blinka Hur går det" : "Låt Hur går det blinka för eleverna"}
+          className={cn(
+            "rounded-full p-1 transition-colors",
+            pulse ? "bg-accent text-accent-foreground" : "text-foreground/35 hover:bg-accent/15 hover:text-accent",
+          )}
+        >
+          <Sparkles className="h-3 w-3" />
+        </button>
       )}
     </div>
   );

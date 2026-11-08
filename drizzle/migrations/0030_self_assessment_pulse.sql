@@ -1,0 +1,1 @@
+ALTER TABLE public.chapter_sections ADD COLUMN IF NOT EXISTS assessment_pulse boolean NOT NULL DEFAULT false;

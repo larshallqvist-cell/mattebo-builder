@@ -6,22 +6,26 @@ import { clampCurrent } from "@/lib/chapterSections";
 export const useChapterSections = (grade: number, chapter: number) => {
   const [sections, setSections] = useState<string[]>([]);
   const [current, setCurrent] = useState<number | null>(null);
+  // Teacher switch: makes "Hur går det?" pulse softly for the class.
+  const [pulse, setPulseState] = useState(false);
 
   const load = useCallback(async () => {
     const { data } = await supabase
       .from("chapter_sections")
-      .select("sections, current_index")
+      .select("sections, current_index, assessment_pulse")
       .eq("grade", grade)
       .eq("chapter", chapter)
       .maybeSingle();
     const list = data?.sections ?? [];
     setSections(list);
     setCurrent(clampCurrent(data?.current_index, list.length));
+    setPulseState(!!data?.assessment_pulse);
   }, [grade, chapter]);
 
   useEffect(() => {
     setSections([]);
     setCurrent(null);
+    setPulseState(false);
     load();
     // Keep every copy on the page (header title and chips) in step after a save.
     const refresh = () => load();
@@ -43,5 +47,18 @@ export const useChapterSections = (grade: number, chapter: number) => {
     [grade, chapter, load],
   );
 
-  return { sections, current, save };
+  const setPulse = useCallback(
+    async (on: boolean) => {
+      const { error } = await supabase
+        .from("chapter_sections")
+        .update({ assessment_pulse: on })
+        .eq("grade", grade)
+        .eq("chapter", chapter);
+      if (error) throw error;
+      window.dispatchEvent(new Event("mattebo:chapter-sections-saved"));
+    },
+    [grade, chapter],
+  );
+
+  return { sections, current, pulse, save, setPulse };
 };
