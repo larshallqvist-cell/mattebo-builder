@@ -11,7 +11,7 @@ import Ak7 from "./pages/Ak7";
 import Ak8 from "./pages/Ak8";
 import Ak9 from "./pages/Ak9";
 import Admin from "./pages/Admin";
-import Braklabbet from "./pages/Braklabbet";
+import Braklabbet from "./pages/BraklabbetRoute";
 import Tabelltest from "./pages/Tabelltest";
 import Algebra from "./pages/Algebra";
 import Procent from "./pages/Procent";
