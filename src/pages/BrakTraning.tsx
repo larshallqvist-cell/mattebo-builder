@@ -12,7 +12,7 @@ import Leaderboard from "@/components/procent/Leaderboard";
 import BrakIntro from "@/components/brak/BrakIntro";
 import { FracBars, QuestionText } from "@/components/brak/FracView";
 import {
-  advance, BANOR, checkBrak, explainBrak, FOCUS_LABEL, FREE_WARNINGS, generateBrak, placeholderBrak, scoreAnswer,
+  advance, BANOR, checkBrak, composeBrakAnswer, explainBrak, FOCUS_LABEL, FREE_WARNINGS, generateBrak, scoreAnswer,
   showPictures, START, TIER_STEP, TIERS, tierOf, tipBrak, type CheckResult, type Focus, type Progress,
 } from "@/lib/brak";
 
@@ -33,6 +33,7 @@ const BrakTraning = () => {
   const tier = tierOf(prog.xp);
   const [task, setTask] = useState(() => generateBrak(focus, tier));
   const [parts, setParts] = useState<[string, string, string]>(["", "", ""]);
+  const answer = composeBrakAnswer(...parts);
   const numRef = useRef<HTMLInputElement>(null);
   const denRef = useRef<HTMLInputElement>(null);
   const [notice, setNotice] = useState("");
