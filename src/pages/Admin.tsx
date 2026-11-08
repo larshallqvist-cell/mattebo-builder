@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/table";
 import {
   Check, X, ArrowLeft, Shield, Trash2, Pencil, ClipboardList,
-  CalendarDays, Inbox, Users, Mail, RefreshCw, IdCard,
+  CalendarDays, Inbox, Users, Mail, RefreshCw, IdCard, BarChart3,
 } from "lucide-react";
+import SelfAssessmentGoals from "@/components/SelfAssessmentGoals";
 import { Link, Navigate } from "react-router-dom";
 import { forceAppUpdate } from "@/pwa";
 import { useToast } from "@/hooks/use-toast";
@@ -222,6 +223,9 @@ const Admin = () => {
 
         <h2 className="pt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Resultat i övningarna</h2>
         <div className="grid grid-flow-dense grid-cols-1 gap-3 md:grid-cols-2">
+        <CollapsibleAdminSection title="Måluppfyllelse – självskattning" icon={<BarChart3 className="w-5 h-5" />}>
+          <SelfAssessmentGoals />
+        </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Ekvationspusslet – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
           <EkvationResults />
         </CollapsibleAdminSection>

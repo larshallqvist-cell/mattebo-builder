@@ -10,6 +10,7 @@ import { buildStats, type Attempt } from "@/lib/algebraStats";
 import { PROCENT_MODES } from "@/components/ProcentResults";
 import { EKVATION_SELECT } from "@/components/EkvationResults";
 import EkvationTeacherDetail from "@/components/ekvationer/EkvationTeacherDetail";
+import { StudentGoals } from "@/components/SelfAssessmentGoals";
 import { summarize, type EkvationRow } from "@/lib/ekvationStats";
 import { PAGE_LABELS, formatActiveTime } from "@/lib/studentActivity";
 import { CLASS_GRADES, NOT_STUDENT, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
@@ -278,6 +279,11 @@ export default function Elevkort() {
                   {data.fractions.length} försök · {solved} av 20 uppgifter klara ·{" "}
                   {data.missions.length ? `uppdrag: ${data.missions.map((m) => m.mission_id).join(", ")}` : "inga klara uppdrag"}
                 </p>
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Måluppfyllelse – självskattning</h4>
+                <StudentGoals userId={active} />
               </section>
 
               <section className="space-y-2">
