@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calculator, Check, FlaskConical, Flame, Medal, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, HintToggle, useExerciseSound } from "@/components/exercise/ExerciseParts";
 import Leaderboard from "@/components/procent/Leaderboard";
 import BrakIntro from "@/components/brak/BrakIntro";
+import CelebCheer, { type Cheer } from "@/components/brak/CelebCheer";
+import { cheerReason, pickCheer } from "@/lib/brakCheers";
 import { FracBars, QuestionText } from "@/components/brak/FracView";
 import {
   advance, BANOR, checkBrak, composeBrakAnswer, explainBrak, FOCUS_LABEL, FREE_WARNINGS, generateBrak, scoreAnswer,
@@ -48,6 +50,9 @@ const BrakTraning = () => {
   const usedCalc = useRef(false);
   const timer = useRef<number>();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [cheer, setCheer] = useState<Cheer | null>(null);
+  const recordCheered = useRef(false);
+  const closeCheer = useCallback(() => setCheer(null), []);
   const sound = useExerciseSound();
   const sessionId = useRef(crypto.randomUUID());
 
@@ -76,6 +81,10 @@ const BrakTraning = () => {
     const s = r.correct ? scoreAnswer(tier, r.unsimplified, warnings, usedCalc.current) : { points: 0, warning: false };
     if (s.warning) setWarnings((w) => w + 1);
     const p = advance(prog, r.correct, s.points);
+    if (!r.correct) recordCheered.current = false;
+    const why = cheerReason({ streakBefore: prog.streak, streak: p.streak, tierBefore: tier, tier: tierOf(p.xp), recordBefore: record, streakPoints: p.streakPoints, recordCheered: recordCheered.current });
+    if (why === "record" || (record > 0 && p.streakPoints > record)) recordCheered.current = true;
+    if (why) setCheer((c) => ({ key: Date.now(), ...pickCheer(why, { streak: p.streak, tier: tierOf(p.xp) }, c?.id) }));
     setResult({ ...r, ...s }); setProg(p); setLost(r.correct ? 0 : prog.streak);
     sound.play(r.correct);
     if (p.streakPoints > record) setRecord(p.streakPoints);
@@ -199,6 +208,7 @@ const BrakTraning = () => {
             </div>
           )}
         </section>
+        <CelebCheer cheer={cheer} onDone={closeCheer} />
         <CalculatorModal open={calcOpen} onOpenChange={setCalcOpen} />
         <Leaderboard rpc="brak_leaderboard" title="Bråkträning" description="Poäng i längsta sviten." open={boardOpen} onOpenChange={setBoardOpen} />
       </ExerciseShell>

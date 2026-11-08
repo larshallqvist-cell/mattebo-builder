@@ -17,11 +17,12 @@ const CelebCheer = ({ cheer, onDone }: { cheer: Cheer | null; onDone: () => void
   return (
     <button key={cheer.key} type="button" onClick={onDone} aria-label="Stäng beröm"
       className="celeb-cheer fixed bottom-4 right-4 z-50 flex items-end gap-2 text-left sm:bottom-8 sm:right-8">
-      <span role="status" className="celeb-bubble relative mb-16 max-w-[13rem] rounded-2xl border-2 border-foreground bg-background px-3 py-2 font-shortstack text-sm font-bold leading-snug text-foreground shadow-xl sm:max-w-[16rem] sm:text-base">
+      <span role="status" className="celeb-bubble relative mb-16 max-w-[13rem] rounded-2xl border-2 border-foreground bg-background px-3 py-2 font-playful text-sm font-bold leading-snug text-foreground shadow-xl sm:max-w-[16rem] sm:text-base">
         {cheer.text}
         <span aria-hidden className="absolute -right-2 bottom-3 h-4 w-4 rotate-45 border-r-2 border-t-2 border-foreground bg-background" />
       </span>
       <span aria-hidden className={cn("celeb-head relative h-28 w-28 shrink-0 overflow-visible rounded-full border-4 border-background shadow-2xl sm:h-36 sm:w-36", PROFILE_TINT[cheer.id])}>
+        <span className="absolute left-[30%] top-[62%] h-[14%] w-[40%] rounded-full bg-foreground" />
         <span className="absolute inset-0 overflow-hidden rounded-full">
           <img src={src} alt="" draggable={false} className="celeb-top absolute inset-0 h-full w-full object-cover" />
         </span>
