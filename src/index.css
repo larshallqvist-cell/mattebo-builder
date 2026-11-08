@@ -672,8 +672,6 @@ body::after {
   pointer-events: none;
   animation: assessment-ring 3.2s ease-out infinite;
 }
-.assessment-pulse:hover { animation-play-state: paused; }
-.assessment-pulse:hover::after { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .assessment-pulse { animation: none; background-color: hsl(var(--accent) / 0.35); }
   .assessment-pulse::after { animation: none; opacity: 0; }
