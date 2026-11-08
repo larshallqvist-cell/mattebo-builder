@@ -75,3 +75,16 @@ describe("generateBrak", () => {
     }
   });
 });
+
+import { composeBrakAnswer, addSubSteps } from "../src/lib/brak";
+test("svarsrutor blir text", () => {
+  expect(composeBrakAnswer("", "3", "4")).toBe("3/4");
+  expect(composeBrakAnswer("1", "3", "4")).toBe("1 3/4");
+  expect(composeBrakAnswer("12", "", "")).toBe("12");
+  expect(composeBrakAnswer("", "3", "")).toBeNull();
+  expect(composeBrakAnswer("", "", "")).toBeNull();
+});
+test("additionssteg visar MGN och förlängning", () => {
+  const t = { bana: "addsub", kind: "add", tokens: [], question: "", answer: { n: 7, d: 12 }, expect: { kind: "any" }, pictures: [{ n: 1, d: 3 }, { n: 1, d: 4 }] } as any;
+  expect(addSubSteps(t)).toEqual(["MGN för 3 och 4 är 12.", "Förläng: 1/3 = 4/12 och 1/4 = 3/12.", "Addera täljarna: (4 + 3)/12 = 7/12."]);
+});
