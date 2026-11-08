@@ -636,12 +636,45 @@ body::after {
 .exercise-rise { animation: exercise-rise 0.28s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .exercise-rise { animation: none; } }
 
-/* "Hur går det?" when the teacher asks for attention: a slow, soft glow that swells and fades. */
-@keyframes assessment-pulse {
-  0%, 100% { background-color: hsl(var(--accent) / 0.08); box-shadow: 0 0 0 0 hsl(var(--accent) / 0); }
-  50% { background-color: hsl(var(--accent) / 0.38); box-shadow: 0 0 14px 3px hsl(var(--accent) / 0.55); }
+/* "Hur går det?" when the teacher asks for attention: glow, a playful hop-and-wiggle every few seconds,
+   and a ring that ripples outwards. Calm (static glow) for reduced motion. */
+@keyframes assessment-glow {
+  0%, 100% { background-color: hsl(var(--accent) / 0.15); box-shadow: 0 0 0 0 hsl(var(--accent) / 0); }
+  50% { background-color: hsl(var(--accent) / 0.45); box-shadow: 0 0 18px 4px hsl(var(--accent) / 0.65); }
 }
-.assessment-pulse { animation: assessment-pulse 2.6s ease-in-out infinite; }
+@keyframes assessment-wiggle {
+  0%, 62%, 100% { transform: none; }
+  66% { transform: translateY(-5px) scale(1.18) rotate(-8deg); }
+  71% { transform: translateY(-2px) scale(1.18) rotate(8deg); }
+  76% { transform: translateY(-4px) scale(1.15) rotate(-6deg); }
+  81% { transform: translateY(0) scale(1.1) rotate(4deg); }
+  87% { transform: scale(0.96) rotate(0); }
+  92% { transform: scale(1.03); }
+}
+@keyframes assessment-ring {
+  0%, 62% { transform: scale(1); opacity: 0; }
+  66% { opacity: 0.9; }
+  100% { transform: scale(1.9, 2.4); opacity: 0; }
+}
+.assessment-pulse {
+  position: relative;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--accent));
+  animation: assessment-glow 1.6s ease-in-out infinite, assessment-wiggle 3.2s ease-in-out infinite;
+}
+.assessment-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid hsl(var(--accent));
+  pointer-events: none;
+  animation: assessment-ring 3.2s ease-out infinite;
+}
+.assessment-pulse:hover { animation-play-state: paused; }
+.assessment-pulse:hover::after { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  .assessment-pulse { animation: none; background-color: hsl(var(--accent) / 0.3); }
+  .assessment-pulse { animation: none; background-color: hsl(var(--accent) / 0.35); }
+  .assessment-pulse::after { animation: none; opacity: 0; }
 }
