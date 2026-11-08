@@ -14,13 +14,13 @@ import { PROFILES, type Puzzle, type Term } from "@/lib/ekvationer";
 import { cn } from "@/lib/utils";
 
 /** Frilagda porträtt (lärarens egna uppladdningar). */
-const PHOTOS: Record<string, string> = {
+export const PHOTOS: Record<string, string> = {
   magdalena: magdalena.url, zlatan: zlatan.url, kungen: kungen.url, taylor: taylor.url,
   ronaldo: ronaldo.url, messi: messi.url, pernilla: pernilla.url, benjamin: benjamin.url,
   mrbeast: mrbeast.url, therock: therock.url, bieber: bieber.url, carola: carola.url,
 };
 
-const PROFILE_TINT: Record<string, string> = {
+export const PROFILE_TINT: Record<string, string> = {
   zlatan: "bg-[hsl(45_90%_85%)]", kungen: "bg-[hsl(210_70%_88%)]", carola: "bg-[hsl(330_70%_90%)]",
   taylor: "bg-[hsl(270_60%_90%)]", magdalena: "bg-[hsl(170_45%_85%)]", ronaldo: "bg-[hsl(0_70%_90%)]",
   messi: "bg-[hsl(200_75%_88%)]", pernilla: "bg-[hsl(320_60%_90%)]", benjamin: "bg-[hsl(30_80%_88%)]",
