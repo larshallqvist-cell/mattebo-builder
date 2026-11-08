@@ -15,24 +15,27 @@ const List = ({ rows, empty }: { rows: Row[]; empty: string }) =>
           r.is_me ? "bg-primary/15 font-bold" : r.place <= 3 ? "bg-secondary/60" : "")}>
           <span className="w-6 shrink-0 text-right font-orbitron font-bold text-muted-foreground">{r.place}.</span>
           <span className="min-w-0 flex-1 truncate">{r.name}{r.is_me && " (du)"}</span>
-          <span className="shrink-0 font-orbitron font-bold text-coral">{r.best}</span>
+          <span className="shrink-0 font-orbitron font-bold text-coral">{r.best.toLocaleString("sv-SE")}</span>
         </li>
       ))}
     </ol>
   );
 
 /** Topplistan för en träning: hela skolan topp 10 och topp 3 i varje klass, räknat på bästa svit. */
-const Leaderboard = ({ mode, title, open, onOpenChange }: { mode: "mangd" | "faktormangd"; title: string; open: boolean; onOpenChange: (o: boolean) => void }) => {
+type Props = { title: string; open: boolean; onOpenChange: (o: boolean) => void; description?: string } & (
+  { mode: "mangd" | "faktormangd"; rpc?: never } | { mode?: never; rpc: "brak_leaderboard" });
+const Leaderboard = ({ mode, rpc, title, open, onOpenChange, description }: Props) => {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setFailed(false);
-    void supabase.rpc("procent_leaderboard", { p_mode: mode }).then(({ data, error }) => {
-      if (error) { setFailed(true); setRows([]); } else setRows((data ?? []) as Row[]);
+    const req = rpc ? supabase.rpc(rpc) : supabase.rpc("procent_leaderboard", { p_mode: mode! });
+    void req.then(({ data, error }) => {
+      if (error) { setFailed(true); setRows([]); } else setRows(((data ?? []) as Row[]).map((r) => ({ ...r, best: Number(r.best) })));
     });
-  }, [open, mode]);
+  }, [open, mode, rpc]);
 
   const school = rows?.filter((r) => r.scope === 0) ?? [];
   return (
@@ -40,7 +43,7 @@ const Leaderboard = ({ mode, title, open, onOpenChange }: { mode: "mangd" | "fak
       <DialogContent className="exercise-light font-nunito max-h-[90vh] max-w-lg overflow-y-auto rounded-3xl border-border bg-background text-foreground">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-orbitron text-xl"><Medal className="h-5 w-5 text-coral" />Topplista · {title}</DialogTitle>
-          <DialogDescription>Flest rätt i rad. Vid lika ligger den som kom dit först högst.</DialogDescription>
+          <DialogDescription>{description ?? "Flest rätt i rad."} Vid lika ligger den som kom dit först högst.</DialogDescription>
         </DialogHeader>
         {rows === null ? <p className="text-sm text-muted-foreground">Hämtar…</p> : failed ? (
           <p className="text-sm text-coral">Topplistan gick inte att hämta just nu.</p>
