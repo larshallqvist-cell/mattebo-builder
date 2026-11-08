@@ -78,5 +78,13 @@
   --flash-pastel-gray: 215 20% 78%;
 }
 /* Tre storlekar: Liten / Mellan (standard) / Stor */
-.flash-card[data-size="small"] { font-size: clamp(0.65cm, 2.6vw, 0.95cm); }
+/* Liten rymmer 4-5 meningar: mindre text, lite luftigare radavstånd och halvfet
+   så det inte känns fullt – men fortfarande större än vanlig brödtext. */
+.flash-card[data-size="small"] { font-size: clamp(0.48cm, 1.9vw, 0.62cm); }
+.flash-card[data-size="small"] .flash-body p,
+.flash-card[data-size="small"] .flash-body li,
+.flash-card[data-size="small"] .flash-body a {
+  font-weight: 600;
+  line-height: 1.3;
+}
 .flash-card[data-size="large"] { font-size: clamp(1.15cm, 4.6vw, 1.8cm); }
