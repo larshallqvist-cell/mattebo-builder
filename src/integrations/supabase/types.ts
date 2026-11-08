@@ -139,6 +139,65 @@ export type Database = {
         }
         Relationships: []
       }
+      brak_attempts: {
+        Row: {
+          calculator_used: boolean
+          created_at: string
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          level: number
+          mode: string
+          points: number
+          session_id: string
+          streak: number
+          streak_points: number
+          task_kind: string
+          unsimplified: boolean
+          user_id: string
+        }
+        Insert: {
+          calculator_used?: boolean
+          created_at?: string
+          hint_used?: boolean
+          id?: string
+          is_correct: boolean
+          level: number
+          mode: string
+          points?: number
+          session_id: string
+          streak?: number
+          streak_points?: number
+          task_kind: string
+          unsimplified?: boolean
+          user_id: string
+        }
+        Update: {
+          calculator_used?: boolean
+          created_at?: string
+          hint_used?: boolean
+          id?: string
+          is_correct?: boolean
+          level?: number
+          mode?: string
+          points?: number
+          session_id?: string
+          streak?: number
+          streak_points?: number
+          task_kind?: string
+          unsimplified?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brak_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       braklabbet_attempts: {
         Row: {
           answer: string
@@ -801,6 +860,16 @@ export type Database = {
           full_name: string
           last_sign_in_at: string
           user_id: string
+        }[]
+      }
+      brak_leaderboard: {
+        Args: never
+        Returns: {
+          best: number
+          is_me: boolean
+          name: string
+          place: number
+          scope: number
         }[]
       }
       fill_missing_classes: { Args: never; Returns: number }
