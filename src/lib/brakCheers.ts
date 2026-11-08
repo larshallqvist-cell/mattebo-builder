@@ -32,7 +32,7 @@ export const CHEER_LINES: Record<string, string[]> = {
 export const REASON_LINES: Record<CheerReason, string[]> = {
   tier: ["Steg {steg}! Och nu till något helt annat.", "Du har nått steg {steg}. Ingen förväntade sig detta."],
   record: ["Nytt rekord! Detta är ett före detta gammalt rekord.", "Ditt gamla rekord har slutat existera. Det är ett ex-rekord."],
-  streak: ["{n} rätt i rad! Det är bara en köttsår för bråken.", "{n} i rad. Det är inte nödvändigtvis ett svar – men det är rätt."],
+  streak: ["{n} rätt i rad! Bråken säger att det bara är ett köttsår.", "{n} i rad. Det är inte nödvändigtvis ett svar – men det är rätt."],
 };
 
 type Rnd = () => number;
