@@ -135,6 +135,7 @@ export default function SelfAssessmentGoals() {
   if (error) return <p role="alert" className="p-5 text-sm text-destructive">Kunde inte hämta självskattningarna.</p>;
 
   const answered = perStudent.filter((s) => s.total.total > 0).length;
+  const notAnswered = perStudent.filter((s) => s.total.total === 0 && names.has(s.user_id)).map((s) => names.get(s.user_id)!);
 
   return (
     <div className="space-y-6 p-5 font-manrope">
@@ -171,21 +172,23 @@ export default function SelfAssessmentGoals() {
         <h4 className="text-sm font-semibold text-foreground">
           Åk {grade}, kapitel {activeChapter} – per elev <span className="font-normal text-muted-foreground">({answered} av {perStudent.length} har svarat)</span>
         </h4>
-        {perStudent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Inga elever i klassen än.</p>
+        {answered === 0 ? (
+          <p className="text-sm text-muted-foreground">Ingen i klassen har svarat på det här kapitlet än.</p>
         ) : (
           <div className="space-y-1.5">
-            {perStudent.map((s) => (
+            {perStudent.filter((s) => s.total.total > 0).map((s) => (
               <div key={s.user_id} className="space-y-1 border-b border-border/50 pb-1.5">
-                <GoalBar thin dist={s.total} label={names.get(s.user_id) ?? "Okänd elev"} sub={s.total.total ? undefined : "Inte svarat"} />
-                {count > 0 && s.total.total > 0 && (
-                  <div className="flex flex-wrap gap-1 pl-1" aria-label="Per delkapitel">
-                    {s.sections.map((d, i) => <Dot key={i} dist={d} title={sectionName(sections, grade, activeChapter, i)} />)}
-                  </div>
-                )}
+                <GoalBar thin dist={s.total} label={names.get(s.user_id) ?? "Okänd elev"} />
+                <div className="flex flex-wrap gap-1 pl-1" aria-label="Per delkapitel">
+                  {s.sections.map((d, i) => <Dot key={i} dist={d} title={sectionName(sections, grade, activeChapter, i)} />)}
+                </div>
               </div>
             ))}
+            <p className="pt-1 text-[11px] text-muted-foreground">Prickarna = delkapitlen i ordning; håll muspekaren över en prick för detaljer. Tom ring = inte svarat.</p>
           </div>
+        )}
+        {notAnswered.length > 0 && (
+          <p className="text-xs text-muted-foreground"><span className="font-semibold">Inte svarat:</span> {notAnswered.join(", ")}</p>
         )}
       </section>
     </div>
