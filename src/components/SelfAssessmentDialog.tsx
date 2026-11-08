@@ -13,13 +13,15 @@ interface Props {
   chapter: number;
   sectionIndex: number;
   sectionName: string;
+  /** Teacher has asked for attention: the button glows softly until the student has answered. */
+  pulse?: boolean;
 }
 
 /** One sub-chapter at a time, one "Jag kan …" statement per card; the last answer saves. */
 const OPTION_TONES = ["--pastel-4", "--pastel-5", "--pastel-1"];
 
-const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Props) => {
-  const { user, accessStatus } = useAuth();
+const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName, pulse = false }: Props) => {
+  const { user, accessStatus, isAdmin } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
@@ -27,6 +29,18 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [step, setStep] = useState(0);
+  const [answered, setAnswered] = useState(false);
+
+  // Students who already answered this sub-chapter are not nagged by the glow.
+  useEffect(() => {
+    setAnswered(false);
+    if (!pulse || !user || isAdmin) return;
+    let alive = true;
+    supabase.from("self_assessment_responses").select("user_id")
+      .eq("user_id", user.id).eq("grade", grade).eq("chapter", chapter).eq("section_index", sectionIndex).maybeSingle()
+      .then(({ data }) => { if (alive) setAnswered(!!data); });
+    return () => { alive = false; };
+  }, [pulse, user, isAdmin, grade, chapter, sectionIndex]);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -62,7 +76,7 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
     );
     setSaving(false);
     if (error) toast({ title: "Kunde inte spara", description: "Försök igen om en stund.", variant: "destructive" });
-    else setDone(true);
+    else { setDone(true); setAnswered(true); }
   };
 
   const choose = (v: number) => {
@@ -80,7 +94,10 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName }: Pro
         <button
           type="button"
           title="Självskattning för delkapitlet"
-          className="inline-flex items-center gap-1 rounded-full border border-accent/60 px-2 py-0.5 font-manrope text-[10px] text-accent hover:bg-accent/15 sm:text-[11px]"
+          className={cn(
+            "inline-flex items-center gap-1 rounded-full border border-accent/60 px-2 py-0.5 font-manrope text-[10px] text-accent hover:bg-accent/15 sm:text-[11px]",
+            pulse && !answered && "assessment-pulse",
+          )}
         >
           <ClipboardCheck className="h-3 w-3" /> Hur går det?
         </button>
