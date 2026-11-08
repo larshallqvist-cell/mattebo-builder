@@ -170,7 +170,7 @@ export default function SelfAssessmentGoals() {
 
       <section className="space-y-2">
         <h4 className="text-sm font-semibold text-foreground">
-          Åk {grade}, kapitel {activeChapter} – per elev <span className="font-normal text-muted-foreground">({answered} av {perStudent.length} har svarat)</span>
+          Åk {grade}, kapitel {activeChapter} – per elev <span className="font-normal text-muted-foreground">({answered} av {answered + notAnswered.length} har svarat)</span>
         </h4>
         {answered === 0 ? (
           <p className="text-sm text-muted-foreground">Ingen i klassen har svarat på det här kapitlet än.</p>
