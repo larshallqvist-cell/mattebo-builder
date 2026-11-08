@@ -211,6 +211,13 @@
       "when": 1794068623338,
       "tag": "0029_section_presentations",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794156329037,
+      "tag": "0030_self_assessment_pulse",
+      "breakpoints": true
     }
   ]
 }

@@ -218,6 +218,7 @@ export type Database = {
       }
       chapter_sections: {
         Row: {
+          assessment_pulse: boolean
           chapter: number
           current_index: number | null
           grade: number
@@ -225,6 +226,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assessment_pulse?: boolean
           chapter: number
           current_index?: number | null
           grade: number
@@ -232,6 +234,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assessment_pulse?: boolean
           chapter?: number
           current_index?: number | null
           grade?: number
