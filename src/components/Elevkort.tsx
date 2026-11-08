@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/select";
 import { buildStats, type Attempt } from "@/lib/algebraStats";
 import { PROCENT_MODES } from "@/components/ProcentResults";
+import { BRAK_MODES } from "@/components/BrakResults";
+import { FOCUS_LABEL as BRAK_LABEL } from "@/lib/brak";
 import { EKVATION_SELECT } from "@/components/EkvationResults";
 import EkvationTeacherDetail from "@/components/ekvationer/EkvationTeacherDetail";
 import { StudentGoals } from "@/components/SelfAssessmentGoals";
@@ -29,6 +31,7 @@ type CardData = {
   tabell: TabelltestRow[];
   algebra: Attempt[];
   procent: Attempt[];
+  brak: Attempt[];
   ekvation: EkvationRow[];
   fractions: { exercise_id: number; is_correct: boolean; attempt_number: number; hint_used: boolean; answered_at: string }[];
   missions: { mission_id: string; completed_at: string }[];
@@ -100,7 +103,7 @@ export default function Elevkort() {
     let cancelled = false;
     setCardLoading(true);
     (async () => {
-      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation] = await Promise.all([
+      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak] = await Promise.all([
         supabase.from("tabelltest_results").select("score,total,avg_time_ms,passed,input_mode,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("algebra_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("braklabbet_attempts").select("exercise_id,is_correct,attempt_number,hint_used,answered_at").eq("user_id", active).order("answered_at", { ascending: false }),
@@ -111,9 +114,10 @@ export default function Elevkort() {
         supabase.from("activity_logs").select("grade,chapter,resource_title,created_at").eq("user_id", active).order("created_at", { ascending: false }).limit(300),
         supabase.from("procent_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("ekvation_attempts").select(EKVATION_SELECT).eq("user_id", active).order("created_at", { ascending: false }),
+        supabase.from("brak_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
-      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation];
+      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak];
       if (results.some((r) => r.error)) {
         setError(true);
         setData(null);
@@ -123,6 +127,7 @@ export default function Elevkort() {
           tabell: (tabell.data ?? []) as TabelltestRow[],
           algebra: (algebra.data ?? []) as Attempt[],
           procent: (procent.data ?? []) as Attempt[],
+          brak: (brak.data ?? []) as Attempt[],
           ekvation: (ekvation.data ?? []) as EkvationRow[],
           fractions: (fractions.data ?? []) as CardData["fractions"],
           missions: (missions.data ?? []) as CardData["missions"],
@@ -261,6 +266,24 @@ export default function Elevkort() {
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">Inga procentövningar ännu.</p>
+                )}
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Bråkträning</h4>
+                {data.brak.length ? (
+                  <ul className="flex flex-wrap gap-2">
+                    {BRAK_MODES.flatMap((m) => {
+                      const st = buildStats(data.brak, m)[0];
+                      return st ? st.levels.slice(0, 6).filter((l) => l.total).map((l, i) => (
+                        <li key={m + i} className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                          {BRAK_LABEL[m]} · steg {st.levels.indexOf(l) + 1}: {l.right}/{l.total} · {LEVEL_LABEL[l.status] ?? l.status}
+                        </li>
+                      )) : [];
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Inga bråkövningar ännu.</p>
                 )}
               </section>
 

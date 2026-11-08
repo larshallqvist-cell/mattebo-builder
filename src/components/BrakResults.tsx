@@ -67,10 +67,10 @@ export default function BrakResults() {
             </TableRow></TableHeader>
             <TableBody>
               {stats.map((s) => {
-                const e = extra[s.user_id];
+                const e = extra[s.userId];
                 return (
-                  <TableRow key={s.user_id}>
-                    <TableCell className="font-medium">{names[s.user_id] ?? "Elev"}</TableCell>
+                  <TableRow key={s.userId}>
+                    <TableCell className="font-medium">{names[s.userId] ?? "Elev"}</TableCell>
                     <TableCell className="text-xs">{fmt(s.lastAt)}</TableCell>
                     <TableCell>{s.right}/{s.total}</TableCell>
                     <TableCell>{e?.best.toLocaleString("sv-SE") ?? 0}</TableCell>
