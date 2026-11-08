@@ -686,6 +686,6 @@ body::after {
 @keyframes celeb-pop { from { opacity: 0; transform: scale(0.6) translateY(10px); } to { opacity: 1; transform: none; } }
 .celeb-cheer { animation: celeb-in 0.55s cubic-bezier(.2,.9,.3,1.2) both, celeb-out 0.4s ease-in 4.1s forwards; }
 .celeb-bubble { animation: celeb-pop 0.3s 0.4s ease-out both; }
-.celeb-top { clip-path: inset(0 0 34% 0); }
-.celeb-jaw { clip-path: inset(66% 12% 4% 12% round 0 0 45% 45%); animation: celeb-chomp 0.22s steps(2, jump-none) 0.5s 12; }
+.celeb-top { clip-path: inset(0 0 calc(100% - var(--jaw)) 0); }
+.celeb-jaw { clip-path: inset(var(--jaw) 14% 3% 14% round 0 0 45% 45%); animation: celeb-chomp 0.22s steps(2, jump-none) 0.5s 12; }
 @media (prefers-reduced-motion: reduce) { .celeb-cheer, .celeb-bubble, .celeb-jaw { animation: none; } }

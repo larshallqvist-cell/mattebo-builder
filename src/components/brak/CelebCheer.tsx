@@ -4,6 +4,11 @@ import { cn } from "@/lib/utils";
 
 export type Cheer = { key: number; id: string; text: string };
 const SHOW_MS = 4500;
+/** Var munnen sitter i varje porträtt (andel av höjden), så käken klipps vid läpparna. */
+const JAW: Record<string, number> = {
+  benjamin: 66, bieber: 75, carola: 74, kungen: 75, messi: 72, mrbeast: 68, pernilla: 67,
+  ronaldo: 72, taylor: 72, therock: 68, zlatan: 76, magdalena: 70,
+};
 
 /** Kändis som glider in med pratbubbla och Monty Python-käke (porträttet klipps i två delar). */
 const CelebCheer = ({ cheer, onDone }: { cheer: Cheer | null; onDone: () => void }) => {
@@ -21,8 +26,8 @@ const CelebCheer = ({ cheer, onDone }: { cheer: Cheer | null; onDone: () => void
         {cheer.text}
         <span aria-hidden className="absolute -right-2 bottom-3 h-4 w-4 rotate-45 border-r-2 border-t-2 border-foreground bg-background" />
       </span>
-      <span aria-hidden className={cn("celeb-head relative h-28 w-28 shrink-0 overflow-visible rounded-full border-4 border-background shadow-2xl sm:h-36 sm:w-36", PROFILE_TINT[cheer.id])}>
-        <span className="absolute left-[30%] top-[62%] h-[14%] w-[40%] rounded-full bg-foreground" />
+      <span aria-hidden style={{ "--jaw": `${JAW[cheer.id] ?? 70}%` } as React.CSSProperties} className={cn("celeb-head relative h-28 w-28 shrink-0 overflow-visible rounded-full border-4 border-background shadow-2xl sm:h-36 sm:w-36", PROFILE_TINT[cheer.id])}>
+        <span className="absolute left-[32%] top-[calc(var(--jaw)-3%)] h-[12%] w-[36%] rounded-full bg-foreground" />
         <span className="absolute inset-0 overflow-hidden rounded-full">
           <img src={src} alt="" draggable={false} className="celeb-top absolute inset-0 h-full w-full object-cover" />
         </span>
