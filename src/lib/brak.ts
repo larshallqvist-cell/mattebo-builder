@@ -223,11 +223,13 @@ export function addSubSteps(t: BrakTask): string[] {
   if (!a || !b) return [];
   const m = lcm(a.d, b.d), plus = t.kind === "add";
   const an = a.n * (m / a.d), bn = b.n * (m / b.d), r = plus ? an + bn : an - bn;
-  const steps = [
+  const steps = a.d === b.d ? [`Nämnarna är redan lika (${m}).`] : [
     `MGN för ${a.d} och ${b.d} är ${m}.`,
     `Förläng: ${a.n}/${a.d} = ${an}/${m} och ${b.n}/${b.d} = ${bn}/${m}.`,
-    `${plus ? "Addera" : "Subtrahera"} täljarna: (${an} ${plus ? "+" : "−"} ${bn})/${m} = ${r}/${m}.`,
   ];
+  steps.push(
+    `${plus ? "Addera" : "Subtrahera"} täljarna: (${an} ${plus ? "+" : "−"} ${bn})/${m} = ${r}/${m}.`,
+  );
   const final = fmtFrac(t.answer, t.expect.kind === "mixed");
   if (final !== `${r}/${m}`) steps.push(`Förkorta${t.expect.kind === "mixed" ? " och skriv i blandad form" : ""} → ${final}.`);
   return steps;
