@@ -28,7 +28,7 @@ export default function EkvationTeacherDetail({ s, activeSeconds }: { s: Ekvatio
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] text-sm">
           <thead className="text-left text-xs text-muted-foreground">
-            <tr><th className="py-1 pr-2 font-medium">Nivå</th><th className="pr-2 font-medium">Lösta</th><th className="pr-2 font-medium">Svar</th><th className="pr-2 font-medium">Träff</th><th className="pr-2 font-medium">Direkt rätt</th><th className="pr-2 font-medium">Ledtrådar</th><th className="pr-2 font-medium">Prio-fel</th><th className="pr-2 font-medium">Tid</th><th className="font-medium">Status</th></tr>
+            <tr><th className="py-1 pr-2 font-medium">Nivå</th><th className="pr-2 font-medium">Lösta</th><th className="pr-2 font-medium">Svar</th><th className="pr-2 font-medium">Träff</th><th className="pr-2 font-medium">Direkt rätt</th><th className="pr-2 font-medium">Ledtrådar</th><th className="pr-2 font-medium" title="Nivå 3–4: räknade vänster → höger. Nivå 5: räknade som om parentesen inte fanns.">Prio-/parentesfel</th><th className="pr-2 font-medium">Tid</th><th className="font-medium">Status</th></tr>
           </thead>
           <tbody>
             {LEVELS.map((lv, i) => {
@@ -41,7 +41,7 @@ export default function EkvationTeacherDetail({ s, activeSeconds }: { s: Ekvatio
                   <td className="pr-2">{l.attempts ? `${l.accuracy} %` : "–"}</td>
                   <td className="pr-2">{l.solved ? `${pctOf(l.firstTry, l.solved)} %` : "–"}</td>
                   <td className="pr-2">{l.hints}</td>
-                  <td className="pr-2">{i >= 2 ? l.priorityErrors : "–"}</td>
+                  <td className="pr-2">{i === 4 ? l.parenErrors : i >= 2 ? l.priorityErrors : "–"}</td>
                   <td className="pr-2">{l.seconds ? formatDuration(l.seconds) : "–"}</td>
                   <td><span className={cn("rounded-md px-2 py-0.5 text-xs font-bold", STATUS_CLASS[l.status])}>{STATUS_TEXT[l.status]}</span></td>
                 </tr>
@@ -56,6 +56,11 @@ export default function EkvationTeacherDetail({ s, activeSeconds }: { s: Ekvatio
           {s.priorityChances === 0
             ? "Inga fel på nivå 3–4 ännu."
             : `Räknade från vänster till höger (glömde att gånger går före plus) ${s.priorityErrors} av ${s.priorityChances} fel på nivå 3–4 (${pctOf(s.priorityErrors, s.priorityChances)} %).`}
+        </p>
+        <p className="text-muted-foreground">
+          {s.parenChances === 0
+            ? "Inga fel på nivå 5 ännu."
+            : `Räknade som om parentesen inte fanns ${s.parenErrors} av ${s.parenChances} fel på nivå 5 (${pctOf(s.parenErrors, s.parenChances)} %).`}
         </p>
       </div>
       <div className="space-y-2">

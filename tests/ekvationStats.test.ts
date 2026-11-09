@@ -68,12 +68,31 @@ describe("svit och prioriteringsfel", () => {
 });
 
 describe("bedömningsunderlag", () => {
-  test("tre förmågor med rätt omdöme", () => {
+  test("fyra förmågor med rätt omdöme", () => {
     const s = summarize([...cleanSolves(0, 8), ...cleanSolves(1, 8), ...cleanSolves(2, 2)]);
     const a = assessment(s);
-    expect(a.map((x) => x.verdict)).toEqual(["Behärskar", "På väg", "Ej visat"]);
+    expect(a.map((x) => x.verdict)).toEqual(["Behärskar", "På väg", "Ej visat", "Ej visat"]);
   });
   test("ingen data ger Ej visat överallt", () => {
     expect(assessment(summarize([])).every((x) => x.verdict === "Ej visat")).toBe(true);
+  });
+});
+
+describe("nivå 5 – bråk och parenteser", () => {
+  test("nivå 5 räknas som en egen nivå och kan bemästras", () => {
+    const s = summarize(cleanSolves(4, 8));
+    expect(s.levels.length).toBe(5);
+    expect(s.levels[4].status).toBe("mastered");
+    expect(assessment(s)[3].verdict).toBe("Behärskar");
+    expect(recommendedNext(summarize([...cleanSolves(3, 8)]), 3)).toBe(4);
+  });
+  test("parentesfel räknas separat från prioriteringsfel", () => {
+    const rows = [row(4, false, { puzzle_id: "q", error_kind: "parenthesis" }), row(4, false, { puzzle_id: "q", error_kind: "other" }), row(4, true, { puzzle_id: "q" })];
+    const s = summarize(rows);
+    expect(s.levels[4].parenErrors).toBe(1);
+    expect(s.parenErrors).toBe(1);
+    expect(s.parenChances).toBe(2);
+    expect(s.priorityErrors).toBe(0);
+    expect(assessment(s)[3].note).toContain("1 parentesfel");
   });
 });

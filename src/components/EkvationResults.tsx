@@ -8,7 +8,7 @@ import { formatDuration, summarize, type EkvationRow } from "@/lib/ekvationStats
 import EkvationTeacherDetail, { STATUS_CLASS } from "@/components/ekvationer/EkvationTeacherDetail";
 import { STATUS_TEXT } from "@/components/ekvationer/EkvationProgress";
 
-export const EKVATION_LEVELS = ["Två figurer", "Tre figurer", "Gånger först", "x, y och z"];
+export const EKVATION_LEVELS = ["Två figurer", "Tre figurer", "Gånger först", "x, y och z", "Bråk och parenteser"];
 export const EKVATION_SELECT = "user_id,session_id,level,is_correct,hint_used,created_at,puzzle_id,error_kind,seconds_spent";
 
 type Row = EkvationRow & { user_id: string };
@@ -65,7 +65,7 @@ export default function EkvationResults() {
         : (
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Elev</TableHead><TableHead>Lösta</TableHead><TableHead>Tid</TableHead><TableHead>Prio-fel</TableHead><TableHead>Nivåer</TableHead>
+              <TableHead>Elev</TableHead><TableHead>Lösta</TableHead><TableHead>Tid</TableHead><TableHead title="Prioriterings- och parentesfel">Prio-/parentesfel</TableHead><TableHead>Nivåer</TableHead>
             </TableRow></TableHeader>
             <TableBody>
               {stats.map(({ userId, s }) => (
@@ -77,7 +77,7 @@ export default function EkvationResults() {
                     </TableCell>
                     <TableCell>{s.solved} <span className="text-xs text-muted-foreground">({s.attempts} svar)</span></TableCell>
                     <TableCell>{formatDuration(Math.max(time[userId] ?? 0, s.seconds))}</TableCell>
-                    <TableCell>{s.priorityErrors}</TableCell>
+                    <TableCell>{s.priorityErrors + s.parenErrors}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {EKVATION_LEVELS.map((name, i) => {
