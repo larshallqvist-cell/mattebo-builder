@@ -86,7 +86,7 @@ const TermView = ({ term, p }: { term: Term; p: Puzzle }) => {
       <Figure id={p.symbols[s]} />
     </span>
   ));
-  const group = term.inner && <span className="inline-flex items-center gap-0.5"><Paren>(</Paren><Terms terms={term.inner} p={p} /><Paren>)</Paren></span>;
+  const group = term.inner && <span className="inline-flex items-center gap-1 sm:gap-2"><Paren>(</Paren><Terms terms={term.inner} p={p} /><Paren>)</Paren></span>;
   const body = (
     <span className="inline-flex items-center gap-1">
       {vars && showCoef && <span className="font-orbitron">{term.coef}</span>}
