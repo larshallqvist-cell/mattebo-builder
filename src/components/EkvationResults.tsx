@@ -65,7 +65,7 @@ export default function EkvationResults() {
         : (
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Elev</TableHead><TableHead>Lösta</TableHead><TableHead>Tid</TableHead><TableHead>Prio-fel</TableHead><TableHead>Nivåer</TableHead>
+              <TableHead>Elev</TableHead><TableHead>Lösta</TableHead><TableHead>Tid</TableHead><TableHead title="Prioriterings- och parentesfel">Prio-/parentesfel</TableHead><TableHead>Nivåer</TableHead>
             </TableRow></TableHeader>
             <TableBody>
               {stats.map(({ userId, s }) => (
@@ -77,7 +77,7 @@ export default function EkvationResults() {
                     </TableCell>
                     <TableCell>{s.solved} <span className="text-xs text-muted-foreground">({s.attempts} svar)</span></TableCell>
                     <TableCell>{formatDuration(Math.max(time[userId] ?? 0, s.seconds))}</TableCell>
-                    <TableCell>{s.priorityErrors}</TableCell>
+                    <TableCell>{s.priorityErrors + s.parenErrors}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {EKVATION_LEVELS.map((name, i) => {

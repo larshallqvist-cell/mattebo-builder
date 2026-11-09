@@ -1,31 +1,35 @@
 import { describe, expect, test } from "bun:test";
-import { ANIMALS, shownRow, checkAnswer, evaluate, explain, generatePuzzle, pickFigures, PROFILES } from "../src/lib/ekvationer";
+import { ANIMALS, shownRow, checkAnswer, evaluate, explain, exprText, generatePuzzle, pickFigures, PROFILES, type Term } from "../src/lib/ekvationer";
+
+const symsOf = (terms: Term[]): number[] => terms.flatMap((t) => [...t.syms, ...(t.inner ? symsOf(t.inner) : [])]);
 
 const PEOPLE = new Set<string>(PROFILES.map((p) => p.id));
 const EMOJI = new Set(ANIMALS);
 
 describe("ekvationspusslet", () => {
   test("every puzzle is solvable one new figure per line and the answer matches", () => {
-    for (let level = 0; level < 4; level++) for (let k = 0; k < 400; k++) {
+    for (let level = 0; level < 5; level++) for (let k = 0; k < 400; k++) {
       const p = generatePuzzle(level);
       expect(new Set(p.symbols).size).toBe(p.symbols.length);
       p.lines.forEach((line, i) => {
         expect(evaluate(line.terms, p.values)).toBe(line.result);
-        const syms = new Set(line.terms.flatMap((t) => t.syms));
+        expect(Number.isInteger(line.result)).toBe(true);
+        const syms = new Set(symsOf(line.terms));
         expect(syms.has(i)).toBe(true);
         expect([...syms].every((s) => s <= i)).toBe(true);
       });
-      expect(new Set(p.lines[0].terms.flatMap((t) => t.syms)).size).toBe(1);
+      expect(new Set(symsOf(p.lines[0].terms)).size).toBe(1);
+      expect(Number.isInteger(p.answer)).toBe(true);
       expect(evaluate(p.question, p.values)).toBe(p.answer);
       expect(explain(p, String).at(-1)).toContain(`= ${p.answer}.`);
       expect(checkAnswer(p, String(p.answer)).correct).toBe(true);
     }
   });
 
-  test("level 1 keeps rows in order; levels 2–4 always shuffle rows but the question stays last", () => {
+  test("level 1 keeps rows in order; levels 2–5 always shuffle rows but the question stays last", () => {
     for (let k = 0; k < 300; k++) {
       expect(generatePuzzle(0).order).toEqual([0, 1]);
-      for (const level of [1, 2, 3]) {
+      for (const level of [1, 2, 3, 4]) {
         const p = generatePuzzle(level);
         expect([...p.order].sort()).toEqual([0, 1, 2]);
         expect(p.order).not.toEqual([0, 1, 2]);
@@ -35,7 +39,7 @@ describe("ekvationspusslet", () => {
 
   test("explanation starts at the key row wherever it is shown and then follows the logic", () => {
     for (let k = 0; k < 300; k++) {
-      const p = generatePuzzle(1 + (k % 3));
+      const p = generatePuzzle(1 + (k % 4));
       const steps = explain(p, String);
       expect(steps[0]).toContain(`Börja med rad ${shownRow(p, 0)}`);
       expect(steps[1]).toContain(`rad ${shownRow(p, 1)}`);
@@ -100,6 +104,68 @@ describe("ekvationspusslet", () => {
     expect(seen.has("magdalena")).toBe(true);
   });
 
+  test("level 5 uses x, y, z with fractions and parentheses in every puzzle", () => {
+    let fractions = 0, groups = 0;
+    for (let k = 0; k < 1000; k++) {
+      const p = generatePuzzle(4);
+      expect(p.symbols).toEqual(["x", "y", "z"]);
+      const all = [...p.lines.flatMap((l) => l.terms), ...p.question];
+      expect(all.some((t) => t.inner || t.div)).toBe(true);
+      if (all.some((t) => t.div)) fractions++;
+      if (all.some((t) => t.inner)) groups++;
+      // Slutraden kräver alltid en parentes med två variabler.
+      const group = p.question.find((t) => t.inner);
+      expect(group).toBeDefined();
+      expect(symsOf(group!.inner!).length).toBe(2);
+    }
+    expect(fractions).toBeGreaterThan(700);
+    expect(groups).toBe(1000);
+  });
+
+  test("level 5: ignoring the parentheses is caught as a parenthesis error, not a priority error", () => {
+    let caught = 0;
+    for (let k = 0; k < 600; k++) {
+      const p = generatePuzzle(4);
+      expect(p.leftToRight).not.toBe(p.answer);
+      if (!Number.isInteger(p.leftToRight)) continue;
+      const r = checkAnswer(p, String(p.leftToRight));
+      expect(r.correct).toBe(false);
+      expect(r.parenError).toBe(true);
+      expect(r.priorityError).toBeFalsy();
+      expect(r.message).toContain("parentesen");
+      caught++;
+    }
+    expect(caught).toBeGreaterThan(200);
+  });
+
+  test("level 5 explanation removes the fraction or parenthesis and computes the parenthesis first", () => {
+    const p = {
+      level: 4, symbols: ["x", "y", "z"], values: [6, 4, 10], order: [2, 0, 1],
+      lines: [
+        { terms: [{ coef: 1, syms: [0], div: 3 }], result: 2 },
+        { terms: [{ coef: 2, syms: [], inner: [{ coef: 1, syms: [0] }, { coef: 1, syms: [1] }] }], result: 20 },
+        { terms: [{ coef: 1, syms: [], inner: [{ coef: 1, syms: [1] }, { coef: 1, syms: [2] }], div: 7 }], result: 2 },
+      ],
+      question: [{ coef: 1, syms: [0], inner: [{ coef: 1, syms: [1] }, { coef: 1, syms: [2] }] }],
+      answer: 84, leftToRight: 34,
+    };
+    const name = (s: number) => p.symbols[s];
+    expect(exprText(p.lines[1].terms, name)).toBe("2(x + y)");
+    expect(exprText(p.lines[2].terms, name)).toBe("(y + z)/7");
+    expect(exprText(p.question, name)).toBe("x(y + z)");
+    const steps = explain(p, name);
+    expect(steps[0]).toContain("Börja med rad 2");
+    expect(steps[0]).toContain("x = 2 · 3 = 6.");
+    expect(steps[1]).toContain("rad 3");
+    expect(steps[1]).toContain("Dela båda sidor med 2: x + y = 20 / 2 = 10");
+    expect(steps[1]).toContain("y = 10 − 6 = 4.");
+    expect(steps[2]).toContain("multiplicera båda sidor med 7: y + z = 2 · 7 = 14");
+    expect(steps[2]).toContain("z = 14 − 4 = 10.");
+    expect(steps[3]).toBe("Sista raden: 6 · (4 + 10). Parentesen först: 4 + 10 = 14. Sedan gånger: 6 · 14 = 84.");
+    expect(checkAnswer(p, "34").parenError).toBe(true);
+    expect(checkAnswer(p, "84").correct).toBe(true);
+  });
+
   test("answers accept spaces and the typographic minus", () => {
     const p = generatePuzzle(0, () => 0);
     expect(checkAnswer(p, ` ${p.answer} `).correct).toBe(true);
@@ -111,7 +177,7 @@ describe("slutfrågan", () => {
   test("är aldrig en befintlig rad i omkastad ordning", () => {
     const { generatePuzzle } = require("../src/lib/ekvationer");
     const sig = (t: { coef: number; syms: number[] }[]) => t.map((x) => `${x.coef}*${[...x.syms].sort().join(".")}`).sort().join("+");
-    for (let lv = 0; lv < 4; lv++) for (let i = 0; i < 2000; i++) {
+    for (let lv = 0; lv < 5; lv++) for (let i = 0; i < 2000; i++) {
       const p = generatePuzzle(lv);
       for (const l of p.lines) expect(sig(l.terms)).not.toBe(sig(p.question));
     }
