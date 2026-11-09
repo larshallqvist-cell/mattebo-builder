@@ -20,3 +20,4 @@
 - [x] Bråkträning: svarsrutor (heltal + täljare/nämnare), stegförklaring för add/sub
 - [x] Bråkträning: kändisberöm med pratbubbla vid 5/10/20 i rad, nytt steg, nytt rekord
 - [x] Bråkträning: kändisberömmet stillsamt, utan rörliga animationer
+- [x] Ekvationspusslet: nivå 5 med x, y, z, bråk och parenteser (val, framsteg, statistik, förklaringar)
