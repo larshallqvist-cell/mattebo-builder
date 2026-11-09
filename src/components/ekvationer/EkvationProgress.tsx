@@ -43,7 +43,7 @@ export default function EkvationProgress({ s, current, onPick }: { s: EkvationSu
           <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" />Rekord {s.bestStreak}</span>
         </div>
       </div>
-      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {LEVELS.map((lv, i) => {
           const l = s.levels[i];
           return (

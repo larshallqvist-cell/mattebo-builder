@@ -11,6 +11,7 @@ import therock from "@/assets/profiles/therock.webp.asset.json";
 import carola from "@/assets/profiles/carola.webp.asset.json";
 import bieber from "@/assets/profiles/bieber.webp.asset.json";
 import { PROFILES, type Puzzle, type Term } from "@/lib/ekvationer";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /** Frilagda porträtt (lärarens egna uppladdningar). */
@@ -58,7 +59,7 @@ const Op = ({ children }: { children: string }) => <span className="font-orbitro
 const Paren = ({ children }: { children: string }) => <span className="font-orbitron text-2xl font-normal text-foreground sm:text-4xl">{children}</span>;
 
 /** Bråk med vågrätt bråkstreck, som i matteboken. */
-const Frac = ({ top, bottom }: { top: React.ReactNode; bottom: number }) => (
+const Frac = ({ top, bottom }: { top: ReactNode; bottom: number }) => (
   <span className="inline-flex flex-col items-center align-middle leading-none" aria-label="bråk">
     <span className="inline-flex items-center gap-1 border-b-[3px] border-current px-1 pb-1">{top}</span>
     <span className="pt-1 font-orbitron">{bottom}</span>

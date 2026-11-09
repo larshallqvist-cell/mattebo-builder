@@ -8,7 +8,7 @@ import { formatDuration, summarize, type EkvationRow } from "@/lib/ekvationStats
 import EkvationTeacherDetail, { STATUS_CLASS } from "@/components/ekvationer/EkvationTeacherDetail";
 import { STATUS_TEXT } from "@/components/ekvationer/EkvationProgress";
 
-export const EKVATION_LEVELS = ["Två figurer", "Tre figurer", "Gånger först", "x, y och z"];
+export const EKVATION_LEVELS = ["Två figurer", "Tre figurer", "Gånger först", "x, y och z", "Bråk och parenteser"];
 export const EKVATION_SELECT = "user_id,session_id,level,is_correct,hint_used,created_at,puzzle_id,error_kind,seconds_spent";
 
 type Row = EkvationRow & { user_id: string };

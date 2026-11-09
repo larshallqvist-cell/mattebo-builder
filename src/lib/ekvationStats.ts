@@ -20,6 +20,7 @@ export type EkvationLevel = {
   wrong: number;
   hints: number;         // pussel där ledtråden öppnades
   priorityErrors: number; // fel där eleven räknade vänster → höger
+  parenErrors: number;    // fel där eleven räknade som om parentesen inte fanns (nivå 5)
   seconds: number;
   accuracy: number;      // % rätt av alla svar
   recentFirstTryRate: number; // andel första-försöket bland de senaste 10 lösta
@@ -37,19 +38,22 @@ export type EkvationSummary = {
   priorityErrors: number;
   /** Fel på nivå 3–4 där prioriteringsfel var möjligt. */
   priorityChances: number;
+  parenErrors: number;
+  /** Fel på nivå 5 där parentesfel var möjligt. */
+  parenChances: number;
   bestStreak: number;
   currentStreak: number;
   lastAt: string | null;
 };
 
-export const LEVEL_COUNT = 4;
+export const LEVEL_COUNT = 5;
 /** Antal lösta pussel som krävs för att en nivå ska kunna räknas som bemästrad. */
 export const MASTERY_SOLVED = 8;
 /** Andel av de senaste lösta som måste vara rätt på första försöket utan ledtråd. */
 export const MASTERY_RATE = 0.8;
 const RECENT = 10;
 
-type Puzzle = { level: number; at: string; wrong: number; priority: number; hint: boolean; solved: boolean; seconds: number };
+type Puzzle = { level: number; at: string; wrong: number; priority: number; paren: number; hint: boolean; solved: boolean; seconds: number };
 
 /**
  * Grupperar svar till pussel. Nya rader har puzzle_id. Äldre rader saknar det: då hör felsvar till
@@ -75,11 +79,11 @@ export function groupPuzzles(rows: EkvationRow[]): Puzzle[] {
     p.seconds += Math.max(0, Math.min(300, r.seconds_spent ?? 0));
     if (r.hint_used) p.hint = true;
     if (r.is_correct) p.solved = true;
-    else { p.wrong++; if (r.error_kind === "priority") p.priority++; }
+    else { p.wrong++; if (r.error_kind === "priority") p.priority++; if (r.error_kind === "parenthesis") p.paren++; }
   }
   return out;
 }
-const blank = (r: EkvationRow): Puzzle => ({ level: r.level, at: r.created_at, wrong: 0, priority: 0, hint: false, solved: false, seconds: 0 });
+const blank = (r: EkvationRow): Puzzle => ({ level: r.level, at: r.created_at, wrong: 0, priority: 0, paren: 0, hint: false, solved: false, seconds: 0 });
 
 const isClean = (p: Puzzle) => p.solved && p.wrong === 0 && !p.hint;
 
@@ -113,6 +117,7 @@ export function summarize(rows: EkvationRow[]): EkvationSummary {
       wrong: attempts - right,
       hints: list.filter((p) => p.hint).length,
       priorityErrors: list.reduce((s, p) => s + p.priority, 0),
+      parenErrors: list.reduce((s, p) => s + p.paren, 0),
       seconds: list.reduce((s, p) => s + p.seconds, 0),
       stars,
       mastery: status === "mastered" ? 100 : Math.round(progress * quality * 100),
@@ -136,6 +141,8 @@ export function summarize(rows: EkvationRow[]): EkvationSummary {
     hints: levels.reduce((s, l) => s + l.hints, 0),
     priorityErrors: levels.reduce((s, l) => s + l.priorityErrors, 0),
     priorityChances: levels[2].wrong + levels[3].wrong,
+    parenErrors: levels.reduce((s, l) => s + l.parenErrors, 0),
+    parenChances: levels[4].wrong,
     bestStreak,
     currentStreak: run,
     lastAt: puzzles.length ? puzzles[puzzles.length - 1].at : null,
@@ -156,9 +163,9 @@ export function justMastered(before: EkvationSummary, after: EkvationSummary, le
 
 export type Assessment = { area: string; levels: string; verdict: "Behärskar" | "På väg" | "Behöver stöd" | "Ej visat"; note: string };
 
-/** Formativt bedömningsunderlag i tre förmågor. */
+/** Formativt bedömningsunderlag i fyra förmågor. */
 export function assessment(s: EkvationSummary): Assessment[] {
-  const [l1, l2, l3, l4] = s.levels;
+  const [l1, l2, l3, l4, l5] = s.levels;
   const verdict = (ls: EkvationLevel[]): Assessment["verdict"] => {
     if (ls.every((l) => l.status === "none")) return "Ej visat";
     if (ls.every((l) => l.status === "mastered")) return "Behärskar";
@@ -168,6 +175,8 @@ export function assessment(s: EkvationSummary): Assessment[] {
   const prio = l3.priorityErrors + l4.priorityErrors;
   let prioVerdict = verdict([l3]);
   if (prioVerdict === "Behärskar" && l3.wrong > 0 && prio / l3.wrong > 0.5 && l3.recentFirstTryRate < 0.9) prioVerdict = "På väg";
+  let parenVerdict = verdict([l5]);
+  if (parenVerdict === "Behärskar" && l5.wrong > 0 && l5.parenErrors / l5.wrong > 0.5 && l5.recentFirstTryRate < 0.9) parenVerdict = "På väg";
   return [
     {
       area: "Enkla samband automatiserade", levels: "Nivå 1–2", verdict: verdict([l1, l2]),
@@ -180,6 +189,10 @@ export function assessment(s: EkvationSummary): Assessment[] {
     {
       area: "Formell variabelhantering x, y, z", levels: "Nivå 4", verdict: verdict([l4]),
       note: `${l4.solved} lösta, ${pctOf(l4.firstTry, l4.solved)} % direkt rätt · ${l4.priorityErrors} prioriteringsfel.`,
+    },
+    {
+      area: "Bråk och parenteser med x, y, z", levels: "Nivå 5", verdict: parenVerdict,
+      note: `${l5.solved} lösta, ${pctOf(l5.firstTry, l5.solved)} % direkt rätt · ${l5.parenErrors} parentesfel (räknade som om parentesen inte fanns)${l5.wrong ? ` av ${l5.wrong} fel` : ""}.`,
     },
   ];
 }
