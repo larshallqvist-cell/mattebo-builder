@@ -176,7 +176,7 @@ describe("ekvationspusslet", () => {
 describe("slutfrågan", () => {
   test("är aldrig en befintlig rad i omkastad ordning", () => {
     const { generatePuzzle } = require("../src/lib/ekvationer");
-    const sig = (t: { coef: number; syms: number[] }[]) => t.map((x) => `${x.coef}*${[...x.syms].sort().join(".")}`).sort().join("+");
+    const sig = (t: Term[]): string => t.map((x) => `${x.coef}*${[...x.syms].sort().join(".")}${x.inner ? `(${sig(x.inner)})` : ""}/${x.div ?? 1}`).sort().join("+");
     for (let lv = 0; lv < 5; lv++) for (let i = 0; i < 2000; i++) {
       const p = generatePuzzle(lv);
       for (const l of p.lines) expect(sig(l.terms)).not.toBe(sig(p.question));
