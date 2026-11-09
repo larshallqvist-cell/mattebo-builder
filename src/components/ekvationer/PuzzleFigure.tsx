@@ -55,20 +55,47 @@ export const Figure = ({ id }: { id: string }) => {
 
 const Op = ({ children }: { children: string }) => <span className="font-orbitron text-xl font-bold text-muted-foreground sm:px-0.5 sm:text-3xl">{children}</span>;
 
+const Paren = ({ children }: { children: string }) => <span className="font-orbitron text-2xl font-normal text-foreground sm:text-4xl">{children}</span>;
+
+/** Bråk med vågrätt bråkstreck, som i matteboken. */
+const Frac = ({ top, bottom }: { top: React.ReactNode; bottom: number }) => (
+  <span className="inline-flex flex-col items-center align-middle leading-none" aria-label="bråk">
+    <span className="inline-flex items-center gap-1 border-b-[3px] border-current px-1 pb-1">{top}</span>
+    <span className="pt-1 font-orbitron">{bottom}</span>
+  </span>
+);
+
+const Terms = ({ terms, p }: { terms: Term[]; p: Puzzle }) => (
+  <>
+    {terms.map((t, i) => (
+      <span key={i} className="inline-flex items-center gap-1 sm:gap-2">
+        {i > 0 && <Op>+</Op>}
+        <TermView term={t} p={p} />
+      </span>
+    ))}
+  </>
+);
+
 const TermView = ({ term, p }: { term: Term; p: Puzzle }) => {
-  const vars = p.level === 3;
-  return (
+  const vars = p.level >= 3;
+  const showCoef = term.coef !== 1 || (!term.syms.length && !term.inner);
+  const figs = term.syms.map((s, i) => (
+    <span key={i} className="inline-flex items-center gap-1">
+      {i > 0 && <Op>·</Op>}
+      <Figure id={p.symbols[s]} />
+    </span>
+  ));
+  const group = term.inner && <span className="inline-flex items-center gap-0.5"><Paren>(</Paren><Terms terms={term.inner} p={p} /><Paren>)</Paren></span>;
+  const body = (
     <span className="inline-flex items-center gap-1">
-      {vars && term.coef !== 1 && <span className="font-orbitron">{term.coef}</span>}
-      {term.syms.map((s, i) => (
-        <span key={i} className="inline-flex items-center gap-1">
-          {i > 0 && <Op>·</Op>}
-          <Figure id={p.symbols[s]} />
-        </span>
-      ))}
+      {vars && showCoef && <span className="font-orbitron">{term.coef}</span>}
+      {!term.after && figs}
+      {group}
+      {term.after && figs}
       {!vars && term.coef !== 1 && <><Op>·</Op><span className="font-orbitron">{term.coef}</span></>}
     </span>
   );
+  return term.div ? <Frac top={body} bottom={term.div} /> : body;
 };
 
 /** En rad i pusslet, t.ex. 🐮 · 2 + 🍌 = 25. */
@@ -79,12 +106,7 @@ export const PuzzleLine = ({ terms, result, p, question, row }: { terms: Term[];
     {row !== undefined && (
       <span className="absolute left-2 top-1/2 -translate-y-1/2 font-sans text-[11px] font-semibold text-muted-foreground sm:left-3 sm:text-xs" aria-label={`Rad ${row}`}>{row}</span>
     )}
-    {terms.map((t, i) => (
-      <span key={i} className="inline-flex items-center gap-1 sm:gap-2">
-        {i > 0 && <Op>+</Op>}
-        <TermView term={t} p={p} />
-      </span>
-    ))}
+    <Terms terms={terms} p={p} />
     <Op>=</Op>
     <span className={question ? "text-coral" : "text-primary"}>{question ? "?" : result}</span>
   </div>

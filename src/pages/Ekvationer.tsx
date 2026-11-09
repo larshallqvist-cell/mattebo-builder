@@ -6,7 +6,7 @@ import { Feedback, HintToggle, Option, OptionGroup, ROUND, useExerciseSound } fr
 import { PuzzleLine, symbolName } from "@/components/ekvationer/PuzzleFigure";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { checkAnswer, explain, generatePuzzle, LEVELS, shownRow, type Puzzle, type Result } from "@/lib/ekvationer";
+import { checkAnswer, explain, generatePuzzle, LEVELS, PAREN_LEVEL, shownRow, type Puzzle, type Result } from "@/lib/ekvationer";
 import { justMastered, recommendedNext, summarize, type EkvationRow } from "@/lib/ekvationStats";
 import EkvationProgress, { LevelStatusLine, Stars } from "@/components/ekvationer/EkvationProgress";
 
@@ -65,7 +65,7 @@ const Ekvationer = () => {
     const now = Date.now();
     const row: EkvationRow = {
       session_id: sessionId.current, level, hint_used: usedHint.current, is_correct: r.correct, created_at: new Date(now).toISOString(),
-      puzzle_id: puzzleId.current, error_kind: r.correct ? null : r.priorityError ? "priority" : "other",
+      puzzle_id: puzzleId.current, error_kind: r.correct ? null : r.priorityError ? "priority" : r.parenError ? "parenthesis" : "other",
       seconds_spent: Math.min(300, Math.max(0, Math.round((now - lastMark.current) / 1000))),
     };
     lastMark.current = now;
@@ -101,13 +101,14 @@ const Ekvationer = () => {
   };
   const next = () => { setCompleted((c) => c + 1); fresh(); };
 
-  const variables = level === 3;
+  const variables = level >= 3;
+  const parens = level === PAREN_LEVEL;
   const name = (s: number) => symbolName(p.symbols[s]);
   const first = p.symbols[0];
 
   const settings = (
     <>
-      <OptionGroup label="Nivå · rekommenderad ordning 1 → 4">
+      <OptionGroup label={`Nivå · rekommenderad ordning 1 → ${LEVELS.length}`}>
         {LEVELS.map((l, i) => (
           <Option key={i} active={level === i} onClick={() => choose(i)} title={l.blurb}>
             <span className="font-bold">{i + 1}</span> {l.name}
@@ -116,7 +117,7 @@ const Ekvationer = () => {
         ))}
       </OptionGroup>
       <LevelStatusLine l={summary.levels[level]} level={level} />
-      {variables && <p className="text-xs text-muted-foreground">Kändisar smyger in allt oftare ju högre nivå. På nivå 4 byts figurerna mot x, y och z.</p>}
+      {variables && <p className="text-xs text-muted-foreground">{parens ? "Nivå 5: x, y och z med bråk och parenteser. Räkna alltid parentesen först." : "Kändisar smyger in allt oftare ju högre nivå. På nivå 4 byts figurerna mot x, y och z."}</p>}
     </>
   );
 
@@ -179,7 +180,9 @@ const Ekvationer = () => {
           <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
             {!done && (
               <HintToggle open={tip} onToggle={() => { setTip(!tip); usedHint.current = true; }}>
-                {p.level === 0 ? "Börja med rad 1" : `Leta upp raden med bara en sorts figur (rad ${shownRow(p, 0)})`} – där finns bara {variables ? first : symbolName(first)}. {variables ? "Vad måste x vara?" : "Hur mycket är en av dem värd?"}
+                {p.level === PAREN_LEVEL
+                  ? `Leta upp raden med bara x (rad ${shownRow(p, 0)}). Gör dig av med bråket eller parentesen först – vad måste x vara?`
+                  : <>{p.level === 0 ? "Börja med rad 1" : `Leta upp raden med bara en sorts figur (rad ${shownRow(p, 0)})`} – där finns bara {variables ? first : symbolName(first)}. {variables ? "Vad måste x vara?" : "Hur mycket är en av dem värd?"}</>}
               </HintToggle>
             )}
             {!done && (
