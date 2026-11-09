@@ -225,6 +225,13 @@
       "when": 1794170909998,
       "tag": "0031_brak_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794258406960,
+      "tag": "0032_ekvation_level5",
+      "breakpoints": true
     }
   ]
 }
