@@ -19,3 +19,4 @@
 - [x] Måluppfyllelse från självskattningen: staplar per klass, delkapitel och elev (Admin + Elevkort)
 - [x] Bråkträning: svarsrutor (heltal + täljare/nämnare), stegförklaring för add/sub
 - [x] Bråkträning: kändisberöm med pratbubbla vid 5/10/20 i rad, nytt steg, nytt rekord
+- [x] Bråkträning: kändisberömmet stillsamt, utan rörliga animationer
