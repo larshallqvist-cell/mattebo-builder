@@ -224,12 +224,13 @@ export function termText(t: Term, name: (s: number) => string, variables: boolea
 export function exprText(terms: Term[], name: (s: number) => string, numeric = false): string {
   return terms.map((t) => {
     const showCoef = t.coef !== 1 || (!t.syms.length && !t.inner);
-    const factors = [...(showCoef ? [String(t.coef)] : []), ...t.syms.map(name)];
+    const syms = t.syms.map(name);
+    const head = numeric
+      ? [...(showCoef ? [String(t.coef)] : []), ...syms].join(" · ")
+      : `${showCoef ? t.coef : ""}${syms.join(" · ")}`;
     const group = t.inner ? `(${exprText(t.inner, name, numeric)})` : "";
-    const glue = numeric || t.syms.length > 1 ? " · " : "";
-    const head = numeric ? factors.join(" · ") : showCoef ? `${t.coef}${t.syms.map(name).join(" · ")}` : t.syms.map(name).join(" · ");
+    const glue = numeric ? " · " : "";
     const body = !group ? head : !head ? group : t.after ? `${group}${glue}${head}` : `${head}${glue}${group}`;
-    void factors;
     return t.div ? `${body}/${t.div}` : body;
   }).join(" + ");
 }
