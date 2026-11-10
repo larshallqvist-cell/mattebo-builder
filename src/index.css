@@ -287,6 +287,21 @@
     margin-right: 0.14em;
   }
 
+  /* Admin view: "Matte Åk" sits inside the presentation-link button, which is
+     its own paint context, so the h1's clipped gradient cannot reach the text
+     and it turns invisible. Give the button its own copy of the gradient,
+     clipped to its text (spelled out — `inherit` loses to the button reset). */
+  .grade-hero button {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--grade-tint, var(--accent))) 0%,
+      hsl(var(--accent)) 55%,
+      hsl(var(--primary)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
   /* School name in the class-page header: a deliberately subordinate label.
      The big grade headline is the protagonist; the school name is a quiet
      wordmark that anchors the header without competing with it. */
