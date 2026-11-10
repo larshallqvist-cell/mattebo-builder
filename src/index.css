@@ -514,6 +514,20 @@
     animation: float-delayed 4.5s ease-in-out infinite;
   }
 
+  /* Smaller float for the game buttons on grade pages */
+  @keyframes float-soft {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .animate-float-soft {
+    animation: float-soft 4s ease-in-out infinite;
+  }
+
+  .animate-float-soft-delayed {
+    animation: float-soft 4.6s ease-in-out infinite;
+  }
+
   /* Impatient letter animation - like restless dogs waiting */
   @keyframes impatient {
     0%, 100% {
@@ -549,6 +563,8 @@
     .animate-impatient,
     .animate-float,
     .animate-float-delayed,
+    .animate-float-soft,
+    .animate-float-soft-delayed,
     .animate-pulse-glow,
     .animate-fade-in,
     .animate-scale-in,
