@@ -190,7 +190,7 @@ const ChapterSections = ({ grade, chapter }: ChapterProps) => {
         );
       })}
       {current != null && sections[current] && (
-        <SelfAssessmentDialog grade={grade} chapter={chapter} sectionIndex={current} sectionName={sections[current]} pulse={pulse} />
+        <SelfAssessmentDialog grade={grade} chapter={chapter} sections={sections} markedIndex={current} pulse={pulse} />
       )}
       {isAdmin && current != null && sections[current] && (
         <button

@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 interface Props {
   grade: number;
   chapter: number;
-  sectionIndex: number;
-  sectionName: string;
+  /** All sub-chapters of the chapter; the student may rate any of them. */
+  sections: string[];
+  /** The sub-chapter the teacher has marked: the dialog opens on it and the glow follows it. */
+  markedIndex: number;
   /** Teacher has asked for attention: the button glows softly until the student has answered. */
   pulse?: boolean;
 }
@@ -20,10 +22,17 @@ interface Props {
 /** One sub-chapter at a time, one "Jag kan …" statement per card; the last answer saves. */
 const OPTION_TONES = ["--pastel-4", "--pastel-5", "--pastel-1"];
 
-const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName, pulse = false }: Props) => {
+const SelfAssessmentDialog = ({ grade, chapter, sections, markedIndex, pulse = false }: Props) => {
   const { user, accessStatus, isAdmin } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [sectionIndex, setSectionIndex] = useState(markedIndex);
+  const sectionName = sections[sectionIndex] ?? sections[markedIndex] ?? "";
+
+  // Every time the dialog opens it starts on the teacher's marked sub-chapter.
+  useEffect(() => {
+    if (open) setSectionIndex(markedIndex);
+  }, [open, markedIndex]);
   const [questions, setQuestions] = useState<string[]>([]);
   const [ratings, setRatings] = useState<(number | null)[]>([]);
   const [saving, setSaving] = useState(false);
@@ -37,10 +46,10 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName, pulse
     if (!pulse || !user || isAdmin) return;
     let alive = true;
     supabase.from("self_assessment_responses").select("user_id")
-      .eq("user_id", user.id).eq("grade", grade).eq("chapter", chapter).eq("section_index", sectionIndex).maybeSingle()
+      .eq("user_id", user.id).eq("grade", grade).eq("chapter", chapter).eq("section_index", markedIndex).maybeSingle()
       .then(({ data }) => { if (alive) setAnswered(!!data); });
     return () => { alive = false; };
-  }, [pulse, user, isAdmin, grade, chapter, sectionIndex]);
+  }, [pulse, user, isAdmin, grade, chapter, markedIndex]);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -76,7 +85,7 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName, pulse
     );
     setSaving(false);
     if (error) toast({ title: "Kunde inte spara", description: "Försök igen om en stund.", variant: "destructive" });
-    else { setDone(true); setAnswered(true); }
+    else { setDone(true); if (sectionIndex === markedIndex) setAnswered(true); }
   };
 
   const choose = (v: number) => {
@@ -107,6 +116,21 @@ const SelfAssessmentDialog = ({ grade, chapter, sectionIndex, sectionName, pulse
           <DialogTitle className="font-playful text-xl">{sectionName}</DialogTitle>
           <DialogDescription className="font-manrope">{INSTRUCTION}</DialogDescription>
         </DialogHeader>
+        {sections.length > 1 && (
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Välj delkapitel">
+            {sections.map((name, i) => {
+              const active = i === sectionIndex;
+              return (
+                <button key={`${i}-${name}`} type="button" aria-pressed={active} disabled={saving}
+                  onClick={() => setSectionIndex(i)}
+                  className={cn("rounded-full border px-3 py-1 font-manrope text-xs transition-colors",
+                    active ? "border-accent bg-accent text-accent-foreground" : "border-border text-muted-foreground hover:border-accent/70 hover:text-foreground")}>
+                  {name}
+                </button>
+              );
+            })}
+          </div>
+        )}
         {done ? (
           <div className="space-y-3 py-6 text-center">
             <p className="text-4xl" aria-hidden>🎉</p>
