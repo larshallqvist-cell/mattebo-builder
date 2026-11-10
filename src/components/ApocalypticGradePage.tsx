@@ -49,12 +49,30 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
 ];
 
 const toolBtn =
-  "flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-xl border-2 px-1.5 py-1.5 text-center text-sm font-bold text-background shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg [font-family:'Short_Stack',cursive]";
+  "relative flex min-h-[52px] w-full flex-col items-center justify-center gap-0.5 rounded-2xl border px-1.5 py-1.5 text-center text-sm font-bold text-background transition-transform duration-300 hover:scale-[1.06] active:scale-95 [font-family:'Short_Stack',cursive]";
 
-const pastel = (i: number) => ({
-  backgroundColor: `hsl(var(--pastel-${(i % 9) + 1}))`,
-  borderColor: `hsl(var(--pastel-${(i % 9) + 1}) / 0.6)`,
+/** Same weightless feel as the start-page grade circles: slow staggered float, soft halo and layered shadow. */
+const floatWrap = (i: number) => ({
+  className: `group relative block ${i % 2 === 0 ? "animate-float-soft" : "animate-float-soft-delayed"}`,
+  style: { animationDelay: `${(i % 4) * -0.9}s` },
 });
+
+const pastel = (i: number) => {
+  const c = `var(--pastel-${(i % 9) + 1})`;
+  return {
+    backgroundColor: `hsl(${c})`,
+    borderColor: `hsl(${c} / 0.5)`,
+    boxShadow: `0 2px 4px hsl(var(--background) / 0.18), 0 10px 22px -6px hsl(${c} / 0.55), 0 18px 34px -14px hsl(var(--background) / 0.45)`,
+  };
+};
+
+const ToolHalo = ({ i }: { i: number }) => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute -inset-2 rounded-3xl opacity-35 blur-lg transition-opacity duration-500 group-hover:opacity-70"
+    style={{ background: `radial-gradient(circle, hsl(var(--pastel-${(i % 9) + 1})) 0%, transparent 70%)` }}
+  />
+);
 
 const headerBtn =
   "relative flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-card/60 text-foreground hover:bg-accent/30 transition-colors flex-shrink-0 sm:h-9 sm:w-9";
@@ -74,18 +92,24 @@ const HeaderTools = () => {
 
 const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => (
   <div className="space-y-3">
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-2">
+    <div className="grid grid-cols-3 gap-2.5 pt-1 sm:grid-cols-4 xl:grid-cols-2">
       {TOOL_LINKS.map(({ label, url, icon: Icon, internal }, i) =>
         internal ? (
-          <Link key={url} to={url} className={toolBtn} style={pastel(i + 1)}>
-            <Icon className="h-5 w-5" />
-            {label}
-          </Link>
+          <span key={url} {...floatWrap(i)}>
+            <ToolHalo i={i + 1} />
+            <Link to={url} className={toolBtn} style={pastel(i + 1)}>
+              <Icon className="h-5 w-5" />
+              {label}
+            </Link>
+          </span>
         ) : (
-          <button key={url} type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn} style={pastel(i + 1)}>
-            <Icon className="h-5 w-5" />
-            {label}
-          </button>
+          <span key={url} {...floatWrap(i)}>
+            <ToolHalo i={i + 1} />
+            <button type="button" onClick={() => window.open(url, "_blank", "noopener,noreferrer")} className={toolBtn} style={pastel(i + 1)}>
+              <Icon className="h-5 w-5" />
+              {label}
+            </button>
+          </span>
         ),
       )}
     </div>
