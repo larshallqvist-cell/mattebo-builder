@@ -62,14 +62,14 @@ export default function CoordinateGrid({ task, result, placed, onPlace }: Props)
       <text x={tx(0) + 9} y={ty(hi) + 14} className="fill-foreground font-orbitron text-[15px] font-bold italic">y</text>
       {/* skalstreck och siffror */}
       {ticks.filter((v) => v !== 0).map((v) => (
-        <g key={`t${v}`} className="fill-muted-foreground text-[10px] font-semibold">
+        <g key={`t${v}`} className="fill-muted-foreground text-[12px] font-semibold">
           <line x1={tx(v)} x2={tx(v)} y1={ty(0) - 3} y2={ty(0) + 3} className="stroke-foreground" strokeWidth={1.2} />
           <line y1={ty(v)} y2={ty(v)} x1={tx(0) - 3} x2={tx(0) + 3} className="stroke-foreground" strokeWidth={1.2} />
-          <text x={tx(v)} y={ty(0) + 13} textAnchor="middle">{v < 0 ? `−${-v}` : v}</text>
-          <text x={tx(0) - 6} y={ty(v) + 3.5} textAnchor="end">{v < 0 ? `−${-v}` : v}</text>
+          <text x={tx(v)} y={ty(0) + 15} textAnchor="middle">{v < 0 ? `−${-v}` : v}</text>
+          <text x={tx(0) - 6} y={ty(v) + 4} textAnchor="end">{v < 0 ? `−${-v}` : v}</text>
         </g>
       ))}
-      <text x={tx(0) - 5} y={ty(0) + 13} textAnchor="end" className="fill-muted-foreground text-[10px] font-semibold">0</text>
+      <text x={tx(0) - 5} y={ty(0) + 15} textAnchor="end" className="fill-muted-foreground text-[12px] font-semibold">0</text>
 
       {/* vägen från origo: först x, sedan y */}
       {showPath && (
