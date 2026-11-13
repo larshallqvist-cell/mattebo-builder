@@ -83,7 +83,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
     const pick = trayPick ?? (state.pending ? { kind: state.pending.kind, neg: state.pending.neg } : null);
     if (!pick) return;
     const r = placeTile(state, pick.kind, pick.neg, side);
-    if (!r.ok) return fail(r.reason);
+    if ("reason" in r) return fail(r.reason);
     push(r.state);
     setTrayPick(r.state.pending ? pick : null);
     setBoardPick(null);
@@ -96,7 +96,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
     if (boardPick.id === id) return setBoardPick(null);
     const r = simplifyPair(state, side, boardPick.id, id);
     setBoardPick(null);
-    if (!r.ok) return fail(r.reason);
+    if ("reason" in r) return fail(r.reason);
     push(r.state);
   };
 
