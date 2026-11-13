@@ -31,7 +31,7 @@ describe("Koordinater – steg", () => {
   test("steg 5–6 har alltid minst en halv koordinat, t.ex. 1,5", () => {
     for (const tier of [4, 5]) for (const t of many("las", tier)) {
       expect(Number.isInteger(t.point.x) && Number.isInteger(t.point.y)).toBe(false);
-      expect((t.point.x * 2) % 1).toBe(0); expect((t.point.y * 2) % 1).toBe(0);
+      expect(Number.isInteger(t.point.x * 2) && Number.isInteger(t.point.y * 2)).toBe(true);
       const s = KOORD_TIERS[tier];
       expect(t.point.x).toBeGreaterThanOrEqual(s.min); expect(t.point.x).toBeLessThanOrEqual(s.max);
     }
