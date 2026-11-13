@@ -115,8 +115,8 @@ const GameVisibilityMatrix = () => {
                         className={cn(
                           "flex h-9 w-full items-center justify-center rounded-lg border transition-colors",
                           enabled
-                            ? "border-primary/50 bg-primary/20 text-primary hover:bg-primary/30"
-                            : "border-border bg-muted/30 text-muted-foreground/60 hover:bg-muted/60",
+                            ? "border-primary bg-primary/40 text-foreground hover:bg-primary/55"
+                            : "border-dashed border-border/60 bg-transparent text-muted-foreground/50 hover:bg-muted/40",
                         )}
                       >
                         {enabled ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
