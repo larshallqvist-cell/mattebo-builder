@@ -8,7 +8,7 @@ import ExerciseShell from "@/components/exercise/ExerciseShell";
 import MicrophoneMeter from "@/components/MicrophoneMeter";
 import { createVoiceAnswerHandler } from "@/lib/tabelltestVoice";
 import {
-  generateQuestions, isPassed, passAvgMs,
+  isPassed, passAvgMs,
   INPUT_MODE_LABELS, QUESTION_COUNT, PASS_SCORE,
   type InputMode, type TabellQuestion,
 } from "@/lib/tabelltest";
@@ -41,6 +41,8 @@ const Tabelltest = () => {
   const [fullName, setFullName] = useState("");
   const [listening, setListening] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState(false);
   const [micReady, setMicReady] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const [micRequestKey, setMicRequestKey] = useState(0);
@@ -49,6 +51,8 @@ const Tabelltest = () => {
   const [feedback, setFeedback] = useState<{ correct: boolean; key: number } | null>(null);
 
   const timesRef = useRef<number[]>([]);
+  const answersRef = useRef<number[]>([]);
+  const sessionIdRef = useRef<string | null>(null);
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const questionStartRef = useRef(0);
   const scoreRef = useRef(0);
@@ -126,8 +130,22 @@ const Tabelltest = () => {
     setFeedback(null);
   }, []);
 
-  const startTest = () => {
-    const qs = generateQuestions();
+  // Questions come from the server, which also scores the finished test,
+  // so a result can never be saved with a score the student did not earn.
+  const startTest = async () => {
+    if (starting) return;
+    setStarting(true);
+    setStartError(false);
+    const { data, error } = await supabase.rpc("start_tabelltest", { p_input_mode: mode });
+    setStarting(false);
+    const payload = data as { session_id?: string; questions?: { a: number; b: number }[] } | null;
+    if (error || !payload?.session_id || !Array.isArray(payload.questions) || payload.questions.length === 0) {
+      setStartError(true);
+      return;
+    }
+    sessionIdRef.current = payload.session_id;
+    answersRef.current = [];
+    const qs: TabellQuestion[] = payload.questions.map(({ a, b }) => ({ a, b, answer: a * b }));
     setQuestions(qs);
     setIndex(0);
     setAnswer("");
@@ -153,18 +171,22 @@ const Tabelltest = () => {
       setScore(finalScore);
       setAvgMs(avg);
       setPhase("done");
-      if (!user) return;
-      const passed = isPassed(finalScore, avg, mode);
-      const { error } = await supabase.from("tabelltest_results").insert({
-        user_id: user.id,
-        score: finalScore,
-        total: QUESTION_COUNT,
-        avg_time_ms: avg,
-        passed,
-        input_mode: mode,
+      const sessionId = sessionIdRef.current;
+      sessionIdRef.current = null;
+      if (!user || !sessionId) return;
+      const { data, error } = await supabase.rpc("finish_tabelltest", {
+        p_session_id: sessionId,
+        p_answers: answersRef.current,
+        p_times_ms: times.map((t) => Math.round(t)),
       });
-      if (error) setSaveError(true);
-      else loadBest();
+      if (error) {
+        setSaveError(true);
+        return;
+      }
+      const saved = data as { score?: number; avg_time_ms?: number } | null;
+      if (typeof saved?.score === "number") setScore(saved.score);
+      if (typeof saved?.avg_time_ms === "number") setAvgMs(saved.avg_time_ms);
+      loadBest();
     },
     [user, mode, stopListening, loadBest, clearFeedback],
   );
@@ -176,6 +198,7 @@ const Tabelltest = () => {
       if (Number.isNaN(value)) return;
       const elapsed = performance.now() - questionStartRef.current;
       timesRef.current.push(elapsed);
+      answersRef.current.push(value);
       const q = questions[index];
       const correct = value === q.answer;
       const newScore = scoreRef.current + (correct ? 1 : 0);
@@ -357,9 +380,14 @@ const Tabelltest = () => {
                 </p>
               )}
               <div>
-                <Button size="lg" onClick={startTest} disabled={mode === "voice" && (!speechSupported || !micReady || micDenied)} className="font-nunito text-base">
+                <Button size="lg" onClick={() => void startTest()} disabled={starting || (mode === "voice" && (!speechSupported || !micReady || micDenied))} className="font-nunito text-base">
                   Starta testet
                 </Button>
+                {startError && (
+                  <p className="mt-2 text-sm text-destructive">
+                    Testet kunde inte startas just nu – försök igen om en stund.
+                  </p>
+                )}
               </div>
             </div>
           )}
