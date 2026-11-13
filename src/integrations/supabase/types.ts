@@ -848,6 +848,41 @@ export type Database = {
           },
         ]
       }
+      tabelltest_sessions: {
+        Row: {
+          finished_at: string | null
+          id: string
+          input_mode: string
+          questions: Json
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          input_mode: string
+          questions: Json
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          input_mode?: string
+          questions?: Json
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tabelltest_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -923,6 +958,14 @@ export type Database = {
         }[]
       }
       fill_missing_classes: { Args: never; Returns: number }
+      finish_tabelltest: {
+        Args: {
+          p_answers: number[]
+          p_session_id: string
+          p_times_ms: number[]
+        }
+        Returns: Json
+      }
       first_recorded_grade: { Args: { p_user_id: string }; Returns: number }
       has_role: {
         Args: {
@@ -986,6 +1029,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      start_tabelltest: { Args: { p_input_mode: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"

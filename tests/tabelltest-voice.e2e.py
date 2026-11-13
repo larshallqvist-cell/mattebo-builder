@@ -1,7 +1,7 @@
 """Run with python3 tests/tabelltest-voice.e2e.py after minting the owner's preview session.
 
 Uses a synthetic speech recognizer, not microphone hardware, including answers
-appended with changing punctuation to the same browser result. Result writes are
+appended with changing punctuation to the same browser result. The server-scored finish call is
 intercepted so this regression never adds a test result to the owner's history.
 """
 import asyncio
@@ -31,12 +31,15 @@ async def main():
 
         async def results(route):
             if route.request.method == "POST":
-                writes.append(route.request.post_data_json)
-                await route.fulfill(status=201, content_type="application/json", body="")
+                body = route.request.post_data_json
+                writes.append(body)
+                answers = body["p_answers"]
+                await route.fulfill(status=200, content_type="application/json",
+                                    body=json.dumps({"score": 20, "total": len(answers), "avg_time_ms": 1000, "passed": True}))
             else:
                 await route.continue_()
 
-        await page.route("**/rest/v1/tabelltest_results**", results)
+        await page.route("**/rest/v1/rpc/finish_tabelltest**", results)
         await page.goto("http://localhost:8080")
         await page.evaluate("([k,v])=>localStorage.setItem(k,v)",
                             [storage_key, session_json])
@@ -89,9 +92,9 @@ async def main():
         await page.get_by_role("button", name="Försök igen").wait_for()
         await page.wait_for_timeout(200)
         assert len(writes) == 1, f"Expected one final save, got {len(writes)}"
-        assert writes[0]["score"] == 20
-        assert writes[0]["total"] == 20
-        assert writes[0]["input_mode"] == "voice"
+        assert len(writes[0]["p_answers"]) == 20
+        assert len(writes[0]["p_times_ms"]) == 20
+        assert writes[0]["p_session_id"]
         assert await page.evaluate("window.recognitionStarts") in (2, 3)
         os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
         await page.screenshot(path="/tmp/browser/voice-latency/after.png")
