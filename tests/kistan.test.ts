@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  cancelPair, isSolved, isUnlocked, LEVELS, mergeBest, minMoves, parseEquation, placeTile, simplifyPair, solve, stars,
+  cancelPair, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, parseEquation, placeTile, simplifyPair, solve, stars,
 } from "../src/lib/kistan";
 
 describe("Kistan – regler", () => {
@@ -76,5 +76,17 @@ describe("Kistan – stjärnor och upplåsning", () => {
     expect(mergeBest({ stars: 2, best_moves: 5 }, 3, 3)).toEqual({ stars: 3, best_moves: 3 });
     expect(mergeBest({ stars: 3, best_moves: 6 }, 1, 4)).toEqual({ stars: 3, best_moves: 4 });
     expect(mergeBest(undefined, 2, 7)).toEqual({ stars: 2, best_moves: 7 });
+  });
+
+  test("kistan hör bara hemma i årskurs 6 och 7, läraren ser den alltid", () => {
+    expect(kistanAvailable(6)).toBe(true);
+    expect(kistanAvailable(7)).toBe(true);
+    expect(kistanAvailable(8)).toBe(false);
+    expect(kistanAvailable(9)).toBe(false);
+    expect(kistanAvailable(8, true)).toBe(true);
+    expect(kistanAvailable(9, true)).toBe(true);
+    expect(kistanAvailable(null)).toBe(true);
+    expect(kistanAvailable(undefined)).toBe(true);
+    expect(kistanAvailable(0)).toBe(true);
   });
 });

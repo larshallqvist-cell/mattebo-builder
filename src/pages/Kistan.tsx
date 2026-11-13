@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, Lock, RotateCcw, Star, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import KistanTile, { kistanBoxImg, kistanFishImg } from "@/components/kistan/KistanTile";
 import {
-  isSolved, isUnlocked, LEVELS, mergeBest, minMoves, nextLevel, parseEquation, placeTile, simplifyPair, stars as calcStars,
+  isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, parseEquation, placeTile, simplifyPair, stars as calcStars,
   trayTiles, WORLD_NAMES, type GameState, type Level, type ProgressMap, type Side,
 } from "@/lib/kistan";
 
@@ -185,6 +185,7 @@ const Kistan = () => {
   const { user, isAdmin } = useAuth();
   const [params, setParams] = useSearchParams();
   const [progress, setProgress] = useState<ProgressMap>({});
+  const [ownGrade, setOwnGrade] = useState<number | null | undefined>(undefined);
   const levelId = params.get("niva");
   const level = LEVELS.find((l) => l.id === levelId && isUnlocked(l.id, progress, isAdmin));
 
@@ -193,6 +194,12 @@ const Kistan = () => {
     if (!user) return;
     void supabase.from("kistan_progress").select("level_id,stars,best_moves").eq("user_id", user.id).then(({ data }) => {
       setProgress(Object.fromEntries((data ?? []).map((r) => [r.level_id, { stars: r.stars, best_moves: r.best_moves }])));
+    });
+  }, [user]);
+  useEffect(() => {
+    if (!user) return;
+    void supabase.from("profiles").select("class_grade").eq("id", user.id).maybeSingle().then(({ data }) => {
+      setOwnGrade(data?.class_grade ?? null);
     });
   }, [user]);
 
@@ -211,6 +218,30 @@ const Kistan = () => {
   };
 
   const done = Object.keys(progress).length;
+
+  /** Spelet hör hemma i årskurs 6 och 7; lärare och icke-elever släpps igenom. */
+  if (!isAdmin && user && ownGrade === undefined) {
+    return (
+      <ExerciseShell title="Kistan · Gör kistan ensam">
+        <p className="py-16 text-center text-sm text-muted-foreground">Laddar …</p>
+      </ExerciseShell>
+    );
+  }
+  if (!kistanAvailable(ownGrade, isAdmin)) {
+    return (
+      <ExerciseShell title="Kistan · Gör kistan ensam">
+        <section className="kistan-board mt-6 rounded-[1.75rem] p-6 text-center">
+          <img src={kistanBoxImg} alt="Kistan" className="mx-auto h-16 w-16 drop-shadow-xl" />
+          <h1 className="mt-2 font-playful text-2xl font-bold">Kistan är för årskurs 6 och 7</h1>
+          <p className="mx-auto mt-2 max-w-sm text-sm opacity-90">I din klass övar du med de andra spelen i stället.</p>
+          <Link to="/" className="mt-4 inline-flex rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground">
+            Till Mattebo
+          </Link>
+        </section>
+      </ExerciseShell>
+    );
+  }
+
   return (
     <ExerciseShell title="Kistan · Gör kistan ensam" progress={{ value: done, total: LEVELS.length, showLabel: false }}>
       {level ? (

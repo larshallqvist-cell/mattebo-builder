@@ -146,3 +146,14 @@ export function mergeBest(prev: { stars: number; best_moves: number } | undefine
   if (prev && prev.stars >= stars && prev.best_moves <= moves) return null;
   return { stars: Math.max(stars, prev?.stars ?? 0), best_moves: prev ? Math.min(moves, prev.best_moves) : moves };
 }
+
+/** Kistan riktar sig bara till årskurs 6 och 7. */
+export const KISTAN_GRADES = [6, 7] as const;
+const KISTAN_BLOCKED_GRADES = [8, 9];
+
+/** Elever i årskurs 8 och 9 varken ser knappen eller spelet. Lärare, vårdnadshavare
+ *  (0) och elever utan registrerad klass (null) släpps igenom. */
+export function kistanAvailable(grade: number | null | undefined, isAdmin = false): boolean {
+  if (isAdmin) return true;
+  return grade === null || grade === undefined || !KISTAN_BLOCKED_GRADES.includes(grade);
+}
