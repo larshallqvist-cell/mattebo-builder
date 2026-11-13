@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle, Crosshair } from "lucide-react";
+import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle, Crosshair, Package } from "lucide-react";
 import ChapterSections, { ChapterTitle } from "@/components/ChapterHeader";
 import LoginGate from "@/components/LoginGate";
 
@@ -47,6 +47,7 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { label: "Procent", url: "/procent", icon: Percent, internal: true },
   { label: "Ekvationer", url: "/ekvationer", icon: Puzzle, internal: true },
   { label: "Koordinater", url: "/koordinater", icon: Crosshair, internal: true },
+  { label: "Kistan", url: "/kistan", icon: Package, internal: true },
 ];
 
 const toolBtn =

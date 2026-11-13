@@ -246,6 +246,13 @@
       "when": 1794552954750,
       "tag": "0034_tabelltest_server_scoring",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794607301915,
+      "tag": "0035_kistan_progress",
+      "breakpoints": true
     }
   ]
 }

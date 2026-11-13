@@ -709,3 +709,36 @@ body::after {
   .assessment-pulse { animation: none; background-color: hsl(var(--attention) / 0.35); }
   .assessment-pulse::after { animation: none; opacity: 0; }
 }
+
+/* Kistan: varm träbräda med vita brickor (minusbrickor nattblå), som originalspelet. Bara variabler inom .kistan-board. */
+.kistan-board {
+  --kistan-wood: 28 52% 40%;
+  --kistan-wood-dark: 24 40% 24%;
+  --kistan-tile: 45 30% 98%;
+  --kistan-ink: 220 20% 14%;
+  --kistan-night: 245 38% 30%;
+  --kistan-night-ink: 45 40% 95%;
+  --kistan-gold: 46 95% 58%;
+  --kistan-text: 40 60% 96%;
+  background:
+    radial-gradient(ellipse at 30% 20%, hsl(var(--kistan-wood) / 0.55), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, hsl(var(--kistan-wood-dark) / 0.45), transparent 60%),
+    hsl(var(--kistan-wood));
+  color: hsl(var(--kistan-text));
+}
+.kistan-half { border: 3px solid hsl(var(--kistan-wood-dark) / 0.7); box-shadow: inset 0 2px 12px hsl(var(--kistan-wood-dark) / 0.45); }
+.kistan-tray { background: hsl(var(--kistan-wood-dark)); }
+.kistan-tile {
+  background: hsl(var(--kistan-tile)); color: hsl(var(--kistan-ink));
+  font-family: "Short Stack", cursive;
+  box-shadow: 0 4px 0 hsl(var(--kistan-ink) / 0.25), 0 6px 14px hsl(var(--kistan-wood-dark) / 0.5);
+}
+.kistan-tile-neg { background: hsl(var(--kistan-night)); color: hsl(var(--kistan-night-ink)); }
+.kistan-gold { color: hsl(var(--kistan-gold)); }
+.kistan-ring { box-shadow: 0 0 0 4px hsl(var(--kistan-gold)); }
+.kistan-ring-soft { box-shadow: 0 0 0 2px hsl(var(--kistan-gold) / 0.5); }
+@keyframes kistan-pop { from { transform: scale(.6); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+@keyframes kistan-shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
+.kistan-pop { animation: kistan-pop .25s ease-out; }
+.kistan-shake { animation: kistan-shake .3s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .kistan-pop, .kistan-shake { animation: none; } }

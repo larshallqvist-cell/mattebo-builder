@@ -418,6 +418,38 @@ export type Database = {
         }
         Relationships: []
       }
+      kistan_progress: {
+        Row: {
+          best_moves: number
+          level_id: string
+          stars: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_moves: number
+          level_id: string
+          stars: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_moves?: number
+          level_id?: string
+          stars?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kistan_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       koordinat_attempts: {
         Row: {
           created_at: string
