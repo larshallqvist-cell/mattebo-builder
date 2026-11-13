@@ -253,6 +253,13 @@
       "when": 1794607301915,
       "tag": "0035_kistan_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794609661023,
+      "tag": "0036_game_visibility",
+      "breakpoints": true
     }
   ]
 }
