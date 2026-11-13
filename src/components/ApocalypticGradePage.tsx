@@ -23,6 +23,7 @@ import { getChapterFromCookie } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { SuspenseResourceAccordion, SuspenseLessonCalendar, SuspenseMascotPanel } from "@/components/LazyComponents";
+import { KISTAN_GRADES } from "@/lib/kistan";
 
 interface ApocalypticGradePageProps {
   grade: number;
