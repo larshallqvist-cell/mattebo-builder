@@ -23,7 +23,7 @@ const List = ({ rows, empty }: { rows: Row[]; empty: string }) =>
 
 /** Topplistan för en träning: hela skolan topp 10 och topp 3 i varje klass, räknat på bästa svit. */
 type Props = { title: string; open: boolean; onOpenChange: (o: boolean) => void; description?: string } & (
-  { mode: "mangd" | "faktormangd"; rpc?: never } | { mode?: never; rpc: "brak_leaderboard" });
+  { mode: "mangd" | "faktormangd"; rpc?: never } | { mode?: never; rpc: "brak_leaderboard" } | { mode: "las" | "mix"; rpc: "koordinat_leaderboard" });
 const Leaderboard = ({ mode, rpc, title, open, onOpenChange, description }: Props) => {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -31,7 +31,9 @@ const Leaderboard = ({ mode, rpc, title, open, onOpenChange, description }: Prop
   useEffect(() => {
     if (!open) return;
     setFailed(false);
-    const req = rpc ? supabase.rpc(rpc) : supabase.rpc("procent_leaderboard", { p_mode: mode! });
+    const req = rpc === "brak_leaderboard" ? supabase.rpc(rpc)
+      : rpc === "koordinat_leaderboard" ? supabase.rpc(rpc, { p_mode: mode as string })
+      : supabase.rpc("procent_leaderboard", { p_mode: mode as string });
     void req.then(({ data, error }) => {
       if (error) { setFailed(true); setRows([]); } else setRows(((data ?? []) as Row[]).map((r) => ({ ...r, best: Number(r.best) })));
     });

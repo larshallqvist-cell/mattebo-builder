@@ -418,6 +418,56 @@ export type Database = {
         }
         Relationships: []
       }
+      koordinat_attempts: {
+        Row: {
+          created_at: string
+          error_kind: string | null
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          streak: number
+          task_kind: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_kind?: string | null
+          hint_used?: boolean
+          id?: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          streak?: number
+          task_kind: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_kind?: string | null
+          hint_used?: boolean
+          id?: string
+          is_correct?: boolean
+          level?: number
+          mode?: string
+          session_id?: string
+          streak?: number
+          task_kind?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "koordinat_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_notes: {
         Row: {
           content: string
@@ -880,6 +930,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      koordinat_leaderboard: {
+        Args: { p_mode: string }
+        Returns: {
+          best: number
+          is_me: boolean
+          name: string
+          place: number
+          scope: number
+        }[]
       }
       procent_leaderboard: {
         Args: { p_mode: string }

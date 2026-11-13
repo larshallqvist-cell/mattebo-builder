@@ -232,6 +232,13 @@
       "when": 1794258406960,
       "tag": "0032_ekvation_level5",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794552524007,
+      "tag": "0033_koordinat_attempts",
+      "breakpoints": true
     }
   ]
 }

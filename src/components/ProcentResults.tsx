@@ -13,6 +13,14 @@ export const PROCENT_MODES = [
   { id: "faktor", title: "Förändringsfaktor (äldre)", levels: ["Ökning", "Minskning", "Blandat"] },
 ] as const;
 
+export const KOORDINAT_MODES = [
+  { id: "las", title: "Läs av punkten", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "mix", title: "MIX", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+] as const;
+
+type ModeMeta = { id: string; title: string; levels: readonly string[] };
+type Props = { table?: "procent_attempts" | "koordinat_attempts"; modes?: readonly ModeMeta[] };
+
 const STATUS: Record<LevelStatus, string> = {
   none: "bg-muted/40 text-muted-foreground",
   mastered: "bg-accent text-accent-foreground",
@@ -21,11 +29,11 @@ const STATUS: Record<LevelStatus, string> = {
 };
 const fmt = (iso: string) => new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
-/** Läraröversikt för Procent. Bara admin läser alla rader (RLS). */
-export default function ProcentResults() {
+/** Läraröversikt för mängdträningar med svit (Procent, Koordinater). Bara admin läser alla rader (RLS). */
+export default function ProcentResults({ table = "procent_attempts", modes = PROCENT_MODES }: Props) {
   const [rows, setRows] = useState<(Attempt & { streak: number | null })[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
-  const [mode, setMode] = useState<(typeof PROCENT_MODES)[number]["id"]>("mangd");
+  const [mode, setMode] = useState<string>(modes[0].id);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -33,7 +41,7 @@ export default function ProcentResults() {
     setLoading(true); setError(false);
     const all: (Attempt & { streak: number | null })[] = [];
     for (let from = 0; ; from += 1000) {
-      const r = await supabase.from("procent_attempts").select("user_id,session_id,mode,level,is_correct,created_at,streak").order("created_at", { ascending: false }).range(from, from + 999);
+      const r = await supabase.from(table).select("user_id,session_id,mode,level,is_correct,created_at,streak").order("created_at", { ascending: false }).range(from, from + 999);
       if (r.error) { setError(true); setLoading(false); return; }
       all.push(...(r.data ?? []));
       if ((r.data?.length ?? 0) < 1000) break;
@@ -42,17 +50,17 @@ export default function ProcentResults() {
     setNames(Object.fromEntries((people.data ?? []).map((p) => [p.id, p.full_name || p.email || "Elev"])));
     setRows(all); setLoading(false);
   };
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [table]);
 
-  const meta = PROCENT_MODES.find((m) => m.id === mode)!;
+  const meta = modes.find((m) => m.id === mode)!;
   const stats = buildStats(rows, mode);
   const best: Record<string, number> = {};
-  const drill = mode === "mangd" || mode === "faktormangd";
+  const drill = table === "koordinat_attempts" || mode === "mangd" || mode === "faktormangd";
   for (const r of rows) if (r.mode === mode && r.streak != null) best[r.user_id] = Math.max(best[r.user_id] ?? 0, r.streak);
   return (
     <div className="space-y-4 p-5">
       <div className="flex flex-wrap items-center gap-2">
-        {PROCENT_MODES.map((m) => (
+        {modes.map((m) => (
           <Button key={m.id} size="sm" variant={mode === m.id ? "default" : "outline"} onClick={() => setMode(m.id)}>{m.title}</Button>
         ))}
         <Button variant="ghost" size="icon" onClick={() => void load()} disabled={loading} aria-label="Hämta resultat"><RefreshCw className="h-4 w-4" /></Button>
