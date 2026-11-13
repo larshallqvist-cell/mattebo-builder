@@ -17,6 +17,7 @@ import Algebra from "./pages/Algebra";
 import Procent from "./pages/Procent";
 import Ekvationer from "./pages/Ekvationer";
 import Koordinater from "./pages/Koordinater";
+import Kistan from "./pages/Kistan";
 import NotFound from "./pages/NotFound";
 import LoginGate from "./components/LoginGate";
 import ChalkDust from "./components/ChalkDust";
@@ -45,6 +46,7 @@ const AnimatedRoutes = () => {
         <Route path="/procent" element={<LoginGate><Procent /></LoginGate>} />
         <Route path="/ekvationer" element={<LoginGate><Ekvationer /></LoginGate>} />
         <Route path="/koordinater" element={<LoginGate><Koordinater /></LoginGate>} />
+        <Route path="/kistan" element={<LoginGate><Kistan /></LoginGate>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
