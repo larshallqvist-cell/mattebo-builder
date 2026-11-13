@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/table";
 import {
   Check, X, ArrowLeft, Shield, Trash2, Pencil, ClipboardList,
-  CalendarDays, Inbox, Users, Mail, RefreshCw, IdCard, BarChart3,
+  CalendarDays, Inbox, Users, Mail, RefreshCw, IdCard, BarChart3, Gamepad2,
 } from "lucide-react";
 import SelfAssessmentGoals from "@/components/SelfAssessmentGoals";
 import { Link, Navigate } from "react-router-dom";
@@ -33,6 +33,7 @@ import EkvationResults from "@/components/EkvationResults";
 import StudentActivityResults from "@/components/StudentActivityResults";
 import StudentClassRoster from "@/components/StudentClassRoster";
 import Elevkort from "@/components/Elevkort";
+import GameVisibilityMatrix from "@/components/GameVisibilityMatrix";
 
 interface AccessRequest {
   id: string;
@@ -206,6 +207,9 @@ const Admin = () => {
         </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Självskattning per delkapitel" icon={<ClipboardList className="w-5 h-5" />}>
           <SelfAssessmentAdmin />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Spel per klass och kapitel" icon={<Gamepad2 className="w-5 h-5" />}>
+          <GameVisibilityMatrix />
         </CollapsibleAdminSection>
         </div>
 
