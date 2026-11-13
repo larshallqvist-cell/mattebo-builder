@@ -239,6 +239,13 @@
       "when": 1794552524007,
       "tag": "0033_koordinat_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794552954750,
+      "tag": "0034_tabelltest_server_scoring",
+      "breakpoints": true
     }
   ]
 }
