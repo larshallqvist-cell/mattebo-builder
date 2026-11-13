@@ -9,10 +9,10 @@ const many = (mode: "las" | "mix", tier: number, n = 400) => {
 };
 
 describe("Koordinater – steg", () => {
-  test("steg 1 håller sig i första kvadranten med heltal 1–6", () => {
+  test("steg 1 håller sig i första kvadranten med heltal 1–5", () => {
     for (const t of many("las", 0)) {
-      expect(t.point.x).toBeGreaterThanOrEqual(1); expect(t.point.x).toBeLessThanOrEqual(6);
-      expect(t.point.y).toBeGreaterThanOrEqual(1); expect(t.point.y).toBeLessThanOrEqual(6);
+      expect(t.point.x).toBeGreaterThanOrEqual(1); expect(t.point.x).toBeLessThanOrEqual(5);
+      expect(t.point.y).toBeGreaterThanOrEqual(1); expect(t.point.y).toBeLessThanOrEqual(5);
       expect(Number.isInteger(t.point.x) && Number.isInteger(t.point.y)).toBe(true);
     }
   });

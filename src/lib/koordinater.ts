@@ -26,10 +26,10 @@ const randInt = (lo: number, hi: number, rnd: () => number) => lo + Math.floor(r
 const isHalf = (n: number) => !Number.isInteger(n);
 
 function randomCoord(spec: TierSpec, rnd: () => number): number {
-  // Heltal: undvik 0 (axlarna hanteras separat). Halva steg: alla värden min..max i steg om 0,5.
+  // Undvik 0 (axlarna hanteras separat) och yttersta linjen, så att punkten och bokstaven syns väl.
   const units = spec.step === 1 ? 1 : 2;
-  const lo = spec.min === 0 ? 1 : spec.min * units;
-  const hi = (spec.max - (spec.step === 0.5 ? 0.5 : 0)) * units;
+  const lo = spec.min === 0 ? units : (spec.min + 1) * units;
+  const hi = (spec.max - 1) * units;
   for (;;) { const v = randInt(lo, hi, rnd) / units; if (v !== 0) return v; }
 }
 

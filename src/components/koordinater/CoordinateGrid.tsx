@@ -34,6 +34,8 @@ export default function CoordinateGrid({ task, result, placed, onPlace }: Props)
   for (let v = spec.min; v <= spec.max; v++) ticks.push(v);
   const showPath = !!result;
   const target = task.point;
+  /** Bokstaven hamnar till vänster om punkten nära högerkanten. */
+  const labelAt = (p: Point) => (p.x > spec.max - 1.5 ? { x: tx(p.x) - 10, y: ty(p.y) - 9, textAnchor: "end" as const } : { x: tx(p.x) + 10, y: ty(p.y) - 9 });
   const shownPoint = task.kind === "read" || (result && !result.correct) ? target : null;
 
   return (
@@ -87,14 +89,14 @@ export default function CoordinateGrid({ task, result, placed, onPlace }: Props)
         <g>
           <circle cx={tx(placed.x)} cy={ty(placed.y)} r={7.5}
             className={cn(result ? (result.correct ? "fill-[hsl(var(--survey-good))]" : "fill-muted-foreground/60") : "fill-primary")} />
-          {(!result || result.correct) && <text x={tx(placed.x) + 10} y={ty(placed.y) - 9} className="fill-foreground font-orbitron text-[16px] font-bold">{task.label}</text>}
+          {(!result || result.correct) && <text {...labelAt(placed)} className="fill-foreground font-orbitron text-[16px] font-bold">{task.label}</text>}
         </g>
       )}
       {shownPoint && (
         <g>
           <circle cx={tx(shownPoint.x)} cy={ty(shownPoint.y)} r={7.5}
             className={result?.correct ? "fill-[hsl(var(--survey-good))]" : "fill-coral"} />
-          <text x={tx(shownPoint.x) + 10} y={ty(shownPoint.y) - 9} className="fill-foreground font-orbitron text-[16px] font-bold">{task.label}</text>
+          <text {...labelAt(shownPoint)} className="fill-foreground font-orbitron text-[16px] font-bold">{task.label}</text>
         </g>
       )}
     </svg>
