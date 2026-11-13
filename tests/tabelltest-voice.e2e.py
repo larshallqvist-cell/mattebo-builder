@@ -94,7 +94,7 @@ async def main():
         assert len(writes) == 1, f"Expected one final save, got {len(writes)}"
         assert len(writes[0]["p_answers"]) == 20
         assert len(writes[0]["p_times_ms"]) == 20
-        assert writes[0]["p_session_id"
+        assert writes[0]["p_session_id"]
         assert await page.evaluate("window.recognitionStarts") in (2, 3)
         os.makedirs("/tmp/browser/voice-latency", exist_ok=True)
         await page.screenshot(path="/tmp/browser/voice-latency/after.png")
