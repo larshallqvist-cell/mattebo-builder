@@ -379,6 +379,30 @@ export type Database = {
           },
         ]
       }
+      game_visibility: {
+        Row: {
+          chapter: number
+          enabled: boolean
+          game_key: string
+          grade: number
+          updated_at: string
+        }
+        Insert: {
+          chapter: number
+          enabled: boolean
+          game_key: string
+          grade: number
+          updated_at?: string
+        }
+        Update: {
+          chapter?: number
+          enabled?: boolean
+          game_key?: string
+          grade?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       google_sheet_cache: {
         Row: {
           cache_key: string

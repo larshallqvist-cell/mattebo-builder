@@ -89,4 +89,10 @@ describe("Kistan – stjärnor och upplåsning", () => {
     expect(kistanAvailable(undefined)).toBe(true);
     expect(kistanAvailable(0)).toBe(true);
   });
+
+  test("lärarens spelmatris kan öppna Kistan för Åk 8 eller stänga den för Åk 6", () => {
+    expect(kistanAvailable(8, false, [{ grade: 8, chapter: 3, game_key: "kistan", enabled: true }])).toBe(true);
+    const off = [1, 2, 3, 4, 5].map((chapter) => ({ grade: 6, chapter, game_key: "kistan", enabled: false }));
+    expect(kistanAvailable(6, false, off)).toBe(false);
+  });
 });
