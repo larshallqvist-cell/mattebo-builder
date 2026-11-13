@@ -1,3 +1,4 @@
+import { isGameOpenForGrade, type VisibilityRow } from "./gameVisibility";
 /** Kistan – "Gör kistan ensam": samma sak på båda sidor tills kistan (x) står ensam. Rena regler, testade i tests/kistan.test.ts. */
 export type Side = "left" | "right";
 export type Term = { id: string; kind: string; neg: boolean };
@@ -147,13 +148,11 @@ export function mergeBest(prev: { stars: number; best_moves: number } | undefine
   return { stars: Math.max(stars, prev?.stars ?? 0), best_moves: prev ? Math.min(moves, prev.best_moves) : moves };
 }
 
-/** Kistan riktar sig bara till årskurs 6 och 7. */
-export const KISTAN_GRADES = [6, 7] as const;
-const KISTAN_BLOCKED_GRADES = [8, 9];
-
-/** Elever i årskurs 8 och 9 varken ser knappen eller spelet. Lärare, vårdnadshavare
- *  (0) och elever utan registrerad klass (null) släpps igenom. */
-export function kistanAvailable(grade: number | null | undefined, isAdmin = false): boolean {
+/** Elever ser Kistan bara när läraren har spelet påslaget i minst ett kapitel för deras klass
+ *  (från början Åk 6 och 7, se src/lib/gameVisibility.ts). Lärare, vårdnadshavare (0) och
+ *  elever utan registrerad klass (null) släpps igenom. */
+export function kistanAvailable(grade: number | null | undefined, isAdmin = false, rows: readonly VisibilityRow[] = []): boolean {
   if (isAdmin) return true;
-  return grade === null || grade === undefined || !KISTAN_BLOCKED_GRADES.includes(grade);
+  if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
+  return isGameOpenForGrade(rows, "kistan", grade);
 }

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
+import { useGameVisibility } from "@/hooks/useGameVisibility";
 import KistanTile, { kistanBoxImg, kistanFishImg } from "@/components/kistan/KistanTile";
 import {
   isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, parseEquation, placeTile, simplifyPair, stars as calcStars,
@@ -186,6 +187,7 @@ const Kistan = () => {
   const [params, setParams] = useSearchParams();
   const [progress, setProgress] = useState<ProgressMap>({});
   const [ownGrade, setOwnGrade] = useState<number | null | undefined>(undefined);
+  const visibility = useGameVisibility(ownGrade && ownGrade >= 6 ? ownGrade : null);
   const levelId = params.get("niva");
   const level = LEVELS.find((l) => l.id === levelId && isUnlocked(l.id, progress, isAdmin));
 
@@ -219,20 +221,20 @@ const Kistan = () => {
 
   const done = Object.keys(progress).length;
 
-  /** Spelet hör hemma i årskurs 6 och 7; lärare och icke-elever släpps igenom. */
-  if (!isAdmin && user && ownGrade === undefined) {
+  /** Spelet följer lärarens spelmatris; lärare och icke-elever släpps igenom. */
+  if (!isAdmin && user && (ownGrade === undefined || !visibility.loaded)) {
     return (
       <ExerciseShell title="Kistan · Gör kistan ensam">
         <p className="py-16 text-center text-sm text-muted-foreground">Laddar …</p>
       </ExerciseShell>
     );
   }
-  if (!kistanAvailable(ownGrade, isAdmin)) {
+  if (!kistanAvailable(ownGrade, isAdmin, visibility.rows)) {
     return (
       <ExerciseShell title="Kistan · Gör kistan ensam">
         <section className="kistan-board mt-6 rounded-[1.75rem] p-6 text-center">
           <img src={kistanBoxImg} alt="Kistan" className="mx-auto h-16 w-16 drop-shadow-xl" />
-          <h1 className="mt-2 font-playful text-2xl font-bold">Kistan är för årskurs 6 och 7</h1>
+          <h1 className="mt-2 font-playful text-2xl font-bold">Kistan är inte öppen för din klass just nu</h1>
           <p className="mx-auto mt-2 max-w-sm text-sm opacity-90">I din klass övar du med de andra spelen i stället.</p>
           <Link to="/" className="mt-4 inline-flex rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground">
             Till Mattebo
