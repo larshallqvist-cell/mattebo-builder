@@ -23,7 +23,8 @@ import { getChapterFromCookie } from "@/components/ChapterSelector";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { SuspenseResourceAccordion, SuspenseLessonCalendar, SuspenseMascotPanel } from "@/components/LazyComponents";
-import { KISTAN_GRADES } from "@/lib/kistan";
+import { isGameEnabled, type GameKey } from "@/lib/gameVisibility";
+import { useGameVisibility } from "@/hooks/useGameVisibility";
 
 interface ApocalypticGradePageProps {
   grade: number;
@@ -38,17 +39,17 @@ const GRADE_TINT: Record<number, string> = {
 };
 
 
-const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean; grades?: readonly number[] }[] = [
-  { label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
-  { label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
-  { label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
-  { label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
-  { label: "Tabelltest", url: "/tabelltestet", icon: Timer, internal: true },
-  { label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
-  { label: "Procent", url: "/procent", icon: Percent, internal: true },
-  { label: "Ekvationer", url: "/ekvationer", icon: Puzzle, internal: true },
-  { label: "Koordinater", url: "/koordinater", icon: Crosshair, internal: true },
-  { label: "Kistan", url: "/kistan", icon: Package, internal: true, grades: KISTAN_GRADES },
+const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean; key: GameKey }[] = [
+  { key: "drills", label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
+  { key: "tabellerna", label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
+  { key: "mathdrop", label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
+  { key: "brak", label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
+  { key: "tabelltest", label: "Tabelltest", url: "/tabelltestet", icon: Timer, internal: true },
+  { key: "algebra", label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
+  { key: "procent", label: "Procent", url: "/procent", icon: Percent, internal: true },
+  { key: "ekvationer", label: "Ekvationer", url: "/ekvationer", icon: Puzzle, internal: true },
+  { key: "koordinater", label: "Koordinater", url: "/koordinater", icon: Crosshair, internal: true },
+  { key: "kistan", label: "Kistan", url: "/kistan", icon: Package, internal: true },
 ];
 
 const toolBtn =
@@ -93,10 +94,13 @@ const HeaderTools = () => {
   );
 };
 
-const ToolsGrid = ({ grade, onChannelChange }: { grade: number; onChannelChange: (c: string | null) => void }) => (
+/** Game buttons follow the teacher's on/off matrix for this class and chapter (Admin → Spel per klass och kapitel). */
+const ToolsGrid = ({ grade, chapter, onChannelChange }: { grade: number; chapter: number; onChannelChange: (c: string | null) => void }) => {
+  const { rows } = useGameVisibility(grade);
+  return (
   <div className="space-y-3">
     <div className="grid grid-cols-3 gap-2.5 pt-1 sm:grid-cols-4 xl:grid-cols-2">
-      {TOOL_LINKS.filter((t) => !t.grades || t.grades.includes(grade)).map(({ label, url, icon: Icon, internal }, i) =>
+      {TOOL_LINKS.filter((t) => isGameEnabled(rows, t.key, grade, chapter)).map(({ label, url, icon: Icon, internal }, i) =>
         internal ? (
           <span key={url} {...floatWrap(i)}>
             <ToolHalo i={i + 1} />
@@ -120,7 +124,8 @@ const ToolsGrid = ({ grade, onChannelChange }: { grade: number; onChannelChange:
       <WebRadio fillSpace onChannelChange={onChannelChange} />
     </div>
   </div>
-);
+  );
+};
 
 const formatNext = (date: Date) =>
   date.toLocaleString("sv-SE", { weekday: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
@@ -225,7 +230,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 className={toolsCol}
                 contentClassName="space-y-3"
               >
-                <ToolsGrid grade={grade} onChannelChange={setActiveRadioChannel} />
+                <ToolsGrid grade={grade} chapter={selectedChapter} onChannelChange={setActiveRadioChannel} />
               </CollapsibleSection>
             </div>
           </main>
