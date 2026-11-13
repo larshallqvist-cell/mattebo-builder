@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  cancelPair, isSolved, isUnlocked, LEVELS, mergeBest, minMoves, parseEquation, placeTile, simplifyPair, solve, stars,
+  cancelPair, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, parseEquation, placeTile, simplifyPair, solve, stars,
 } from "../src/lib/kistan";
 
 describe("Kistan – regler", () => {

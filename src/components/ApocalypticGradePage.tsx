@@ -37,7 +37,7 @@ const GRADE_TINT: Record<number, string> = {
 };
 
 
-const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean }[] = [
+const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; internal?: boolean; grades?: readonly number[] }[] = [
   { label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
   { label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
   { label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
@@ -47,7 +47,7 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { label: "Procent", url: "/procent", icon: Percent, internal: true },
   { label: "Ekvationer", url: "/ekvationer", icon: Puzzle, internal: true },
   { label: "Koordinater", url: "/koordinater", icon: Crosshair, internal: true },
-  { label: "Kistan", url: "/kistan", icon: Package, internal: true },
+  { label: "Kistan", url: "/kistan", icon: Package, internal: true, grades: KISTAN_GRADES },
 ];
 
 const toolBtn =
@@ -92,10 +92,10 @@ const HeaderTools = () => {
   );
 };
 
-const ToolsGrid = ({ onChannelChange }: { onChannelChange: (c: string | null) => void }) => (
+const ToolsGrid = ({ grade, onChannelChange }: { grade: number; onChannelChange: (c: string | null) => void }) => (
   <div className="space-y-3">
     <div className="grid grid-cols-3 gap-2.5 pt-1 sm:grid-cols-4 xl:grid-cols-2">
-      {TOOL_LINKS.map(({ label, url, icon: Icon, internal }, i) =>
+      {TOOL_LINKS.filter((t) => !t.grades || t.grades.includes(grade)).map(({ label, url, icon: Icon, internal }, i) =>
         internal ? (
           <span key={url} {...floatWrap(i)}>
             <ToolHalo i={i + 1} />
@@ -224,7 +224,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 className={toolsCol}
                 contentClassName="space-y-3"
               >
-                <ToolsGrid onChannelChange={setActiveRadioChannel} />
+                <ToolsGrid grade={grade} onChannelChange={setActiveRadioChannel} />
               </CollapsibleSection>
             </div>
           </main>
