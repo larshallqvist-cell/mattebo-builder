@@ -260,6 +260,13 @@
       "when": 1794609661023,
       "tag": "0036_game_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794670926971,
+      "tag": "0037_approved_reads_and_server_graded_attempts",
+      "breakpoints": true
     }
   ]
 }
