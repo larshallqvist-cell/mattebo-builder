@@ -4,6 +4,7 @@ import { ExternalLink, Video, Gamepad2, FileText, MoreHorizontal, Link } from "l
 import { hapticFeedback } from "@/hooks/useHaptic";
 import { ResourceSkeleton } from "@/components/skeletons";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY } from "@/config/app";
 import { openYouTubeOverlay } from "@/lib/youtube";
 
@@ -66,6 +67,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef<Map<string, ResourceCategory[]>>(new Map());
+  const { isAdmin } = useAuth();
 
   const fetchResources = useCallback(async () => {
     const cacheKey = `${grade}-${chapter}`;
@@ -126,7 +128,7 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
     } finally {
       setLoading(false);
     }
-  }, [grade, chapter]);
+  }, [grade, chapter, isAdmin]);
 
   useEffect(() => {
     fetchResources();
