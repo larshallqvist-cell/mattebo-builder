@@ -139,47 +139,49 @@ const Coins = ({ count }: { count: number }) => (
 
 /** Liggande träddiagram: roten till vänster, utfallen längst till höger. */
 const Tree = ({ scene, match, reveal }: { scene: Extract<Scene, { kind: "tree" }>; match?: string[]; reveal: boolean }) => {
-  type P = { x: number; y: number; node: TreeNode; parent?: { x: number; y: number }; leaf?: number; path: string[] };
-  const items: P[] = []; let leaf = 0;
   const depthOf = (ns: TreeNode[] | undefined): number => (ns?.length ? 1 + depthOf(ns[0].children) : 0);
-  const depth = depthOf(scene.root); const colW = depth === 3 ? 92 : 120; const rowH = depth === 3 ? 26 : 34;
-  const walk = (ns: TreeNode[], d: number, parent: { x: number; y: number }, path: string[]): number[] =>
-    ns.map((n) => {
-      const p = [...path, n.label];
-      let y: number;
-      const placeholder: P = { x: 30 + d * colW, y: 0, node: n, parent, path: p };
-      items.push(placeholder);
-      if (n.children?.length) {
-        const ys = walk(n.children, d + 1, { x: placeholder.x, y: 0 }, p);
-        y = (ys[0] + ys[ys.length - 1]) / 2;
-      } else { y = 16 + leaf * rowH; placeholder.leaf = leaf++; }
-      placeholder.y = y;
-      items.filter((it) => it.parent && it.path.length === p.length + 1 && it.path.slice(0, -1).join() === p.join()).forEach((c) => { c.parent = { x: placeholder.x, y }; });
-      return y;
-    });
-  const rootY = (() => { const ys = walk(scene.root, 1, { x: 30, y: 0 }, []); return (ys[0] + ys[ys.length - 1]) / 2; })();
-  items.filter((it) => it.path.length === 1).forEach((it) => { it.parent = { x: 30, y: rootY }; });
-  const H = leaf * rowH + 8, W = 30 + depth * colW + 110;
+  const depth = depthOf(scene.root); const colW = depth === 3 ? 92 : 120; const rowH = depth === 3 ? 26 : 36;
+  const nodes: { x: number; y: number; label: string; leaf?: number; path: string[] }[] = [];
+  const edges: { x1: number; y1: number; x2: number; y2: number; p?: string }[] = [];
+  let leaf = 0;
+  const walk = (n: TreeNode, d: number, path: string[]): number => {
+    const p = [...path, n.label]; const x = 30 + d * colW;
+    let y: number; let leafIdx: number | undefined;
+    if (n.children?.length) {
+      const ys = n.children.map((c) => walk(c, d + 1, p));
+      y = (ys[0] + ys[ys.length - 1]) / 2;
+      n.children.forEach((c, i) => edges.push({ x1: x + 14, y1: y, x2: x + colW - 14, y2: ys[i], p: c.p }));
+    } else { y = 18 + leaf * rowH; leafIdx = leaf++; }
+    nodes.push({ x, y, label: n.label, leaf: leafIdx, path: p });
+    return y;
+  };
+  const ys = scene.root.map((n) => walk(n, 1, []));
+  const rootY = (ys[0] + ys[ys.length - 1]) / 2;
+  scene.root.forEach((n, i) => edges.push({ x1: 30, y1: rootY, x2: 30 + colW - 14, y2: ys[i], p: n.p }));
+  const H = leaf * rowH + 6, W = 30 + depth * colW + 100;
   const hit = new Set(reveal ? match ?? [] : []);
   return (
     <div className="overflow-x-auto">
       <svg viewBox={`0 0 ${W} ${H}`} className="mx-auto w-full max-w-xl" style={{ minWidth: 300 }} role="img" aria-label="Träddiagram">
         <circle cx={30} cy={rootY} r={5} className="sl-node-dot" />
-        {items.map((it, i) => {
-          const on = it.leaf !== undefined && hit.has(String(it.leaf));
-          const midX = (it.parent!.x + it.x) / 2, midY = (it.parent!.y + it.y) / 2;
+        {edges.map((e, i) => (
+          <g key={`e${i}`}>
+            <line x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} className="sl-branch" />
+            {e.p && (
+              <foreignObject x={(e.x1 + e.x2) / 2 - 18} y={(e.y1 + e.y2) / 2 - 26} width={36} height={28}>
+                <div className="sl-ptag text-center text-[10px] font-bold leading-none"><Rich text={e.p} /></div>
+              </foreignObject>
+            )}
+          </g>
+        ))}
+        {nodes.map((n, i) => {
+          const on = n.leaf !== undefined && hit.has(String(n.leaf));
           return (
-            <g key={i}>
-              <line x1={it.parent!.x} y1={it.parent!.y} x2={it.x - 14} y2={it.y} className="sl-branch" />
-              {it.node.p && (
-                <foreignObject x={midX - 18} y={midY - 22} width={36} height={30}>
-                  <div className="sl-ptag text-center text-[10px] font-bold leading-none"><Rich text={it.node.p} /></div>
-                </foreignObject>
-              )}
-              <rect x={it.x - 14} y={it.y - 10} width={28} height={20} rx={10} className={cn("sl-node", on && "sl-node-on")} />
-              <text x={it.x} y={it.y + 1} textAnchor="middle" dominantBaseline="middle" className="sl-node-text">{it.node.label}</text>
-              {it.leaf !== undefined && (
-                <text x={it.x + 22} y={it.y + 1} dominantBaseline="middle" className={cn("sl-leaf", on && "sl-leaf-on")}>{it.path.join(" ")}</text>
+            <g key={`n${i}`}>
+              <rect x={n.x - 14} y={n.y - 10} width={28} height={20} rx={10} className={cn("sl-node", on && "sl-node-on")} />
+              <text x={n.x} y={n.y + 1} textAnchor="middle" dominantBaseline="middle" className="sl-node-text">{n.label}</text>
+              {n.leaf !== undefined && (
+                <text x={n.x + 22} y={n.y + 1} dominantBaseline="middle" className={cn("sl-leaf", on && "sl-leaf-on")}>{n.path.join(" ")}</text>
               )}
             </g>
           );
