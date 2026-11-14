@@ -23,3 +23,4 @@
 - [x] Ekvationspusslet: nivå 5 med x, y, z, bråk och parenteser (val, framsteg, statistik, förklaringar)
 - [x] Räta linjen omgång 1 (/linjen, Åk 9): Hitta m, Hitta k, Skriv ekvationen med svit, topplista och felanalys
 - [x] Räta linjen omgång 2: rita linjen från ekvation, k som bråk, parallella linjer
+- [x] Sannolikhetslabbet (/sannolikhet): 4 världar × 6 nivåer (hjul, urna, kortlek, mynt/träddiagram), stjärnor, svar i bråk eller %

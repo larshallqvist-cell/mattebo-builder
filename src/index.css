@@ -742,3 +742,73 @@ body::after {
 .kistan-pop { animation: kistan-pop .25s ease-out; }
 .kistan-shake { animation: kistan-shake .3s ease-in-out; }
 @media (prefers-reduced-motion: reduce) { .kistan-pop, .kistan-shake { animation: none; } }
+
+/* Sannolikhetslabbet: grönt spelbordsfilt med guld, som ett kortbord. Bara variabler inom .sl-board. */
+.sl-board {
+  --sl-felt: 162 48% 21%;
+  --sl-felt-deep: 165 55% 13%;
+  --sl-felt-light: 158 38% 32%;
+  --sl-gold: 44 92% 60%;
+  --sl-cream: 42 50% 96%;
+  --sl-ink: 220 25% 14%;
+  --sl-card-red: 355 72% 46%;
+  --sl-rod: 2 80% 58%;
+  --sl-bla: 212 82% 56%;
+  --sl-gron: 138 55% 46%;
+  --sl-gul: 47 96% 56%;
+  --sl-lila: 274 55% 60%;
+  --sl-orange: 25 94% 56%;
+  background:
+    radial-gradient(ellipse at 50% 0%, hsl(var(--sl-felt-light) / 0.8), transparent 65%),
+    radial-gradient(ellipse at 50% 110%, hsl(var(--sl-felt-deep)), transparent 70%),
+    hsl(var(--sl-felt));
+  color: hsl(var(--sl-cream));
+  box-shadow: inset 0 0 0 3px hsl(var(--sl-gold) / 0.35), 0 18px 40px -18px hsl(var(--sl-felt-deep));
+}
+.sl-gold { color: hsl(var(--sl-gold)); }
+.sl-felt-inset { background: hsl(var(--sl-felt-deep) / 0.55); box-shadow: inset 0 2px 10px hsl(var(--sl-felt-deep) / 0.6); }
+.sl-tile {
+  background: linear-gradient(180deg, hsl(var(--sl-cream)), hsl(42 30% 86%)); color: hsl(var(--sl-ink));
+  box-shadow: 0 4px 0 hsl(var(--sl-felt-deep) / 0.7), 0 8px 16px hsl(var(--sl-felt-deep) / 0.5);
+}
+.sl-world-card { background: hsl(var(--sl-felt-deep) / 0.45); border: 1px solid hsl(var(--sl-gold) / 0.3); }
+.sl-panel { background: hsl(var(--sl-cream)); color: hsl(var(--sl-ink)); }
+.sl-input { background: hsl(var(--sl-cream)); color: hsl(var(--sl-ink)); border: 2px solid hsl(var(--sl-gold) / 0.6); }
+.sl-input:focus { outline: none; box-shadow: 0 0 0 3px hsl(var(--sl-gold) / 0.6); }
+.sl-badge { background: hsl(var(--sl-gold)); color: hsl(var(--sl-ink)); }
+.sl-ok { background: hsl(138 55% 92%); color: hsl(140 60% 20%); }
+.sl-bad { background: hsl(20 90% 93%); color: hsl(10 60% 28%); }
+.sl-rim { fill: hsl(var(--sl-gold)); filter: drop-shadow(0 6px 10px hsl(var(--sl-felt-deep))); }
+.sl-slice { stroke: hsl(var(--sl-cream)); stroke-width: 2; }
+.sl-unit { stroke: hsl(var(--sl-cream) / 0.55); stroke-width: 1; }
+.sl-hub { fill: hsl(var(--sl-gold)); stroke: hsl(var(--sl-cream)); stroke-width: 3; }
+.sl-pointer { fill: hsl(var(--sl-cream)); stroke: hsl(var(--sl-ink)); stroke-width: 2; }
+.sl-deg { fill: hsl(var(--sl-cream)); font-weight: 800; font-size: 13px; paint-order: stroke; stroke: hsl(var(--sl-ink) / 0.55); stroke-width: 3px; }
+.sl-jar { fill: hsl(var(--sl-cream) / 0.16); stroke: hsl(var(--sl-cream) / 0.7); stroke-width: 3; }
+.sl-jar-lid { fill: hsl(var(--sl-gold)); }
+.sl-ball { stroke: hsl(var(--sl-ink) / 0.35); stroke-width: 1; }
+.sl-gloss { fill: hsl(var(--sl-cream) / 0.65); }
+.sl-card { background: hsl(var(--sl-cream)); color: hsl(var(--sl-ink)); box-shadow: 0 1px 2px hsl(var(--sl-felt-deep)); }
+.sl-card-red { color: hsl(var(--sl-card-red)); }
+.sl-card-on { box-shadow: 0 0 0 2px hsl(var(--sl-gold)), 0 0 10px hsl(var(--sl-gold) / 0.8); transform: translateY(-2px); }
+.sl-die { fill: hsl(var(--sl-cream)); stroke: hsl(var(--sl-ink) / 0.4); stroke-width: 1.5; }
+.sl-pip { fill: hsl(var(--sl-ink)); }
+.sl-coin {
+  background: radial-gradient(circle at 35% 30%, hsl(48 100% 80%), hsl(var(--sl-gold)) 55%, hsl(38 80% 40%));
+  color: hsl(30 60% 22%); box-shadow: inset 0 0 0 4px hsl(38 80% 45% / 0.6), 0 6px 14px hsl(var(--sl-felt-deep));
+}
+.sl-branch { stroke: hsl(var(--sl-cream) / 0.8); stroke-width: 2; }
+.sl-node { fill: hsl(var(--sl-cream)); }
+.sl-node-on { fill: hsl(var(--sl-gold)); }
+.sl-node-dot { fill: hsl(var(--sl-gold)); }
+.sl-node-text { fill: hsl(var(--sl-ink)); font-size: 11px; font-weight: 800; }
+.sl-leaf { fill: hsl(var(--sl-cream) / 0.85); font-size: 12px; font-weight: 700; }
+.sl-leaf-on { fill: hsl(var(--sl-gold)); }
+.sl-ptag { color: hsl(var(--sl-gold)); }
+.sl-chip { background: hsl(var(--sl-cream)); color: hsl(var(--sl-ink)); }
+@keyframes sl-spin { from { transform: rotate(-540deg); } to { transform: rotate(0deg); } }
+@keyframes sl-flip { from { transform: rotateY(720deg) scale(.7); } to { transform: rotateY(0) scale(1); } }
+.sl-spin { animation: sl-spin 1.3s cubic-bezier(.2,.8,.25,1); }
+.sl-flip { animation: sl-flip .9s ease-out both; }
+.sl-pop { animation: kistan-pop .3s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .sl-spin, .sl-flip, .sl-pop { animation: none; } }

@@ -774,6 +774,38 @@ export type Database = {
         }
         Relationships: []
       }
+      sannolikhet_progress: {
+        Row: {
+          best_correct: number
+          level_id: string
+          stars: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_correct: number
+          level_id: string
+          stars: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_correct?: number
+          level_id?: string
+          stars?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sannolikhet_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       section_presentations: {
         Row: {
           chapter: number
