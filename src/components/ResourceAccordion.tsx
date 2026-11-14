@@ -82,7 +82,8 @@ const ResourceAccordion = forwardRef<HTMLDivElement, ResourceAccordionProps>(({ 
     }
     abortControllerRef.current = new AbortController();
 
-    const sheetId = localStorage.getItem(SHEET_STORAGE_KEY) || DEFAULT_SHEET_ID;
+    // Only the teacher may switch spreadsheet (the server enforces this too).
+    const sheetId = (isAdmin && localStorage.getItem(SHEET_STORAGE_KEY)) || DEFAULT_SHEET_ID;
     setLoading(true);
     
     try {
