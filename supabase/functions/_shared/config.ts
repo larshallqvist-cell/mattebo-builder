@@ -13,6 +13,8 @@ export const MAX_CHAPTER = 50;
 
 export const SHEET_ID_MIN_LENGTH = 20;
 export const SHEET_ID_MAX_LENGTH = 100;
+/** The school's resource spreadsheet; only admins may read other sheets through get-resources. Keep in sync with DEFAULT_SHEET_ID in src/config/app.ts. */
+export const DEFAULT_RESOURCE_SHEET_ID = "1UzIhln8WHH_Toy7-cXXmlMi4UQEg6DEypzE_kVNkFkQ";
 export const SHEET_RANGE = "A2:F5000";
 export const SHEET_TAB_NAME = (grade: Grade | string) => `Åk${grade}`;
 
