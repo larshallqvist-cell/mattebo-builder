@@ -22,4 +22,4 @@
 - [x] Bråkträning: kändisberömmet stillsamt, utan rörliga animationer
 - [x] Ekvationspusslet: nivå 5 med x, y, z, bråk och parenteser (val, framsteg, statistik, förklaringar)
 - [x] Räta linjen omgång 1 (/linjen, Åk 9): Hitta m, Hitta k, Skriv ekvationen med svit, topplista och felanalys
-- [ ] Räta linjen omgång 2: rita linjen från ekvation, k som bråk, parallella linjer (väntar på Lasses klartecken)
+- [x] Räta linjen omgång 2: rita linjen från ekvation, k som bråk, parallella linjer
