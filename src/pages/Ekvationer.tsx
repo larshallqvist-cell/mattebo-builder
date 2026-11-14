@@ -26,7 +26,7 @@ const Ekvationer = () => {
   const [completed, setCompleted] = useState(0);
   const [history, setHistory] = useState<EkvationRow[]>([]);
   const [celebrate, setCelebrate] = useState<{ level: number; next: number | null } | null>(null);
-  const puzzleId = useRef(crypto.randomUUID());
+  const puzzleId = useRef<string>(crypto.randomUUID());
   const taskId = useRef<string | null>(null);
   const request = useRef(0);
   const prefetched = useRef<{ level: number; promise: Promise<Issued<Puzzle>> } | null>(null);
