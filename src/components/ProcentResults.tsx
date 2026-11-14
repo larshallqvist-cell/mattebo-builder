@@ -22,6 +22,8 @@ export const LINJE_MODES = [
   { id: "m", title: "Hitta m", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
   { id: "k", title: "Hitta k", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
   { id: "ekv", title: "Skriv ekvationen", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "rita", title: "Rita linjen", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "parallell", title: "Parallella", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
 ] as const;
 
 type ModeMeta = { id: string; title: string; levels: readonly string[] };
