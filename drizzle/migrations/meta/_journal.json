@@ -274,6 +274,13 @@
       "when": 1794690202454,
       "tag": "0038_linje_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794691024975,
+      "tag": "0039_linje_round2_modes",
+      "breakpoints": true
     }
   ]
 }
