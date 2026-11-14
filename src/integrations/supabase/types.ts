@@ -626,6 +626,53 @@ export type Database = {
         }
         Relationships: []
       }
+      linje_attempts: {
+        Row: {
+          created_at: string
+          error_kind: string | null
+          hint_used: boolean
+          id: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          streak: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_kind?: string | null
+          hint_used?: boolean
+          id?: string
+          is_correct: boolean
+          level: number
+          mode: string
+          session_id: string
+          streak?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_kind?: string | null
+          hint_used?: boolean
+          id?: string
+          is_correct?: boolean
+          level?: number
+          mode?: string
+          session_id?: string
+          streak?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linje_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lunch_menu: {
         Row: {
           created_at: string
@@ -1070,6 +1117,16 @@ export type Database = {
         Returns: boolean
       }
       koordinat_leaderboard: {
+        Args: { p_mode: string }
+        Returns: {
+          best: number
+          is_me: boolean
+          name: string
+          place: number
+          scope: number
+        }[]
+      }
+      linje_leaderboard: {
         Args: { p_mode: string }
         Returns: {
           best: number
