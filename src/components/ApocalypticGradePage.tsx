@@ -142,8 +142,8 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
   // Narrow layout stacks everything and folds the notice board into one card.
   // From 1280px the resources narrow to ~half and the games get their own middle column.
   // The chapter title and sub-chapters live in the header, so resources and games start at the top.
-  const resourcesCol = wide ? "col-span-7 col-start-1 row-start-1 xl:col-span-5" : "";
-  const toolsCol = wide ? "col-span-7 col-start-1 row-start-2 xl:col-span-2 xl:col-start-6 xl:row-start-1" : "";
+  const resourcesCol = wide ? "col-span-7 col-start-1 row-start-1 xl:col-span-4" : "";
+  const toolsCol = wide ? "col-span-7 col-start-1 row-start-2 xl:col-span-3 xl:col-start-5 xl:row-start-1" : "";
 
   return (
     <LoginGate>
