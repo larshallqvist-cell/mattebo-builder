@@ -15,6 +15,7 @@ import EkvationTeacherDetail from "@/components/ekvationer/EkvationTeacherDetail
 import { StudentGoals } from "@/components/SelfAssessmentGoals";
 import { summarize, type EkvationRow } from "@/lib/ekvationStats";
 import { WORLD_NAMES as KISTAN_WORLDS } from "@/lib/kistan";
+import { WORLD_NAMES as SANNOLIKHET_WORLDS } from "@/lib/sannolikhet";
 import { PAGE_LABELS, formatActiveTime } from "@/lib/studentActivity";
 import { CLASS_GRADES, NOT_STUDENT, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
 import {
@@ -35,6 +36,7 @@ type CardData = {
   koordinat: Attempt[];
   linje: Attempt[];
   kistan: { level_id: string; stars: number; best_moves: number }[];
+  sannolikhet: { level_id: string; stars: number; best_correct: number }[];
   brak: Attempt[];
   ekvation: EkvationRow[];
   fractions: { exercise_id: number; is_correct: boolean; attempt_number: number; hint_used: boolean; answered_at: string }[];
@@ -107,7 +109,7 @@ export default function Elevkort() {
     let cancelled = false;
     setCardLoading(true);
     (async () => {
-      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje] = await Promise.all([
+      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje, sannolikhet] = await Promise.all([
         supabase.from("tabelltest_results").select("score,total,avg_time_ms,passed,input_mode,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("algebra_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("braklabbet_attempts").select("exercise_id,is_correct,attempt_number,hint_used,answered_at").eq("user_id", active).order("answered_at", { ascending: false }),
@@ -122,9 +124,10 @@ export default function Elevkort() {
         supabase.from("koordinat_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("kistan_progress").select("level_id,stars,best_moves").eq("user_id", active),
         supabase.from("linje_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
+        supabase.from("sannolikhet_progress").select("level_id,stars,best_correct").eq("user_id", active),
       ]);
       if (cancelled) return;
-      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje];
+      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje, sannolikhet];
       if (results.some((r) => r.error)) {
         setError(true);
         setData(null);
@@ -136,6 +139,7 @@ export default function Elevkort() {
           procent: (procent.data ?? []) as Attempt[],
           koordinat: (koordinat.data ?? []) as Attempt[],
           kistan: kistan.data ?? [],
+          sannolikhet: sannolikhet.data ?? [],
           linje: (linje.data ?? []) as Attempt[],
           brak: (brak.data ?? []) as Attempt[],
           ekvation: (ekvation.data ?? []) as EkvationRow[],
@@ -330,6 +334,24 @@ export default function Elevkort() {
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">Inga klarade nivåer i Kistan ännu.</p>
+                )}
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Sannolikhetslabbet</h4>
+                {data.sannolikhet.length ? (
+                  <ul className="flex flex-wrap gap-2">
+                    {SANNOLIKHET_WORLDS.map((name, w) => {
+                      const rows = data.sannolikhet.filter((r) => r.level_id.startsWith(`${w + 1}-`));
+                      return rows.length ? (
+                        <li key={name} className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                          {w + 1}. {name}: {rows.length}/6 nivåer · {rows.reduce((s, r) => s + r.stars, 0)}/18 stjärnor
+                        </li>
+                      ) : null;
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Inga klarade nivåer i Sannolikhetslabbet ännu.</p>
                 )}
               </section>
 
