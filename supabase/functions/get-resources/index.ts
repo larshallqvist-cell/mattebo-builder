@@ -6,6 +6,7 @@ import {
   MIN_CHAPTER,
   normalizeCategory,
   SHEET_ID_PATTERN,
+  DEFAULT_RESOURCE_SHEET_ID,
   SHEET_RANGE,
   SHEET_TAB_NAME,
   VALID_GRADES_STRINGS,
@@ -63,20 +64,27 @@ serve(async (req) => {
     const url = new URL(req.url);
     const grade = url.searchParams.get('grade');
     const chapter = url.searchParams.get('chapter');
-    const sheetId = url.searchParams.get('sheetId');
-
-    // Validate sheetId parameter - must be present and match Google Sheet ID format
-    if (!sheetId) {
-      return new Response(
-        JSON.stringify({ error: 'sheetId parameter is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const sheetId = url.searchParams.get('sheetId') || DEFAULT_RESOURCE_SHEET_ID;
 
     if (!SHEET_ID_PATTERN.test(sheetId)) {
       return new Response(
         JSON.stringify({ error: 'Invalid sheetId format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: adminRow } = await admin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", auth.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    // Only the teacher (admin) may point the server's Google Sheets access at another spreadsheet.
+    if (sheetId !== DEFAULT_RESOURCE_SHEET_ID && !adminRow) {
+      return new Response(
+        JSON.stringify({ error: 'Spreadsheet not allowed' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -127,12 +135,6 @@ serve(async (req) => {
     const cachedResources = Array.isArray(cached?.payload) ? cached.payload as ResourceRow[] : null;
     const cacheAge = cached?.fetched_at ? Date.now() - new Date(cached.fetched_at).getTime() : Infinity;
     // Admins (the teacher editing the sheet) get near-fresh data; everyone else shares the long cache.
-    const { data: adminRow } = await admin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", auth.userId)
-      .eq("role", "admin")
-      .maybeSingle();
     const ttl = adminRow ? ADMIN_CACHE_TTL_MS : RESOURCE_CACHE_TTL_MS;
     if (cachedResources && cacheAge < ttl) {
       return resourcesResponse(cachedResources, chapter);

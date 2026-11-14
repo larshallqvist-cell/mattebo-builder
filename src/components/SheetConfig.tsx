@@ -3,6 +3,7 @@ import { Settings, X, Save, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import { DEFAULT_SHEET_ID, SHEET_STORAGE_KEY, SUPPORTED_GRADES } from "@/config/app";
 
 
@@ -40,6 +41,9 @@ const SheetConfig = () => {
   };
 
   const isUsingDefault = !localStorage.getItem(SHEET_STORAGE_KEY);
+  const { isAdmin } = useAuth();
+  // Only the teacher may switch spreadsheet; the server rejects other sheets for everyone else.
+  if (!isAdmin) return null;
 
   if (!isOpen) {
     return (

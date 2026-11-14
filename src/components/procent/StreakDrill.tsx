@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import CalculatorModal from "@/components/CalculatorModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { answerTask, issueTask, type Issued } from "@/lib/exerciseTasks";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, HintToggle, useExerciseSound } from "@/components/exercise/ExerciseParts";
 import { advance, CALCULATOR_FROM_STEP, calculatorAllowed, DRILL_START, DRILL_TIERS, parseNumber, TIER_STEP, tierOf, type Check as Result, type DrillProgress } from "@/lib/procent";
@@ -15,6 +16,7 @@ export type DrillConfig<T extends { kind: string; question: string }, F extends 
   mode: "mangd" | "faktormangd";
   initialFocus: F;
   focusLabel: Record<F, string>;
+  /** Local fallback when the server cannot hand out a task (such answers are not saved). */
   generate: (focus: F, tier: number, prev?: T) => T;
   check: (task: T, raw: string) => Result;
   explain: (task: T) => string;
@@ -39,7 +41,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
   const [focus, setFocus] = useState<F>(c.initialFocus);
   const [prog, setProg] = useState(() => loadProgress(c.mode));
   const tier = tierOf(prog.xp);
-  const [task, setTask] = useState(() => c.generate(c.initialFocus, tierOf(prog.xp)));
+  const [issued, setIssued] = useState<Issued<T> | null>(null);
   const [answer, setAnswer] = useState("");
   const [notice, setNotice] = useState("");
   const [result, setResult] = useState<Result | null>(null);
@@ -56,6 +58,19 @@ export default function StreakDrill<T extends { kind: string; question: string }
   const { user } = useAuth();
   const sound = useExerciseSound();
   const sessionId = useRef(crypto.randomUUID());
+  const request = useRef(0);
+  const prefetched = useRef<{ key: string; promise: Promise<Issued<T>> } | null>(null);
+  const lastTask = useRef<T | undefined>(undefined);
+
+  /** The server picks (and later grades) every task, so saved results can't be faked. */
+  const fetchTask = (f: F, t: number): Promise<Issued<T>> => {
+    const key = `${f}:${t}`;
+    const hit = prefetched.current;
+    prefetched.current = null;
+    if (hit && hit.key === key) return hit.promise;
+    return issueTask<T>({ game: "procent", mode: c.mode, focus: f, tier: t, sessionId: sessionId.current }, () => c.generate(f, t, lastTask.current));
+  };
+  const prefetch = (f: F, t: number) => { prefetched.current = { key: `${f}:${t}`, promise: fetchTask(f, t) }; };
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
   useEffect(() => { try { sessionStorage.setItem(storageKey(c.mode), JSON.stringify(prog)); } catch { /* ignoreras */ } }, [prog, c.mode]);
@@ -74,13 +89,21 @@ export default function StreakDrill<T extends { kind: string; question: string }
   const focusInput = () => setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
   const fresh = (f: F, t: number) => {
     window.clearTimeout(timer.current);
-    setTask((prev) => c.generate(f, t, prev));
-    setAnswer(""); setResult(null); setNotice(""); setTip(false); usedHint.current = false; focusInput();
+    const n = ++request.current;
+    setIssued(null);
+    setAnswer(""); setResult(null); setNotice(""); setTip(false); usedHint.current = false;
+    void fetchTask(f, t).then((next) => {
+      if (n !== request.current) return;
+      lastTask.current = next.task; setIssued(next); focusInput();
+    });
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fresh(c.initialFocus, tier); }, []);
   const choose = (f: F) => { setFocus(f); fresh(f, tier); };
 
   const check = () => {
-    if (!answer.trim() || result) return;
+    if (!issued || !answer.trim() || result) return;
+    const task = issued.task;
     if (parseNumber(answer) === null) { setNotice("Skriv ett tal, t.ex. 25 eller 12,5."); return; }
     const r = c.check(task, answer);
     const p = advance(prog, r.correct);
@@ -89,19 +112,23 @@ export default function StreakDrill<T extends { kind: string; question: string }
     if (p.streak > record) setRecord(p.streak);
     if (p.streak > startRecord.current && p.streak >= 3) setNewRecord(true);
     if (!r.correct) setNewRecord(false);
-    if (user) {
-      void supabase.from("procent_attempts").insert({
-        user_id: user.id, session_id: sessionId.current, mode: c.mode, level: tier,
-        task_kind: task.kind, hint_used: usedHint.current, is_correct: r.correct, streak: p.streak,
-      }).then(() => {});
-    }
-    if (r.correct) { const t = tierOf(p.xp); timer.current = window.setTimeout(() => fresh(focus, t), NEXT_DELAY); }
+    // The server grades and saves the answer; its streak (from saved answers) wins if they differ.
+    void answerTask("procent", issued.id, answer, usedHint.current).then((saved) => {
+      if (saved && typeof saved.streak === "number" && saved.streak !== p.streak) {
+        const streak = saved.streak;
+        setProg((cur) => (cur.streak === p.streak ? { ...cur, streak } : cur));
+      }
+    });
+    const t = tierOf(p.xp);
+    prefetch(focus, t);
+    if (r.correct) timer.current = window.setTimeout(() => fresh(focus, t), NEXT_DELAY);
   };
 
   const top = tier === DRILL_TIERS - 1;
   const calcAllowed = calculatorAllowed(tier);
   const stepValue = top ? TIER_STEP : prog.xp % TIER_STEP;
-  const placeholder = c.placeholder(task);
+  const task = issued?.task;
+  const placeholder = task ? c.placeholder(task) : "";
 
   return (
     <ExerciseShell title="Procent · Mängdträning" progress={{ value: stepValue, total: TIER_STEP, showLabel: false }} sound={sound} showRobot={!tip}>
@@ -128,10 +155,12 @@ export default function StreakDrill<T extends { kind: string; question: string }
         </div>
 
         <div className="mt-3 grid grid-cols-1 items-center gap-4 sm:grid-cols-2 sm:gap-6">
-          {c.visual({ task, tier, solved: !!result, focus, choose })}
+          {task ? c.visual({ task, tier, solved: !!result, focus, choose }) : <div className="min-h-40" aria-hidden />}
 
           <div className="min-w-0 space-y-3">
-            <p key={task.question} className="exercise-rise font-orbitron text-2xl font-bold leading-tight text-foreground sm:text-3xl">{task.question}</p>
+            {task
+              ? <p key={task.question} className="exercise-rise font-orbitron text-2xl font-bold leading-tight text-foreground sm:text-3xl">{task.question}</p>
+              : <p role="status" className="text-sm font-semibold text-muted-foreground">Hämtar uppgift…</p>}
 
             <form onSubmit={(e) => { e.preventDefault(); if (result) fresh(focus, tier); else check(); }} className="space-y-2">
               {result && (result.correct ? (
@@ -147,7 +176,7 @@ export default function StreakDrill<T extends { kind: string; question: string }
               ) : (
                 <Feedback key={result.message} correct={false} title={lost >= 2 ? `Sviten stannade på ${lost}` : undefined}>
                   <p className="text-sm">{result.message}</p>
-                  <p className="mt-1 text-sm font-semibold">{c.explain(task)}</p>
+                  {task && <p className="mt-1 text-sm font-semibold">{c.explain(task)}</p>}
                 </Feedback>
               ))}
               {notice && !result && <p role="status" className="text-sm font-semibold text-coral">{notice}</p>}
@@ -157,12 +186,12 @@ export default function StreakDrill<T extends { kind: string; question: string }
                   autoComplete="off" autoCapitalize="off" spellCheck={false} inputMode="decimal" enterKeyHint="done"
                   placeholder={placeholder} readOnly={!!result} aria-label="Svar"
                   className="min-w-0 flex-1 rounded-2xl border-2 border-input bg-background px-3 py-1.5 font-orbitron text-xl text-foreground outline-none transition-colors placeholder:text-sm placeholder:text-muted-foreground/60 focus:border-primary" />
-                <Button type="submit" disabled={!answer.trim() && !result} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
+                <Button type="submit" disabled={!task || (!answer.trim() && !result)} className="h-11 shrink-0 gap-1.5 rounded-2xl px-4 text-sm font-bold">
                   {result ? <>Nästa <ArrowRight className="h-4 w-4" /></> : <>Svara <Check className="h-4 w-4" /></>}
                 </Button>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <HintToggle open={tip} onToggle={() => { if (!tip) usedHint.current = true; setTip(!tip); }}>{c.tip(task)}</HintToggle>
+                <HintToggle open={tip} onToggle={() => { if (!tip) usedHint.current = true; setTip(!tip); }}>{task ? c.tip(task) : null}</HintToggle>
                 <span className="flex flex-wrap items-center justify-end gap-x-3 pt-1 text-xs text-muted-foreground">
                   {!calcAllowed && <span>Miniräknare från steg {CALCULATOR_FROM_STEP}</span>}
                   <span>Komma eller punkt går bra.</span>

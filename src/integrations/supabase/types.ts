@@ -379,6 +379,45 @@ export type Database = {
           },
         ]
       }
+      exercise_tasks: {
+        Row: {
+          answered_at: string | null
+          created_at: string
+          game: string
+          id: string
+          last_marked_at: string | null
+          level: number
+          mode: string
+          session_id: string
+          task: Json
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string | null
+          created_at?: string
+          game: string
+          id?: string
+          last_marked_at?: string | null
+          level: number
+          mode: string
+          session_id: string
+          task: Json
+          user_id: string
+        }
+        Update: {
+          answered_at?: string | null
+          created_at?: string
+          game?: string
+          id?: string
+          last_marked_at?: string | null
+          level?: number
+          mode?: string
+          session_id?: string
+          task?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_visibility: {
         Row: {
           chapter: number

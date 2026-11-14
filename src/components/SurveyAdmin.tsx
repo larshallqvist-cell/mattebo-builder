@@ -190,7 +190,11 @@ const SurveyAdmin = () => {
       "Önskemål",
       "Inskickat",
     ];
-    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    // Cells starting with = + - @ (or tab/CR) would run as formulas in Excel/Sheets; prefix them with ' so they stay text.
+    const escape = (raw: string) => {
+      const v = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+      return `"${v.replace(/"/g, '""')}"`;
+    };
     const lines = weekResponses.map((r) =>
       [
         names[r.user_id] ?? r.user_id,
