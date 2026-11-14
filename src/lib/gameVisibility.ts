@@ -2,7 +2,7 @@
  *  public.game_visibility; anything without a saved row falls back to the defaults here. */
 export const GAME_KEYS = [
   "drills", "tabellerna", "mathdrop", "brak", "tabelltest",
-  "algebra", "procent", "ekvationer", "koordinater", "kistan", "linjen",
+  "algebra", "procent", "ekvationer", "koordinater", "kistan", "linjen", "sannolikhet",
 ] as const;
 export type GameKey = (typeof GAME_KEYS)[number];
 
@@ -18,6 +18,7 @@ export const GAME_LABELS: Record<GameKey, string> = {
   koordinater: "Koordinater",
   kistan: "Kistan",
   linjen: "Räta linjen",
+  sannolikhet: "Sannolikhet",
 };
 
 export const VISIBILITY_GRADES = [6, 7, 8, 9] as const;
