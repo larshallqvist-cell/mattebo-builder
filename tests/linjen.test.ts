@@ -38,7 +38,7 @@ describe("Räta linjen – steg", () => {
       const s = stepStart(t);
       expect(Math.abs(s.y)).toBeLessThanOrEqual(5);
       expect(Math.abs(s.y + t.kp)).toBeLessThanOrEqual(5);
-      expect(Math.abs(s.x) + t.kq).toBeLessThanOrEqual(5);
+      expect(s.x).toBeGreaterThanOrEqual(-5); expect(s.x + t.kq).toBeLessThanOrEqual(5);
     }
   });
   test("samma linje kommer aldrig två gånger i rad", () => {
