@@ -6,6 +6,7 @@ import { Feedback, HintToggle, Option, OptionGroup, ROUND, useExerciseSound } fr
 import { PuzzleLine, symbolName } from "@/components/ekvationer/PuzzleFigure";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { answerTask, issueTask, type Issued } from "@/lib/exerciseTasks";
 import { checkAnswer, explain, generatePuzzle, LEVELS, PAREN_LEVEL, shownRow, type Puzzle, type Result } from "@/lib/ekvationer";
 import { justMastered, recommendedNext, summarize, type EkvationRow } from "@/lib/ekvationStats";
 import EkvationProgress, { LevelStatusLine, Stars } from "@/components/ekvationer/EkvationProgress";
@@ -16,6 +17,7 @@ const BEST_KEY = "mattebo:ekvationer-best";
 const Ekvationer = () => {
   const [level, setLevel] = useState(0);
   const [p, setP] = useState<Puzzle>(() => generatePuzzle(0));
+  const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [tip, setTip] = useState(false);
@@ -25,6 +27,9 @@ const Ekvationer = () => {
   const [history, setHistory] = useState<EkvationRow[]>([]);
   const [celebrate, setCelebrate] = useState<{ level: number; next: number | null } | null>(null);
   const puzzleId = useRef(crypto.randomUUID());
+  const taskId = useRef<string | null>(null);
+  const request = useRef(0);
+  const prefetched = useRef<{ level: number; promise: Promise<Issued<Puzzle>> } | null>(null);
   const lastMark = useRef(Date.now());
   const missed = useRef(false);
   const usedHint = useRef(false);
@@ -53,12 +58,27 @@ const Ekvationer = () => {
   const summary = useMemo(() => summarize(history), [history]);
   const record = Math.max(best, summary.bestStreak);
 
-  const fresh = (l = level) => {
-    setP(generatePuzzle(l));
-    setAnswer(""); setResult(null); setTip(false); missed.current = false; usedHint.current = false;
-    puzzleId.current = crypto.randomUUID(); lastMark.current = Date.now();
-    setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
+  /** The server hands out (and later grades) every puzzle, so saved results can't be faked. */
+  const fetchPuzzle = (l: number) => {
+    const hit = prefetched.current;
+    prefetched.current = null;
+    if (hit && hit.level === l) return hit.promise;
+    return issueTask<Puzzle>({ game: "ekvation", level: l, sessionId: sessionId.current }, () => generatePuzzle(l));
   };
+  const fresh = (l = level) => {
+    const n = ++request.current;
+    setLoading(true);
+    setAnswer(""); setResult(null); setTip(false); missed.current = false; usedHint.current = false;
+    void fetchPuzzle(l).then((next) => {
+      if (n !== request.current) return;
+      setP(next.task); taskId.current = next.id;
+      puzzleId.current = next.id ?? crypto.randomUUID(); lastMark.current = Date.now();
+      setLoading(false);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
+    });
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fresh(0); }, []);
   const choose = (l: number) => { setLevel(l); setCompleted(0); setCelebrate(null); fresh(l); };
 
   const log = (r: Result) => {
@@ -72,15 +92,14 @@ const Ekvationer = () => {
     const after = summarize([...history, row]);
     if (r.correct && justMastered(summary, after, level)) setCelebrate({ level, next: recommendedNext(after, level) });
     setHistory((h) => [...h, row]);
-    if (user) void supabase.from("ekvation_attempts").insert({
-      user_id: user.id, session_id: row.session_id, level, hint_used: row.hint_used, is_correct: row.is_correct,
-      puzzle_id: row.puzzle_id, error_kind: row.error_kind, seconds_spent: row.seconds_spent,
-    }).then(() => {});
+    // The server re-checks the answer against the puzzle it handed out and saves the attempt.
+    void answerTask("ekvation", taskId.current, answer, usedHint.current);
+    if (r.correct) prefetched.current = { level, promise: fetchPuzzle(level) };
   };
 
   const done = !!result?.correct;
   const check = () => {
-    if (!answer.trim() || done) return;
+    if (loading || !answer.trim() || done) return;
     const r = checkAnswer(p, answer);
     if (r.correct) r.message = `${PRAISE[Math.floor(Math.random() * PRAISE.length)]} ${r.message}`;
     setResult(r);
@@ -151,17 +170,21 @@ const Ekvationer = () => {
           </span>
         </div>
 
-        <div key={p.lines.map((l) => l.result).join("-") + p.symbols.join()} className="exercise-rise my-6 space-y-3">
-          {p.order.map((i, pos) => <PuzzleLine key={i} terms={p.lines[i].terms} result={p.lines[i].result} p={p} row={pos + 1} />)}
-          <PuzzleLine terms={p.question} p={p} question />
-        </div>
+        {loading ? (
+          <p role="status" className="my-6 min-h-40 text-sm font-semibold text-muted-foreground">Hämtar pussel…</p>
+        ) : (
+          <div key={p.lines.map((l) => l.result).join("-") + p.symbols.join()} className="exercise-rise my-6 space-y-3">
+            {p.order.map((i, pos) => <PuzzleLine key={i} terms={p.lines[i].terms} result={p.lines[i].result} p={p} row={pos + 1} />)}
+            <PuzzleLine terms={p.question} p={p} question />
+          </div>
+        )}
 
         <form onSubmit={(e) => { e.preventDefault(); done ? next() : check(); }} className="space-y-3">
           <label htmlFor="ekvation-answer" className="block text-sm font-bold text-foreground">Ditt svar</label>
           <input id="ekvation-answer" ref={inputRef} value={answer} onChange={(e) => { setAnswer(e.target.value); if (result && !result.correct) setResult(null); }}
             autoComplete="off" inputMode="numeric" enterKeyHint="done" placeholder="t.ex. 27"
             className="w-full rounded-2xl border-2 border-input bg-background px-4 py-3 font-orbitron text-2xl text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary" />
-          <Button type="submit" size="lg" disabled={!answer.trim() && !done} className="h-12 w-full gap-2 rounded-2xl text-base font-bold">
+          <Button type="submit" size="lg" disabled={loading || (!answer.trim() && !done)} className="h-12 w-full gap-2 rounded-2xl text-base font-bold">
             {done ? <>Nästa pussel <ArrowRight className="h-5 w-5" /></> : <>Kontrollera svar <Check className="h-5 w-5" /></>}
           </Button>
 
