@@ -139,7 +139,7 @@ const Coins = ({ count }: { count: number }) => (
 /** Liggande träddiagram: roten till vänster, utfallen längst till höger. */
 const Tree = ({ scene, match, reveal }: { scene: Extract<Scene, { kind: "tree" }>; match?: string[]; reveal: boolean }) => {
   const depthOf = (ns: TreeNode[] | undefined): number => (ns?.length ? 1 + depthOf(ns[0].children) : 0);
-  const depth = depthOf(scene.root); const colW = depth === 3 ? 92 : 120; const rowH = depth === 3 ? 26 : 36;
+  const depth = depthOf(scene.root); const colW = depth === 3 ? 92 : 120; const rowH = depth === 3 ? 36 : 42;
   const nodes: { x: number; y: number; label: string; leaf?: number; path: string[] }[] = [];
   const edges: { x1: number; y1: number; x2: number; y2: number; p?: string }[] = [];
   let leaf = 0;
@@ -150,14 +150,14 @@ const Tree = ({ scene, match, reveal }: { scene: Extract<Scene, { kind: "tree" }
       const ys = n.children.map((c) => walk(c, d + 1, p));
       y = (ys[0] + ys[ys.length - 1]) / 2;
       n.children.forEach((c, i) => edges.push({ x1: x + 14, y1: y, x2: x + colW - 14, y2: ys[i], p: c.p }));
-    } else { y = 18 + leaf * rowH; leafIdx = leaf++; }
+    } else { y = 30 + leaf * rowH; leafIdx = leaf++; }
     nodes.push({ x, y, label: n.label, leaf: leafIdx, path: p });
     return y;
   };
   const ys = scene.root.map((n) => walk(n, 1, []));
   const rootY = (ys[0] + ys[ys.length - 1]) / 2;
   scene.root.forEach((n, i) => edges.push({ x1: 30, y1: rootY, x2: 30 + colW - 14, y2: ys[i], p: n.p }));
-  const H = leaf * rowH + 6, W = 30 + depth * colW + 100;
+  const H = leaf * rowH + 14, W = 30 + depth * colW + 100;
   const hit = new Set(reveal ? match ?? [] : []);
   return (
     <div className="overflow-x-auto">
@@ -167,7 +167,7 @@ const Tree = ({ scene, match, reveal }: { scene: Extract<Scene, { kind: "tree" }
           <g key={`e${i}`}>
             <line x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} className="sl-branch" />
             {e.p && (
-              <foreignObject x={(e.x1 + e.x2) / 2 - 18} y={(e.y1 + e.y2) / 2 + (e.y2 < e.y1 ? -30 : 2)} width={36} height={28}>
+              <foreignObject x={(e.x1 + e.x2) / 2 - 18} y={(e.y1 + e.y2) / 2 + (e.y2 < e.y1 ? -25 : 1)} width={36} height={24}>
                 <div className="sl-ptag text-center text-[10px] font-bold leading-none"><Rich text={e.p} /></div>
               </foreignObject>
             )}
