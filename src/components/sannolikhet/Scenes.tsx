@@ -64,7 +64,7 @@ const Ball = ({ c, x, y, r = 13 }: { c: ColorKey; x: number; y: number; r?: numb
 );
 
 const Urn = ({ scene }: { scene: Extract<Scene, { kind: "urn" }> }) => {
-  const per = 7;
+  const per = 6;
   return (
     <div className="flex items-end justify-center gap-4">
       <svg viewBox="0 0 230 190" className="h-48 w-56 sm:h-52 sm:w-64" role="img" aria-label={`Påse med ${scene.balls.length} kulor`}>
@@ -72,8 +72,7 @@ const Urn = ({ scene }: { scene: Extract<Scene, { kind: "urn" }> }) => {
         <rect x="22" y="18" width="186" height="16" rx="8" className="sl-jar-lid" />
         {scene.balls.map((c, i) => {
           const row = Math.floor(i / per), k = i % per;
-          const offset = row % 2 ? 13 : 0;
-          return <Ball key={i} c={c} x={40 + offset + k * 26} y={166 - row * 24} />;
+          return <Ball key={i} c={c} x={48 + k * 27} y={168 - row * 25} />;
         })}
       </svg>
       {scene.aside?.length ? (
@@ -168,7 +167,7 @@ const Tree = ({ scene, match, reveal }: { scene: Extract<Scene, { kind: "tree" }
           <g key={`e${i}`}>
             <line x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} className="sl-branch" />
             {e.p && (
-              <foreignObject x={(e.x1 + e.x2) / 2 - 18} y={(e.y1 + e.y2) / 2 - 26} width={36} height={28}>
+              <foreignObject x={(e.x1 + e.x2) / 2 - 18} y={(e.y1 + e.y2) / 2 + (e.y2 < e.y1 ? -30 : 2)} width={36} height={28}>
                 <div className="sl-ptag text-center text-[10px] font-bold leading-none"><Rich text={e.p} /></div>
               </foreignObject>
             )}

@@ -131,7 +131,7 @@ function wheelSizes(): Task {
   const t = pick(slices); const f = { n: t.size, d: total };
   return chanceTask({ kind: "wheel", slices }, `Fälten är olika stora. Hur stor är chansen att visaren stannar på ${COLORS[t.color].ett}?`,
     f, chooseFormat(f, "mix"), `Hjulet är delat i ${total} lika stora bitar med tunna streck. Hur många bitar är ${COLORS[t.color].ett}?`,
-    `${t.size} bitar är ${COLORS[t.color].ett}`, `${total} lika stora bitar`);
+    `${t.size} bitar är ${t.size === 1 ? COLORS[t.color].en : COLORS[t.color].pl}`, `${total} lika stora bitar`);
 }
 function wheelCombined(): Task {
   const total = pick([8, 10]);
