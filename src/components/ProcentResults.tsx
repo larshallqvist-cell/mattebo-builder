@@ -18,8 +18,14 @@ export const KOORDINAT_MODES = [
   { id: "mix", title: "MIX", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
 ] as const;
 
+export const LINJE_MODES = [
+  { id: "m", title: "Hitta m", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "k", title: "Hitta k", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+  { id: "ekv", title: "Skriv ekvationen", levels: ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "Steg 5", "Steg 6"] },
+] as const;
+
 type ModeMeta = { id: string; title: string; levels: readonly string[] };
-type Props = { table?: "procent_attempts" | "koordinat_attempts"; modes?: readonly ModeMeta[] };
+type Props = { table?: "procent_attempts" | "koordinat_attempts" | "linje_attempts"; modes?: readonly ModeMeta[] };
 
 const STATUS: Record<LevelStatus, string> = {
   none: "bg-muted/40 text-muted-foreground",
@@ -55,7 +61,7 @@ export default function ProcentResults({ table = "procent_attempts", modes = PRO
   const meta = modes.find((m) => m.id === mode)!;
   const stats = buildStats(rows, mode);
   const best: Record<string, number> = {};
-  const drill = table === "koordinat_attempts" || mode === "mangd" || mode === "faktormangd";
+  const drill = table === "koordinat_attempts" || table === "linje_attempts" || mode === "mangd" || mode === "faktormangd";
   for (const r of rows) if (r.mode === mode && r.streak != null) best[r.user_id] = Math.max(best[r.user_id] ?? 0, r.streak);
   return (
     <div className="space-y-4 p-5">

@@ -27,7 +27,7 @@ import CollapsibleAdminSection from "@/components/CollapsibleAdminSection";
 import BraklabbetResults from "@/components/BraklabbetResults";
 import TabelltestResults from "@/components/TabelltestResults";
 import AlgebraResults from "@/components/AlgebraResults";
-import ProcentResults, { KOORDINAT_MODES } from "@/components/ProcentResults";
+import ProcentResults, { KOORDINAT_MODES, LINJE_MODES } from "@/components/ProcentResults";
 import BrakResults from "@/components/BrakResults";
 import EkvationResults from "@/components/EkvationResults";
 import StudentActivityResults from "@/components/StudentActivityResults";
@@ -242,6 +242,9 @@ const Admin = () => {
         </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Koordinater – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
           <ProcentResults table="koordinat_attempts" modes={KOORDINAT_MODES} />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Räta linjen – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
+          <ProcentResults table="linje_attempts" modes={LINJE_MODES} />
         </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Bråkträning – elevstatistik" icon={<ClipboardList className="w-5 h-5" />}>
           <BrakResults />

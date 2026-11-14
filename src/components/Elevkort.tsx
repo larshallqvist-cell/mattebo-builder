@@ -7,7 +7,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { buildStats, type Attempt } from "@/lib/algebraStats";
-import { KOORDINAT_MODES, PROCENT_MODES } from "@/components/ProcentResults";
+import { KOORDINAT_MODES, LINJE_MODES, PROCENT_MODES } from "@/components/ProcentResults";
 import { BRAK_MODES } from "@/components/BrakResults";
 import { FOCUS_LABEL as BRAK_LABEL } from "@/lib/brak";
 import { EKVATION_SELECT } from "@/components/EkvationResults";
@@ -33,6 +33,7 @@ type CardData = {
   algebra: Attempt[];
   procent: Attempt[];
   koordinat: Attempt[];
+  linje: Attempt[];
   kistan: { level_id: string; stars: number; best_moves: number }[];
   brak: Attempt[];
   ekvation: EkvationRow[];
@@ -106,7 +107,7 @@ export default function Elevkort() {
     let cancelled = false;
     setCardLoading(true);
     (async () => {
-      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan] = await Promise.all([
+      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje] = await Promise.all([
         supabase.from("tabelltest_results").select("score,total,avg_time_ms,passed,input_mode,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("algebra_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("braklabbet_attempts").select("exercise_id,is_correct,attempt_number,hint_used,answered_at").eq("user_id", active).order("answered_at", { ascending: false }),
@@ -120,9 +121,10 @@ export default function Elevkort() {
         supabase.from("brak_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("koordinat_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("kistan_progress").select("level_id,stars,best_moves").eq("user_id", active),
+        supabase.from("linje_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
-      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan];
+      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje];
       if (results.some((r) => r.error)) {
         setError(true);
         setData(null);
@@ -134,6 +136,7 @@ export default function Elevkort() {
           procent: (procent.data ?? []) as Attempt[],
           koordinat: (koordinat.data ?? []) as Attempt[],
           kistan: kistan.data ?? [],
+          linje: (linje.data ?? []) as Attempt[],
           brak: (brak.data ?? []) as Attempt[],
           ekvation: (ekvation.data ?? []) as EkvationRow[],
           fractions: (fractions.data ?? []) as CardData["fractions"],
@@ -291,6 +294,24 @@ export default function Elevkort() {
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">Inga koordinatövningar ännu.</p>
+                )}
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Räta linjen</h4>
+                {data.linje.length ? (
+                  <ul className="flex flex-wrap gap-2">
+                    {LINJE_MODES.flatMap((m) => {
+                      const st = buildStats(data.linje, m.id)[0];
+                      return st ? m.levels.map((name, i) => st.levels[i].total ? (
+                        <li key={m.id + i} className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                          {m.title} · {name}: {st.levels[i].right}/{st.levels[i].total} · {LEVEL_LABEL[st.levels[i].status] ?? st.levels[i].status}
+                        </li>
+                      ) : null) : [];
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Inga övningar med räta linjen ännu.</p>
                 )}
               </section>
 
