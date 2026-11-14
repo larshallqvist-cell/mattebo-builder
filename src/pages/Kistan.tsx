@@ -74,7 +74,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
 
   const reset = useCallback(() => { setHistory([start]); setTrayPick(null); setBoardPick(null); setShowResult(false); }, [start]);
   useEffect(reset, [reset]);
-  useEffect(() => { if (solved) { onSolved(earned, state.moves); setShowResult(true); } }, [solved]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (solved) onSolved(earned, state.moves); }, [solved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fail = (reason: string) => { toast(reason); setShake((n) => n + 1); };
   const push = (s: GameState) => setHistory((h) => [...h, s]);
