@@ -23,7 +23,7 @@ const List = ({ rows, empty }: { rows: Row[]; empty: string }) =>
 
 /** Topplistan för en träning: hela skolan topp 10 och topp 3 i varje klass, räknat på bästa svit. */
 type Props = { title: string; open: boolean; onOpenChange: (o: boolean) => void; description?: string } & (
-  { mode: "mangd" | "faktormangd"; rpc?: never } | { mode?: never; rpc: "brak_leaderboard" } | { mode: "las" | "mix"; rpc: "koordinat_leaderboard" } | { mode: "m" | "k" | "ekv"; rpc: "linje_leaderboard" });
+  { mode: "mangd" | "faktormangd"; rpc?: never } | { mode?: never; rpc: "brak_leaderboard" } | { mode: "las" | "mix"; rpc: "koordinat_leaderboard" } | { mode: "m" | "k" | "ekv" | "rita" | "parallell"; rpc: "linje_leaderboard" });
 const Leaderboard = ({ mode, rpc, title, open, onOpenChange, description }: Props) => {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [failed, setFailed] = useState(false);
