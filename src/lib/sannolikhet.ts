@@ -351,7 +351,7 @@ function ballTree(): Task {
   const pr = (a: boolean, b: boolean) => {
     const n1 = a ? red : blue;
     const n2 = back ? (b ? red : blue) : (b ? red : blue) - (a === b ? 1 : 0);
-    return { n: n1 * n2, d: T * d2, txt: `${fr(n1, T)} · ${fr(n2, d2)}` };
+    return { n: n1 * n2, d: T * d2, txt: `${fr(n1, T)} · ${fr(n2, d2)}`, path: `${a ? "R" : "B"} ${b ? "R" : "B"}` };
   };
   const c = pick([
     { text: "två röda", paths: [[true, true]], leaves: ["0"] }, { text: "två blå", paths: [[false, false]], leaves: ["3"] },
@@ -364,7 +364,7 @@ function ballTree(): Task {
     scene: { kind: "tree", root, legend: "R = röd, B = blå" }, format: "frac", answer: f, match: c.leaves,
     question: `I påsen finns ${red} röda och ${blue} blå kulor. Du drar två kulor ${back ? "MED återläggning (kulan läggs tillbaka)" : "UTAN återläggning (kulan läggs åt sidan)"}. Hur stor är chansen att du får ${c.text}?`,
     hint: "Multiplicera längs grenen. Gäller flera grenar lägger du ihop dem.",
-    steps: [...parts.map((p) => `Grenen: ${p.txt} = ${fr(p.n, T * d2)}`), ...(parts.length > 1 ? [`Lägg ihop: ${parts.map((p) => fr(p.n, T * d2)).join(" + ")}`] : []), pLine(f, "frac")],
+    steps: [...parts.map((p) => `Grenen ${p.path}: ${p.txt} = ${fr(p.n, T * d2)}`), ...(parts.length > 1 ? [`Lägg ihop: ${parts.map((p) => fr(p.n, T * d2)).join(" + ")}`] : []), pLine(f, "frac")],
   };
 }
 function combos(): Task {
