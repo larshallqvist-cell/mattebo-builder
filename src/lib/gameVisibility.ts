@@ -2,7 +2,7 @@
  *  public.game_visibility; anything without a saved row falls back to the defaults here. */
 export const GAME_KEYS = [
   "drills", "tabellerna", "mathdrop", "brak", "tabelltest",
-  "algebra", "procent", "ekvationer", "koordinater", "kistan",
+  "algebra", "procent", "ekvationer", "koordinater", "kistan", "linjen",
 ] as const;
 export type GameKey = (typeof GAME_KEYS)[number];
 
@@ -17,6 +17,7 @@ export const GAME_LABELS: Record<GameKey, string> = {
   ekvationer: "Ekvationer",
   koordinater: "Koordinater",
   kistan: "Kistan",
+  linjen: "Räta linjen",
 };
 
 export const VISIBILITY_GRADES = [6, 7, 8, 9] as const;
@@ -29,9 +30,10 @@ export interface VisibilityRow {
   enabled: boolean;
 }
 
-/** Defaults before the teacher changes anything: every game on, except Kistan only in Åk 6–7. */
+/** Defaults before the teacher changes anything: every game on, except Kistan only in Åk 6–7 and Räta linjen only in Åk 9. */
 export function defaultEnabled(game: GameKey, grade: number): boolean {
   if (game === "kistan") return grade === 6 || grade === 7;
+  if (game === "linjen") return grade === 9;
   return true;
 }
 
