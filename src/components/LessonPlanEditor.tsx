@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useCalendarEvents, type CalendarEvent } from "@/hooks/useCalendarEvents";
-import { useLessonPlans, lessonPlanKey, getLessonPlan, getLessonTitle } from "@/hooks/useLessonPlans";
+import { useLessonPlans, lessonPlanKey, lessonContentFor, lessonTitleFor } from "@/hooks/useLessonPlans";
 import { useAllGradeLessons } from "@/hooks/useAllGradeLessons";
 import { SUPPORTED_GRADES, DEFAULT_GRADE } from "@/config/app";
 
@@ -330,7 +330,7 @@ const GradeView = () => {
   }, [grade]);
 
   const { events, loading: eventsLoading } = useCalendarEvents(grade);
-  const { plans, titles, savePlan } = useLessonPlans(grade);
+  const { plans, titles, updated, savePlan } = useLessonPlans(grade);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [showPast, setShowPast] = useState(false);
@@ -382,7 +382,7 @@ const GradeView = () => {
           ) : (
             upcoming.map((e) => {
               const key = lessonPlanKey(e);
-              const hasPlan = Boolean((getLessonPlan(plans, e) ?? "").trim());
+              const hasPlan = Boolean(lessonContentFor(e, plans, updated).trim());
               const isPast = e.endDate <= new Date();
               return (
                 <button
@@ -409,8 +409,8 @@ const GradeView = () => {
               key={`${grade}:${selectedEvent.uid}`}
               grade={grade}
               event={selectedEvent}
-              initialContent={getLessonPlan(plans, selectedEvent) ?? selectedEvent.description ?? ""}
-              initialTitle={getLessonTitle(titles, selectedEvent) ?? selectedEvent.title ?? ""}
+              initialContent={lessonContentFor(selectedEvent, plans, updated)}
+              initialTitle={lessonTitleFor(selectedEvent, titles, updated)}
               savePlan={savePlan}
             />
           ) : (
@@ -485,7 +485,7 @@ const DayView = () => {
             <p className="p-3 text-sm text-muted-foreground">Inga lektioner den här dagen.</p>
           ) : (
             lessons.map(({ grade, event }) => {
-              const hasPlan = Boolean((getLessonPlan(byGrade[grade].plans, event) ?? "").trim());
+              const hasPlan = Boolean(lessonContentFor(event, byGrade[grade].plans, byGrade[grade].updated).trim());
               const active = selected?.grade === grade && selected?.uid === event.uid;
               return (
                 <button
@@ -515,16 +515,8 @@ const DayView = () => {
               key={`${selectedRow.grade}:${selectedRow.event.uid}`}
               grade={selectedRow.grade}
               event={selectedRow.event}
-              initialContent={
-                getLessonPlan(byGrade[selectedRow.grade].plans, selectedRow.event) ??
-                selectedRow.event.description ??
-                ""
-              }
-              initialTitle={
-                getLessonTitle(byGrade[selectedRow.grade].titles, selectedRow.event) ??
-                selectedRow.event.title ??
-                ""
-              }
+              initialContent={lessonContentFor(selectedRow.event, byGrade[selectedRow.grade].plans, byGrade[selectedRow.grade].updated)}
+              initialTitle={lessonTitleFor(selectedRow.event, byGrade[selectedRow.grade].titles, byGrade[selectedRow.grade].updated)}
               savePlan={byGrade[selectedRow.grade].savePlan}
             />
           ) : (

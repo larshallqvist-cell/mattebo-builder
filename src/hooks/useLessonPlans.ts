@@ -1,9 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { pickLessonField } from "@/lib/lessonSource";
 
 export interface PlanTarget {
   uid: string;
   date: Date;
+}
+
+/** A calendar event as shown in Mattebo: the calendar's own text and change time. */
+export interface CalendarLesson extends PlanTarget {
+  title?: string;
+  description?: string;
+  lastModified?: Date;
 }
 
 /** Plans are keyed by the calendar event's stable UID, so they survive schedule changes. */
@@ -18,16 +26,45 @@ export const getLessonPlan = (plans: Record<string, string>, event: PlanTarget) 
 export const getLessonTitle = (titles: Record<string, string>, event: PlanTarget) =>
   (titles[lessonPlanKey(event)] ?? "").trim() || undefined;
 
+const planUpdatedFor = (updated: Record<string, string>, event: PlanTarget) =>
+  updated[lessonPlanKey(event)] ?? updated[legacyLessonPlanKey(event.date)];
+
+/** Lesson text to show: Google Calendar decides; Mattebo's copy only while it is newer. */
+export const lessonContentFor = (
+  event: CalendarLesson,
+  plans: Record<string, string>,
+  updated: Record<string, string>,
+) =>
+  pickLessonField({
+    calendarValue: event.description,
+    calendarModified: event.lastModified,
+    planValue: getLessonPlan(plans, event),
+    planUpdated: planUpdatedFor(updated, event),
+  });
+
+export const lessonTitleFor = (
+  event: CalendarLesson,
+  titles: Record<string, string>,
+  updated: Record<string, string>,
+) =>
+  pickLessonField({
+    calendarValue: event.title,
+    calendarModified: event.lastModified,
+    planValue: getLessonTitle(titles, event),
+    planUpdated: planUpdatedFor(updated, event),
+  }).trim() || event.title || "";
+
 export const useLessonPlans = (grade: number) => {
   const [plans, setPlans] = useState<Record<string, string>>({});
   const [titles, setTitles] = useState<Record<string, string>>({});
+  const [updated, setUpdated] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("lesson_plans")
-      .select("event_uid, starts_at, content, title")
+      .select("event_uid, starts_at, content, title, updated_at")
       .eq("grade", grade)
       // Cache-buster: iOS Safari happily serves stale GET responses otherwise.
       .neq("id", crypto.randomUUID());
@@ -35,12 +72,15 @@ export const useLessonPlans = (grade: number) => {
     if (!error && data) {
       const map: Record<string, string> = {};
       const titleMap: Record<string, string> = {};
+      const updatedMap: Record<string, string> = {};
       data.forEach((row) => {
         map[row.event_uid as string] = (row.content as string) ?? "";
         titleMap[row.event_uid as string] = ((row as { title?: string }).title as string) ?? "";
+        updatedMap[row.event_uid as string] = (row.updated_at as string) ?? "";
       });
       setPlans(map);
       setTitles(titleMap);
+      setUpdated(updatedMap);
     }
     setLoading(false);
   }, [grade]);
@@ -87,6 +127,7 @@ export const useLessonPlans = (grade: number) => {
       if (error) throw error;
       setPlans((prev) => ({ ...prev, [lessonPlanKey(event)]: content }));
       setTitles((prev) => ({ ...prev, [lessonPlanKey(event)]: title }));
+      setUpdated((prev) => ({ ...prev, [lessonPlanKey(event)]: new Date().toISOString() }));
 
       // Skriv till master-kalkylbladet (server-side), därefter Google Kalender.
       const { data, error: syncError } = await supabase.functions.invoke("sync-lesson-to-calendar", {
@@ -117,5 +158,5 @@ export const useLessonPlans = (grade: number) => {
     [grade],
   );
 
-  return { plans, titles, loading, savePlan, reload: load };
+  return { plans, titles, updated, loading, savePlan, reload: load };
 };
