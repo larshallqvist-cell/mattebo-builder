@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { defaultEnabled, isGameEnabled, isGameOpenForGrade, VISIBILITY_CHAPTERS, type VisibilityRow } from "../src/lib/gameVisibility";
+import { chapterKeyword, defaultEnabled, isGameEnabled, isGameOpenForGrade, VISIBILITY_CHAPTERS, type VisibilityRow } from "../src/lib/gameVisibility";
 
 describe("game visibility matrix", () => {
   test("utan sparade val är alla spel på, utom Kistan som bara är på i Åk 6 och 7", () => {
