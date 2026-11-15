@@ -1,5 +1,5 @@
 import { useCalendarEvents, CalendarEvent } from "@/hooks/useCalendarEvents";
-import { useLessonPlans, getLessonTitle } from "@/hooks/useLessonPlans";
+import { useLessonPlans, lessonTitleFor } from "@/hooks/useLessonPlans";
 import {
   Accordion,
   AccordionContent,
@@ -248,7 +248,7 @@ interface WeekGroup {
 
 const LessonCalendar = ({ grade }: LessonCalendarProps) => {
   const { upcomingEvents, loading, error, refresh } = useCalendarEvents(grade);
-  const { titles } = useLessonPlans(grade);
+  const { titles, updated } = useLessonPlans(grade);
   const [sparklingWeeks, setSparklingWeeks] = useState<Set<number>>(new Set());
   const [openWeeks, setOpenWeeks] = useState<string[]>([]);
 
@@ -429,7 +429,7 @@ const LessonCalendar = ({ grade }: LessonCalendarProps) => {
                               </div>
                               {/* Title */}
                               <h4 className="font-nunito font-normal text-foreground mt-0.5 line-clamp-2 text-sm">
-                                {getLessonTitle(titles, event) ?? event.title}
+                                {lessonTitleFor(event, titles, updated)}
                               </h4>
                             </div>
                           </div>

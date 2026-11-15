@@ -15,7 +15,18 @@ export interface CalendarEvent {
   description?: string;
   week: number;
   effect?: CalendarEffectType;
+  /** LAST-MODIFIED i kalendern – avgör om kalenderns text är nyare än Mattebos kopia. */
+  lastModified?: Date;
 }
+
+const lastModifiedOf = (vevent: ICAL.Component): Date | undefined => {
+  const v = vevent.getFirstPropertyValue("last-modified") as ICAL.Time | null;
+  try {
+    return v && typeof (v as ICAL.Time).toJSDate === "function" ? (v as ICAL.Time).toJSDate() : undefined;
+  } catch {
+    return undefined;
+  }
+};
 
 const getWeekNumber = (date: Date): number => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -53,6 +64,7 @@ const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): Calend
   const start = event.startDate;
   const duration = event.duration;
   const effect = parseEffectFromDescription(event.description);
+  const lastModified = lastModifiedOf(vevent);
   
   // Expandera 6 månader framåt från idag
   const now = ICAL.Time.now();
@@ -90,6 +102,7 @@ const expandRecurringEvent = (vevent: ICAL.Component, event: ICAL.Event): Calend
       description: event.description || undefined,
       week: getWeekNumber(startDate),
       effect,
+      lastModified,
     });
     count++;
   }
@@ -159,6 +172,7 @@ export const parseICSData = (icsData: string): CalendarEvent[] => {
           description: event.description || undefined,
           week: getWeekNumber(startDate),
           effect,
+          lastModified: lastModifiedOf(vevent),
         });
       }
     });
@@ -202,6 +216,7 @@ export const parseICSData = (icsData: string): CalendarEvent[] => {
           description: event.description || undefined,
           week: getWeekNumber(startDate),
           effect,
+          lastModified: lastModifiedOf(vevent),
         });
       }
     });
@@ -241,6 +256,7 @@ const loadFromSessionStorage = (grade: number): CacheEntry | null => {
         ...e,
         date: new Date(e.date),
         endDate: new Date(e.endDate),
+        lastModified: e.lastModified ? new Date(e.lastModified) : undefined,
       }));
       return parsed;
     }

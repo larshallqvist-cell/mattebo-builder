@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { useLessonPlans, getLessonPlan } from "@/hooks/useLessonPlans";
+import { useLessonPlans, lessonContentFor } from "@/hooks/useLessonPlans";
 import { PostItSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
@@ -15,7 +15,7 @@ interface PostItNoteProps {
 
 const PostItNote = ({ grade }: PostItNoteProps) => {
   const { upcomingEvents, loading } = useCalendarEvents(grade);
-  const { plans } = useLessonPlans(grade);
+  const { plans, updated } = useLessonPlans(grade);
   const [eventIndex, setEventIndex] = useState(0);
   const [navigationUnlocked, setNavigationUnlocked] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -51,8 +51,8 @@ const PostItNote = ({ grade }: PostItNoteProps) => {
   const formatEventTime = (date: Date) => {
     return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
   };
-  const planContent = currentEvent ? getLessonPlan(plans, currentEvent) : undefined;
-  const content = (planContent && planContent.trim()) || currentEvent?.description || "";
+  // Google Kalender bestämmer; Mattebos kopia visas bara medan den är nyare.
+  const content = currentEvent ? lessonContentFor(currentEvent, plans, updated) : "";
 
   if (loading) {
     return <PostItSkeleton />;

@@ -7,6 +7,7 @@ export interface GradeLessonData {
   events: CalendarEvent[];
   plans: Record<string, string>;
   titles: Record<string, string>;
+  updated: Record<string, string>;
   savePlan: ReturnType<typeof useLessonPlans>["savePlan"];
 }
 
@@ -27,15 +28,16 @@ export const useAllGradeLessons = () => {
 
   const byGrade = useMemo<Record<number, GradeLessonData>>(
     () => ({
-      6: { grade: 6, events: c6.events, plans: p6.plans, titles: p6.titles, savePlan: p6.savePlan },
-      7: { grade: 7, events: c7.events, plans: p7.plans, titles: p7.titles, savePlan: p7.savePlan },
-      8: { grade: 8, events: c8.events, plans: p8.plans, titles: p8.titles, savePlan: p8.savePlan },
-      9: { grade: 9, events: c9.events, plans: p9.plans, titles: p9.titles, savePlan: p9.savePlan },
+      6: { grade: 6, events: c6.events, plans: p6.plans, titles: p6.titles, updated: p6.updated, savePlan: p6.savePlan },
+      7: { grade: 7, events: c7.events, plans: p7.plans, titles: p7.titles, updated: p7.updated, savePlan: p7.savePlan },
+      8: { grade: 8, events: c8.events, plans: p8.plans, titles: p8.titles, updated: p8.updated, savePlan: p8.savePlan },
+      9: { grade: 9, events: c9.events, plans: p9.plans, titles: p9.titles, updated: p9.updated, savePlan: p9.savePlan },
     }),
     [
       c6.events, c7.events, c8.events, c9.events,
       p6.plans, p7.plans, p8.plans, p9.plans,
       p6.titles, p7.titles, p8.titles, p9.titles,
+      p6.updated, p7.updated, p8.updated, p9.updated,
       p6.savePlan, p7.savePlan, p8.savePlan, p9.savePlan,
     ],
   );
