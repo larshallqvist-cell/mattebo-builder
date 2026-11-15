@@ -11,11 +11,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight, Palette } from "lucide-react";
+import { Bold, List, Link2, Save, Loader2, Heading, ChevronLeft, ChevronRight, Palette, Check, CloudOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { parseLessonContent, sanitizeLessonText } from "@/lib/lessonContent";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LessonNotesPanel from "@/components/LessonNotesPanel";
+import {
+  AUTOSAVE_DELAY_MS,
+  clearDraftBackup,
+  draftBackupKey,
+  isSameDraft,
+  pickRestoredDraft,
+  readDraftBackup,
+  writeDraftBackup,
+  type LessonDraft,
+} from "@/lib/lessonAutosave";
 
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
@@ -77,9 +87,23 @@ interface EditorPaneProps {
 /** Shared editor used by both the per-class view and the per-day view. */
 const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan }: EditorPaneProps) => {
   const { toast } = useToast();
-  const [draft, setDraft] = useState(initialContent);
-  const [draftTitle, setDraftTitle] = useState(initialTitle);
+  const backupKey = draftBackupKey(grade, event.uid);
+  // Text that never finished saving (closed tab, lost network) comes back on open.
+  const [restored] = useState(() =>
+    pickRestoredDraft(readDraftBackup(backupKey), { content: initialContent, title: initialTitle }, Date.now()),
+  );
+  const [draft, setDraft] = useState(restored?.content ?? initialContent);
+  const [draftTitle, setDraftTitle] = useState(restored?.title ?? initialTitle);
   const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<"idle" | "dirty" | "saving" | "saved" | "error">(restored ? "dirty" : "idle");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const savedRef = useRef<LessonDraft>({ content: initialContent, title: initialTitle });
+  const latestRef = useRef<LessonDraft>({ content: draft, title: draftTitle });
+  const savingRef = useRef(false);
+  const pendingRef = useRef(false);
+  const timerRef = useRef<number | null>(null);
+  const saveRef = useRef<(manual: boolean) => Promise<void>>(async () => {});
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkText, setLinkText] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
@@ -152,34 +176,114 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
     setColorOpen(false);
   };
 
-  const handleSave = async () => {
+  const runSave = async (manual: boolean) => {
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const snapshot: LessonDraft = {
+      content: latestRef.current.content.slice(0, MAX_CONTENT_LENGTH),
+      title: latestRef.current.title.trim().slice(0, 120),
+    };
+    if (!manual && isSameDraft(snapshot, savedRef.current)) return;
+    if (savingRef.current) {
+      pendingRef.current = true;
+      return;
+    }
+    savingRef.current = true;
     setSaving(true);
+    setStatus("saving");
     try {
-      const result = await savePlan(event, draft.slice(0, MAX_CONTENT_LENGTH), draftTitle.trim().slice(0, 120));
-      toast(
-        result && result.calendarSynced
-          ? {
-              title: "Sparat!",
-              description: result.sheetWritten ? "Sparat i Google Kalender och kalkylbladet." : result.message,
-            }
-          : {
-              title: "Delvis sparat – kontrollera",
-              description: (result && result.message) || "Kunde inte skriva till kalkylbladet/kalendern just nu.",
-              variant: "destructive" as const,
-              duration: 12000,
-            },
-      );
+      const result = await savePlan(event, snapshot.content, snapshot.title);
+      savedRef.current = snapshot;
+      if (isSameDraft(latestRef.current, snapshot)) clearDraftBackup(backupKey);
+      setSavedAt(new Date());
+      if (result && result.calendarSynced) {
+        setStatus("saved");
+        setStatusMessage("");
+      } else {
+        setStatus("error");
+        setStatusMessage((result && result.message) || "Google Kalender kunde inte uppdateras just nu.");
+      }
+      if (manual) {
+        toast(
+          result && result.calendarSynced
+            ? {
+                title: "Sparat!",
+                description: result.sheetWritten ? "Sparat i Google Kalender och kalkylbladet." : result.message,
+              }
+            : {
+                title: "Delvis sparat – kontrollera",
+                description: (result && result.message) || "Kunde inte skriva till kalkylbladet/kalendern just nu.",
+                variant: "destructive" as const,
+                duration: 12000,
+              },
+        );
+      }
     } catch (err) {
-      toast({
-        title: "Kunde inte spara",
-        description:
-          (err as { message?: string })?.message ?? (typeof err === "string" ? err : "Okänt fel"),
-        variant: "destructive",
-      });
+      const message = (err as { message?: string })?.message ?? (typeof err === "string" ? err : "Okänt fel");
+      setStatus("error");
+      setStatusMessage(`Kunde inte spara: ${message}. Texten finns kvar här och sparas igen när du skriver.`);
+      if (manual) toast({ title: "Kunde inte spara", description: message, variant: "destructive" });
     } finally {
+      savingRef.current = false;
       setSaving(false);
+      if (pendingRef.current) {
+        pendingRef.current = false;
+        void saveRef.current(false);
+      }
     }
   };
+  saveRef.current = runSave;
+
+  const handleSave = () => runSave(true);
+
+  // Autosave: keep a local copy on every change and save a moment after typing stops.
+  useEffect(() => {
+    latestRef.current = { content: draft, title: draftTitle };
+    if (isSameDraft(latestRef.current, savedRef.current)) {
+      clearDraftBackup(backupKey);
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      return;
+    }
+    writeDraftBackup(backupKey, latestRef.current);
+    if (!savingRef.current) setStatus("dirty");
+    if (timerRef.current) window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => void saveRef.current(false), AUTOSAVE_DELAY_MS);
+  }, [draft, draftTitle, backupKey]);
+
+  // Save right away when leaving: switching lesson, hiding the tab, or closing the page.
+  useEffect(() => {
+    const hasUnsaved = () => savingRef.current || !isSameDraft(latestRef.current, savedRef.current);
+    const onHide = () => {
+      if (document.visibilityState === "hidden" && hasUnsaved()) void saveRef.current(false);
+    };
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!hasUnsaved()) return;
+      void saveRef.current(false);
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (!isSameDraft(latestRef.current, savedRef.current)) void saveRef.current(false);
+    };
+  }, []);
+
+  const statusLabel =
+    status === "saving"
+      ? "Sparar…"
+      : status === "dirty"
+        ? "Sparas automatiskt…"
+        : status === "error"
+          ? statusMessage
+          : status === "saved" && savedAt
+            ? `Sparat ${savedAt.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}`
+            : "Sparas automatiskt när du skriver";
 
   return (
     <>
@@ -251,11 +355,30 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
             </PopoverContent>
           </Popover>
         </div>
-        <Button size="sm" onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-          Spara
-        </Button>
+        <div className="flex items-center gap-2">
+          <span
+            role="status"
+            aria-live="polite"
+            className={`flex max-w-[22rem] items-center gap-1 text-xs ${
+              status === "error" ? "text-destructive" : "text-muted-foreground"
+            }`}
+          >
+            {status === "saving" && <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />}
+            {status === "saved" && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
+            {status === "error" && <CloudOff className="h-3.5 w-3.5 shrink-0" />}
+            {statusLabel}
+          </span>
+          <Button size="sm" variant={status === "dirty" || status === "error" ? "default" : "outline"} onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Spara
+          </Button>
+        </div>
       </div>
+      {restored && (
+        <p className="rounded-md border border-border bg-muted px-3 py-2 text-xs text-foreground">
+          Jag tog fram text du skrev här tidigare som inte hann sparas. Den sparas nu automatiskt.
+        </p>
+      )}
       <p className="text-xs text-muted-foreground">
         <code>## Rubrik</code> = rubrik (versal, med linje över) · <code>**fet**</code> = fetstil i löpande text ·{" "}
         <code>- punkt</code> = punktlista · <code>---</code> = linje · <code>[text](https://…)</code> = länk ·{" "}
