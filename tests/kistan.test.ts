@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   applyWrap, cancelPair, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, opTiles, parseEquation, placeOp, placeTile,
-  simplifyPair, solve, stars, WORLD_NAMES, type GameState, type Result,
+  checkText, simplifyPair, solutionCheck, solve, stars, WORLD_NAMES, type GameState, type Result,
 } from "../src/lib/kistan";
 
 const ok = (r: Result): GameState => { if (!r.ok) throw new Error(r.reason); return r.state; };
@@ -180,5 +180,40 @@ describe("Kistan – stjärnor och upplåsning", () => {
     expect(kistanAvailable(8, false, [{ grade: 8, chapter: 3, game_key: "kistan", enabled: true }])).toBe(true);
     const off = [1, 2, 3, 4, 5].map((chapter) => ({ grade: 6, chapter, game_key: "kistan", enabled: false }));
     expect(kistanAvailable(6, false, off)).toBe(false);
+  });
+});
+
+describe("Kistan – kontroll med insatt lösning", () => {
+  test("3(x+2)+4 = 25: x = 5 insatt ger 3(5 + 2) + 4 = 25, och båda sidor blir 25", () => {
+    const c = solutionCheck("3(x+2)+4=25", solve(parseEquation("3(x+2)+4=25")));
+    expect(c?.x).toBe(5);
+    expect(checkText(c!.left)).toBe("3(5 + 2) + 4");
+    expect(checkText(c!.right)).toBe("25");
+    expect([c?.leftValue, c?.rightValue]).toEqual([25, 25]);
+  });
+
+  test("negativa lösningar sätts in inom parentes: −6x = 84 ger −6·(−14)", () => {
+    const c = solutionCheck("-6x=84", solve(parseEquation("-6x=84")));
+    expect(c?.x).toBe(-14);
+    expect(checkText(c!.left)).toBe("−6·(−14)");
+    expect(c?.leftValue).toBe(84);
+  });
+
+  test("bara det insatta talet markeras för färg", () => {
+    const c = solutionCheck("x/4+13=25", solve(parseEquation("x/4+13=25")));
+    expect(c!.left.filter((p) => p.x).map((p) => p.text)).toEqual(["48"]);
+  });
+
+  test("alla nivåer med siffersvar (Bergen och Toppen) stämmer när lösningen sätts in", () => {
+    for (const l of LEVELS.filter((l) => l.world >= 3)) {
+      const c = solutionCheck(l.eq, solve(parseEquation(l.eq)));
+      expect(c, l.id).not.toBeNull();
+      expect(c!.leftValue, l.id).toBe(c!.rightValue);
+    }
+  });
+
+  test("bildnivåer utan siffersvar och olösta lägen får ingen kontroll", () => {
+    expect(solutionCheck("box+fish=bfly", solve(parseEquation("box+fish=bfly")))).toBeNull();
+    expect(solutionCheck("3x+2=14", parseEquation("3x+2=14"))).toBeNull();
   });
 });

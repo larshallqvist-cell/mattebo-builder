@@ -283,7 +283,7 @@ const sideValue = (terms: Term[], x: number): number => terms.reduce((sum, t) =>
   return sum + (t.neg ? -v : v);
 }, 0);
 
-const fmtNum = (n: number) => (n < 0 ? `−${-n}` : String(n));
+export const kistanNum = (n: number) => (n < 0 ? `−${-n}` : String(n));
 
 function sideParts(terms: Term[], x: number): CheckPart[] {
   const parts: CheckPart[] = [];
@@ -313,4 +313,3 @@ export function solutionCheck(eq: string, solved: GameState): SolutionCheck | nu
   return { x, left: sideParts(start.left, x), right: sideParts(start.right, x), leftValue: sideValue(start.left, x), rightValue: sideValue(start.right, x) };
 }
 export const checkText = (parts: CheckPart[]) => parts.map((p) => p.text).join("");
-export { fmtNum as kistanNum };
