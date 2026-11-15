@@ -141,16 +141,18 @@ export const useLessonPlans = (grade: number) => {
         },
       });
       if (syncError || !data?.ok) {
-        const sheetError = data?.sheet && !data.sheet.written ? String(data.sheet.error ?? "") : "";
         console.error("Synk misslyckades:", syncError ?? data);
         return {
           calendarSynced: false as const,
-          sheetWritten: Boolean(data?.sheet?.written),
-          message: sheetError
-            ? `Sparat i Mattebo, men INTE i kalkylbladet: ${sheetError}`
-            : data?.sheet?.written
-              ? "Sparat i Mattebo och kalkylbladet, men kalendern kunde inte uppdateras."
-              : "Sparat i Mattebo, men INTE i kalkylbladet eller kalendern (servern svarade med fel).",
+          sheetWritten: false,
+          message: "Sparat i Mattebo, men Google Kalender kunde inte uppdateras. Kalendern bestämmer, så försök igen.",
+        };
+      }
+      if (!data.sheet?.written) {
+        return {
+          calendarSynced: true as const,
+          sheetWritten: false,
+          message: `Sparat i Google Kalender. Kalkylbladet uppdateras vid nästa hämtning från kalendern (${String(data.sheet?.error ?? "okänt fel")}).`,
         };
       }
       return { calendarSynced: true as const, sheetWritten: true };

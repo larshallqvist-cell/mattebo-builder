@@ -158,7 +158,10 @@ const LessonEditorPane = ({ event, grade, initialContent, initialTitle, savePlan
       const result = await savePlan(event, draft.slice(0, MAX_CONTENT_LENGTH), draftTitle.trim().slice(0, 120));
       toast(
         result && result.calendarSynced
-          ? { title: "Sparat!", description: "Sparat i kalkylbladet och Google Kalender." }
+          ? {
+              title: "Sparat!",
+              description: result.sheetWritten ? "Sparat i Google Kalender och kalkylbladet." : result.message,
+            }
           : {
               title: "Delvis sparat – kontrollera",
               description: (result && result.message) || "Kunde inte skriva till kalkylbladet/kalendern just nu.",

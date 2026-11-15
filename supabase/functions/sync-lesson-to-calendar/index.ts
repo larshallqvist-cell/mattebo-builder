@@ -69,14 +69,7 @@ serve(async (req) => {
     const connectorKey = Deno.env.get("GOOGLE_CALENDAR_API_KEY");
     if (!lovableKey || !connectorKey) return json({ error: "Google Calendar connector not configured" }, 500);
 
-    // 1) Master: skriv Titel (A) + Beskrivning (E) till master-kalkylbladet.
-    const sheetResult = await writeToMasterSheet(grade as Grade, uid, title.trim(), content, lovableKey, startsAt, originalTitle);
-    if (!sheetResult.written) {
-      console.error("Master sheet write failed:", sheetResult.error);
-      // Kalendern uppdateras inte: Apps Script skulle ändå skriva tillbaka bladets gamla text.
-      return json({ ok: false, sheet: sheetResult, calendarSynced: false }, 200);
-    }
-
+    // 1) Google Kalender bestämmer: skriv först till kalenderhändelsen.
     const patch: Record<string, string> = { description: content };
     if (title.trim()) patch.summary = title.trim();
 
@@ -96,11 +89,16 @@ serve(async (req) => {
     if (!res.ok) {
       const details = await res.text();
       console.error(`Calendar patch failed [${res.status}]: ${details}`);
-      return json({ ok: false, error: "Google Calendar update failed", status: res.status, details, sheet: sheetResult, calendarSynced: false }, 200);
+      return json({ ok: false, error: "Google Calendar update failed", status: res.status, details, calendarSynced: false }, 200);
     }
 
     // Force a fresh iCal fetch so the app shows the new text immediately.
     await admin.from("calendar_cache").delete().eq("grade", grade);
+
+    // 2) Kalkylbladet är en kopia: uppdatera direkt om det går. Annars hämtar
+    //    bladets "Hämta från kalendern" (autoSynk) texten vid nästa körning.
+    const sheetResult = await writeToMasterSheet(grade as Grade, uid, title.trim(), content, lovableKey, startsAt, originalTitle);
+    if (!sheetResult.written) console.error("Sheet copy write failed:", sheetResult.error);
 
     return json({ ok: true, sheet: sheetResult, calendarSynced: true });
   } catch (error) {
