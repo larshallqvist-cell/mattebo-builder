@@ -29,4 +29,13 @@ describe("game visibility matrix", () => {
     expect(isGameOpenForGrade(rows, "kistan", 6)).toBe(false);
     expect(isGameOpenForGrade([], "kistan", 9)).toBe(false);
   });
+
+  test("kolumnrubriken är ett beskrivande ord ur kapitelnamnet", () => {
+    expect(chapterKeyword(6, 2)).toBe("Bråk");
+    expect(chapterKeyword(6, 1)).toBe("Taluppfattning");
+    expect(chapterKeyword(6, 5)).toBe("Framtiden");
+    expect(chapterKeyword(7, 5)).toBe("Sannolikhet");
+    expect(chapterKeyword(9, 2)).toBe("Samband");
+    expect(chapterKeyword(6, 99)).toBe("Kap 99");
+  });
 });
