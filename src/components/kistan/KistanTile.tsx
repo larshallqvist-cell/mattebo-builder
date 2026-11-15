@@ -26,6 +26,8 @@ export default function KistanTile({ kind, neg, coef = 1, den = 1, letters, sele
         "kistan-tile kistan-pop relative grid place-items-center rounded-xl font-bold transition-transform active:scale-95 disabled:opacity-60",
         small ? "h-12 w-12 text-3xl" : "h-14 w-14 text-4xl sm:h-20 sm:w-20 sm:text-5xl",
         label.length > 2 && (small ? "text-xl" : "text-2xl sm:text-4xl"),
+        neg && label.length === 2 && !img && (small ? "pl-2 text-2xl" : "pl-2.5 text-3xl sm:text-5xl"),
+        neg && label.length > 2 && !img && "pl-2.5",
         neg && "kistan-tile-neg",
         selected && "kistan-ring -translate-y-2",
       )}
