@@ -6,8 +6,8 @@
 
 
 // ===== VERSION =====
-const VERSION = "1.8.0";
-const VERSION_DATUM = "2026-08-19";
+const VERSION = "1.9.0";
+const VERSION_DATUM = "2026-11-15";
 
 function versionsText() {
   return "Mattebo Kalender v" + VERSION + " (" + VERSION_DATUM + ")";
@@ -16,6 +16,12 @@ function versionsText() {
 function visaVersion() {
   SpreadsheetApp.getUi().alert(
     versionsText() +
+    "\n\nÄndringar i 1.9.0 – KALENDERN BESTÄMMER:" +
+    "\n• Ny funktion: Hämta från kalendern (kalenderns titel, tid, sal och beskrivning skrivs in i bladet)" +
+    "\n• Automatiken (autoSynk) hämtar nu FRÅN kalendern till alla fyra flikar – den skriver aldrig över kalendern" +
+    "\n• Händelser som tagits bort i kalendern tas bort ur bladet, nya läggs till" +
+    "\n• 'Skapa saknade händelser' skapar bara händelser för rader utan kalenderhändelse" +
+    "\n• 'Skicka beskrivningar till kalendern' skriver över kalendern och frågar först" +
     "\n\nÄndringar i 1.6.0:" +
     "\n• Ny funktion: Uppdatera beskrivningar (skickar kolumn E till kalendern utan att röra tider)" +
     "\n• Ny funktion: Fyll mall i Beskrivning för tomma rader" +
@@ -130,10 +136,13 @@ function getISOWeek(date) {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("Mattebo")
+    .addItem("Hämta från kalendern (denna flik)", "hamtaFranKalender")
+    .addItem("Hämta från kalendern (alla flikar)", "hamtaAllaFlikarFranKalender")
+    .addSeparator()
     .addItem("Generera lektioner", "genereraLasaar")
-    .addItem("Synka till kalender", "synkaHelaBladetTillKalender")
-    .addItem("Uppdatera beskrivningar", "uppdateraBeskrivningar")
+    .addItem("Skapa saknade händelser i kalendern", "synkaHelaBladetTillKalender")
     .addItem("Fyll mall i Beskrivning", "fyllMallIBeskrivning")
+    .addItem("Skicka beskrivningar till kalendern (skriver över!)", "uppdateraBeskrivningar")
     .addSeparator()
     .addItem("Sätt rubriker", "sattRubriker")
     .addItem("Rensa event-ID (kolumn F)", "rensaEventIdKolumn")
@@ -281,7 +290,9 @@ function parseDateStockholm(str) {
 }
 
 
-// ===== SYNK TILL KALENDER =====
+// ===== SKAPA SAKNADE HÄNDELSER =====
+// Kalendern bestämmer: befintliga händelser rörs aldrig. Rader som saknar
+// händelse kopplas till en befintlig (samma starttid) eller skapas.
 function synkaHelaBladetTillKalender() {
   Logger.log(versionsText());
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -292,66 +303,239 @@ function synkaHelaBladetTillKalender() {
     return;
   }
 
+  const c = kolumnerFor(sheet);
   const data = sheet.getDataRange().getValues();
-  const kalenderId = hittaKalenderId(arskurs);
-  const kalender = CalendarApp.getCalendarById(kalenderId);
-  if (!kalender) {
-    throw new Error("Kunde inte öppna kalender: " + kalenderId);
-  }
+  const kalender = CalendarApp.getCalendarById(hittaKalenderId(arskurs));
+  if (!kalender) throw new Error("Kunde inte öppna kalendern för Åk " + arskurs);
 
   let skapade = 0;
-  let uppdaterade = 0;
+  let kopplade = 0;
+  let ororda = 0;
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
-    const titel = row[0];
-    const starttid = row[1];
-    const varaktighet = Number(row[2]);
-    const plats = row[3] ? String(row[3]) : "";
-    const beskrivning = row[4] ? String(row[4]) : "";
-    const eventId = row[5] ? String(row[5]).trim() : "";
+    const titel = row[c.titel];
+    const starttid = row[c.start];
+    const varaktighet = c.varaktighet >= 0 ? Number(row[c.varaktighet]) : 0;
+    const plats = c.plats >= 0 && row[c.plats] ? String(row[c.plats]) : "";
+    const beskrivning = row[c.beskrivning] ? String(row[c.beskrivning]) : "";
+    const eventId = row[c.id] ? String(row[c.id]).trim() : "";
 
     if (!titel || !starttid || !varaktighet) continue;
+    if (eventId) {
+      let finns = null;
+      try { finns = kalender.getEventById(eventId); } catch (e) { finns = null; }
+      if (finns) { ororda++; continue; }
+    }
 
     const startDate = parseStarttid(starttid);
     if (!startDate) continue;
     const endDate = new Date(startDate.getTime() + varaktighet * 60000);
 
-    let event;
-    if (eventId) {
-      try {
-        event = kalender.getEventById(eventId);
-      } catch (e) {
-        event = null;
-      }
-    }
-    if (!event) {
-      event = hittaEventPaStarttid(kalender, titel, startDate);
-    }
-
+    let event = hittaEventPaStarttid(kalender, titel, startDate);
     if (event) {
-      event.setTitle(titel);
-      event.setLocation(plats);
-      event.setDescription(beskrivning);
-      event.setTime(startDate, endDate);
-      uppdaterade++;
+      kopplade++;
     } else {
-      event = kalender.createEvent(titel, startDate, endDate, {
-        location: plats,
-        description: beskrivning
-      });
+      event = kalender.createEvent(titel, startDate, endDate, { location: plats, description: beskrivning });
       skapade++;
     }
-
-    sheet.getRange(i + 1, 6).setValue(event.getId());
+    sheet.getRange(i + 1, c.id + 1).setValue(event.getId());
   }
 
   SpreadsheetApp.getUi().alert(
-    "Synkning klar för Åk " + arskurs +
+    "Klart för Åk " + arskurs +
     "\nSkapade: " + skapade +
-    "\nUppdaterade: " + uppdaterade +
+    "\nKopplade till befintlig händelse: " + kopplade +
+    "\nOrörda (finns redan i kalendern): " + ororda +
+    "\n\nKalendern bestämmer – befintliga händelser ändras inte." +
     "\n\n" + versionsText()
   );
+}
+
+// ===== HÄMTA FRÅN KALENDERN (kalendern bestämmer) =====
+// Kolumnerna hittas via rubrikraden, så extra kolumner (t.ex. Veckodag) får vara kvar.
+function kolumnerFor(sheet) {
+  const lastCol = Math.max(sheet.getLastColumn(), RUBRIKER.length);
+  const h = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function (x) {
+    return String(x || "").trim().toLowerCase();
+  });
+  const f = function (n) { return h.indexOf(n); };
+  const c = {
+    titel: f("titel"), start: f("starttid"), varaktighet: f("varaktighet"),
+    plats: f("plats"), beskrivning: f("beskrivning"), id: f("kalendereventid"), lastCol: lastCol
+  };
+  if (c.titel < 0 && c.start < 0 && c.beskrivning < 0 && c.id < 0) {
+    return { titel: 0, start: 1, varaktighet: 2, plats: 3, beskrivning: 4, id: 5, lastCol: lastCol };
+  }
+  if (c.titel < 0 || c.start < 0 || c.beskrivning < 0 || c.id < 0) {
+    throw new Error("Rubrikraden i '" + sheet.getName() + "' saknar Titel, Starttid, Beskrivning eller KalenderEventID.");
+  }
+  return c;
+}
+
+function normaliseraId(id) {
+  return String(id || "").trim().split("@")[0].toLowerCase();
+}
+
+function stockholmText(d) {
+  return Utilities.formatDate(d, "Europe/Stockholm", "yyyy-MM-dd HH:mm");
+}
+
+/** Hämtar alla händelser för läsåret till en flik. Rör aldrig kalendern. */
+function hamtaFlikFranKalender(sheet, arskurs) {
+  const kalender = CalendarApp.getCalendarById(hittaKalenderId(arskurs));
+  if (!kalender) throw new Error("Kunde inte öppna kalendern för Åk " + arskurs);
+  const fran = parseDateStockholm(TERMINSDATUM.ht.start);
+  const till = parseDateStockholm(TERMINSDATUM.vt.end);
+  till.setUTCDate(till.getUTCDate() + 1);
+
+  const c = kolumnerFor(sheet);
+  const lastRow = sheet.getLastRow();
+  const data = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, c.lastCol).getValues() : [];
+
+  const radPaId = {};
+  const utanIdPaStart = {};
+  data.forEach(function (r, i) {
+    const id = normaliseraId(r[c.id]);
+    if (id) { radPaId[id] = i; return; }
+    const d = r[c.start] ? parseStarttid(r[c.start]) : null;
+    if (d) {
+      const k = Math.round(d.getTime() / 60000);
+      utanIdPaStart[k] = utanIdPaStart[k] === undefined ? i : -1; // -1 = flera rader, koppla inte
+    }
+  });
+
+  const sedda = {};
+  const nya = [];
+  let andrade = 0;
+  let aterkommande = 0;
+  let tidAndrad = false;
+
+  kalender.getEvents(fran, till).forEach(function (e) {
+    if (e.isAllDayEvent()) return;
+    if (e.isRecurringEvent()) { aterkommande++; return; }
+    const start = e.getStartTime();
+    const varde = {
+      titel: e.getTitle() || "",
+      start: stockholmText(start),
+      varaktighet: Math.round((e.getEndTime().getTime() - start.getTime()) / 60000),
+      plats: e.getLocation() || "",
+      beskrivning: e.getDescription() || "",
+      id: e.getId()
+    };
+
+    let i = radPaId[normaliseraId(varde.id)];
+    if (i === undefined) {
+      const k = utanIdPaStart[Math.round(start.getTime() / 60000)];
+      if (k !== undefined && k >= 0 && !sedda[k]) i = k;
+    }
+
+    if (i === undefined) {
+      const rad = new Array(c.lastCol).fill("");
+      sattVarden(rad, c, varde);
+      nya.push(rad);
+      return;
+    }
+
+    sedda[i] = true;
+    const r = data[i];
+    const gammalStart = r[c.start] ? parseStarttid(r[c.start]) : null;
+    const startLika = gammalStart && Math.round(gammalStart.getTime() / 60000) === Math.round(start.getTime() / 60000);
+    let andrad = false;
+    if (String(r[c.titel] || "") !== varde.titel) { r[c.titel] = varde.titel; andrad = true; }
+    if (!startLika) { r[c.start] = varde.start; andrad = true; tidAndrad = true; }
+    if (c.varaktighet >= 0 && Number(r[c.varaktighet]) !== varde.varaktighet) { r[c.varaktighet] = varde.varaktighet; andrad = true; }
+    if (c.plats >= 0 && String(r[c.plats] || "") !== varde.plats) { r[c.plats] = varde.plats; andrad = true; }
+    if (String(r[c.beskrivning] || "") !== varde.beskrivning) { r[c.beskrivning] = varde.beskrivning; andrad = true; }
+    if (String(r[c.id] || "").trim() !== varde.id) { r[c.id] = varde.id; andrad = true; }
+    if (andrad) andrade++;
+  });
+
+  // Rader med händelse-ID inom läsåret som inte längre finns i kalendern tas bort.
+  const borttagna = [];
+  data.forEach(function (r, i) {
+    if (sedda[i] || !normaliseraId(r[c.id])) return;
+    const d = r[c.start] ? parseStarttid(r[c.start]) : null;
+    if (d && d >= fran && d < till) borttagna.push(i);
+  });
+
+  // Skriv bara de kolumner synken äger, så formler i andra kolumner lämnas orörda.
+  if (andrade > 0) {
+    ["titel", "start", "varaktighet", "plats", "beskrivning", "id"].forEach(function (k) {
+      if (c[k] < 0) return;
+      sheet.getRange(2, c[k] + 1, data.length, 1).setValues(data.map(function (r) { return [r[c[k]]]; }));
+    });
+  }
+  if (nya.length > 0) {
+    const forsta = sheet.getLastRow() + 1;
+    ["titel", "start", "varaktighet", "plats", "beskrivning", "id"].forEach(function (k) {
+      if (c[k] < 0) return;
+      sheet.getRange(forsta, c[k] + 1, nya.length, 1).setValues(nya.map(function (r) { return [r[c[k]]]; }));
+    });
+  }
+  borttagna.sort(function (x, y) { return y - x; }).forEach(function (i) { sheet.deleteRow(i + 2); });
+
+  if (nya.length > 0 || tidAndrad) {
+    const antal = sheet.getLastRow() - 1;
+    if (antal > 1) sheet.getRange(2, 1, antal, sheet.getLastColumn()).sort([{ column: c.start + 1, ascending: true }]);
+  }
+
+  return { andrade: andrade, nya: nya.length, borttagna: borttagna.length, aterkommande: aterkommande };
+}
+
+function sattVarden(rad, c, v) {
+  ["titel", "start", "varaktighet", "plats", "beskrivning", "id"].forEach(function (k) {
+    if (c[k] >= 0) rad[c[k]] = v[k];
+  });
+}
+
+function hamtaResultatText(arskurs, r) {
+  return "Åk " + arskurs + ": " + r.andrade + " uppdaterade, " + r.nya + " nya, " + r.borttagna + " borttagna" +
+    (r.aterkommande ? " (" + r.aterkommande + " återkommande hoppades över)" : "");
+}
+
+/** Menyval: hämtar kalendern till aktiv flik. */
+function hamtaFranKalender() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const arskurs = arskursFranNamn(sheet.getName());
+  if (!arskurs) {
+    SpreadsheetApp.getUi().alert("Aktiv flik måste heta t.ex. 'Åk 6', 'Åk 7', 'Åk 8', 'Åk 9'.");
+    return;
+  }
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) { SpreadsheetApp.getUi().alert("En annan synk körs just nu. Försök igen om en minut."); return; }
+  try {
+    const r = hamtaFlikFranKalender(sheet, arskurs);
+    SpreadsheetApp.getUi().alert("Hämtat från kalendern\n" + hamtaResultatText(arskurs, r) + "\n\n" + versionsText());
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Hämtar alla flikar "Åk 6"–"Åk 9". Används av menyn och av autoSynk (utan dialogrutor). */
+function hamtaAllaFlikar() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const rader = [];
+  for (let arskurs = 6; arskurs <= 9; arskurs++) {
+    const sheet = ss.getSheetByName("Åk " + arskurs);
+    if (!sheet) { rader.push("Åk " + arskurs + ": fliken saknas"); continue; }
+    try {
+      rader.push(hamtaResultatText(arskurs, hamtaFlikFranKalender(sheet, arskurs)));
+    } catch (e) {
+      rader.push("Åk " + arskurs + ": FEL " + e);
+    }
+  }
+  return rader;
+}
+
+function hamtaAllaFlikarFranKalender() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) { SpreadsheetApp.getUi().alert("En annan synk körs just nu. Försök igen om en minut."); return; }
+  try {
+    SpreadsheetApp.getUi().alert("Hämtat från kalendern\n" + hamtaAllaFlikar().join("\n") + "\n\n" + versionsText());
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // Skapar ett datum som motsvarar angiven KLOCKSLAG i svensk tid,
@@ -430,10 +614,17 @@ function fyllMallIBeskrivning() {
   SpreadsheetApp.getUi().alert("Fyllde i mall på " + fyllda + " rader.\n\nKör sedan 'Uppdatera beskrivningar'.");
 }
 
-// Skickar bara kolumn E (Beskrivning) till befintliga kalenderhändelser.
-// Rör inte tider, titlar eller salar - snabbt och ofarligt att köra om.
+// Skickar bladets Beskrivning till befintliga kalenderhändelser.
+// OBS: kalendern bestämmer normalt – detta skriver över kalenderns texter och frågar därför först.
 function uppdateraBeskrivningar() {
   Logger.log(versionsText());
+  const ui = SpreadsheetApp.getUi();
+  const svar = ui.alert(
+    "Skriva över kalendern?",
+    "Kalendern bestämmer. Det här skriver bladets beskrivningar över texterna i kalendern för den här fliken. Ändringar du gjort direkt i kalendern försvinner.\n\nVill du fortsätta?",
+    ui.ButtonSet.YES_NO
+  );
+  if (svar !== ui.Button.YES) return;
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const arskurs = arskursFranNamn(sheet.getName());
   if (!arskurs) {
@@ -569,23 +760,26 @@ function rensaKalender() {
 
 
 // ===== AUTOMATISK SYNK (TRIGGER) =====
-/** Kör en gång manuellt: installerar automatisk synk var 15:e minut */
+/** Kör en gång manuellt: hämtar från kalendern till bladet var 15:e minut */
 function installeraTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'autoSynk') ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger('autoSynk').timeBased().everyMinutes(15).create();
-  Logger.log('Trigger installerad: autoSynk var 15:e minut.');
+  Logger.log('Trigger installerad: autoSynk (hämta från kalendern) var 15:e minut.');
 }
 
-/** Körs automatiskt av triggern. Anropar huvudfunktionerna ovan. */
+/** Körs av triggern. Kalendern bestämmer: hämtar till alla flikar, skriver aldrig till kalendern. */
 function autoSynk() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) { Logger.log('Autosynk hoppade över: annan synk körs.'); return; }
   try {
-    synkaHelaBladetTillKalender();
-    uppdateraBeskrivningar();
-    Logger.log('Autosynk klar ' + new Date());
+    Logger.log(hamtaAllaFlikar().join('\n'));
+    Logger.log('Autosynk klar ' + new Date() + ' – ' + versionsText());
   } catch (e) {
     Logger.log('Autosynk FEL: ' + e);
+  } finally {
+    lock.releaseLock();
   }
 }
 
