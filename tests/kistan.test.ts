@@ -129,6 +129,13 @@ describe("Kistan – division och parenteser", () => {
     for (const l of LEVELS.filter((x) => x.world === 4)) expect(l.eq).toContain("(");
   });
 
+  test("de högre nivåerna i Floden, Bergen och Toppen har tvåsiffriga tal", () => {
+    const high = LEVELS.filter((l) => (l.world === 2 && Number(l.id.split("-")[1]) >= 8) || (l.world === 3 && Number(l.id.split("-")[1]) >= 5)
+      || (l.world === 4 && Number(l.id.split("-")[1]) >= 4));
+    expect(high).toHaveLength(16);
+    for (const l of high) expect(l.eq).toMatch(/\d{2}/);
+  });
+
   test("varje nivå i Toppen kräver minst två moment och de flesta tre", () => {
     const mins = LEVELS.filter((l) => l.world === 4).map((l) => minMoves(parseEquation(l.eq)));
     expect(Math.min(...mins)).toBeGreaterThanOrEqual(6);
