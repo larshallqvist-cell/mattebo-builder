@@ -45,6 +45,27 @@ export function isGameEnabled(rows: readonly VisibilityRow[], game: GameKey, gra
   return row ? row.enabled : defaultEnabled(game, grade);
 }
 
+/** Words that say nothing about the chapter's topic, skipped when picking a header word. */
+const CHAPTER_FILLER_WORDS = new Set(["och", "med", "av", "i", "på", "till", "sikte", "tals"]);
+
+/** One short word from the chapter name, used as the column header in the admin game matrix
+ *  (e.g. "Bråk och procent" → "Bråk", "Med sikte på framtiden" → "Framtiden"). Falls back to "Kap N". */
+export function chapterKeyword(grade: number, chapter: number): string {
+  const name = CHAPTER_SUBTITLES[grade as keyof typeof CHAPTER_SUBTITLES]?.[chapter];
+  if (!name) return `Kap ${chapter}`;
+  const word = name
+    .split(/\s+/)
+    .map((w) => w.replace(/[,.]/g, ""))
+    .find((w) => w.length > 0 && !CHAPTER_FILLER_WORDS.has(w.toLowerCase()));
+  if (!word) return `Kap ${chapter}`;
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+/** Full chapter name for tooltips, empty when unknown. */
+export function chapterName(grade: number, chapter: number): string {
+  return CHAPTER_SUBTITLES[grade as keyof typeof CHAPTER_SUBTITLES]?.[chapter] ?? "";
+}
+
 /** A game page is open to a class when the game is switched on in at least one of its chapters. */
 export function isGameOpenForGrade(rows: readonly VisibilityRow[], game: GameKey, grade: number): boolean {
   return VISIBILITY_CHAPTERS.some((c) => isGameEnabled(rows, game, grade, c));
