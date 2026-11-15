@@ -146,9 +146,9 @@ const Play = ({ level, onBack, onNext, onDone }: {
             </div>
             {hint && !result && <p className="rounded-2xl bg-secondary px-3 py-2 text-sm"><Rich text={task.hint} /></p>}
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               {task.format === "frac" ? (
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-col items-center gap-1 self-start sm:self-auto">
                   <input ref={first} aria-label="Täljare" inputMode="numeric" value={input.n ?? ""} disabled={!!result} onKeyDown={onKey}
                     onChange={(e) => setInput((s) => ({ ...s, n: e.target.value }))} className="sl-input h-12 w-20 rounded-xl text-center text-2xl font-bold" />
                   <span className="h-1 w-24 rounded bg-foreground" />
@@ -156,13 +156,25 @@ const Play = ({ level, onBack, onNext, onDone }: {
                     onChange={(e) => setInput((s) => ({ ...s, d: e.target.value }))} className="sl-input h-12 w-20 rounded-xl text-center text-2xl font-bold" />
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-auto">
                   <input ref={first} aria-label="Svar" inputMode="decimal" value={input.v ?? ""} disabled={!!result} onKeyDown={onKey}
                     onChange={(e) => setInput({ v: e.target.value })} className="sl-input h-14 w-32 rounded-xl text-center text-2xl font-bold" />
                   {task.format === "pct" && <span className="text-2xl font-bold">%</span>}
                 </div>
               )}
-              <div className="ml-auto">
+              {result && (
+                <div role="status" className={cn("kistan-pop w-full min-w-0 space-y-1 rounded-2xl px-4 py-3 sm:w-auto sm:flex-1", result.ok ? "sl-ok" : "sl-bad")}>
+                  <p className="text-lg font-bold">
+                    {result.ok ? (result.simplified || task.format !== "frac" ? "Rätt!" : "Rätt! Det går att förkorta.")
+                      : <>Inte riktigt. Svaret är <Rich text={answerText(task)} /></>}
+                  </p>
+                  {result.ok && !result.simplified && task.format === "frac" && simple && (
+                    <p className="text-sm">Förkortat blir det <Rich text={fr(simple.n, simple.d)} />.</p>
+                  )}
+                  <ul className="space-y-0.5 text-sm">{task.steps.map((s, i) => <li key={i}><Rich text={s} /></li>)}</ul>
+                </div>
+              )}
+              <div className="sm:ml-auto">
                 {!result ? (
                   <Button size="lg" onClick={submit} className="h-12 rounded-full px-7 text-lg font-bold">Svara</Button>
                 ) : (
@@ -172,19 +184,6 @@ const Play = ({ level, onBack, onNext, onDone }: {
                 )}
               </div>
             </div>
-
-            {result && (
-              <div role="status" className={cn("kistan-pop space-y-1 rounded-2xl px-4 py-3", result.ok ? "sl-ok" : "sl-bad")}>
-                <p className="text-lg font-bold">
-                  {result.ok ? (result.simplified || task.format !== "frac" ? "Rätt!" : "Rätt! Det går att förkorta.")
-                    : <>Inte riktigt. Svaret är <Rich text={answerText(task)} /></>}
-                </p>
-                {result.ok && !result.simplified && task.format === "frac" && simple && (
-                  <p className="text-sm">Förkortat blir det <Rich text={fr(simple.n, simple.d)} />.</p>
-                )}
-                <ul className="space-y-0.5 text-sm">{task.steps.map((s, i) => <li key={i}><Rich text={s} /></li>)}</ul>
-              </div>
-            )}
           </div>
         </div>
       )}
