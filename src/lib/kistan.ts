@@ -271,3 +271,46 @@ export function kistanAvailable(grade: number | null | undefined, isAdmin = fals
   if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
   return isGameOpenForGrade(rows, "kistan", grade);
 }
+
+/** En bit av kontrollraden; x markerar det insatta värdet så att det kan färgas. */
+export type CheckPart = { text: string; x?: boolean };
+export type SolutionCheck = { x: number; left: CheckPart[]; right: CheckPart[]; leftValue: number; rightValue: number };
+
+const sideValue = (terms: Term[], x: number): number => terms.reduce((sum, t) => {
+  const v = t.kind === BOX ? ((t.coef ?? 1) * x) / (t.den ?? 1)
+    : t.kind === GROUP ? (t.coef ?? 1) * sideValue(t.inner ?? [], x)
+    : Number(t.kind);
+  return sum + (t.neg ? -v : v);
+}, 0);
+
+const fmtNum = (n: number) => (n < 0 ? `−${-n}` : String(n));
+
+function sideParts(terms: Term[], x: number): CheckPart[] {
+  const parts: CheckPart[] = [];
+  const xs = x < 0 ? `(−${-x})` : String(x);
+  terms.forEach((t, i) => {
+    if (i > 0) parts.push({ text: t.neg ? " − " : " + " });
+    else if (t.neg) parts.push({ text: "−" });
+    if (t.kind === BOX) {
+      if ((t.coef ?? 1) > 1) parts.push({ text: `${t.coef}·` });
+      parts.push({ text: xs, x: true });
+      if ((t.den ?? 1) > 1) parts.push({ text: `/${t.den}` });
+    } else if (t.kind === GROUP) {
+      parts.push({ text: `${(t.coef ?? 1) > 1 ? t.coef : ""}(` }, ...sideParts(t.inner ?? [], x), { text: ")" });
+    } else parts.push({ text: t.kind });
+  });
+  if (!terms.length) parts.push({ text: "0" });
+  return parts;
+}
+
+/** Kontroll: sätt in lösningen (ett tal) i ursprungsekvationen. Null om lösningen inte är ett tal (bildvärldarna). */
+export function solutionCheck(eq: string, solved: GameState): SolutionCheck | null {
+  if (!isSolved(solved)) return null;
+  const rest = solved.left.some(holdsBox) ? solved.right : solved.left;
+  if (rest.some((t) => !numeric(t))) return null;
+  const x = rest.reduce((s, t) => s + (t.neg ? -1 : 1) * Number(t.kind), 0);
+  const start = parseEquation(eq);
+  return { x, left: sideParts(start.left, x), right: sideParts(start.right, x), leftValue: sideValue(start.left, x), rightValue: sideValue(start.right, x) };
+}
+export const checkText = (parts: CheckPart[]) => parts.map((p) => p.text).join("");
+export { fmtNum as kistanNum };
