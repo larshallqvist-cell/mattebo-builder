@@ -1,3 +1,5 @@
+import { CHAPTER_SUBTITLES } from "@/config/app";
+
 /** Which game buttons each class sees per chapter. Teacher overrides live in
  *  public.game_visibility; anything without a saved row falls back to the defaults here. */
 export const GAME_KEYS = [
