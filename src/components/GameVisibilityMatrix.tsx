@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useGameVisibility, notifyGameVisibilityChanged } from "@/hooks/useGameVisibility";
 import {
-  GAME_KEYS, GAME_LABELS, VISIBILITY_CHAPTERS, VISIBILITY_GRADES, isGameEnabled,
+  GAME_KEYS, GAME_LABELS, VISIBILITY_CHAPTERS, VISIBILITY_GRADES, chapterKeyword, chapterName, isGameEnabled,
   type GameKey, type VisibilityRow,
 } from "@/lib/gameVisibility";
 
@@ -82,9 +82,9 @@ const GameVisibilityMatrix = () => {
                     type="button"
                     onClick={() => toggleColumn(c)}
                     className="w-full rounded-md px-1 py-1 text-xs font-semibold text-muted-foreground hover:bg-accent/30 hover:text-foreground"
-                    title={`Ändra alla spel i kapitel ${c}`}
+                    title={`Ändra alla spel i kapitel ${c}${chapterName(grade, c) ? ` – ${chapterName(grade, c)}` : ""}`}
                   >
-                    Kap {c}
+                    {chapterKeyword(grade, c)}
                   </button>
                 </th>
               ))}
