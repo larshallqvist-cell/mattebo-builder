@@ -719,6 +719,7 @@ body::after {
   --kistan-night: 245 38% 30%;
   --kistan-night-ink: 45 40% 95%;
   --kistan-gold: 46 95% 58%;
+  --kistan-check: 150 75% 62%;
   --kistan-text: 40 60% 96%;
   background:
     radial-gradient(ellipse at 30% 20%, hsl(var(--kistan-wood) / 0.55), transparent 60%),
@@ -735,6 +736,7 @@ body::after {
 }
 .kistan-tile-neg { background: hsl(var(--kistan-night)); color: hsl(var(--kistan-night-ink)); }
 .kistan-gold { color: hsl(var(--kistan-gold)); }
+.kistan-check { color: hsl(var(--kistan-check)); }
 .kistan-gold-ink { color: hsl(var(--kistan-wood-dark)); }
 .kistan-ring { box-shadow: 0 0 0 4px hsl(var(--kistan-gold)); }
 .kistan-ring-soft { box-shadow: 0 0 0 2px hsl(var(--kistan-gold) / 0.5); }

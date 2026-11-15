@@ -10,8 +10,8 @@ import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { useGameVisibility } from "@/hooks/useGameVisibility";
 import KistanTile, { kistanBoxImg, kistanFishImg } from "@/components/kistan/KistanTile";
 import {
-  applyWrap, GROUP, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, opTiles, parseEquation, placeOp, placeTile,
-  simplifyPair, stars as calcStars, trayTiles, WORLD_NAMES, wrapOf, type GameState, type Level, type OpKind, type ProgressMap, type Side, type Term,
+  applyWrap, checkText, GROUP, kistanNum, solutionCheck, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, opTiles, parseEquation, placeOp, placeTile,
+  simplifyPair, stars as calcStars, trayTiles, WORLD_NAMES, wrapOf, type GameState, type Level, type OpKind, type ProgressMap, type Side, type SolutionCheck, type Term,
 } from "@/lib/kistan";
 
 const Stars = ({ n, size = "h-4 w-4" }: { n: number; size?: string }) => (
@@ -56,6 +56,20 @@ const LevelPicker = ({ progress, all, onPick }: { progress: ProgressMap; all: bo
   </section>
 );
 
+/** Kontrollen: ursprungsekvationen med lösningen insatt i en egen färg, och att båda sidor blir lika. */
+const CheckLine = ({ check }: { check: SolutionCheck }) => {
+  const line = (parts: SolutionCheck["left"]) => parts.map((p, i) => <span key={i} className={cn(p.x && "kistan-check")}>{p.text}</span>);
+  return (
+    <div className="kistan-pop w-full text-center" aria-label={`Kontroll: ${checkText(check.left)} = ${checkText(check.right)}`}>
+      <p className="text-sm font-semibold opacity-90">Kontrollera: sätt in <span className="kistan-check">x = {kistanNum(check.x)}</span> i ekvationen</p>
+      <p className="font-playful text-2xl font-bold sm:text-3xl">{line(check.left)} = {line(check.right)}</p>
+      <p className="font-playful text-xl font-bold">
+        {kistanNum(check.leftValue)} = {kistanNum(check.rightValue)} {check.leftValue === check.rightValue && <span className="kistan-check">✓ Stämmer!</span>}
+      </p>
+    </div>
+  );
+};
+
 type Pick = { kind: string; neg: boolean; op?: OpKind };
 
 /** Själva spelplanen för en nivå. */
@@ -73,6 +87,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
   const state = history[history.length - 1] ?? start;
   const solved = isSolved(state);
   const earned = calcStars(state.moves, min);
+  const check = useMemo(() => (solved ? solutionCheck(level.eq, state) : null), [solved, level.eq, state]);
 
   const reset = useCallback(() => { setHistory([start]); setTrayPick(null); setBoardPick(null); setShowResult(false); }, [start]);
   useEffect(reset, [reset]);
@@ -206,7 +221,10 @@ const Play = ({ level, onBack, onNext, onSolved }: {
 
       <div className="kistan-tray flex min-h-[80px] flex-wrap items-center justify-center gap-3 p-4">
         {solved ? (
+          <div className="flex w-full flex-col items-center gap-3">
+          {check && <CheckLine check={check} />}
           <Button size="lg" className="h-12 gap-2 rounded-full text-lg font-bold" onClick={() => setShowResult(true)}><Check />Visa resultat</Button>
+          </div>
         ) : (
           <>
             {trayTiles(state).map((t) => (
