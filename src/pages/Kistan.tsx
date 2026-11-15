@@ -126,17 +126,17 @@ const Play = ({ level, onBack, onNext, onSolved }: {
   const plus = (i: number) => i > 0 && <span aria-hidden className="pointer-events-none font-playful text-2xl font-bold opacity-80 sm:text-3xl">+</span>;
   const renderTerm = (side: Side, t: Term) => t.kind === GROUP ? (
     <span onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}
-      className={cn("flex cursor-pointer items-center gap-1 rounded-2xl px-1", boardPick?.id === t.id && "kistan-ring")}
+      className={cn("flex cursor-pointer items-center gap-0.5 rounded-2xl", boardPick?.id === t.id && "kistan-ring")}
       aria-label={`${t.neg ? "minus " : ""}${t.coef ?? 1} gånger parentes`}>
-      <span className="font-playful text-3xl font-bold sm:text-4xl">{t.neg ? "−" : ""}{(t.coef ?? 1) > 1 ? t.coef : ""}</span>
-      <span aria-hidden className="text-5xl font-light sm:text-6xl">(</span>
+      <span className="font-playful text-3xl font-bold">{t.neg ? "−" : ""}{(t.coef ?? 1) > 1 ? t.coef : ""}</span>
+      <span aria-hidden className="text-4xl font-light sm:text-5xl">(</span>
       {(t.inner ?? []).map((u, j) => (
-        <span key={u.id} className="flex items-center gap-1">
-          {plus(j)}
-          <KistanTile kind={u.kind} neg={u.neg} coef={u.coef} den={u.den} letters={letters} small disabled />
+        <span key={u.id} className="flex items-center gap-0.5">
+          {j > 0 && <span aria-hidden className="pointer-events-none font-playful text-xl font-bold opacity-80">+</span>}
+          <KistanTile kind={u.kind} neg={u.neg} coef={u.coef} den={u.den} letters={letters} small />
         </span>
       ))}
-      <span aria-hidden className="text-5xl font-light sm:text-6xl">)</span>
+      <span aria-hidden className="text-4xl font-light sm:text-5xl">)</span>
     </span>
   ) : (
     <span onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}>
