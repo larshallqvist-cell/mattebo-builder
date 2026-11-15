@@ -115,9 +115,12 @@ const Play = ({ level, onBack, onNext, onSolved }: {
         trayPick && !state.pending && "kistan-ring-soft cursor-pointer",
       )}>
       {state[side].length === 0 && <KistanTile kind="0" neg={false} letters={letters} disabled />}
-      {state[side].map((t) => (
-        <span key={t.id} onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}>
-          <KistanTile kind={t.kind} neg={t.neg} letters={letters} selected={boardPick?.id === t.id} />
+      {state[side].map((t, i) => (
+        <span key={t.id} className="flex items-center gap-2">
+          {i > 0 && <span aria-hidden className="pointer-events-none font-playful text-2xl font-bold opacity-80 sm:text-3xl">+</span>}
+          <span onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}>
+            <KistanTile kind={t.kind} neg={t.neg} letters={letters} selected={boardPick?.id === t.id} />
+          </span>
         </span>
       ))}
     </div>
