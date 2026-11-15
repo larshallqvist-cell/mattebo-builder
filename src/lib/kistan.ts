@@ -238,11 +238,11 @@ const WORLDS: string[][] = [
   // Värld 1: bilder
   ["box+fish=bfly", "fish+box=bfly", "box+bfly=fish+fish", "box+fish+bfly=fish", "bfly=box+fish", "box-fish=bfly", "fish+bfly+box=bfly+bfly", "-fish+box=bfly", "bfly+box-bfly=fish", "fish=bfly+box+fish"],
   // Värld 2: bilder och siffror, fler termer och minus på båda sidor
-  ["box+2=fish", "box+2+3=fish+6", "8=box+3-fish", "box-4+fish=bfly-2", "fish+box+1=7+fish", "6-bfly=box+fish-3", "box+5-fish=4+bfly-1", "-3+box+bfly=2-fish+7", "5+box+fish=fish+9-bfly+2", "bfly-2+box-fish+6=3+fish-bfly"],
-  // Värld 3: koefficienter och division, två moment
-  ["2x=10", "x/3=4", "3x+2=14", "5x-3=22", "4+2x=18", "x/2+3=8", "-2x=14", "7=2x-5", "-3x+4=19", "3x+4-6=13"],
-  // Värld 4: parenteser, tre moment eller fler
-  ["2(x+3)=14", "3(x-2)=12", "3(x+2)+4=25", "2(x-1)-3=9", "5+4(x+1)=29", "-2(x+3)=-10", "30=5(x-2)+10", "3(x+4)-7=2", "-4(x-5)+3=11", "2(3x-1)+4=26"],
+  ["box+2=fish", "box+2+3=fish+6", "8=box+3-fish", "box-4+fish=bfly-2", "fish+box+1=7+fish", "6-bfly=box+fish-3", "box+5-fish=4+bfly-1", "-13+box+bfly=21-fish+7", "25+box+fish=fish+48-bfly+12", "bfly-17+box-fish+36=14+fish-bfly"],
+  // Värld 3: koefficienter och division, två moment; tvåsiffriga tal från nivå 5
+  ["2x=10", "x/3=4", "3x+2=14", "5x-3=22", "4x+15=63", "x/4+13=25", "-6x=84", "95=7x-17", "-8x+27=-45", "12x+18-35=91"],
+  // Värld 4: parenteser, tre moment eller fler; tvåsiffriga tal från nivå 4
+  ["2(x+3)=14", "3(x-2)=12", "3(x+2)+4=25", "4(x-6)-13=27", "15+6(x+4)=99", "-5(x+12)=-85", "73=8(x-11)+25", "7(x+15)-38=46", "-9(x-14)+22=-32", "3(4x-17)+28=73"],
 ];
 export const LEVELS: Level[] = WORLDS.flatMap((eqs, w) => eqs.map((eq, i) => ({ id: `${w + 1}-${i + 1}`, world: w + 1, eq })));
 export const WORLD_NAMES = ["Djungeln", "Floden", "Bergen", "Toppen"];
