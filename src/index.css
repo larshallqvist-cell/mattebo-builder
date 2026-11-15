@@ -735,6 +735,7 @@ body::after {
 }
 .kistan-tile-neg { background: hsl(var(--kistan-night)); color: hsl(var(--kistan-night-ink)); }
 .kistan-gold { color: hsl(var(--kistan-gold)); }
+.kistan-gold-ink { color: hsl(var(--kistan-wood-dark)); }
 .kistan-ring { box-shadow: 0 0 0 4px hsl(var(--kistan-gold)); }
 .kistan-ring-soft { box-shadow: 0 0 0 2px hsl(var(--kistan-gold) / 0.5); }
 @keyframes kistan-pop { from { transform: scale(.6); opacity: 0 } to { transform: scale(1); opacity: 1 } }

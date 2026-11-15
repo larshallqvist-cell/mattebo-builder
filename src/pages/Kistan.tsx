@@ -10,8 +10,8 @@ import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { useGameVisibility } from "@/hooks/useGameVisibility";
 import KistanTile, { kistanBoxImg, kistanFishImg } from "@/components/kistan/KistanTile";
 import {
-  isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, parseEquation, placeTile, simplifyPair, stars as calcStars,
-  trayTiles, WORLD_NAMES, type GameState, type Level, type ProgressMap, type Side,
+  applyWrap, GROUP, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, opTiles, parseEquation, placeOp, placeTile,
+  simplifyPair, stars as calcStars, trayTiles, WORLD_NAMES, wrapOf, type GameState, type Level, type OpKind, type ProgressMap, type Side, type Term,
 } from "@/lib/kistan";
 
 const Stars = ({ n, size = "h-4 w-4" }: { n: number; size?: string }) => (
@@ -20,7 +20,7 @@ const Stars = ({ n, size = "h-4 w-4" }: { n: number; size?: string }) => (
   </span>
 );
 
-/** Nivåväljaren: tre världar med tio nivåer var, låsta tills den förra är klarad. */
+/** Nivåväljaren: fyra världar med tio nivåer var, låsta tills den förra är klarad. */
 const LevelPicker = ({ progress, all, onPick }: { progress: ProgressMap; all: boolean; onPick: (id: string) => void }) => (
   <section className="kistan-board space-y-6 rounded-[1.75rem] p-4 sm:p-6">
     <div className="flex flex-col items-center gap-2 text-center">
@@ -56,15 +56,17 @@ const LevelPicker = ({ progress, all, onPick }: { progress: ProgressMap; all: bo
   </section>
 );
 
+type Pick = { kind: string; neg: boolean; op?: OpKind };
+
 /** Själva spelplanen för en nivå. */
 const Play = ({ level, onBack, onNext, onSolved }: {
   level: Level; onBack: () => void; onNext: (id: string) => void; onSolved: (stars: number, moves: number) => void;
 }) => {
-  const letters = level.world === 3;
+  const letters = level.world >= 3;
   const start = useMemo(() => parseEquation(level.eq), [level.eq]);
   const min = useMemo(() => minMoves(start), [start]);
   const [history, setHistory] = useState<GameState[]>([start]);
-  const [trayPick, setTrayPick] = useState<{ kind: string; neg: boolean } | null>(null);
+  const [trayPick, setTrayPick] = useState<Pick | null>(null);
   const [boardPick, setBoardPick] = useState<{ side: Side; id: string } | null>(null);
   const [shake, setShake] = useState(0);
   const [showResult, setShowResult] = useState(false);
@@ -81,18 +83,28 @@ const Play = ({ level, onBack, onNext, onSolved }: {
 
   const tapSide = (side: Side) => {
     if (solved) return;
-    const pick = trayPick ?? (state.pending ? { kind: state.pending.kind, neg: state.pending.neg } : null);
-    if (!pick) return;
-    const r = placeTile(state, pick.kind, pick.neg, side);
+    const pick: Pick | null = trayPick ?? (state.pending ? { kind: state.pending.kind, neg: state.pending.neg, op: state.pending.op } : null);
+    if (!pick) {
+      if (wrapOf(state, side)) runWrap(side);
+      return;
+    }
+    const r = pick.op ? placeOp(state, pick.op, Number(pick.kind) * (pick.neg ? -1 : 1), side) : placeTile(state, pick.kind, pick.neg, side);
     if ("reason" in r) return fail(r.reason);
     push(r.state);
     setTrayPick(r.state.pending ? pick : null);
     setBoardPick(null);
   };
 
+  const runWrap = (side: Side) => {
+    const r = applyWrap(state, side);
+    setBoardPick(null);
+    if ("reason" in r) return fail(r.reason);
+    push(r.state);
+  };
+
   const tapTerm = (side: Side, id: string) => {
     if (solved) return;
-    if (trayPick || state.pending) return tapSide(side);
+    if (trayPick || state.pending || wrapOf(state, side)) return tapSide(side);
     if (!boardPick || boardPick.side !== side) return setBoardPick({ side, id });
     if (boardPick.id === id) return setBoardPick(null);
     const r = simplifyPair(state, side, boardPick.id, id);
@@ -101,30 +113,70 @@ const Play = ({ level, onBack, onNext, onSolved }: {
     push(r.state);
   };
 
+  const sideName = (side: Side) => (side === "left" ? "vänster" : "höger");
+  const wrapped = (["left", "right"] as Side[]).find((sd) => wrapOf(state, sd));
   const hint = solved ? "Kistan är ensam och allt är förenklat!"
-    : state.pending ? `Lägg samma bricka på ${state.pending.side === "left" ? "vänster" : "höger"} sida också!`
+    : state.pending?.op ? `${state.pending.op === "div" ? "Dela" : "Multiplicera"} ${sideName(state.pending.side)} sida med samma tal också!`
+    : state.pending ? `Lägg samma bricka på ${sideName(state.pending.side)} sida också!`
+    : wrapped ? `Tryck på ${sideName(wrapped)} sida för att räkna ut.`
     : trayPick ? "Tryck på en sida för att lägga brickan."
     : boardPick ? "Välj motsatsen, eller ett annat tal att slå ihop med."
     : "Välj en bricka nedanför, eller två brickor som tar ut varandra.";
 
-  const renderSide = (side: Side) => (
-    <div onClick={() => tapSide(side)}
-      className={cn(
-        "kistan-half flex min-h-[34vh] flex-1 flex-wrap content-center items-center justify-center gap-2 rounded-3xl p-2 sm:p-3",
-        state.pending?.side === side && "kistan-ring",
-        trayPick && !state.pending && "kistan-ring-soft cursor-pointer",
-      )}>
-      {state[side].length === 0 && <KistanTile kind="0" neg={false} letters={letters} disabled />}
-      {state[side].map((t, i) => (
-        <span key={t.id} className="flex items-center gap-2">
-          {i > 0 && <span aria-hidden className="pointer-events-none font-playful text-2xl font-bold opacity-80 sm:text-3xl">+</span>}
-          <span onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}>
-            <KistanTile kind={t.kind} neg={t.neg} letters={letters} selected={boardPick?.id === t.id} />
-          </span>
+  const plus = (i: number) => i > 0 && <span aria-hidden className="pointer-events-none font-playful text-2xl font-bold opacity-80 sm:text-3xl">+</span>;
+  const renderTerm = (side: Side, t: Term) => t.kind === GROUP ? (
+    <span onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}
+      className={cn("flex cursor-pointer items-center gap-0.5 rounded-2xl", boardPick?.id === t.id && "kistan-ring")}
+      aria-label={`${t.neg ? "minus " : ""}${t.coef ?? 1} gånger parentes`}>
+      <span className="font-playful text-3xl font-bold">{t.neg ? "−" : ""}{(t.coef ?? 1) > 1 ? t.coef : ""}</span>
+      <span aria-hidden className="text-4xl font-light sm:text-5xl">(</span>
+      {(t.inner ?? []).map((u, j) => (
+        <span key={u.id} className="flex items-center gap-0.5">
+          {j > 0 && <span aria-hidden className="pointer-events-none font-playful text-xl font-bold opacity-80">+</span>}
+          <KistanTile kind={u.kind} neg={u.neg} coef={u.coef} den={u.den} letters={letters} small />
         </span>
       ))}
-    </div>
+      <span aria-hidden className="text-4xl font-light sm:text-5xl">)</span>
+    </span>
+  ) : (
+    <span onClick={(e) => { e.stopPropagation(); tapTerm(side, t.id); }}>
+      <KistanTile kind={t.kind} neg={t.neg} coef={t.coef} den={t.den} letters={letters} selected={boardPick?.id === t.id} />
+    </span>
   );
+
+  const renderSide = (side: Side) => {
+    const w = wrapOf(state, side);
+    const terms = (
+      <div className="flex flex-wrap content-center items-center justify-center gap-2">
+        {state[side].length === 0 && <KistanTile kind="0" neg={false} letters={letters} disabled />}
+        {state[side].map((t, i) => (
+          <span key={t.id} className="flex items-center gap-2">{plus(i)}{renderTerm(side, t)}</span>
+        ))}
+      </div>
+    );
+    return (
+      <div onClick={() => tapSide(side)}
+        className={cn(
+          "kistan-half flex min-h-[34vh] flex-1 items-center justify-center rounded-3xl p-2 sm:p-3",
+          state.pending?.side === side && "kistan-ring",
+          trayPick && !state.pending && "kistan-ring-soft cursor-pointer",
+          w && !state.pending && "kistan-ring-soft cursor-pointer",
+        )}>
+        {!w ? terms : w.op === "div" ? (
+          <div className="flex flex-col items-center" aria-label={`Hela sidan delat med ${w.n}`}>
+            {terms}
+            <div className="my-1 h-1.5 w-full min-w-16 rounded-full bg-current" />
+            <span className="kistan-gold font-playful text-4xl font-bold sm:text-5xl">{w.n < 0 ? `(−${-w.n})` : w.n}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1" aria-label={`Hela sidan gånger ${w.n}`}>
+            <span className="kistan-gold font-playful text-4xl font-bold sm:text-5xl">{w.n < 0 ? `(−${-w.n})` : w.n}·</span>
+            <span aria-hidden className="text-5xl font-light sm:text-6xl">(</span>{terms}<span aria-hidden className="text-5xl font-light sm:text-6xl">)</span>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const next = nextLevel(level.id);
   const iconBtn = "h-11 w-11 rounded-full";
@@ -155,11 +207,29 @@ const Play = ({ level, onBack, onNext, onSolved }: {
       <div className="kistan-tray flex min-h-[80px] flex-wrap items-center justify-center gap-3 p-4">
         {solved ? (
           <Button size="lg" className="h-12 gap-2 rounded-full text-lg font-bold" onClick={() => setShowResult(true)}><Check />Visa resultat</Button>
-        ) : trayTiles(state).map((t) => (
-          <KistanTile key={`${t.kind}${t.neg}`} kind={t.kind} neg={t.neg} letters={letters} small
-            selected={trayPick?.kind === t.kind && trayPick.neg === t.neg}
-            onClick={() => !state.pending && setTrayPick((p) => (p?.kind === t.kind && p.neg === t.neg ? null : t))} />
-        ))}
+        ) : (
+          <>
+            {trayTiles(state).map((t) => (
+              <KistanTile key={`${t.kind}${t.neg}`} kind={t.kind} neg={t.neg} letters={letters} small
+                selected={!trayPick?.op && trayPick?.kind === t.kind && trayPick.neg === t.neg}
+                onClick={() => !state.pending && setTrayPick((p) => (!p?.op && p?.kind === t.kind && p.neg === t.neg ? null : t))} />
+            ))}
+            {opTiles(state).map((o) => {
+              const pick: Pick = { kind: String(Math.abs(o.n)), neg: o.n < 0, op: o.op };
+              const on = trayPick?.op === o.op && trayPick.kind === pick.kind && trayPick.neg === pick.neg;
+              const label = `${o.op === "div" ? "÷" : "·"}${o.n < 0 ? `(−${-o.n})` : o.n}`;
+              return (
+                <button key={label} type="button" aria-pressed={on}
+                  aria-label={`${o.op === "div" ? "Dela hela sidan med" : "Multiplicera hela sidan med"} ${o.n < 0 ? "minus " : ""}${Math.abs(o.n)}`}
+                  onClick={() => !state.pending && setTrayPick((p) => (p?.op === o.op && p.kind === pick.kind && p.neg === pick.neg ? null : pick))}
+                  className={cn("kistan-tile kistan-pop grid h-12 min-w-12 place-items-center rounded-xl px-2 font-playful text-2xl font-bold transition-transform active:scale-95",
+                    on && "kistan-ring -translate-y-2")}>
+                  <span className="kistan-gold-ink">{label}</span>
+                </button>
+              );
+            })}
+          </>
+        )}
       </div>
 
       {solved && showResult && (
@@ -184,7 +254,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
   );
 };
 
-/** Kistan: ekvationer med "samma sak på båda sidor", i tre världar från bilder till bokstäver. */
+/** Kistan: ekvationer med "samma sak på båda sidor", i fyra världar från bilder till parenteser. */
 const Kistan = () => {
   const { user, isAdmin } = useAuth();
   const [params, setParams] = useSearchParams();
