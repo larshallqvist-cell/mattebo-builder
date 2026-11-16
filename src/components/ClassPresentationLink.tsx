@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useChapterSections } from "@/hooks/useChapterSections";
 import { parsePresentationFileName, sectionNumber } from "@/lib/presentations";
+import { PRESENTATION_CLOSE_MESSAGE, withTouchControls } from "@/lib/presentationControls";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,7 +60,12 @@ const showHtmlInWindow = (win: Window, html: string, title: string) => {
   const frame = doc.querySelector("iframe");
   if (!frame) return;
   frame.addEventListener("load", () => frame.focus());
-  frame.srcdoc = html;
+  // The close button lives inside the sandboxed deck; only this tab may close itself.
+  win.addEventListener("message", (e) => {
+    if (e.source !== frame.contentWindow || e.data !== PRESENTATION_CLOSE_MESSAGE) return;
+    win.close();
+  });
+  frame.srcdoc = withTouchControls(html);
 };
 
 /**
