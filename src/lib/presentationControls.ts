@@ -27,6 +27,14 @@ const CONTROLS = `
 <script>
 (function(){
   var root=document.currentScript.parentNode;
+  // iPad Safari has no requestFullscreen; decks call it on the first step and would crash.
+  var E=Element.prototype;
+  if(typeof E.requestFullscreen!=="function"){
+    E.requestFullscreen=function(){
+      try{ if(typeof this.webkitRequestFullscreen==="function") this.webkitRequestFullscreen(); }catch(e){}
+      return Promise.resolve();
+    };
+  }
   function key(){
     var o={key:"ArrowRight",code:"ArrowRight",keyCode:39,which:39,bubbles:true,cancelable:true};
     (document.activeElement&&document.activeElement!==document.body?document.activeElement:document).dispatchEvent(new KeyboardEvent("keydown",o));
