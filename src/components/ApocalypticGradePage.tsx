@@ -179,12 +179,12 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
 
           <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pt-3 pb-28 sm:px-4 lg:pb-8 relative z-20" style={{ WebkitOverflowScrolling: "touch" }}>
             <div className={`max-w-7xl mx-auto ${wide ? "grid grid-cols-10 gap-5 items-start" : "flex flex-col gap-4"}`}>
-              {/* Anslagstavla – right column on wide screens, one folded card on mobile */}
+              {/* Nästa lektion (notice board) – right column on wide screens, one folded card on mobile */}
               <CollapsibleSection
                 id="board"
-                title="Anslagstavla"
+                title="Nästa lektion"
                 icon={<Pin className="h-4 w-4 text-primary" />}
-                headerExtra={!wide && nextEvent ? `nästa lektion ${formatNext(nextEvent.date)}` : undefined}
+                headerExtra={!wide && nextEvent ? formatNext(nextEvent.date) : undefined}
                 tone="muted"
                 alwaysOpen={wide}
                 defaultOpen={false}
@@ -214,7 +214,6 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 title="Resurser"
                 icon={<BookOpen className="h-5 w-5 text-primary" />}
                 headerExtra={`Kapitel ${selectedChapter}`}
-                alwaysOpen
                 className={resourcesCol}
                 contentClassName="-mx-1"
               >
