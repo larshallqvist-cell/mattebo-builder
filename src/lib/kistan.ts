@@ -250,11 +250,20 @@ export const nextLevel = (id: string): Level | undefined => LEVELS[LEVELS.findIn
 
 export type ProgressMap = Record<string, { stars: number; best_moves: number }>;
 
-/** Första nivån är öppen; varje nästa öppnas när den förra är klarad. Läraren ser allt. */
+/** Antal klarade nivåer i förra världen som krävs för att nästa värld ska öppnas. */
+export const WORLD_UNLOCK_COUNT = 5;
+
+/** Första nivån är öppen; inom en värld öppnas varje nivå när den förra är klarad.
+ *  En ny värld öppnas när minst WORLD_UNLOCK_COUNT nivåer i förra världen är klarade. Läraren ser allt. */
 export function isUnlocked(levelId: string, progress: ProgressMap, all = false): boolean {
   const i = LEVELS.findIndex((l) => l.id === levelId);
   if (i < 0) return false;
-  return all || i === 0 || !!progress[LEVELS[i - 1].id];
+  if (all || i === 0) return true;
+  const level = LEVELS[i];
+  const prev = LEVELS[i - 1];
+  if (prev.world === level.world) return !!progress[prev.id];
+  const solvedInPrev = LEVELS.filter((l) => l.world === prev.world && progress[l.id]).length;
+  return solvedInPrev >= WORLD_UNLOCK_COUNT;
 }
 
 /** Sparas bara när resultatet blir bättre: flest stjärnor och färst drag behålls var för sig. */

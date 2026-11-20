@@ -20,7 +20,7 @@ const Stars = ({ n, size = "h-4 w-4" }: { n: number; size?: string }) => (
   </span>
 );
 
-/** Nivåväljaren: fyra världar med tio nivåer var, låsta tills den förra är klarad. */
+/** Nivåväljaren: fyra världar med tio nivåer var; nivåer låsta tills den förra är klarad, världar tills fem nivåer i förra är klarade. */
 const LevelPicker = ({ progress, all, onPick }: { progress: ProgressMap; all: boolean; onPick: (id: string) => void }) => (
   <section className="kistan-board space-y-6 rounded-[1.75rem] p-4 sm:p-6">
     <div className="flex flex-col items-center gap-2 text-center">

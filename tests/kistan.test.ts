@@ -157,6 +157,19 @@ describe("Kistan – stjärnor och upplåsning", () => {
     expect(isUnlocked("3-10", {}, true)).toBe(true);
   });
 
+  test("nästa värld öppnas när fem nivåer i förra världen är klarade", () => {
+    const solved = (ids: string[]) => Object.fromEntries(ids.map((id) => [id, { stars: 1, best_moves: 9 }]));
+    const four = solved(["1-1", "1-2", "1-3", "1-4"]);
+    const five = solved(["1-1", "1-2", "1-3", "1-4", "1-5"]);
+    expect(isUnlocked("2-1", four)).toBe(false);
+    expect(isUnlocked("2-1", five)).toBe(true);
+    expect(isUnlocked("2-2", five)).toBe(false);
+    expect(isUnlocked("1-6", five)).toBe(true);
+    expect(isUnlocked("3-1", { ...five, ...solved(["2-1", "2-2", "2-3", "2-4"]) })).toBe(false);
+    expect(isUnlocked("3-1", { ...five, ...solved(["2-1", "2-2", "2-3", "2-4", "2-5"]) })).toBe(true);
+    expect(isUnlocked("4-1", { ...five, ...solved(["2-1", "2-2", "2-3", "2-4", "2-5", "3-1", "3-2", "3-3", "3-4", "3-5"]) })).toBe(true);
+  });
+
   test("ett sämre resultat skriver aldrig över ett bättre", () => {
     expect(mergeBest({ stars: 3, best_moves: 3 }, 2, 5)).toBeNull();
     expect(mergeBest({ stars: 2, best_moves: 5 }, 3, 3)).toEqual({ stars: 3, best_moves: 3 });
