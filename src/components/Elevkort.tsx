@@ -13,6 +13,7 @@ import { FOCUS_LABEL as BRAK_LABEL } from "@/lib/brak";
 import { EKVATION_SELECT } from "@/components/EkvationResults";
 import EkvationTeacherDetail from "@/components/ekvationer/EkvationTeacherDetail";
 import { StudentGoals } from "@/components/SelfAssessmentGoals";
+import StudentAnalysis from "@/components/StudentAnalysis";
 import { summarize, type EkvationRow } from "@/lib/ekvationStats";
 import { WORLD_NAMES as KISTAN_WORLDS } from "@/lib/kistan";
 import { WORLD_NAMES as SANNOLIKHET_WORLDS } from "@/lib/sannolikhet";
@@ -388,6 +389,11 @@ export default function Elevkort() {
                   {data.fractions.length} försök · {solved} av 20 uppgifter klara ·{" "}
                   {data.missions.length ? `uppdrag: ${data.missions.map((m) => m.mission_id).join(", ")}` : "inga klara uppdrag"}
                 </p>
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">AI-analys</h4>
+                <StudentAnalysis userId={active} />
               </section>
 
               <section className="space-y-2">
