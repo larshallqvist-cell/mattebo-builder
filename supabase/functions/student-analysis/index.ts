@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { generateResponse, GatewayError } from "npm:@lovable.dev/ai-gateway";
+import { examStudents, parseExamForStudent, type ExamResult } from "../_shared/examSheet.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -8,6 +9,34 @@ const cors = {
 };
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+const SHEET_RE = /^[A-Za-z0-9_-]{20,100}$/;
+const SHEETS = "https://connector-gateway.lovable.dev/google_sheets/v4";
+const CACHE_MS = 10 * 60 * 1000;
+type SheetData = { title: string; input: string[][]; facit: string[][] };
+
+/** Reads one exam template, cached briefly in the server-only sheet cache to spare Sheets quota. */
+// deno-lint-ignore no-explicit-any
+async function readExamSheet(db: any, sheetId: string, fresh = false): Promise<SheetData> {
+  const key = `exam:${sheetId}`;
+  if (!fresh) {
+    const { data: c } = await db.from("google_sheet_cache").select("payload,fetched_at").eq("cache_key", key).maybeSingle();
+    if (c && Date.now() - new Date(c.fetched_at).getTime() < CACHE_MS) return c.payload as SheetData;
+  }
+  const headers = { Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`, "X-Connection-Api-Key": Deno.env.get("GOOGLE_SHEETS_API_KEY") ?? "" };
+  const meta = await fetch(`${SHEETS}/spreadsheets/${sheetId}?fields=properties.title`, { headers });
+  if (!meta.ok) throw new Error(`sheet ${meta.status}`);
+  const title = (await meta.json()).properties?.title ?? "Prov";
+  const q = new URLSearchParams();
+  q.append("ranges", "Resultatinmatning!A1:AZ200");
+  q.append("ranges", "'Uppgifter och facit'!A1:H80");
+  const res = await fetch(`${SHEETS}/spreadsheets/${sheetId}/values:batchGet?${q}`, { headers });
+  if (!res.ok) throw new Error(`tabs ${res.status}`);
+  const vr = (await res.json()).valueRanges ?? [];
+  const payload = { title, input: vr[0]?.values ?? [], facit: vr[1]?.values ?? [] };
+  await db.from("google_sheet_cache").upsert({ cache_key: key, payload, fetched_at: new Date().toISOString() });
+  return payload;
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Row = Record<string, unknown>;
@@ -27,15 +56,17 @@ function perModeLevel(rows: Row[]) {
 const SYSTEM = `Du är en erfaren speciallärare i matematik på högstadiet i Sverige (Lgr22).
 Du får pseudonymiserad data om EN elev: övningsresultat från Mattebos digitala övningar, elevens självskattningar
 (skala: 1 = "Nja kanske med lite hjälp", 2 = "Ja, jag är ganska säker", 3 = "Jag känner mig helt säker"),
-veckoenkäter (1–5) och eventuellt provresultat inklistrade av läraren.
+veckoenkäter (1–5) och provresultat (från lärarens kalkylblad: poäng per uppgift med moment, förmågor P/B/M/R/K och nivå, samt ev. inklistrade av läraren).
+Väg samman prov och övningar: peka ut moment där eleven tappar poäng på provet och om övningsdatan bekräftar det.
 Skriv på svenska i markdown med exakt dessa rubriker:
 ## Sammanfattning
 ## Styrkor
 ## Utvecklingsområden
 ## Självbild jämfört med resultat
-## Förslag på träning (2–4 konkreta punkter, gärna med Mattebo-övningar: Tabelltest, Algebra, Procent, Bråkträning, Ekvationspusslet, Koordinater, Räta linjen, Kistan, Sannolikhetslabbet)
+## Förslag på träning
+(2–4 konkreta punkter, gärna med Mattebo-övningar: Tabelltest, Algebra, Procent, Bråkträning, Ekvationspusslet, Koordinater, Räta linjen, Kistan, Sannolikhetslabbet; skriv inte ut denna parentes)
 ## Att ta upp med eleven
-Var konkret och kortfattad. Dra inga slutsatser som datan inte stöder; säg när underlaget är för litet.
+Var konkret och kortfattad. Skriv matematik som vanlig text (t.ex. 5 − 2,35, 1/6), aldrig LaTeX. Dra inga slutsatser som datan inte stöder; säg när underlaget är för litet.
 Skriv aldrig diagnoser eller värderande omdömen om personen.`;
 
 Deno.serve(async (req) => {
@@ -52,13 +83,24 @@ Deno.serve(async (req) => {
   if (!role) return json({ error: "Forbidden" }, 403);
 
   const body = await req.json().catch(() => ({}));
+  if (body.action === "checkSheet") {
+    const sheetId = String(body.sheetId ?? "");
+    if (!SHEET_RE.test(sheetId)) return json({ error: "Ogiltig länk" }, 400);
+    try {
+      const sheet = await readExamSheet(db, sheetId, true);
+      return json({ title: sheet.title, students: examStudents(sheet.input).length });
+    } catch (e) {
+      console.error("checkSheet", e);
+      return json({ error: "Kunde inte läsa kalkylbladet" }, 400);
+    }
+  }
   const userId = String(body.userId ?? "");
   const examText = String(body.examText ?? "").slice(0, 4000);
   if (!UUID_RE.test(userId)) return json({ error: "Invalid student" }, 400);
 
   const q = (t: string, cols: string) => db.from(t).select(cols).eq("user_id", userId).limit(2000);
   const [prof, alg, pro, brak, ekv, koo, lin, tab, kis, san, sa, sv] = await Promise.all([
-    db.from("profiles").select("class_grade").eq("id", userId).maybeSingle(),
+    db.from("profiles").select("class_grade,full_name").eq("id", userId).maybeSingle(),
     q("algebra_attempts", "mode,level,is_correct"),
     q("procent_attempts", "mode,level,is_correct"),
     q("brak_attempts", "mode,level,is_correct,unsimplified"),
@@ -72,7 +114,26 @@ Deno.serve(async (req) => {
     db.from("survey_responses").select("q_learning,q_effort,q_calm,q_teacher,learned_text,wish_text,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(6),
   ]);
 
+  const exams: ExamResult[] = [];
+  const examErrors: string[] = [];
+  const grade = prof.data?.class_grade;
+  const fullName = prof.data?.full_name ?? "";
+  if (grade && fullName) {
+    const { data: sheets } = await db.from("exam_sheets").select("sheet_id,label").eq("grade", grade).order("created_at");
+    for (const s of sheets ?? []) {
+      try {
+        const sheet = await readExamSheet(db, s.sheet_id);
+        const r = parseExamForStudent(sheet.title, sheet.input, sheet.facit, fullName);
+        if (r) exams.push(r);
+      } catch (e) {
+        console.error("exam sheet", e);
+        examErrors.push(s.label || "Prov");
+      }
+    }
+  }
+
   const data = {
+    provresultat_fran_kalkylblad: exams,
     arskurs: prof.data?.class_grade ?? null,
     algebra: perModeLevel((alg.data ?? []) as Row[]),
     procent: perModeLevel((pro.data ?? []) as Row[]),
@@ -101,7 +162,7 @@ Deno.serve(async (req) => {
       .filter((c) => c.type === "output_text")
       .map((c) => c.text ?? "")
       .join("\n");
-    return json({ analysis: text });
+    return json({ analysis: text, exams: exams.map((e) => ({ prov: e.prov, total: e.total, niva: e.niva })), examErrors });
   } catch (e) {
     if (e instanceof GatewayError) {
       console.error("gateway", e.code, e.httpStatus);

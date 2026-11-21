@@ -11,7 +11,8 @@ export default function StudentAnalysis({ userId }: { userId: string }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  useEffect(() => { setText(""); setError(""); setExam(""); }, [userId]);
+  const [exams, setExams] = useState<{ prov: string; total: string; niva: string }[] | null>(null);
+  useEffect(() => { setText(""); setError(""); setExam(""); setExams(null); }, [userId]);
 
   const run = async () => {
     setBusy(true); setError("");
@@ -23,16 +24,18 @@ export default function StudentAnalysis({ userId }: { userId: string }) {
       return;
     }
     setText(data.analysis);
+    setExams(data.exams ?? []);
   };
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">Namnet skickas inte med. Klistra gärna in elevens provresultat (t.ex. "Bråk 6/8, Ekvationer 2/8").</p>
+      <p className="text-xs text-muted-foreground">Namnet skickas inte med. Provresultat från kopplade kalkylblad tas med automatiskt; här kan du klistra in fler (valfritt).</p>
       <Textarea value={exam} onChange={(e) => setExam(e.target.value)} placeholder="Provresultat (valfritt)" rows={3} maxLength={4000} />
       <div className="flex gap-2">
         <Button onClick={run} disabled={busy} size="sm"><Sparkles className="w-4 h-4 mr-1" />{busy ? "Analyserar…" : "Generera pedagogisk analys"}</Button>
         {text && <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(text)}><Copy className="w-4 h-4 mr-1" />Kopiera</Button>}
       </div>
+      {exams && <p className="text-xs text-muted-foreground">{exams.length ? `Prov som användes: ${exams.map((e) => `${e.prov} (${e.total} p${e.niva ? `, ${e.niva}` : ""})`).join(" · ")}` : "Inga provresultat hittades för eleven i de kopplade kalkylbladen."}</p>}
       {error && <p className="text-sm text-destructive">{error}</p>}
       {text && <div className="prose prose-sm prose-invert max-w-none rounded-lg border border-border p-4"><ReactMarkdown>{text}</ReactMarkdown></div>}
     </div>

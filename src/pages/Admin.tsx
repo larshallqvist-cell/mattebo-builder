@@ -33,6 +33,7 @@ import EkvationResults from "@/components/EkvationResults";
 import StudentActivityResults from "@/components/StudentActivityResults";
 import StudentClassRoster from "@/components/StudentClassRoster";
 import Elevkort from "@/components/Elevkort";
+import ExamSheetsEditor from "@/components/ExamSheetsEditor";
 import GameVisibilityMatrix from "@/components/GameVisibilityMatrix";
 
 interface AccessRequest {
@@ -220,6 +221,9 @@ const Admin = () => {
         </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Elevkort" icon={<IdCard className="w-5 h-5" />}>
           <Elevkort />
+        </CollapsibleAdminSection>
+        <CollapsibleAdminSection title="Provresultat (kalkylblad)" icon={<ClipboardList className="w-5 h-5" />}>
+          <ExamSheetsEditor />
         </CollapsibleAdminSection>
         <CollapsibleAdminSection title="Elevaktivitet" icon={<Users className="w-5 h-5" />}>
           <StudentActivityResults />

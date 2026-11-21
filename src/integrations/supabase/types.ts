@@ -379,6 +379,30 @@ export type Database = {
           },
         ]
       }
+      exam_sheets: {
+        Row: {
+          created_at: string
+          grade: number
+          id: string
+          label: string
+          sheet_id: string
+        }
+        Insert: {
+          created_at?: string
+          grade: number
+          id?: string
+          label?: string
+          sheet_id: string
+        }
+        Update: {
+          created_at?: string
+          grade?: number
+          id?: string
+          label?: string
+          sheet_id?: string
+        }
+        Relationships: []
+      }
       exercise_tasks: {
         Row: {
           answered_at: string | null
