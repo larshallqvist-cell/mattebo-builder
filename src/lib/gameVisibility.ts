@@ -4,7 +4,7 @@ import { CHAPTER_SUBTITLES } from "@/config/app";
  *  public.game_visibility; anything without a saved row falls back to the defaults here. */
 export const GAME_KEYS = [
   "drills", "tabellerna", "mathdrop", "brak", "tabelltest",
-  "algebra", "procent", "ekvationer", "koordinater", "kistan", "linjen", "sannolikhet",
+  "algebra", "procent", "ekvationer", "koordinater", "kistan", "linjen", "sannolikhet", "geometrigymmet",
 ] as const;
 export type GameKey = (typeof GAME_KEYS)[number];
 
@@ -21,6 +21,7 @@ export const GAME_LABELS: Record<GameKey, string> = {
   kistan: "Kistan",
   linjen: "Räta linjen",
   sannolikhet: "Sannolikhet",
+  geometrigymmet: "Geometrigymmet",
 };
 
 export const VISIBILITY_GRADES = [6, 7, 8, 9] as const;
@@ -33,10 +34,11 @@ export interface VisibilityRow {
   enabled: boolean;
 }
 
-/** Defaults before the teacher changes anything: every game on, except Kistan only in Åk 6–7 and Räta linjen only in Åk 9. */
+/** Defaults before the teacher changes anything: every game on, except Kistan only in Åk 6–7, Räta linjen only in Åk 9 and Geometrigymmet only in Åk 7. */
 export function defaultEnabled(game: GameKey, grade: number): boolean {
   if (game === "kistan") return grade === 6 || grade === 7;
   if (game === "linjen") return grade === 9;
+  if (game === "geometrigymmet") return grade === 7;
   return true;
 }
 

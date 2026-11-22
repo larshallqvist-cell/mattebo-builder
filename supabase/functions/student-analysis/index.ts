@@ -64,7 +64,7 @@ Skriv på svenska i markdown med exakt dessa rubriker:
 ## Utvecklingsområden
 ## Självbild jämfört med resultat
 ## Förslag på träning
-(2–4 konkreta punkter, gärna med Mattebo-övningar: Tabelltest, Algebra, Procent, Bråkträning, Ekvationspusslet, Koordinater, Räta linjen, Kistan, Sannolikhetslabbet; skriv inte ut denna parentes)
+(2–4 konkreta punkter, gärna med Mattebo-övningar: Tabelltest, Algebra, Procent, Bråkträning, Ekvationspusslet, Koordinater, Räta linjen, Kistan, Sannolikhetslabbet, Geometrigymmet; skriv inte ut denna parentes)
 ## Att ta upp med eleven
 Var konkret och kortfattad. Skriv matematik som vanlig text (t.ex. 5 − 2,35, 1/6), aldrig LaTeX. Dra inga slutsatser som datan inte stöder; säg när underlaget är för litet.
 Skriv aldrig diagnoser eller värderande omdömen om personen.`;
@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
   if (!UUID_RE.test(userId)) return json({ error: "Invalid student" }, 400);
 
   const q = (t: string, cols: string) => db.from(t).select(cols).eq("user_id", userId).limit(2000);
-  const [prof, alg, pro, brak, ekv, koo, lin, tab, kis, san, sa, sv] = await Promise.all([
+  const [prof, alg, pro, brak, ekv, koo, lin, tab, kis, san, gym, sa, sv] = await Promise.all([
     db.from("profiles").select("class_grade,full_name").eq("id", userId).maybeSingle(),
     q("algebra_attempts", "mode,level,is_correct"),
     q("procent_attempts", "mode,level,is_correct"),
@@ -110,6 +110,7 @@ Deno.serve(async (req) => {
     q("tabelltest_results", "score,total,avg_time_ms,passed,input_mode,created_at"),
     q("kistan_progress", "level_id,stars"),
     q("sannolikhet_progress", "level_id,stars,best_correct"),
+    db.from("geometrigymmet_progress").select("progress").eq("user_id", userId).maybeSingle(),
     q("self_assessment_responses", "grade,chapter,section_index,questions,ratings,updated_at"),
     db.from("survey_responses").select("q_learning,q_effort,q_calm,q_teacher,learned_text,wish_text,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(6),
   ]);
@@ -144,6 +145,8 @@ Deno.serve(async (req) => {
     tabelltest: ((tab.data ?? []) as Row[]).slice(-10),
     kistan_klarade_nivaer: (kis.data ?? []).map((r: Row) => `${r.level_id}:${r.stars}★`),
     sannolikhet_klarade_nivaer: (san.data ?? []).map((r: Row) => `${r.level_id}:${r.stars}★`),
+    geometrigymmet_enhetsomvandling: Object.entries(((gym.data?.progress as Row | undefined)?.skills ?? {}) as Record<string, Row>)
+      .map(([id, s]) => `${id}: ${s.correct}/${s.attempts} rätt${s.mastered ? ", klarad" : `, svit ${s.streak}`}`),
     sjalvskattning: (sa.data ?? []).map((r: Row) => ({
       delkapitel: `${r.chapter}.${Number(r.section_index) + 1}`,
       svar: (r.questions as string[]).map((fr, i) => `${fr} → ${(r.ratings as number[])[i] ?? "-"}`),

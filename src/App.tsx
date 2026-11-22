@@ -18,6 +18,7 @@ import Procent from "./pages/Procent";
 import Ekvationer from "./pages/Ekvationer";
 import Koordinater from "./pages/Koordinater";
 import Kistan from "./pages/Kistan";
+import Geometrigymmet from "./pages/Geometrigymmet";
 import Sannolikhet from "./pages/Sannolikhet";
 import Linjen from "./pages/Linjen";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const AnimatedRoutes = () => {
         <Route path="/ekvationer" element={<LoginGate><Ekvationer /></LoginGate>} />
         <Route path="/koordinater" element={<LoginGate><Koordinater /></LoginGate>} />
         <Route path="/kistan" element={<LoginGate><Kistan /></LoginGate>} />
+        <Route path="/geometrigymmet" element={<LoginGate><Geometrigymmet /></LoginGate>} />
         <Route path="/sannolikhet" element={<LoginGate><Sannolikhet /></LoginGate>} />
         <Route path="/linjen" element={<LoginGate><Linjen /></LoginGate>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

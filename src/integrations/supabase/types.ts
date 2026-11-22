@@ -466,6 +466,27 @@ export type Database = {
         }
         Relationships: []
       }
+      geometrigymmet_progress: {
+        Row: {
+          mastered_count: number
+          progress: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          mastered_count?: number
+          progress?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          mastered_count?: number
+          progress?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       google_sheet_cache: {
         Row: {
           cache_key: string

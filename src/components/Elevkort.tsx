@@ -17,6 +17,7 @@ import StudentAnalysis from "@/components/StudentAnalysis";
 import { summarize, type EkvationRow } from "@/lib/ekvationStats";
 import { WORLD_NAMES as KISTAN_WORLDS } from "@/lib/kistan";
 import { WORLD_NAMES as SANNOLIKHET_WORLDS } from "@/lib/sannolikhet";
+import { parseProgress as parseGymProgress, STAGES as GYM_STAGES } from "@/lib/geometrigymmet";
 import { PAGE_LABELS, formatActiveTime } from "@/lib/studentActivity";
 import { CLASS_GRADES, NOT_STUDENT, classLabel, isClassGrade, type RosterStudent } from "@/lib/studentClasses";
 import {
@@ -38,6 +39,7 @@ type CardData = {
   linje: Attempt[];
   kistan: { level_id: string; stars: number; best_moves: number }[];
   sannolikhet: { level_id: string; stars: number; best_correct: number }[];
+  gym: unknown;
   brak: Attempt[];
   ekvation: EkvationRow[];
   fractions: { exercise_id: number; is_correct: boolean; attempt_number: number; hint_used: boolean; answered_at: string }[];
@@ -110,7 +112,7 @@ export default function Elevkort() {
     let cancelled = false;
     setCardLoading(true);
     (async () => {
-      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje, sannolikhet] = await Promise.all([
+      const [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje, sannolikhet, gym] = await Promise.all([
         supabase.from("tabelltest_results").select("score,total,avg_time_ms,passed,input_mode,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("algebra_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("braklabbet_attempts").select("exercise_id,is_correct,attempt_number,hint_used,answered_at").eq("user_id", active).order("answered_at", { ascending: false }),
@@ -126,9 +128,10 @@ export default function Elevkort() {
         supabase.from("kistan_progress").select("level_id,stars,best_moves").eq("user_id", active),
         supabase.from("linje_attempts").select("user_id,session_id,mode,level,is_correct,created_at").eq("user_id", active).order("created_at", { ascending: false }),
         supabase.from("sannolikhet_progress").select("level_id,stars,best_correct").eq("user_id", active),
+        supabase.from("geometrigymmet_progress").select("progress").eq("user_id", active).maybeSingle(),
       ]);
       if (cancelled) return;
-      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje, sannolikhet];
+      const results = [tabell, algebra, fractions, missions, responses, surveys, visits, logs, procent, ekvation, brak, koordinat, kistan, linje, sannolikhet, gym];
       if (results.some((r) => r.error)) {
         setError(true);
         setData(null);
@@ -141,6 +144,7 @@ export default function Elevkort() {
           koordinat: (koordinat.data ?? []) as Attempt[],
           kistan: kistan.data ?? [],
           sannolikhet: sannolikhet.data ?? [],
+          gym: gym.data?.progress ?? null,
           linje: (linje.data ?? []) as Attempt[],
           brak: (brak.data ?? []) as Attempt[],
           ekvation: (ekvation.data ?? []) as EkvationRow[],
@@ -354,6 +358,28 @@ export default function Elevkort() {
                 ) : (
                   <p className="text-sm text-muted-foreground">Inga klarade nivåer i Sannolikhetslabbet ännu.</p>
                 )}
+              </section>
+
+              <section className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Geometrigymmet (prefix och enheter)</h4>
+                {(() => {
+                  const gp = parseGymProgress(data.gym);
+                  const practiced = GYM_STAGES.flatMap((st) => st.skills).filter((s) => gp.skills[s.id]?.attempts);
+                  return practiced.length ? (
+                    <ul className="flex flex-wrap gap-2">
+                      {practiced.map((s) => {
+                        const sp = gp.skills[s.id];
+                        return (
+                          <li key={s.id} className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                            {s.label}: {sp.correct}/{sp.attempts} rätt · {sp.mastered ? "Klarad" : `svit ${sp.streak}`}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Inga övningar i Geometrigymmet ännu.</p>
+                  );
+                })()}
               </section>
 
               <section className="space-y-2">
