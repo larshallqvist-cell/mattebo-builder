@@ -24,3 +24,4 @@
 - [x] Räta linjen omgång 1 (/linjen, Åk 9): Hitta m, Hitta k, Skriv ekvationen med svit, topplista och felanalys
 - [x] Räta linjen omgång 2: rita linjen från ekvation, k som bråk, parallella linjer
 - [x] Sannolikhetslabbet (/sannolikhet): 4 världar × 6 nivåer (hjul, urna, kortlek, mynt/träddiagram), stjärnor, svar i bråk eller %
+- [x] Geometrigymmet (prefix och enheter) inhämtat från Geom Trail, kopplat till klassida (Åk 7), spelmatris, Elevkort och AI-analys
