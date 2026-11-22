@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import {
+  gradeSpread, nextNameGap, praise, scoreSpread, spreadQuestions, SPREAD_SIZE,
   availableSkills, checkAnswer, convert, emptyProgress, generateQuestion, geometrigymmetAvailable, ladderFor, MASTERY_THRESHOLD,
   newQuestion, nextSkill, parseProgress, recordAnswer, ROUND_LENGTH, SKILLS, STAGES, unlockedStage,
 } from "../src/lib/geometrigymmet";
@@ -112,5 +113,59 @@ describe("Geometrigymmet", () => {
     expect(geometrigymmetAvailable(8)).toBe(false);
     expect(geometrigymmetAvailable(9)).toBe(false);
     expect(geometrigymmetAvailable(9, true)).toBe(true);
+  });
+
+  it("gives +10 per right, -5 per wrong and never below 0", () => {
+    expect(scoreSpread([true, true, true, false], null)).toBe(25);
+    expect(scoreSpread([false, false, false, false], null)).toBe(0);
+    expect(scoreSpread([true, false, false, false], null)).toBe(0);
+  });
+
+  it("gives a time bonus only for a fully right spread, at most 20", () => {
+    expect(scoreSpread([true, true, true, true], 30)).toBe(50);
+    expect(scoreSpread([true, true, true, true], 5)).toBe(60);
+    expect(scoreSpread([true, true, true, true], 50)).toBe(40);
+    expect(scoreSpread([true, true, true, false], 5)).toBe(25);
+  });
+
+  it("makes four different questions per spread and grades each box", () => {
+    for (let k = 0; k < 50; k++) {
+      const qs = spreadQuestions(SKILLS[0]);
+      expect(qs.length).toBe(SPREAD_SIZE);
+      expect(new Set(qs.map((q) => `${q.from}${q.to}${q.value}`)).size).toBe(SPREAD_SIZE);
+      const inputs = qs.map((q, i) => (i === 3 ? String(q.answer + 1) : String(q.answer).replace(".", ",")));
+      expect(gradeSpread(qs, inputs)).toEqual([true, true, true, false]);
+    }
+  });
+
+  it("a wrong last box in a spread resets the streak", () => {
+    let p = emptyProgress();
+    for (const ok of [true, true, true, false]) p = recordAnswer(p, "cm-dm", ok);
+    expect(p.skills["cm-dm"].streak).toBe(0);
+    expect(p.skills["cm-dm"].correct).toBe(3);
+  });
+
+  it("says the name only every 5th to 8th praise", () => {
+    for (let k = 0; k < 30; k++) {
+      let until = nextNameGap();
+      const named: number[] = [];
+      for (let i = 0; i < 60; i++) {
+        const r = praise("Alva", 0, until);
+        until = r.untilName;
+        if (r.text.includes("Alva")) named.push(i);
+      }
+      for (let j = 1; j < named.length; j++) {
+        const gap = named[j] - named[j - 1];
+        expect(gap).toBeGreaterThanOrEqual(6);
+        expect(gap).toBeLessThanOrEqual(9);
+      }
+    }
+  });
+
+  it("reads old saved progress with new fields defaulted", () => {
+    const p = parseProgress({ skills: {}, rounds: 2, totalCorrect: 4 });
+    expect(p.points).toBe(0);
+    expect(p.timed).toBe(false);
+    expect(p.bestSeconds).toEqual({});
   });
 });

@@ -366,16 +366,20 @@ export default function Elevkort() {
                   const gp = parseGymProgress(data.gym);
                   const practiced = GYM_STAGES.flatMap((st) => st.skills).filter((s) => gp.skills[s.id]?.attempts);
                   return practiced.length ? (
+                    <>
+                    <p className="text-xs text-muted-foreground">{gp.points} poäng totalt · bästa pass {gp.bestRound} poäng · {gp.timed ? "spelar på tid" : "spelar utan tid"}</p>
                     <ul className="flex flex-wrap gap-2">
                       {practiced.map((s) => {
                         const sp = gp.skills[s.id];
                         return (
                           <li key={s.id} className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
                             {s.label}: {sp.correct}/{sp.attempts} rätt · {sp.mastered ? "Klarad" : `svit ${sp.streak}`}
+                            {gp.bestSeconds[s.id] ? ` · bästa ${String(gp.bestSeconds[s.id]).replace(".", ",")} s` : ""}
                           </li>
                         );
                       })}
                     </ul>
+                    </>
                   ) : (
                     <p className="text-sm text-muted-foreground">Inga övningar i Geometrigymmet ännu.</p>
                   );

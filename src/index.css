@@ -819,3 +819,5 @@ body::after {
 /* Geometrigymmet feedback boxes */
 .gg-ok { background: hsl(138 55% 92%); color: hsl(140 60% 20%); }
 .gg-tip { background: hsl(40 90% 92%); color: hsl(28 60% 22%); }
+.gg-box-ok { background: hsl(138 55% 92%); border-color: hsl(140 55% 40%); color: hsl(140 60% 20%); }
+.gg-box-bad { background: hsl(4 85% 94%); border-color: hsl(4 70% 50%); color: hsl(4 65% 30%); }

@@ -33,8 +33,8 @@ export const SKILLS = STAGES.flatMap((s) => s.skills);
 export const LADDERS: Unit[][] = [["km", "m", "dm", "cm", "mm"], ["kg", "hg", "g"], ["L", "dl", "cl", "ml"], ["m³", "dm³", "cm³"]];
 
 export type SkillProgress = { streak: number; correct: number; attempts: number; mastered: boolean };
-export type Progress = { skills: Record<string, SkillProgress>; rounds: number; totalCorrect: number };
-export const emptyProgress = (): Progress => ({ skills: {}, rounds: 0, totalCorrect: 0 });
+export type Progress = { skills: Record<string, SkillProgress>; rounds: number; totalCorrect: number; points: number; bestRound: number; bestSeconds: Record<string, number>; timed: boolean };
+export const emptyProgress = (): Progress => ({ skills: {}, rounds: 0, totalCorrect: 0, points: 0, bestRound: 0, bestSeconds: {}, timed: false });
 const blankSkill = (): SkillProgress => ({ streak: 0, correct: 0, attempts: 0, mastered: false });
 
 const isCount = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v >= 0;
@@ -51,7 +51,17 @@ export function parseProgress(raw: unknown): Progress {
       }
     }
   }
-  return { skills, rounds: isCount(r.rounds) ? r.rounds : 0, totalCorrect: isCount(r.totalCorrect) ? r.totalCorrect : 0 };
+  const bestSeconds: Record<string, number> = {};
+  if (r.bestSeconds && typeof r.bestSeconds === "object") {
+    for (const s of SKILLS) {
+      const v = (r.bestSeconds as Record<string, unknown>)[s.id];
+      if (typeof v === "number" && Number.isFinite(v) && v > 0) bestSeconds[s.id] = v;
+    }
+  }
+  return {
+    skills, rounds: isCount(r.rounds) ? r.rounds : 0, totalCorrect: isCount(r.totalCorrect) ? r.totalCorrect : 0,
+    points: isCount(r.points) ? r.points : 0, bestRound: isCount(r.bestRound) ? r.bestRound : 0, bestSeconds, timed: r.timed === true,
+  };
 }
 export const masteredCount = (p: Progress) => SKILLS.filter((s) => p.skills[s.id]?.mastered).length;
 
@@ -134,13 +144,52 @@ export function ladderFor(q: Pick<Question, "from" | "to">): Unit[] | null {
   return full.slice(Math.min(a, b), Math.max(a, b) + 1);
 }
 
-const PRAISE = ["Snyggt!", "Bra {namn}!", "Toppen {namn}!", "Starkt jobbat!", "Grymt, {namn}!", "Där satt den!"];
-const STREAK_PRAISE = ["Nu har du {n} rätt i rad, jättebra!", "{n} reps i rad – bra {namn}!", "{n} rätt i rad! Du bygger styrka."];
-/** Varied encouragement; the name appears only sometimes, streak phrases from 3 in a row. */
-export function praise(name: string, streak: number, random = Math.random) {
+const PRAISE = ["Snyggt!", "Starkt jobbat!", "Där satt den!", "Grymt!", "Toppen!", "Bra jobbat!"];
+const NAME_PRAISE = ["Bra {namn}!", "Toppen {namn}!", "Grymt, {namn}!", "Snyggt jobbat, {namn}!"];
+const STREAK_PRAISE = ["Nu har du {n} rätt i rad, jättebra!", "{n} reps i rad!", "{n} rätt i rad! Du bygger styrka."];
+export const NAME_GAP_MIN = 5;
+export const NAME_GAP_MAX = 8;
+/** Picks how many praises until the name is used again (5–8). */
+export const nextNameGap = (random = Math.random) => NAME_GAP_MIN + Math.floor(random() * (NAME_GAP_MAX - NAME_GAP_MIN + 1));
+/** Varied encouragement. The name is used only when `untilName` has counted down to 0; returns the new countdown. */
+export function praise(name: string, streak: number, untilName: number, random = Math.random): { text: string; untilName: number } {
   const n = name.trim();
-  const list = (streak >= 3 && random() < 0.5 ? STREAK_PRAISE : PRAISE).filter((p) => n || !p.includes("{namn}"));
-  return (list[Math.floor(random() * list.length)] ?? "Snyggt!").replace("{namn}", n).replace("{n}", String(streak));
+  if (n && untilName <= 0) {
+    return { text: NAME_PRAISE[Math.floor(random() * NAME_PRAISE.length)].replace("{namn}", n), untilName: nextNameGap(random) };
+  }
+  const list = streak >= 3 && random() < 0.5 ? STREAK_PRAISE : PRAISE;
+  return { text: list[Math.floor(random() * list.length)].replace("{n}", String(streak)), untilName: untilName - 1 };
+}
+
+/** Spreads: SPREAD_SIZE tasks answered together, then "Klar" grades them. */
+export const SPREAD_SIZE = 4;
+export const POINTS_RIGHT = 10;
+export const POINTS_WRONG = -5;
+export const TIME_BONUS_LIMIT = 40;
+export const TIME_BONUS_MAX = 20;
+
+/** SPREAD_SIZE questions of one skill, no two identical. */
+export function spreadQuestions(s: Skill, random = Math.random): Question[] {
+  const out: Question[] = [];
+  let guard = 0;
+  while (out.length < SPREAD_SIZE && guard++ < 200) {
+    const q = generateQuestion(s, random);
+    if (!out.some((o) => o.from === q.from && o.to === q.to && o.value === q.value)) out.push(q);
+  }
+  while (out.length < SPREAD_SIZE) out.push(newQuestion(s, out[out.length - 1], random));
+  return out;
+}
+
+export function gradeSpread(qs: Question[], inputs: string[], units: string[] = []): boolean[] {
+  return qs.map((q, i) => checkAnswer(q, inputs[i] ?? "", q.chooseUnit ? units[i] ?? "" : q.to));
+}
+
+/** +10 per right, −5 per wrong, never below 0; a fully right timed spread under 40 s gets +1 per second saved, max +20. */
+export function scoreSpread(results: boolean[], seconds: number | null): number {
+  const base = results.reduce((s, ok) => s + (ok ? POINTS_RIGHT : POINTS_WRONG), 0);
+  const allRight = results.length > 0 && results.every(Boolean);
+  const bonus = allRight && seconds !== null ? Math.min(TIME_BONUS_MAX, Math.max(0, Math.floor(TIME_BONUS_LIMIT - seconds))) : 0;
+  return Math.max(0, base) + bonus;
 }
 
 /** Students see the game only when the game matrix has it on in a chapter of their class. */

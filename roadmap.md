@@ -25,3 +25,4 @@
 - [x] Räta linjen omgång 2: rita linjen från ekvation, k som bråk, parallella linjer
 - [x] Sannolikhetslabbet (/sannolikhet): 4 världar × 6 nivåer (hjul, urna, kortlek, mynt/träddiagram), stjärnor, svar i bråk eller %
 - [x] Geometrigymmet (prefix och enheter) inhämtat från Geom Trail, kopplat till klassida (Åk 7), spelmatris, Elevkort och AI-analys
+- [x] Geometrigymmet: uppslag med 4 uppgifter, Klar-knapp, ljud, poäng, valfri tid, färre namn i beröm
