@@ -25,6 +25,10 @@
 - Ett fel nollställer sviten men tar inte bort klarade nivåer.
 - En nivå kan alltså låsas upp mitt i ett uppslag. Banderollen "Ny nivå!" visas efter rättningen.
 
+## Färre namn i berömmet
+- Elevens förnamn nämns i berömmet bara **var 5:e till 8:e gång** (slumpat avstånd). Annars visas kort beröm utan namn.
+- Tekniskt: `praise()` får en räknare för hur många beröm som gått sedan namnet senast användes. Ett test kontrollerar avståndet 5–8.
+
 ## Elevkort och analys
 - Elevkortet visar också poäng, bästa tid per övning och om eleven brukar spela på tid.
 
