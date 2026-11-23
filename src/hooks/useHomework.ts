@@ -31,7 +31,6 @@ export const useHomework = (grade: number) => {
     };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
-    const poll = window.setInterval(onFocus, 60_000);
 
     const channel = supabase
       .channel(`homework_${grade}`)
@@ -43,7 +42,6 @@ export const useHomework = (grade: number) => {
       .subscribe();
 
     return () => {
-      window.clearInterval(poll);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
       supabase.removeChannel(channel);

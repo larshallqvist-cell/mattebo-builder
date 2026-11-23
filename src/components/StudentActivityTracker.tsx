@@ -82,7 +82,7 @@ export default function StudentActivityTracker() {
     window.addEventListener("pagehide", pagehide);
     remember(); void save();
     const timer = window.setInterval(sample, 5_000);
-    const writer = window.setInterval(() => { void save(); }, 30_000);
+    const writer = window.setInterval(() => { void save(); }, 120_000);
     return () => {
       sample(); stopped = true; void save();
       window.clearInterval(timer); window.clearInterval(writer);
