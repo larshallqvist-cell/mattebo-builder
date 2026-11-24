@@ -9,10 +9,10 @@ const KEY = "mattebo_activity_visit";
 
 /** No input content, audio or external browsing is captured. Admin activity is excluded. */
 export default function StudentActivityTracker() {
-  const { user, accessStatus, isAdmin } = useAuth();
+  const { user, accessStatus, isTeacher } = useAuth();
   const { pathname } = useLocation();
   useEffect(() => {
-    if (!user || isAdmin || accessStatus !== "approved" || !PAGE_LABELS[pathname]) return;
+    if (!user || isTeacher || accessStatus !== "approved" || !PAGE_LABELS[pathname]) return;
     const userId = user.id;
     let saved: SavedVisit | null = null;
     try { saved = JSON.parse(sessionStorage.getItem(KEY) ?? "null"); } catch { /* storage may be disabled */ }
@@ -95,6 +95,6 @@ export default function StudentActivityTracker() {
         if (lease?.owner === owner) localStorage.removeItem(leaseKey);
       } catch { /* optional */ }
     };
-  }, [user?.id, accessStatus, isAdmin, pathname]);
+  }, [user?.id, accessStatus, isTeacher, pathname]);
   return null;
 }

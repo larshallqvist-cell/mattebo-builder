@@ -6,6 +6,7 @@ import LoginButton from "./LoginButton";
 import UserMenu from "./UserMenu";
 import HeaderGif from "./HeaderGif";
 import LunchMenu from "./LunchMenu";
+import StudentViewToggle from "./StudentViewToggle";
 import ClassPresentationLink from "./ClassPresentationLink";
 
 interface ApocalypticNavProps {
@@ -96,6 +97,7 @@ const ApocalypticNav = ({ centerContent, hideCenter, grade, tint, headerAction, 
 
           <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
           <div className="flex min-w-0 flex-wrap items-center justify-end gap-0.5 font-nunito text-xs sm:gap-4 sm:text-sm">
+            <StudentViewToggle compact />
             {headerAction}
             {/* The start page shows only the sign-in button; links live on the class pages. */}
             {grade != null && (

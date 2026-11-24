@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { isAllowedReturnPath } from "@/lib/braklabbetGate";
+import { STUDENT_VIEW_KEY, effectiveIsAdmin, studentViewEnabled } from "@/lib/studentView";
 
 type AccessStatus = "loading" | "approved" | "pending" | "denied" | null;
 
@@ -12,7 +13,12 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   accessStatus: AccessStatus;
+  /** Teacher-only interface is available (false while a teacher previews the student view). */
   isAdmin: boolean;
+  /** The account really is a teacher, also while the student view is switched on. */
+  isTeacher: boolean;
+  studentView: boolean;
+  setStudentView: (on: boolean) => void;
   signInWithGoogle: (returnPath?: unknown) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -29,7 +35,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<AccessStatus>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [studentViewOn, setStudentViewOn] = useState<boolean>(() => {
+    try { return localStorage.getItem(STUDENT_VIEW_KEY) === "1"; } catch { return false; }
+  });
   const { toast } = useToast();
+
+  // `isAdmin` holds the real role; what the interface sees is the teacher flag
+  // with the student-view preview applied.
+  const isTeacher = isAdmin;
+  const studentView = studentViewEnabled(isTeacher, studentViewOn ? "1" : null);
+  const effectiveAdmin = effectiveIsAdmin(isTeacher, studentView);
+
+  const setStudentView = (on: boolean) => {
+    if (!isTeacher) return;
+    const next = studentViewEnabled(true, on ? "1" : null);
+    setStudentViewOn(next);
+    try {
+      if (next) localStorage.setItem(STUDENT_VIEW_KEY, "1");
+      else localStorage.removeItem(STUDENT_VIEW_KEY);
+    } catch { /* storage may be disabled */ }
+  };
 
   const fetchAccessStatus = async (userId: string, email: string) => {
     setAccessStatus("loading");
@@ -95,6 +120,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         setAccessStatus(null);
         setIsAdmin(false);
+        setStudentViewOn(false);
+        try { localStorage.removeItem(STUDENT_VIEW_KEY); } catch { /* storage may be disabled */ }
       }
       setLoading(false);
     });
@@ -140,6 +167,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           variant: "destructive",
         });
       } else {
+        setStudentViewOn(false);
+        try { localStorage.removeItem(STUDENT_VIEW_KEY); } catch { /* storage may be disabled */ }
         toast({
           title: "Utloggad",
           description: "Du har loggats ut",
@@ -156,7 +185,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, session, loading, accessStatus, isAdmin, signInWithGoogle, signOut }}
+      value={{
+        user,
+        session,
+        loading,
+        accessStatus,
+        isAdmin: effectiveAdmin,
+        isTeacher,
+        studentView,
+        setStudentView,
+        signInWithGoogle,
+        signOut,
+      }}
     >
       {children}
     </AuthContext.Provider>

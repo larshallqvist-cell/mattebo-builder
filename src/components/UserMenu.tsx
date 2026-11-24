@@ -1,4 +1,4 @@
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Shield, GraduationCap } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
 const UserMenu = () => {
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin, isTeacher, studentView, setStudentView } = useAuth();
   const location = useLocation();
   const gradeMatch = location.pathname.match(/^\/ak(\d)/);
   const adminHref = gradeMatch ? `/admin?grade=${gradeMatch[1]}` : "/admin";
@@ -59,6 +59,18 @@ const UserMenu = () => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {!isAdmin && <DropdownMenuLabel className="text-xs font-normal leading-relaxed text-muted-foreground">Mattebo sparar dina besök, uppskattad aktiv tid och övningsresultat för lärarens uppföljning. Det du skriver eller säger registreras inte av tidsmätningen.</DropdownMenuLabel>}
+        {isTeacher && (
+          <>
+            <DropdownMenuItem
+              onClick={() => setStudentView(!studentView)}
+              className="cursor-pointer"
+            >
+              {studentView ? <Shield className="mr-2 h-4 w-4" /> : <GraduationCap className="mr-2 h-4 w-4" />}
+              <span>{studentView ? "Tillbaka till lärarvy" : "Visa som elev"}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {isAdmin && (
           <>
             <DropdownMenuItem asChild className="cursor-pointer">
