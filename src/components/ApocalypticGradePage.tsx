@@ -1,3 +1,4 @@
+import PostItVisibilityGate from "@/components/PostItVisibilityGate";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, BookOpen, Volume2, Wrench, Pin, Calculator, Dumbbell, Grid3x3, Droplets, PieChart, Timer, Sigma, Percent, Puzzle, Crosshair, Package, TrendingUp, Dices, Ruler } from "lucide-react";
@@ -193,7 +194,7 @@ const ApocalypticGradePage = ({ grade }: ApocalypticGradePageProps) => {
                 className={wide ? "col-span-3 col-start-8 row-start-1 row-span-2 sticky top-0 max-h-[calc(100vh-11rem)] overflow-y-auto industrial-scrollbar" : ""}
                 contentClassName="space-y-4"
               >
-                <PostItNote grade={grade} />
+                <PostItVisibilityGate grade={grade}><PostItNote grade={grade} /></PostItVisibilityGate>
                 <HomeworkBanner grade={grade} />
                 <div id="calendar" className="scroll-mt-4">
                   <h3 className="mb-2 flex items-center gap-2 font-sora text-sm font-extrabold tracking-tight text-foreground/90">

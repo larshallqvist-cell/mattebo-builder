@@ -742,6 +742,24 @@ export type Database = {
         }
         Relationships: []
       }
+      postit_visibility: {
+        Row: {
+          grade: number
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          grade: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          grade?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       procent_attempts: {
         Row: {
           created_at: string
