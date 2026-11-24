@@ -1,0 +1,2 @@
+DROP POLICY "Signed in read" ON public.postit_visibility;
+CREATE POLICY "Approved read" ON public.postit_visibility FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin') OR EXISTS (SELECT 1 FROM public.access_requests ar WHERE ar.user_id = auth.uid() AND ar.status = 'approved'));
