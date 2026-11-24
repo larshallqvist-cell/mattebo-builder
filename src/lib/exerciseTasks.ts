@@ -20,7 +20,12 @@ export async function issueTask<T>(body: Body, fallback: () => T): Promise<Issue
 }
 
 /** Sends the answer for server grading and saving. Returns the server's verdict, or null if not saved. */
-export function answerTask<R = { correct: boolean; streak?: number }>(game: "procent" | "ekvation" | "koordinat" | "linje" | "sannolikhet", id: string | null, answer: unknown, hintUsed: boolean) {
+export function answerTask<R = { correct: boolean; streak?: number }>(game: "procent" | "ekvation" | "koordinat" | "linje" | "sannolikhet" | "brak" | "algebra", id: string | null, answer: unknown, hintUsed: boolean, extra: Body = {}) {
   if (!id) return Promise.resolve(null);
-  return call<R>({ game, action: "answer", id, answer, hintUsed });
+  return call<R>({ ...extra, game, action: "answer", id, answer, hintUsed });
+}
+
+/** Other server actions (Kistan solutions, Geometrigymmet spreads and settings). */
+export function gameAction<R>(game: "kistan" | "geometrigymmet", action: string, body: Body = {}) {
+  return call<R>({ ...body, game, action });
 }

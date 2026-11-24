@@ -10,6 +10,10 @@ import { checkAnswer, generatePuzzle, LEVELS, type Puzzle } from "../_shared/exe
 import * as koord from "../_shared/exercises/koordinater.ts";
 import * as linje from "../_shared/exercises/linjen.ts";
 import * as sl from "../_shared/exercises/sannolikhet.ts";
+import * as brakLib from "../_shared/exercises/brak.ts";
+import * as alg from "../_shared/exercises/algebra.ts";
+import * as kist from "../_shared/exercises/kistan.ts";
+import * as gg from "../_shared/exercises/geometrigymmet.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -253,6 +257,170 @@ async function sannolikhet(userId: string, b: Record<string, unknown>) {
   return json({ error: "Invalid action" }, 400);
 }
 
+const isAdminUser = async (userId: string) =>
+  !!(await admin.from("user_roles").select("id").eq("user_id", userId).eq("role", "admin").maybeSingle()).data;
+const isSession = (v: unknown): v is string => typeof v === "string" && UUID.test(v);
+
+async function brak(userId: string, b: Record<string, unknown>) {
+  if (b.action === "issue") {
+    if (typeof b.focus !== "string" || ![...brakLib.BANOR, "mix"].includes(b.focus)) return json({ error: "Invalid focus" }, 400);
+    if (!isInt(b.tier, 0, brakLib.TIERS - 1)) return json({ error: "Invalid tier" }, 400);
+    if (!isSession(b.sessionId)) return json({ error: "Invalid session" }, 400);
+    return issue(userId, "brak", b.focus, b.tier, b.sessionId, brakLib.generateBrak(b.focus as brakLib.Focus, b.tier));
+  }
+  if (b.action === "answer") {
+    if (!str(b.answer, 40)) return json({ error: "Invalid answer" }, 400);
+    const row = await loadTask(userId, b.id, "brak");
+    if (!row) return json({ error: "Task not found" }, 404);
+    const task = row.task as brakLib.BrakTask;
+    const r = brakLib.checkBrak(task, b.answer);
+    if (!r) return json({ error: "Invalid answer" }, 400);
+    const calc = b.calculatorUsed === true;
+    // Warnings already given: earlier unsimplified right answers on steps 2–3 that kept full (warning) points.
+    const { data: warnRows } = await admin.from("brak_attempts").select("points,calculator_used")
+      .eq("user_id", userId).eq("is_correct", true).eq("unsimplified", true).gte("level", 1).lte("level", 2).limit(50);
+    const warnings = (warnRows ?? []).filter((w) => Number(w.points) === (w.calculator_used ? 0.5 : 1)).length;
+    const s = r.correct ? brakLib.scoreAnswer(row.level, r.unsimplified, warnings, calc) : { points: 0, warning: false };
+    if (!(await claim(row.id))) return json({ error: "Task already answered" }, 409);
+    const { data: prev } = await admin.from("brak_attempts").select("streak,streak_points,created_at").eq("user_id", userId)
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    const live = prev && Date.now() - new Date(prev.created_at).getTime() < STREAK_WINDOW_MS;
+    const streak = r.correct ? (live ? prev.streak : 0) + 1 : 0;
+    const streakPoints = r.correct ? (live ? Number(prev.streak_points) : 0) + s.points : 0;
+    const { error } = await admin.from("brak_attempts").insert({
+      user_id: userId, session_id: row.session_id, mode: row.mode, level: row.level, task_kind: task.kind, is_correct: r.correct,
+      points: s.points, unsimplified: r.unsimplified, calculator_used: calc, hint_used: b.hintUsed === true, streak, streak_points: streakPoints,
+    });
+    if (error) { console.error("brak insert failed", error.message); return json({ error: "Could not save answer" }, 500); }
+    return json({ correct: r.correct, points: s.points, warning: s.warning, warnings: warnings + (s.warning ? 1 : 0), streak, streakPoints });
+  }
+  return json({ error: "Invalid action" }, 400);
+}
+
+type AlgTask = { ex: alg.Exercise; step: "simplify" | "value" };
+async function algebra(userId: string, b: Record<string, unknown>) {
+  if (b.action === "issue") {
+    if (b.mode !== "simplify" && b.mode !== "both") return json({ error: "Invalid mode" }, 400);
+    if (!isInt(b.level, 0, alg.LEVELS[b.mode].length - 1)) return json({ error: "Invalid level" }, 400);
+    if (!isSession(b.sessionId)) return json({ error: "Invalid session" }, 400);
+    const ex = alg.generateExercise(b.mode, b.level);
+    const res = await issue(userId, "algebra", b.mode, b.level, b.sessionId, { ex, step: "simplify" } satisfies AlgTask);
+    if (res.status !== 200) return res;
+    const { id } = await res.json();
+    return json({ id, task: ex });
+  }
+  if (b.action === "answer") {
+    if (!str(b.answer, 80)) return json({ error: "Invalid answer" }, 400);
+    const row = await loadTask(userId, b.id, "algebra");
+    if (!row) return json({ error: "Task not found" }, 404);
+    const t = row.task as AlgTask;
+    if (b.step !== t.step) return json({ error: "Wrong step" }, 409);
+    const r = t.step === "simplify" ? alg.checkSimplified(t.ex, b.answer) : alg.checkValue(t.ex, b.answer);
+    const finished = r.correct && (row.mode !== "both" || t.step === "value");
+    if (r.correct && !finished) {
+      const { data } = await admin.from("exercise_tasks").update({ task: { ...t, step: "value" } }).eq("id", row.id).is("answered_at", null).select("id");
+      if (!data?.length) return json({ error: "Task changed" }, 409);
+      return json({ correct: true, recorded: false });
+    }
+    if (finished && !(await claim(row.id))) return json({ error: "Task already answered" }, 409);
+    const { error } = await admin.from("algebra_attempts").insert({ user_id: userId, session_id: row.session_id, mode: row.mode, level: row.level, is_correct: finished });
+    if (error) { console.error("algebra insert failed", error.message); return json({ error: "Could not save answer" }, 500); }
+    return json({ correct: r.correct, recorded: true });
+  }
+  return json({ error: "Invalid action" }, 400);
+}
+
+const SIDES = ["left", "right"];
+function kistanMoves(v: unknown): kist.KistanMove[] | null {
+  if (!Array.isArray(v) || v.length > 400) return null;
+  const out: kist.KistanMove[] = [];
+  for (const m of v) {
+    if (!m || typeof m !== "object" || !SIDES.includes((m as { side: string }).side)) return null;
+    const x = m as Record<string, unknown>; const side = x.side as kist.Side;
+    if (x.a === "tile" && str(x.kind, 12) && typeof x.neg === "boolean") out.push({ a: "tile", kind: x.kind, neg: x.neg, side });
+    else if (x.a === "op" && (x.op === "div" || x.op === "mul") && isInt(x.n, -1000, 1000)) out.push({ a: "op", op: x.op, n: x.n, side });
+    else if (x.a === "wrap") out.push({ a: "wrap", side });
+    else if (x.a === "pair" && isInt(x.i, 0, 99) && isInt(x.j, 0, 99)) out.push({ a: "pair", side, i: x.i, j: x.j });
+    else return null;
+  }
+  return out;
+}
+async function kistan(userId: string, b: Record<string, unknown>) {
+  if (b.action !== "solve") return json({ error: "Invalid action" }, 400);
+  const level = kist.LEVELS.find((l) => l.id === b.levelId);
+  const moves = kistanMoves(b.moves);
+  if (!level || !moves) return json({ error: "Invalid solution" }, 400);
+  const { data: rows } = await admin.from("kistan_progress").select("level_id,stars,best_moves").eq("user_id", userId);
+  const progress: kist.ProgressMap = Object.fromEntries((rows ?? []).map((r) => [r.level_id, { stars: r.stars, best_moves: r.best_moves }]));
+  if (!kist.isUnlocked(level.id, progress, await isAdminUser(userId))) return json({ error: "Level locked" }, 403);
+  const end = kist.replayMoves(level.eq, moves);
+  if (!end || !kist.isSolved(end)) return json({ error: "Not solved" }, 400);
+  const stars = kist.stars(end.moves, kist.minMoves(kist.parseEquation(level.eq)));
+  const best = kist.mergeBest(progress[level.id], stars, end.moves);
+  if (best) {
+    const { error } = await admin.from("kistan_progress").upsert(
+      { user_id: userId, level_id: level.id, ...best, updated_at: new Date().toISOString() }, { onConflict: "user_id,level_id" });
+    if (error) { console.error("kistan save failed", error.message); return json({ error: "Could not save" }, 500); }
+  }
+  return json({ stars, moves: end.moves, best: best ?? progress[level.id] });
+}
+
+const GG_SPREADS = gg.ROUND_LENGTH / gg.SPREAD_SIZE;
+type GgTask = { questions: gg.Question[]; spreadIndex: number; carry: number; timed: boolean; points?: number };
+async function ggLoad(userId: string) {
+  const { data } = await admin.from("geometrigymmet_progress").select("progress").eq("user_id", userId).maybeSingle();
+  return gg.parseProgress(data?.progress);
+}
+async function ggSave(userId: string, p: gg.Progress) {
+  const { error } = await admin.from("geometrigymmet_progress").upsert(
+    { user_id: userId, progress: p, mastered_count: gg.masteredCount(p), updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  if (error) console.error("geometrigymmet save failed", error.message);
+  return !error;
+}
+async function geometrigymmet(userId: string, b: Record<string, unknown>) {
+  if (b.action === "timed") {
+    if (typeof b.timed !== "boolean") return json({ error: "Invalid" }, 400);
+    const p = { ...(await ggLoad(userId)), timed: b.timed };
+    return (await ggSave(userId, p)) ? json({ progress: p }) : json({ error: "Could not save" }, 500);
+  }
+  if (b.action === "issue") {
+    if (!isSession(b.sessionId)) return json({ error: "Invalid session" }, 400);
+    const p = await ggLoad(userId);
+    let spreadIndex = 0, carry = 0;
+    if (typeof b.continueFrom === "string" && UUID.test(b.continueFrom)) {
+      const { data: prev } = await admin.from("exercise_tasks").select("task,answered_at").eq("id", b.continueFrom).eq("user_id", userId).eq("game", "geometrigymmet").maybeSingle();
+      const t = prev?.task as GgTask | undefined;
+      if (prev?.answered_at && t && typeof t.points === "number" && t.spreadIndex + 1 < GG_SPREADS) { spreadIndex = t.spreadIndex + 1; carry = t.carry + t.points; }
+    }
+    const questions = gg.spreadQuestions(gg.nextSkill(p));
+    const res = await issue(userId, "geometrigymmet", questions[0].skillId.slice(0, 40), spreadIndex, b.sessionId,
+      { questions, spreadIndex, carry, timed: p.timed } satisfies GgTask);
+    if (res.status !== 200) return res;
+    const { id } = await res.json();
+    return json({ id, task: { questions, spreadIndex, roundPoints: carry } });
+  }
+  if (b.action === "answer") {
+    const inputs = b.inputs, units = b.units;
+    const okList = (v: unknown) => Array.isArray(v) && v.length === gg.SPREAD_SIZE && v.every((x) => typeof x === "string" && x.length <= 20);
+    if (!okList(inputs) || !okList(units)) return json({ error: "Invalid answer" }, 400);
+    const row = await loadTask(userId, b.id, "geometrigymmet");
+    if (!row) return json({ error: "Task not found" }, 404);
+    const t = row.task as GgTask;
+    const results = gg.gradeSpread(t.questions, inputs as string[], units as string[]);
+    const elapsed = (Date.now() - new Date(row.created_at).getTime()) / 1000;
+    const client = typeof b.seconds === "number" && Number.isFinite(b.seconds) ? b.seconds : elapsed;
+    // A spread can never be faster than one second per box, nor slower than the time since it was handed out.
+    const seconds = t.timed ? Math.min(elapsed, Math.max(gg.SPREAD_SIZE, client)) : null;
+    const r = gg.applySpread(await ggLoad(userId), t.questions, results, seconds, t.spreadIndex + 1 >= GG_SPREADS, t.carry);
+    const { data } = await admin.from("exercise_tasks").update({ task: { ...t, points: r.points }, answered_at: new Date().toISOString() })
+      .eq("id", row.id).is("answered_at", null).select("id");
+    if (!data?.length) return json({ error: "Task already answered" }, 409);
+    if (!(await ggSave(userId, r.progress))) return json({ error: "Could not save" }, 500);
+    return json({ results, seconds, ...r });
+  }
+  return json({ error: "Invalid action" }, 400);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -267,6 +435,10 @@ Deno.serve(async (req) => {
     if (b.game === "koordinat") return await koordinat(auth.userId, b);
     if (b.game === "linje") return await linjen(auth.userId, b);
     if (b.game === "sannolikhet") return await sannolikhet(auth.userId, b);
+    if (b.game === "brak") return await brak(auth.userId, b);
+    if (b.game === "algebra") return await algebra(auth.userId, b);
+    if (b.game === "kistan") return await kistan(auth.userId, b);
+    if (b.game === "geometrigymmet") return await geometrigymmet(auth.userId, b);
     return json({ error: "Invalid game" }, 400);
   } catch (e) {
     console.error("exercise-task error", e instanceof Error ? e.message : e);

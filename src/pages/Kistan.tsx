@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { gameAction } from "@/lib/exerciseTasks";
+import type { KistanMove } from "@/lib/kistan";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { useGameVisibility } from "@/hooks/useGameVisibility";
 import KistanTile, { kistanBoxImg, kistanFishImg } from "@/components/kistan/KistanTile";
 import {
-  applyWrap, checkText, GROUP, kistanNum, solutionCheck, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, nextLevel, opTiles, parseEquation, placeOp, placeTile,
+  applyWrap, checkText, GROUP, kistanNum, solutionCheck, isSolved, isUnlocked, LEVELS, mergeBest, minMoves, nextLevel, opTiles, parseEquation, placeOp, placeTile,
   simplifyPair, stars as calcStars, trayTiles, WORLD_NAMES, wrapOf, type GameState, type Level, type OpKind, type ProgressMap, type Side, type SolutionCheck, type Term,
 } from "@/lib/kistan";
+import { kistanAvailable } from "@/lib/gameVisibility";
 
 const Stars = ({ n, size = "h-4 w-4" }: { n: number; size?: string }) => (
   <span className="flex" aria-label={`${n} av 3 stjärnor`}>
@@ -74,12 +77,13 @@ type Pick = { kind: string; neg: boolean; op?: OpKind };
 
 /** Själva spelplanen för en nivå. */
 const Play = ({ level, onBack, onNext, onSolved }: {
-  level: Level; onBack: () => void; onNext: (id: string) => void; onSolved: (stars: number, moves: number) => void;
+  level: Level; onBack: () => void; onNext: (id: string) => void; onSolved: (stars: number, moves: number, log: KistanMove[]) => void;
 }) => {
   const letters = level.world >= 3;
   const start = useMemo(() => parseEquation(level.eq), [level.eq]);
   const min = useMemo(() => minMoves(start), [start]);
   const [history, setHistory] = useState<GameState[]>([start]);
+  const [log, setLog] = useState<KistanMove[]>([]);
   const [trayPick, setTrayPick] = useState<Pick | null>(null);
   const [boardPick, setBoardPick] = useState<{ side: Side; id: string } | null>(null);
   const [shake, setShake] = useState(0);
@@ -89,12 +93,12 @@ const Play = ({ level, onBack, onNext, onSolved }: {
   const earned = calcStars(state.moves, min);
   const check = useMemo(() => (solved ? solutionCheck(level.eq, state) : null), [solved, level.eq, state]);
 
-  const reset = useCallback(() => { setHistory([start]); setTrayPick(null); setBoardPick(null); setShowResult(false); }, [start]);
+  const reset = useCallback(() => { setHistory([start]); setLog([]); setTrayPick(null); setBoardPick(null); setShowResult(false); }, [start]);
   useEffect(reset, [reset]);
-  useEffect(() => { if (solved) onSolved(earned, state.moves); }, [solved]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (solved) onSolved(earned, state.moves, log); }, [solved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fail = (reason: string) => { toast(reason); setShake((n) => n + 1); };
-  const push = (s: GameState) => setHistory((h) => [...h, s]);
+  const push = (s: GameState, m: KistanMove) => { setHistory((h) => [...h, s]); setLog((l) => [...l, m]); };
 
   const tapSide = (side: Side) => {
     if (solved) return;
@@ -105,7 +109,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
     }
     const r = pick.op ? placeOp(state, pick.op, Number(pick.kind) * (pick.neg ? -1 : 1), side) : placeTile(state, pick.kind, pick.neg, side);
     if ("reason" in r) return fail(r.reason);
-    push(r.state);
+    push(r.state, pick.op ? { a: "op", op: pick.op, n: Number(pick.kind) * (pick.neg ? -1 : 1), side } : { a: "tile", kind: pick.kind, neg: pick.neg, side });
     setTrayPick(r.state.pending ? pick : null);
     setBoardPick(null);
   };
@@ -114,7 +118,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
     const r = applyWrap(state, side);
     setBoardPick(null);
     if ("reason" in r) return fail(r.reason);
-    push(r.state);
+    push(r.state, { a: "wrap", side });
   };
 
   const tapTerm = (side: Side, id: string) => {
@@ -123,9 +127,10 @@ const Play = ({ level, onBack, onNext, onSolved }: {
     if (!boardPick || boardPick.side !== side) return setBoardPick({ side, id });
     if (boardPick.id === id) return setBoardPick(null);
     const r = simplifyPair(state, side, boardPick.id, id);
+    const i = state[side].findIndex((t) => t.id === boardPick.id), j = state[side].findIndex((t) => t.id === id);
     setBoardPick(null);
     if ("reason" in r) return fail(r.reason);
-    push(r.state);
+    push(r.state, { a: "pair", side, i, j });
   };
 
   const sideName = (side: Side) => (side === "left" ? "vänster" : "höger");
@@ -206,7 +211,7 @@ const Play = ({ level, onBack, onNext, onSolved }: {
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="icon" aria-label="Ångra" disabled={history.length <= 1}
-            onClick={() => { setHistory((h) => h.slice(0, -1)); setTrayPick(null); setBoardPick(null); setShowResult(false); }} className={iconBtn}><Undo2 /></Button>
+            onClick={() => { setHistory((h) => h.slice(0, -1)); setLog((l) => l.slice(0, -1)); setTrayPick(null); setBoardPick(null); setShowResult(false); }} className={iconBtn}><Undo2 /></Button>
           <Button variant="secondary" size="icon" aria-label="Börja om" onClick={reset} className={iconBtn}><RotateCcw /></Button>
         </div>
       </div>
@@ -298,16 +303,11 @@ const Kistan = () => {
 
   const goTo = (id: string | null) => setParams(id ? { niva: id } : {}, { replace: false });
 
-  const saveSolved = (lvl: Level) => (stars: number, moves: number) => {
+  const saveSolved = (lvl: Level) => (stars: number, moves: number, log: KistanMove[]) => {
     const best = mergeBest(progress[lvl.id], stars, moves);
-    if (!best) return;
-    setProgress((p) => ({ ...p, [lvl.id]: best }));
-    if (user) {
-      void supabase.from("kistan_progress").upsert(
-        { user_id: user.id, level_id: lvl.id, ...best, updated_at: new Date().toISOString() },
-        { onConflict: "user_id,level_id" },
-      ).then(() => {});
-    }
+    if (best) setProgress((p) => ({ ...p, [lvl.id]: best }));
+    // The server replays the moves and alone saves stars and unlocks.
+    if (user) void gameAction("kistan", "solve", { levelId: lvl.id, moves: log });
   };
 
   const done = Object.keys(progress).length;

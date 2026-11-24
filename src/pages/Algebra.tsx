@@ -5,6 +5,8 @@ import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, Option, OptionGroup, ROUND, useExerciseSound } from "@/components/exercise/ExerciseParts";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { answerTask, issueTask } from "@/lib/exerciseTasks";
+import type { Exercise } from "@/lib/algebra";
 import { checkSimplified, checkValue, fmtValues, generateExercise, LEVELS, MODES, type Check as Result, type Mode } from "@/lib/algebra";
 import { nextFastStreak, shouldSuggestNextLevel } from "@/lib/algebraEncouragement";
 
@@ -51,11 +53,18 @@ const Algebra = () => {
     return () => document.removeEventListener("visibilitychange", onHidden);
   }, []);
 
+  const taskId = useRef<string | null>(null);
+  const reqNo = useRef(0);
+  useEffect(() => { fresh("simplify", 0); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const fresh = (m = mode, l = level) => {
     startedAt.current = performance.now();
     firstTry.current = true;
     setShowSuggestion(false);
+    const no = ++reqNo.current;
+    taskId.current = null;
     setEx(generateExercise(m, l));
+    void issueTask<Exercise>({ game: "algebra", mode: m, level: l, sessionId: sessionId.current }, () => generateExercise(m, l))
+      .then((r) => { if (no !== reqNo.current || !r.id) return; taskId.current = r.id; setEx(r.task); });
     setStep("simplify");
     setAnswer(""); setResult(null);
     setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
@@ -82,8 +91,9 @@ const Algebra = () => {
     if (finished || !r.correct) {
       setScore((s) => ({ right: s.right + (finished ? 1 : 0), total: s.total + 1, streak: finished ? s.streak + 1 : 0 }));
       // Logga tyst för lärarens statistik; fel stör aldrig övningen.
-      if (user) void supabase.from("algebra_attempts").insert({ user_id: user.id, session_id: sessionId.current, mode, level, is_correct: finished }).then(() => {});
     }
+    // The server checks the same answer again and alone saves the result.
+    if (user) void answerTask("algebra", taskId.current, answer, false, { step });
   };
   const next = () => {
     if (mode === "both" && step === "simplify" && result?.correct) { setStep("value"); setAnswer(""); setResult(null); setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0); return; }

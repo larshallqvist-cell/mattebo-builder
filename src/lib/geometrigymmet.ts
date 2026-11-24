@@ -1,4 +1,3 @@
-import { isGameOpenForGrade, type VisibilityRow } from "@/lib/gameVisibility";
 
 /** Geometrigymmet, modul 3.1 Prefix och enheter. Pure rules: content, generation, checking and progression. */
 export const MASTERY_THRESHOLD = 8;
@@ -199,12 +198,24 @@ export function scoreSpread(results: boolean[], seconds: number | null): number 
   return Math.max(0, base) + bonus;
 }
 
-/** Students see the game only when the game matrix has it on in a chapter of their class. */
-export function geometrigymmetAvailable(grade: number | null | undefined, isAdmin = false, rows: readonly VisibilityRow[] = []): boolean {
-  if (isAdmin) return true;
-  if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
-  return isGameOpenForGrade(rows, "geometrigymmet", grade);
-}
 
 /** Later modules in the book chapter; shown as "Kommer senare" until their exercises are built. */
 export const FUTURE_MODULES = ["3.2 Längd och skala", "3.3 Vinklar", "3.4 Vinkelsumma", "3.5 Omkrets", "3.6 Area"];
+
+/** Applies one graded spread to progress (same rules on the page and the server). */
+export function applySpread(progress: Progress, qs: Question[], results: boolean[], seconds: number | null, lastOfRound: boolean, roundPointsBefore: number) {
+  let p = progress;
+  let newlyMastered = false;
+  qs.forEach((q, i) => {
+    const before = p.skills[q.skillId]?.mastered;
+    p = recordAnswer(p, q.skillId, results[i]);
+    if (!before && p.skills[q.skillId]?.mastered) newlyMastered = true;
+  });
+  const pts = scoreSpread(results, seconds);
+  const sk = qs[0].skillId;
+  const allRight = results.every(Boolean);
+  const bestSeconds = seconds !== null && allRight && (!p.bestSeconds[sk] || seconds < p.bestSeconds[sk]) ? { ...p.bestSeconds, [sk]: Math.round(seconds * 10) / 10 } : p.bestSeconds;
+  const roundPoints = roundPointsBefore + pts;
+  p = { ...p, points: p.points + pts, bestSeconds, ...(lastOfRound ? { rounds: p.rounds + 1, bestRound: Math.max(p.bestRound, roundPoints) } : {}) };
+  return { progress: p, points: pts, roundPoints, newlyMastered };
+}

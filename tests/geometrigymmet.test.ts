@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import {
   gradeSpread, nextNameGap, praise, scoreSpread, spreadQuestions, SPREAD_SIZE,
-  availableSkills, checkAnswer, convert, emptyProgress, generateQuestion, geometrigymmetAvailable, ladderFor, MASTERY_THRESHOLD,
+  availableSkills, checkAnswer, convert, emptyProgress, generateQuestion, ladderFor, MASTERY_THRESHOLD,
   newQuestion, nextSkill, parseProgress, recordAnswer, ROUND_LENGTH, SKILLS, STAGES, unlockedStage,
 } from "../src/lib/geometrigymmet";
+import { geometrigymmetAvailable } from "@/lib/gameVisibility";
 
 describe("Geometrigymmet", () => {
   it("needs 8 correct in a row and has 8 questions per round", () => {

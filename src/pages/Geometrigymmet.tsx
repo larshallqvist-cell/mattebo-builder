@@ -7,22 +7,24 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { gameAction } from "@/lib/exerciseTasks";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import UnitLadder from "@/components/geometrigymmet/UnitLadder";
 import { useGameVisibility } from "@/hooks/useGameVisibility";
 import labAsset from "@/assets/geometrigymmet/measurement-lab.webp.asset.json";
 import {
-  emptyProgress, explanation, formatNumber, FUTURE_MODULES, geometrigymmetAvailable, gradeSpread, isNumberInput,
-  MASTERY_THRESHOLD, masteredCount, nextNameGap, nextSkill, parseProgress, praise, recordAnswer, ROUND_LENGTH, scoreSpread, SKILLS, SPREAD_SIZE,
+  applySpread, emptyProgress, explanation, formatNumber, FUTURE_MODULES, gradeSpread, isNumberInput,
+  MASTERY_THRESHOLD, masteredCount, nextNameGap, nextSkill, parseProgress, praise, ROUND_LENGTH, SKILLS, SPREAD_SIZE,
   spreadQuestions, STAGES, UNITS, unlockedStage, type Progress, type Question,
 } from "@/lib/geometrigymmet";
+import { geometrigymmetAvailable } from "@/lib/gameVisibility";
 
 const TITLE = "Geometrigymmet";
 
 type Session = {
   questions: Question[]; inputs: string[]; units: string[]; results: boolean[] | null;
   active: boolean; paused: boolean; spreadIndex: number; roundCorrect: number; roundPoints: number;
-  seconds: number | null; spreadPoints: number; newlyMastered: boolean; done: boolean;
+  seconds: number | null; spreadPoints: number; newlyMastered: boolean; done: boolean; taskId?: string | null;
 };
 const SPREADS = ROUND_LENGTH / SPREAD_SIZE;
 const initialSession = (): Session => ({ questions: [], inputs: [], units: [], results: null, active: false, paused: false, spreadIndex: 0, roundCorrect: 0, roundPoints: 0, seconds: null, spreadPoints: 0, newlyMastered: false, done: false });
@@ -83,13 +85,7 @@ const Geometrigymmet = () => {
   }, [session, user, ready]);
   useEffect(() => { localStorage.setItem("geometrigymmet-sound", sound ? "on" : "off"); }, [sound]);
 
-  const saveProgress = (p: Progress) => {
-    setProgress(p);
-    if (!user) return;
-    void supabase.from("geometrigymmet_progress")
-      .upsert({ user_id: user.id, progress: p, mastered_count: masteredCount(p), updated_at: new Date().toISOString() }, { onConflict: "user_id" })
-      .then(({ error }) => setSaveFailed(Boolean(error)));
-  };
+  const sessionId = useRef(crypto.randomUUID());
 
   const qs = session.questions;
   const grading = session.results !== null && revealed < qs.length;
@@ -119,13 +115,19 @@ const Geometrigymmet = () => {
     return () => window.clearTimeout(id);
   }, [session.results, revealed, sound]);
 
-  const newSpread = (p: Progress, base: Partial<Session>) => {
-    const qsNew = spreadQuestions(nextSkill(p));
+  /** The server picks and keeps the questions, so only its grading can change saved progress. */
+  const newSpread = async (p: Progress, base: Partial<Session>, continueFrom?: string | null) => {
+    const r = await gameAction<{ id: string; task: { questions: Question[] } }>("geometrigymmet", "issue", { sessionId: sessionId.current, continueFrom });
+    setSaveFailed(!r);
+    const qsNew = r?.task.questions ?? spreadQuestions(nextSkill(p));
     setRevealed(0); setValidation("");
-    setSession((s) => ({ ...s, ...base, questions: qsNew, inputs: qsNew.map(() => ""), units: qsNew.map(() => ""), results: null, seconds: null, spreadPoints: 0, newlyMastered: false, done: false }));
+    setSession((s) => ({ ...s, ...base, taskId: r?.id ?? null, questions: qsNew, inputs: qsNew.map(() => ""), units: qsNew.map(() => ""), results: null, seconds: null, spreadPoints: 0, newlyMastered: false, done: false }));
   };
-  const start = () => newSpread(progress, { ...initialSession(), active: true });
-  const setTimed = (timed: boolean) => saveProgress({ ...progress, timed });
+  const start = () => void newSpread(progress, { ...initialSession(), active: true });
+  const setTimed = (timed: boolean) => {
+    setProgress((p) => ({ ...p, timed }));
+    void gameAction<{ progress: unknown }>("geometrigymmet", "timed", { timed }).then((r) => { setSaveFailed(!r); if (r) setProgress(parseProgress(r.progress)); });
+  };
 
   const touch = () => { if (startedAt.current === null) { startedAt.current = Date.now(); setNow(Date.now()); } };
   const setInput = (i: number, v: string) => { touch(); setSession((s) => ({ ...s, inputs: s.inputs.map((x, j) => (j === i ? v : x)) })); };
@@ -138,21 +140,15 @@ const Geometrigymmet = () => {
     setValidation("");
     const seconds = progress.timed && startedAt.current !== null ? (Date.now() - startedAt.current) / 1000 : progress.timed ? 0 : null;
     const results = gradeSpread(qs, session.inputs, session.units);
-    let p = progress;
-    let newlyMastered = false;
-    qs.forEach((q, i) => {
-      const before = p.skills[q.skillId]?.mastered;
-      p = recordAnswer(p, q.skillId, results[i]);
-      if (!before && p.skills[q.skillId]?.mastered) newlyMastered = true;
-    });
-    const pts = scoreSpread(results, seconds);
     const sk = qs[0].skillId;
     const allRight = results.every(Boolean);
-    const bestSeconds = seconds !== null && allRight && (!p.bestSeconds[sk] || seconds < p.bestSeconds[sk]) ? { ...p.bestSeconds, [sk]: Math.round(seconds * 10) / 10 } : p.bestSeconds;
-    const roundPoints = session.roundPoints + pts;
     const last = session.spreadIndex + 1 >= SPREADS;
-    p = { ...p, points: p.points + pts, bestSeconds, ...(last ? { rounds: p.rounds + 1, bestRound: Math.max(p.bestRound, roundPoints) } : {}) };
-    saveProgress(p);
+    const { progress: p, points: pts, roundPoints, newlyMastered } = applySpread(progress, qs, results, seconds, last, session.roundPoints);
+    setProgress(p);
+    if (session.taskId) {
+      void gameAction<{ progress: unknown }>("geometrigymmet", "answer", { id: session.taskId, inputs: session.inputs, units: session.units, seconds })
+        .then((r) => { setSaveFailed(!r); if (r) setProgress(parseProgress(r.progress)); });
+    } else setSaveFailed(true);
     if (allRight) {
       const r = praise(firstName, p.skills[sk]?.streak ?? 0, untilName.current);
       untilName.current = r.untilName; setCheer(r.text);
@@ -163,7 +159,7 @@ const Geometrigymmet = () => {
   const next = () => {
     if (!session.results || grading) return;
     if (session.spreadIndex + 1 >= SPREADS) { setSession({ ...session, done: true }); return; }
-    newSpread(progress, { spreadIndex: session.spreadIndex + 1 });
+    void newSpread(progress, { spreadIndex: session.spreadIndex + 1 }, session.taskId);
   };
   const onKey = (i: number) => (e: React.KeyboardEvent) => {
     if (e.key !== "Enter") return;

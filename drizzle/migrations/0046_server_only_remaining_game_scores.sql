@@ -1,0 +1,12 @@
+ALTER TABLE public.exercise_tasks DROP CONSTRAINT IF EXISTS exercise_tasks_game_check;
+ALTER TABLE public.exercise_tasks ADD CONSTRAINT exercise_tasks_game_check CHECK (game IN ('procent','ekvation','koordinat','linje','sannolikhet','brak','algebra','geometrigymmet'));
+ALTER TABLE public.exercise_tasks DROP CONSTRAINT IF EXISTS exercise_tasks_level_check;
+ALTER TABLE public.exercise_tasks ADD CONSTRAINT exercise_tasks_level_check CHECK (level >= 0 AND level <= 100);
+DROP POLICY IF EXISTS "Approved users insert own algebra attempts" ON public.algebra_attempts;
+DROP POLICY IF EXISTS "Approved users insert own brak attempts" ON public.brak_attempts;
+DROP POLICY IF EXISTS "Approved users insert own kistan progress" ON public.kistan_progress;
+DROP POLICY IF EXISTS "Approved users update own kistan progress" ON public.kistan_progress;
+DROP POLICY IF EXISTS "Approved users insert own geometrigymmet progress" ON public.geometrigymmet_progress;
+DROP POLICY IF EXISTS "Approved users update own geometrigymmet progress" ON public.geometrigymmet_progress;
+REVOKE INSERT, UPDATE, DELETE ON public.algebra_attempts, public.brak_attempts, public.kistan_progress, public.geometrigymmet_progress FROM authenticated, anon;
+GRANT ALL ON public.algebra_attempts, public.brak_attempts, public.kistan_progress, public.geometrigymmet_progress TO service_role;

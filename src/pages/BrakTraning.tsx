@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import CalculatorModal from "@/components/CalculatorModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { answerTask, issueTask } from "@/lib/exerciseTasks";
+import type { BrakTask } from "@/lib/brak";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { Feedback, HintToggle, useExerciseSound } from "@/components/exercise/ExerciseParts";
 import Leaderboard from "@/components/procent/Leaderboard";
@@ -52,6 +54,7 @@ const BrakTraning = () => {
   const sessionId = useRef(crypto.randomUUID());
 
   useEffect(() => { document.title = "Bråkträning · Mattebo"; return () => window.clearTimeout(timer.current); }, []);
+  useEffect(() => { fresh(focus, tier); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { try { sessionStorage.setItem(progKey(focus), JSON.stringify(prog)); sessionStorage.setItem("brak-focus", focus); } catch { /* */ } }, [prog, focus]);
   useEffect(() => { try { localStorage.setItem(warnKey(user?.id), String(warnings)); } catch { /* */ } }, [warnings, user?.id]);
   useEffect(() => {
@@ -61,9 +64,14 @@ const BrakTraning = () => {
   }, [user]);
 
   const focusInput = () => setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
+  const taskId = useRef<string | null>(null);
+  const reqNo = useRef(0);
   const fresh = (f: Focus, t: number) => {
     window.clearTimeout(timer.current);
-    setTask((prev) => generateBrak(f, t, Math.random, prev));
+    const no = ++reqNo.current;
+    taskId.current = null;
+    void issueTask<BrakTask>({ game: "brak", focus: f, tier: t, sessionId: sessionId.current }, () => generateBrak(f, t, Math.random, task))
+      .then((r) => { if (no !== reqNo.current) return; taskId.current = r.id; setTask(r.task); });
     setParts(["", "", ""]); setResult(null); setNotice(""); setTip(false); usedHint.current = false; usedCalc.current = false; focusInput();
   };
   const choose = (f: Focus) => { const p = loadProg(f); setFocus(f); setProg(p); fresh(f, tierOf(p.xp)); };
@@ -79,13 +87,9 @@ const BrakTraning = () => {
     setResult({ ...r, ...s }); setProg(p); setLost(r.correct ? 0 : prog.streak);
     sound.play(r.correct);
     if (p.streakPoints > record) setRecord(p.streakPoints);
-    if (user) {
-      void supabase.from("brak_attempts").insert({
-        user_id: user.id, session_id: sessionId.current, mode: focus, level: tier, task_kind: task.kind, is_correct: r.correct,
-        points: s.points, unsimplified: r.unsimplified, calculator_used: usedCalc.current, hint_used: usedHint.current,
-        streak: p.streak, streak_points: p.streakPoints,
-      }).then(() => {});
-    }
+    // The server grades again and alone saves the answer, warnings and streak points.
+    void answerTask<{ warnings: number; streakPoints: number }>("brak", taskId.current, answer, usedHint.current, { calculatorUsed: usedCalc.current })
+      .then((res) => { if (res) { setWarnings(res.warnings); setRecord((x) => Math.max(x, res.streakPoints)); } });
     if (r.correct && !r.unsimplified) timer.current = window.setTimeout(() => fresh(focus, tierOf(p.xp)), NEXT_DELAY);
   };
 

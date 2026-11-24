@@ -1,4 +1,3 @@
-import { isGameOpenForGrade, type VisibilityRow } from "./gameVisibility";
 /** Kistan – "Gör kistan ensam": samma sak på båda sidor tills kistan (x) står ensam; i värld 3–4 även dela hela sidan. Rena regler, testade i tests/kistan.test.ts. */
 export type Side = "left" | "right";
 /** En bricka. Kistan (x) kan ha koefficient coef/den, en parentes (GROUP) har coef framför och inner-termer. */
@@ -272,14 +271,6 @@ export function mergeBest(prev: { stars: number; best_moves: number } | undefine
   return { stars: Math.max(stars, prev?.stars ?? 0), best_moves: prev ? Math.min(moves, prev.best_moves) : moves };
 }
 
-/** Elever ser Kistan bara när läraren har spelet påslaget i minst ett kapitel för deras klass
- *  (från början Åk 6 och 7, se src/lib/gameVisibility.ts). Lärare, vårdnadshavare (0) och
- *  elever utan registrerad klass (null) släpps igenom. */
-export function kistanAvailable(grade: number | null | undefined, isAdmin = false, rows: readonly VisibilityRow[] = []): boolean {
-  if (isAdmin) return true;
-  if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
-  return isGameOpenForGrade(rows, "kistan", grade);
-}
 
 /** En bit av kontrollraden; x markerar det insatta värdet så att det kan färgas. */
 export type CheckPart = { text: string; x?: boolean };
@@ -322,3 +313,29 @@ export function solutionCheck(eq: string, solved: GameState): SolutionCheck | nu
   return { x, left: sideParts(start.left, x), right: sideParts(start.right, x), leftValue: sideValue(start.left, x), rightValue: sideValue(start.right, x) };
 }
 export const checkText = (parts: CheckPart[]) => parts.map((p) => p.text).join("");
+
+/** Ett drag som kan spelas upp igen på servern; brickor anges med plats (index) på sidan, inte id. */
+export type KistanMove =
+  | { a: "tile"; kind: string; neg: boolean; side: Side }
+  | { a: "op"; op: OpKind; n: number; side: Side }
+  | { a: "wrap"; side: Side }
+  | { a: "pair"; side: Side; i: number; j: number };
+
+/** Spelar upp drag från nivåns start; null om något drag bryter mot reglerna. */
+export function replayMoves(eq: string, moves: readonly KistanMove[]): GameState | null {
+  let s = parseEquation(eq);
+  for (const m of moves) {
+    let r: Result;
+    if (m.a === "tile") r = placeTile(s, m.kind, m.neg, m.side);
+    else if (m.a === "op") r = placeOp(s, m.op, m.n, m.side);
+    else if (m.a === "wrap") r = applyWrap(s, m.side);
+    else {
+      const a = s[m.side][m.i]; const b = s[m.side][m.j];
+      if (!a || !b) return null;
+      r = simplifyPair(s, m.side, a.id, b.id);
+    }
+    if (!r.ok) return null;
+    s = r.state;
+  }
+  return s;
+}

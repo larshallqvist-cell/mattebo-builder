@@ -72,3 +72,19 @@ export function chapterName(grade: number, chapter: number): string {
 export function isGameOpenForGrade(rows: readonly VisibilityRow[], game: GameKey, grade: number): boolean {
   return VISIBILITY_CHAPTERS.some((c) => isGameEnabled(rows, game, grade, c));
 }
+
+/** Elever ser Kistan bara när läraren har spelet påslaget i minst ett kapitel för deras klass
+ *  (från början Åk 6 och 7, se src/lib/gameVisibility.ts). Lärare, vårdnadshavare (0) och
+ *  elever utan registrerad klass (null) släpps igenom. */
+export function kistanAvailable(grade: number | null | undefined, isAdmin = false, rows: readonly VisibilityRow[] = []): boolean {
+  if (isAdmin) return true;
+  if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
+  return isGameOpenForGrade(rows, "kistan", grade);
+}
+
+/** Students see the game only when the game matrix has it on in a chapter of their class. */
+export function geometrigymmetAvailable(grade: number | null | undefined, isAdmin = false, rows: readonly VisibilityRow[] = []): boolean {
+  if (isAdmin) return true;
+  if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
+  return isGameOpenForGrade(rows, "geometrigymmet", grade);
+}

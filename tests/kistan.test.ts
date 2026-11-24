@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
-  applyWrap, cancelPair, isSolved, isUnlocked, kistanAvailable, LEVELS, mergeBest, minMoves, opTiles, parseEquation, placeOp, placeTile,
+  applyWrap, cancelPair, isSolved, isUnlocked, LEVELS, mergeBest, minMoves, opTiles, parseEquation, placeOp, placeTile,
   checkText, simplifyPair, solutionCheck, solve, stars, WORLD_NAMES, type GameState, type Result,
 } from "../src/lib/kistan";
+import { kistanAvailable } from "@/lib/gameVisibility";
 
 const ok = (r: Result): GameState => { if (!r.ok) throw new Error(r.reason); return r.state; };
 const show = (s: GameState) => s.left.concat(s.right).map((t) => `${t.neg ? "-" : ""}${t.coef && t.coef > 1 ? t.coef : ""}${t.kind}${t.den && t.den > 1 ? `/${t.den}` : ""}`);
