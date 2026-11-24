@@ -14,6 +14,7 @@ import {
   checkAnswer, explain, fmtPoint, generateTask, hasFractions, lineThrough, MODE_INTRO, MODE_LABEL, parseNum, tierSpec, tip,
   type LinjeCheck, type LinjeMode, type Point,
 } from "@/lib/linjen";
+import { answerTask, issueTask } from "@/lib/exerciseTasks";
 
 const NEXT_DELAY = 1800; // rätt svar visar trappsteget en stund och går sedan vidare
 const MODES: LinjeMode[] = ["m", "k", "ekv", "rita", "parallell"];
@@ -70,6 +71,12 @@ const Linjen = () => {
   const { user } = useAuth();
   const sound = useExerciseSound();
   const sessionId = useRef(crypto.randomUUID());
+  const [loading, setLoading] = useState(true);
+  const taskId = useRef<string | null>(null);
+  const taskRef = useRef(task);
+  const issueSeq = useRef(0);
+  // Första uppgiften hämtas från servern, som rättar och sparar svaren.
+  useEffect(() => { fresh(mode, tier); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   useEffect(() => { document.title = "Räta linjen · Mattebo"; }, []);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -93,7 +100,9 @@ const Linjen = () => {
   };
   const fresh = (m: LinjeMode, t: number) => {
     window.clearTimeout(timer.current);
-    setTask((prev) => generateTask(m, t, Math.random, prev));
+    const req = ++issueSeq.current; setLoading(true);
+    void issueTask({ game: "linje", mode: m, tier: t, sessionId: sessionId.current }, () => generateTask(m, t, Math.random, taskRef.current))
+      .then((r) => { if (req !== issueSeq.current) return; taskId.current = r.id; taskRef.current = r.task; setTask(r.task); setLoading(false); focusFirst(m); });
     setKs(""); setMs(""); setPlaced([]); setPicks([]); setResult(null); setNotice(""); setShowTip(false); usedHint.current = false;
     focusFirst(m);
   };
@@ -106,7 +115,7 @@ const Linjen = () => {
   const kind = task.kind;
   const needK = kind === "through" || (kind === "read" && mode !== "m");
   const needM = kind === "through" || (kind === "read" && mode !== "k");
-  const canSubmit = kind === "draw" ? placed.length === 2 : kind === "pair" ? picks.length === 2 : (!needK || !!ks.trim()) && (!needM || !!ms.trim());
+  const canSubmit = !loading && (kind === "draw" ? placed.length === 2 : kind === "pair" ? picks.length === 2 : (!needK || !!ks.trim()) && (!needM || !!ms.trim()));
   const fractions = hasFractions(task.tier);
 
   const place = (p: Point) => {
@@ -116,7 +125,7 @@ const Linjen = () => {
   const togglePick = (i: number) => setPicks((cur) => cur.includes(i) ? cur.filter((c) => c !== i) : cur.length >= 2 ? [cur[1], i] : [...cur, i]);
 
   const submit = () => {
-    if (result) return;
+    if (result || loading) return;
     let ans = {};
     if (kind === "draw") {
       if (placed.length < 2) { setNotice("Sätt ut två punkter på linjen."); return; }
@@ -137,10 +146,7 @@ const Linjen = () => {
     if (p.streak > startRecord.current && p.streak >= 3) setNewRecord(true);
     if (!r.correct) setNewRecord(false);
     if (user) {
-      void supabase.from("linje_attempts").insert({
-        user_id: user.id, session_id: sessionId.current, mode, level: tier,
-        hint_used: usedHint.current, is_correct: r.correct, error_kind: r.error, streak: p.streak,
-      }).then(() => {});
+      void answerTask("linje", taskId.current, ans, usedHint.current);
     }
     if (r.correct) { const t = tierOf(p.xp); timer.current = window.setTimeout(() => fresh(mode, t), NEXT_DELAY); }
   };

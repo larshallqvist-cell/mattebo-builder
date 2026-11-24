@@ -1,6 +1,5 @@
 /** Sannolikhetslabbet: fasta nivåer med stjärnor i fyra världar (hjul, urna, kortlek, mynt/träddiagram).
  *  Varje nivå slumpar fem uppgifter; svaret ges i bråkform, procent eller som heltal. */
-import { isGameOpenForGrade, type VisibilityRow } from "./gameVisibility";
 
 export type Frac = { n: number; d: number };
 export type Format = "frac" | "pct" | "int";
@@ -459,10 +458,4 @@ export function mergeBest(prev: { stars: number; best_correct: number } | undefi
   if (stars < 1) return null;
   if (prev && prev.stars >= stars && prev.best_correct >= correct) return null;
   return { stars: Math.max(stars, prev?.stars ?? 0), best_correct: Math.max(correct, prev?.best_correct ?? 0) };
-}
-/** Samma regel som Kistan: spelmatrisen styr elever; lärare, vårdnadshavare och elever utan klass släpps in. */
-export function sannolikhetAvailable(grade: number | null | undefined, isAdmin = false, rows: readonly VisibilityRow[] = []): boolean {
-  if (isAdmin) return true;
-  if (grade === null || grade === undefined || grade < 6 || grade > 9) return true;
-  return isGameOpenForGrade(rows, "sannolikhet", grade);
 }

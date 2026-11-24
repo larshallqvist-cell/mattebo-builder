@@ -10,9 +10,14 @@ import ExerciseShell from "@/components/exercise/ExerciseShell";
 import { useGameVisibility } from "@/hooks/useGameVisibility";
 import { Rich, SceneView } from "@/components/sannolikhet/Scenes";
 import {
-  answerText, checkAnswer, fr, isUnlocked, LEVELS, LEVELS_PER_WORLD, makeRound, mergeBest, nextLevel, sannolikhetAvailable, simplify,
-  starsFor, TASKS_PER_LEVEL, WORLD_NAMES, type Check, type Frac, type Input, type Level, type ProgressMap,
+  answerText, checkAnswer, fr, isUnlocked, LEVELS, LEVELS_PER_WORLD, makeRound, mergeBest, nextLevel, simplify,
+  starsFor, TASKS_PER_LEVEL, WORLD_NAMES, type Check, type Frac, type Input, type Level, type ProgressMap, type Task,
 } from "@/lib/sannolikhet";
+import { sannolikhetAvailable } from "@/lib/sannolikhetAccess";
+import { answerTask, issueTask } from "@/lib/exerciseTasks";
+
+// Svar skickas i ordning; nästa nivå begärs först när förra nivåns svar sparats, så servern hinner låsa upp den.
+let pendingAnswers: Promise<unknown> = Promise.resolve();
 
 const TITLE = "Sannolikhetslabbet";
 const WORLD_ICONS = ["🎡", "🔮", "🃏", "🪙"];
@@ -78,7 +83,16 @@ const FORMAT_LABEL = { frac: "Svara i bråkform", pct: "Svara i procent", int: "
 const Play = ({ level, onBack, onNext, onDone }: {
   level: Level; onBack: () => void; onNext: (id: string) => void; onDone: (stars: number, correct: number) => void;
 }) => {
-  const [round, setRound] = useState(() => makeRound(level));
+  const [round, setRound] = useState<Task[]>([]);
+  const roundId = useRef<string | null>(null);
+  const sessionId = useRef(crypto.randomUUID());
+  const load = () => {
+    setRound([]);
+    void pendingAnswers.then(() => issueTask<Task[]>({ game: "sannolikhet", levelId: level.id, sessionId: sessionId.current }, () => makeRound(level)))
+      .then((r) => { roundId.current = r.id; setRound(r.task); });
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(load, []);
   const [idx, setIdx] = useState(0);
   const [input, setInput] = useState<Input>({});
   const [result, setResult] = useState<Check | null>(null);
@@ -97,6 +111,8 @@ const Play = ({ level, onBack, onNext, onDone }: {
     if (!r) return toast(task.format === "frac" ? "Fyll i både täljare och nämnare." : "Skriv ett tal.");
     setResult(r);
     if (r.ok) setCorrect((c) => c + 1);
+    const id = roundId.current, index = idx;
+    pendingAnswers = pendingAnswers.then(() => answerTask("sannolikhet", id, { index, ...input }, hint));
   };
   const next = () => {
     if (idx + 1 >= round.length) {
@@ -106,7 +122,7 @@ const Play = ({ level, onBack, onNext, onDone }: {
     }
     setIdx((i) => i + 1); setInput({}); setResult(null); setHint(false);
   };
-  const restart = () => { setRound(makeRound(level)); setIdx(0); setInput({}); setResult(null); setCorrect(0); setHint(false); setFinished(false); };
+  const restart = () => { load(); setIdx(0); setInput({}); setResult(null); setCorrect(0); setHint(false); setFinished(false); };
 
   const onKey = (e: React.KeyboardEvent) => { if (e.key === "Enter") { e.preventDefault(); submit(); } };
   const earned = starsFor(correct);
@@ -237,12 +253,7 @@ const Sannolikhet = () => {
     const best = mergeBest(progress[lvl.id], stars, correct);
     if (!best) return;
     setProgress((p) => ({ ...p, [lvl.id]: best }));
-    if (user) {
-      void supabase.from("sannolikhet_progress").upsert(
-        { user_id: user.id, level_id: lvl.id, ...best, updated_at: new Date().toISOString() },
-        { onConflict: "user_id,level_id" },
-      ).then(() => {});
-    }
+    // Servern rättar och sparar stjärnorna; här visas bara samma resultat direkt.
   };
 
   const done = Object.keys(progress).length;

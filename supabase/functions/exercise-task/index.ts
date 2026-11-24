@@ -1,4 +1,4 @@
-// Hands out Procent and Ekvationspusslet tasks and grades answers on the server,
+// Hands out Procent, Ekvationspusslet, Koordinater, Räta linjen and Sannolikhetslabbet tasks and grades answers on the server,
 // so saved results always come from a server-checked answer to a server-issued task.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireApprovedUser } from "../_shared/auth.ts";
@@ -7,6 +7,9 @@ import {
   type FactorFocus, type FactorTask, type Focus, type TriangleTask,
 } from "../_shared/exercises/procent.ts";
 import { checkAnswer, generatePuzzle, LEVELS, type Puzzle } from "../_shared/exercises/ekvationer.ts";
+import * as koord from "../_shared/exercises/koordinater.ts";
+import * as linje from "../_shared/exercises/linjen.ts";
+import * as sl from "../_shared/exercises/sannolikhet.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -117,6 +120,139 @@ async function ekvation(userId: string, b: Record<string, unknown>) {
   return json({ error: "Invalid action" }, 400);
 }
 
+const num = (v: unknown, lim = 1000): v is number => typeof v === "number" && Number.isFinite(v) && Math.abs(v) <= lim;
+const pt = (v: unknown): v is { x: number; y: number } =>
+  !!v && typeof v === "object" && num((v as { x: unknown }).x, 50) && num((v as { y: unknown }).y, 50);
+
+/** Streak from the latest saved answer in the same mode, so clients never choose their own streak. */
+async function nextStreak(table: string, userId: string, mode: string, correct: boolean) {
+  const { data: prev } = await admin.from(table).select("streak,created_at").eq("user_id", userId).eq("mode", mode)
+    .order("created_at", { ascending: false }).limit(1).maybeSingle();
+  const prevStreak = prev && Date.now() - new Date(prev.created_at).getTime() < STREAK_WINDOW_MS ? (prev.streak ?? 0) : 0;
+  return correct ? prevStreak + 1 : 0;
+}
+async function claim(id: string) {
+  const { data } = await admin.from("exercise_tasks").update({ answered_at: new Date().toISOString() }).eq("id", id).is("answered_at", null).select("id");
+  return !!data?.length;
+}
+
+async function koordinat(userId: string, b: Record<string, unknown>) {
+  if (b.action === "issue") {
+    if (b.mode !== "las" && b.mode !== "mix") return json({ error: "Invalid mode" }, 400);
+    if (!isInt(b.tier, 0, koord.KOORD_TIERS.length - 1)) return json({ error: "Invalid tier" }, 400);
+    if (typeof b.sessionId !== "string" || !UUID.test(b.sessionId)) return json({ error: "Invalid session" }, 400);
+    return issue(userId, "koordinat", b.mode, b.tier, b.sessionId, koord.generateTask(b.mode, b.tier));
+  }
+  if (b.action === "answer") {
+    if (!pt(b.answer)) return json({ error: "Invalid answer" }, 400);
+    const row = await loadTask(userId, b.id, "koordinat");
+    if (!row) return json({ error: "Task not found" }, 404);
+    const task = row.task as koord.KoordTask;
+    const r = koord.checkAnswer(task, b.answer);
+    if (!(await claim(row.id))) return json({ error: "Task already answered" }, 409);
+    const streak = await nextStreak("koordinat_attempts", userId, row.mode, r.correct);
+    const { error } = await admin.from("koordinat_attempts").insert({
+      user_id: userId, session_id: row.session_id, mode: row.mode, level: row.level, task_kind: task.kind,
+      hint_used: b.hintUsed === true, is_correct: r.correct, error_kind: r.error, streak,
+    });
+    if (error) { console.error("koordinat insert failed", error.message); return json({ error: "Could not save answer" }, 500); }
+    return json({ correct: r.correct, streak });
+  }
+  return json({ error: "Invalid action" }, 400);
+}
+
+const LINJE_MODES = ["m", "k", "ekv", "rita", "parallell"];
+function linjeAnswer(v: unknown): linje.LinjeAnswer | null {
+  if (!v || typeof v !== "object") return null;
+  const a = v as Record<string, unknown>; const out: linje.LinjeAnswer = {};
+  if (a.k !== undefined) { if (!num(a.k)) return null; out.k = a.k; }
+  if (a.m !== undefined) { if (!num(a.m)) return null; out.m = a.m; }
+  if (a.points !== undefined) { if (!Array.isArray(a.points) || a.points.length > 2 || !a.points.every(pt)) return null; out.points = a.points; }
+  if (a.pick !== undefined) { if (!Array.isArray(a.pick) || a.pick.length > 2 || !a.pick.every((i) => isInt(i, 0, 9))) return null; out.pick = a.pick as number[]; }
+  return out;
+}
+async function linjen(userId: string, b: Record<string, unknown>) {
+  if (b.action === "issue") {
+    if (typeof b.mode !== "string" || !LINJE_MODES.includes(b.mode)) return json({ error: "Invalid mode" }, 400);
+    if (!isInt(b.tier, 0, linje.LINJE_TIERS.length - 1)) return json({ error: "Invalid tier" }, 400);
+    if (typeof b.sessionId !== "string" || !UUID.test(b.sessionId)) return json({ error: "Invalid session" }, 400);
+    return issue(userId, "linje", b.mode, b.tier, b.sessionId, linje.generateTask(b.mode as linje.LinjeMode, b.tier));
+  }
+  if (b.action === "answer") {
+    const ans = linjeAnswer(b.answer);
+    if (!ans) return json({ error: "Invalid answer" }, 400);
+    const row = await loadTask(userId, b.id, "linje");
+    if (!row) return json({ error: "Task not found" }, 404);
+    const r = linje.checkAnswer(row.task as linje.LinjeTask, ans);
+    if (!(await claim(row.id))) return json({ error: "Task already answered" }, 409);
+    const streak = await nextStreak("linje_attempts", userId, row.mode, r.correct);
+    const { error } = await admin.from("linje_attempts").insert({
+      user_id: userId, session_id: row.session_id, mode: row.mode, level: row.level,
+      hint_used: b.hintUsed === true, is_correct: r.correct, error_kind: r.error, streak,
+    });
+    if (error) { console.error("linje insert failed", error.message); return json({ error: "Could not save answer" }, 500); }
+    return json({ correct: r.correct, streak });
+  }
+  return json({ error: "Invalid action" }, 400);
+}
+
+type SlRound = { levelId: string; tasks: sl.Task[]; results: boolean[] };
+async function sannolikhet(userId: string, b: Record<string, unknown>) {
+  if (b.action === "issue") {
+    const idx = sl.LEVELS.findIndex((l) => l.id === b.levelId);
+    if (idx < 0) return json({ error: "Invalid level" }, 400);
+    if (typeof b.sessionId !== "string" || !UUID.test(b.sessionId)) return json({ error: "Invalid session" }, 400);
+    const level = sl.LEVELS[idx];
+    const [{ data: rows }, { data: role }] = await Promise.all([
+      admin.from("sannolikhet_progress").select("level_id,stars,best_correct").eq("user_id", userId),
+      admin.from("user_roles").select("id").eq("user_id", userId).eq("role", "admin").maybeSingle(),
+    ]);
+    const progress: sl.ProgressMap = Object.fromEntries((rows ?? []).map((r) => [r.level_id, { stars: r.stars, best_correct: r.best_correct }]));
+    if (!sl.isUnlocked(level.id, progress, !!role)) return json({ error: "Level locked" }, 403);
+    const tasks = sl.makeRound(level);
+    const res = await issue(userId, "sannolikhet", level.id, idx, b.sessionId, { levelId: level.id, tasks, results: [] } satisfies SlRound);
+    if (res.status !== 200) return res;
+    const { id } = await res.json();
+    return json({ id, task: tasks });
+  }
+  if (b.action === "answer") {
+    const a = b.answer as Record<string, unknown> | null;
+    if (!a || typeof a !== "object" || !isInt(a.index, 0, 20)) return json({ error: "Invalid answer" }, 400);
+    const input: sl.Input = {};
+    for (const k of ["n", "d", "v"] as const) {
+      if (a[k] === undefined) continue;
+      if (typeof a[k] !== "string" || (a[k] as string).length > 20) return json({ error: "Invalid answer" }, 400);
+      input[k] = a[k] as string;
+    }
+    const row = await loadTask(userId, b.id, "sannolikhet");
+    if (!row) return json({ error: "Task not found" }, 404);
+    const round = row.task as SlRound;
+    if (a.index !== round.results.length) return json({ error: "Wrong task order" }, 409);
+    const r = sl.checkAnswer(round.tasks[a.index], input);
+    if (!r) return json({ error: "Invalid answer" }, 400);
+    const results = [...round.results, r.ok];
+    const done = results.length >= round.tasks.length;
+    const stamp = new Date().toISOString();
+    let upd = admin.from("exercise_tasks").update({ task: { ...round, results }, last_marked_at: stamp, ...(done ? { answered_at: stamp } : {}) })
+      .eq("id", row.id).is("answered_at", null);
+    upd = row.last_marked_at ? upd.eq("last_marked_at", row.last_marked_at) : upd.is("last_marked_at", null);
+    const { data: claimed } = await upd.select("id");
+    if (!claimed?.length) return json({ error: "Task changed, try again" }, 409);
+    if (!done) return json({ ok: r.ok });
+    const correct = results.filter(Boolean).length;
+    const stars = sl.starsFor(correct);
+    const { data: prev } = await admin.from("sannolikhet_progress").select("stars,best_correct").eq("user_id", userId).eq("level_id", round.levelId).maybeSingle();
+    const best = sl.mergeBest(prev ?? undefined, stars, correct);
+    if (best) {
+      const { error } = await admin.from("sannolikhet_progress").upsert(
+        { user_id: userId, level_id: round.levelId, ...best, updated_at: stamp }, { onConflict: "user_id,level_id" });
+      if (error) { console.error("sannolikhet save failed", error.message); return json({ error: "Could not save result" }, 500); }
+    }
+    return json({ ok: r.ok, done: true, stars, correct });
+  }
+  return json({ error: "Invalid action" }, 400);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -128,6 +264,9 @@ Deno.serve(async (req) => {
     const b = body as Record<string, unknown>;
     if (b.game === "procent") return await procent(auth.userId, b);
     if (b.game === "ekvation") return await ekvation(auth.userId, b);
+    if (b.game === "koordinat") return await koordinat(auth.userId, b);
+    if (b.game === "linje") return await linjen(auth.userId, b);
+    if (b.game === "sannolikhet") return await sannolikhet(auth.userId, b);
     return json({ error: "Invalid game" }, 400);
   } catch (e) {
     console.error("exercise-task error", e instanceof Error ? e.message : e);

@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
-  checkAnswer, isUnlocked, LEVELS, makeRound, mergeBest, pctOk, sannolikhetAvailable, starsFor, type Frac, type Task,
+  checkAnswer, isUnlocked, LEVELS, makeRound, mergeBest, pctOk, starsFor, type Frac, type Task,
 } from "../src/lib/sannolikhet";
+import { sannolikhetAvailable } from "../src/lib/sannolikhetAccess";
 
 const frac = (n: number, d: number): Task => ({ scene: { kind: "die" }, question: "", format: "frac", answer: { n, d }, hint: "", steps: [] });
 

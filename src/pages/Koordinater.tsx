@@ -13,6 +13,7 @@ import {
   checkAnswer, explain, fmtPoint, generateTask, MODE_LABEL, parseCoord, tierSpec, tip, usesSemicolon,
   type KoordCheck, type KoordMode, type Point,
 } from "@/lib/koordinater";
+import { answerTask, issueTask } from "@/lib/exerciseTasks";
 
 const NEXT_DELAY = 1400; // rätt svar visar vägen en stund och går sedan vidare
 const MODES: KoordMode[] = ["las", "mix"];
@@ -68,6 +69,12 @@ const Koordinater = () => {
   const { user } = useAuth();
   const sound = useExerciseSound();
   const sessionId = useRef(crypto.randomUUID());
+  const [loading, setLoading] = useState(true);
+  const taskId = useRef<string | null>(null);
+  const taskRef = useRef(task);
+  const issueSeq = useRef(0);
+  // Första uppgiften hämtas från servern, som rättar och sparar svaren.
+  useEffect(() => { fresh(mode, tier); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   useEffect(() => { document.title = "Koordinater · Mattebo"; }, []);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -88,7 +95,9 @@ const Koordinater = () => {
   const focusX = () => setTimeout(() => xRef.current?.focus({ preventScroll: true }), 0);
   const fresh = (m: KoordMode, t: number) => {
     window.clearTimeout(timer.current);
-    setTask((prev) => { const n = generateTask(m, t, Math.random, prev); if (n.kind === "read") focusX(); return n; });
+    const req = ++issueSeq.current; setLoading(true);
+    void issueTask({ game: "koordinat", mode: m, tier: t, sessionId: sessionId.current }, () => generateTask(m, t, Math.random, taskRef.current))
+      .then((r) => { if (req !== issueSeq.current) return; taskId.current = r.id; taskRef.current = r.task; setTask(r.task); setLoading(false); if (r.task.kind === "read") focusX(); });
     setXs(""); setYs(""); setPlaced(null); setResult(null); setNotice(""); setShowTip(false); usedHint.current = false;
   };
   const switchMode = (m: KoordMode) => {
@@ -104,7 +113,7 @@ const Koordinater = () => {
   };
 
   const submit = () => {
-    if (result) return;
+    if (result || loading) return;
     const ans = answerPoint();
     if (!ans) {
       setNotice(task.kind === "place" ? "Tryck i rutnätet där punkten ska vara." : "Skriv ett tal i båda rutorna, t.ex. 3 och −2.");
@@ -118,10 +127,7 @@ const Koordinater = () => {
     if (p.streak > startRecord.current && p.streak >= 3) setNewRecord(true);
     if (!r.correct) setNewRecord(false);
     if (user) {
-      void supabase.from("koordinat_attempts").insert({
-        user_id: user.id, session_id: sessionId.current, mode, level: tier, task_kind: task.kind,
-        hint_used: usedHint.current, is_correct: r.correct, error_kind: r.error, streak: p.streak,
-      }).then(() => {});
+      void answerTask("koordinat", taskId.current, ans, usedHint.current);
     }
     if (r.correct) { const t = tierOf(p.xp); timer.current = window.setTimeout(() => fresh(mode, t), NEXT_DELAY); }
   };
@@ -130,7 +136,7 @@ const Koordinater = () => {
   const spec = tierSpec(tier);
   const negatives = tierSpec(task.tier).min < 0;
   const sep = usesSemicolon(task.tier) ? ";" : ",";
-  const canSubmit = task.kind === "place" ? !!placed : !!xs.trim() && !!ys.trim();
+  const canSubmit = !loading && (task.kind === "place" ? !!placed : !!xs.trim() && !!ys.trim());
 
   return (
     <ExerciseShell title="Koordinater · Mängdträning" progress={{ value: top ? TIER_STEP : prog.xp % TIER_STEP, total: TIER_STEP, showLabel: false }} sound={sound} showRobot={!showTip}>

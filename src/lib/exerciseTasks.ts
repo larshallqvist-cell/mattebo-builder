@@ -20,7 +20,7 @@ export async function issueTask<T>(body: Body, fallback: () => T): Promise<Issue
 }
 
 /** Sends the answer for server grading and saving. Returns the server's verdict, or null if not saved. */
-export function answerTask<R = { correct: boolean; streak?: number }>(game: "procent" | "ekvation", id: string | null, answer: string, hintUsed: boolean) {
+export function answerTask<R = { correct: boolean; streak?: number }>(game: "procent" | "ekvation" | "koordinat" | "linje" | "sannolikhet", id: string | null, answer: unknown, hintUsed: boolean) {
   if (!id) return Promise.resolve(null);
   return call<R>({ game, action: "answer", id, answer, hintUsed });
 }
