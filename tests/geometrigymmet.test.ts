@@ -169,3 +169,12 @@ describe("Geometrigymmet", () => {
     expect(p.bestSeconds).toEqual({});
   });
 });
+
+it("välj enhet godkänner varje likvärdig enhet", () => {
+  const q = { skillId: "review", from: "L", to: "m³", value: 0.4, answer: 0.0004, chooseUnit: true, choices: ["m","cm","kg","g","L","ml","m³","dm³","cm³"], mission: "" } as any;
+  expect(checkAnswer(q, "400", "cm³")).toBe(true);
+  expect(checkAnswer(q, "0,4", "dm³")).toBe(true);
+  expect(checkAnswer(q, "40", "cm³")).toBe(false);
+  expect(checkAnswer(q, "400", "g")).toBe(false);
+
+});

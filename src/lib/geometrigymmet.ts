@@ -123,7 +123,14 @@ export const isNumberInput = (input: string) => /^\d+(?:[.,]\d+)?$/.test(input.t
 export function checkAnswer(q: Question, input: string, chosenUnit: string = q.to) {
   const n = input.trim().replace(/\s/g, "").replace(",", ".");
   if (!/^\d+(?:\.\d+)?$/.test(n)) return false;
-  return Math.abs(Number(n) - q.answer) < 1e-9 && chosenUnit === q.to;
+  // With a free unit choice, any listed unit is fine as long as the amount is the same.
+  const unit = (q.chooseUnit ? chosenUnit : q.to) as Unit;
+  if (!(unit in UNITS) || (q.chooseUnit && !q.choices.includes(unit))) return false;
+  if (!q.chooseUnit && chosenUnit !== q.to) return false;
+  const family = (u: Unit) => (["km","m","dm","cm","mm"].includes(u) ? 0 : ["kg","hg","g"].includes(u) ? 1 : 2);
+  if (family(unit) !== family(q.to)) return false;
+  const expected = convert(q.value, q.from, unit);
+  return Math.abs(Number(n) - expected) < 1e-9 * Math.max(1, Math.abs(expected));
 }
 
 export const formatNumber = (v: number) => v.toLocaleString("sv-SE", { maximumFractionDigits: 8 });
