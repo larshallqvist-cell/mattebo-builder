@@ -44,7 +44,7 @@ const TOOL_LINKS: { label: string; url: string; icon: typeof Calculator; interna
   { key: "drills", label: "Drills", url: "https://drills.vidma.se", icon: Dumbbell },
   { key: "tabellerna", label: "Tabellerna", url: "https://multiplication.fluentmath.com/", icon: Grid3x3 },
   { key: "mathdrop", label: "Mathdrop", url: "https://vidma.se/mathdrop/", icon: Droplets },
-  { key: "brak", label: "Bråklabbet", url: "/braklabbet", icon: PieChart, internal: true },
+  { key: "brak", label: "Bråkträning", url: "/braklabbet", icon: PieChart, internal: true },
   { key: "tabelltest", label: "Tabelltest", url: "/tabelltestet", icon: Timer, internal: true },
   { key: "algebra", label: "Algebra", url: "/algebra", icon: Sigma, internal: true },
   { key: "procent", label: "Procent", url: "/procent", icon: Percent, internal: true },

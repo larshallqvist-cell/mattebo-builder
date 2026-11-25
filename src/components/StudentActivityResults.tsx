@@ -40,7 +40,7 @@ export default function StudentActivityResults() {
         return all;
       }
       try {
-        const [directory, visitRows, resources, algebra, tables, fractions, missions] = await Promise.all([
+        const [directory, visitRows, resources, algebra, tables, fractions, missions, drills] = await Promise.all([
           supabase.rpc("admin_student_directory"),
           pages((from) => supabase.from("student_visits").select("*").gte("last_seen_at", start).order("last_seen_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("activity_logs").select("id,user_id,grade,chapter,resource_title,resource_url,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
@@ -48,6 +48,7 @@ export default function StudentActivityResults() {
           pages((from) => supabase.from("tabelltest_results").select("id,user_id,score,total,passed,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("braklabbet_attempts").select("id,user_id,exercise_id,is_correct,answered_at").gte("answered_at", start).order("answered_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("braklabbet_progress").select("user_id,mission_id,completed_at").gte("completed_at", start).order("completed_at", { ascending: false }).order("user_id").order("mission_id").range(from, from + 999)),
+          pages((from) => supabase.from("brak_attempts").select("id,user_id,mode,level,is_correct,points,streak,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
         ]);
         if (directory.error) throw directory.error;
         if (cancelled) return;
@@ -58,6 +59,7 @@ export default function StudentActivityResults() {
           ...tables.map((r) => ({ id: `table-${r.id}`, userId: r.user_id, at: r.created_at, label: `Tabelltestet – ${r.score}/${r.total} rätt, ${r.passed ? "godkänt" : "ej godkänt"}` })),
           ...fractions.map((r) => ({ id: `fraction-${r.id}`, userId: r.user_id, at: r.answered_at, label: `Bråklabbet – uppgift ${r.exercise_id}, ${r.is_correct ? "rätt" : "fel"}` })),
           ...missions.map((r) => ({ id: `mission-${r.user_id}-${r.mission_id}`, userId: r.user_id, at: r.completed_at, label: `Bråklabbet – avklarat uppdrag: ${r.mission_id}` })),
+          ...drills.map((r) => ({ id: `brak-${r.id}`, userId: r.user_id, at: r.created_at, label: `Bråkträning – ${r.mode === "mix" ? "MIX" : r.mode}, steg ${r.level}, ${r.is_correct ? "rätt" : "fel"}${r.is_correct ? `, ${Number(r.points).toLocaleString("sv-SE")} p, svit ${r.streak}` : ""}` })),
         ]);
       } catch { if (!cancelled) setError(true); }
       finally { if (!cancelled) setLoading(false); }
