@@ -9,6 +9,12 @@ import { PAGE_LABELS, summarizeStudents, formatActiveTime, type ActivityEvent, t
 
 const fmt = (value: string | null) => value ? new Date(value).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
 
+const ok = (v: boolean) => v ? "rätt" : "fel";
+const tip = (v: boolean) => v ? ", med tips" : "";
+const ERR: Record<string, string> = { priority: "prioriteringsfel", parenthesis: "parentesfel", swapped: "bytt plats på x och y", sign: "teckenfel", other: "annat fel", inverted: "k upp och ner", xintercept: "läste x-axeln", rise: "bara höjningen", same_m: "samma m i stället för samma k" };
+const LINJE: Record<string, string> = { m: "avläs m", k: "avläs k", ekv: "skriv ekvationen", rita: "rita linjen", parallell: "parallella linjer" };
+const RATING: Record<number, string> = { 1: "Nja", 2: "Ganska säker", 3: "Helt säker" };
+
 export default function StudentActivityResults() {
   const { isAdmin } = useAuth();
   const [days, setDays] = useState(7);
@@ -40,7 +46,7 @@ export default function StudentActivityResults() {
         return all;
       }
       try {
-        const [directory, visitRows, resources, algebra, tables, fractions, missions, drills] = await Promise.all([
+        const [directory, visitRows, resources, algebra, tables, fractions, missions, drills, procent, ekv, koord, linje, kistan, sannol, selfs, geom] = await Promise.all([
           supabase.rpc("admin_student_directory"),
           pages((from) => supabase.from("student_visits").select("*").gte("last_seen_at", start).order("last_seen_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("activity_logs").select("id,user_id,grade,chapter,resource_title,resource_url,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
@@ -49,6 +55,14 @@ export default function StudentActivityResults() {
           pages((from) => supabase.from("braklabbet_attempts").select("id,user_id,exercise_id,is_correct,answered_at").gte("answered_at", start).order("answered_at", { ascending: false }).order("id").range(from, from + 999)),
           pages((from) => supabase.from("braklabbet_progress").select("user_id,mission_id,completed_at").gte("completed_at", start).order("completed_at", { ascending: false }).order("user_id").order("mission_id").range(from, from + 999)),
           pages((from) => supabase.from("brak_attempts").select("id,user_id,mode,level,is_correct,points,streak,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("id").range(from, from + 999)),
+          pages((from) => supabase.from("procent_attempts").select("id,user_id,mode,level,is_correct,hint_used,streak,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("ekvation_attempts").select("id,user_id,level,is_correct,hint_used,error_kind,seconds_spent,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("koordinat_attempts").select("id,user_id,mode,level,is_correct,hint_used,error_kind,streak,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("linje_attempts").select("id,user_id,mode,level,is_correct,hint_used,error_kind,streak,created_at").gte("created_at", start).order("created_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("kistan_progress").select("user_id,level_id,stars,best_moves,updated_at").gte("updated_at", start).order("updated_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("sannolikhet_progress").select("user_id,level_id,stars,best_correct,updated_at").gte("updated_at", start).order("updated_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("self_assessment_responses").select("id,user_id,grade,chapter,section_index,ratings,updated_at").gte("updated_at", start).order("updated_at", { ascending: false }).order("user_id").range(from, from + 999)),
+          pages((from) => supabase.from("geometrigymmet_progress").select("user_id,mastered_count,updated_at").gte("updated_at", start).order("updated_at", { ascending: false }).order("user_id").range(from, from + 999)),
         ]);
         if (directory.error) throw directory.error;
         if (cancelled) return;
@@ -60,6 +74,14 @@ export default function StudentActivityResults() {
           ...fractions.map((r) => ({ id: `fraction-${r.id}`, userId: r.user_id, at: r.answered_at, label: `Bråklabbet – uppgift ${r.exercise_id}, ${r.is_correct ? "rätt" : "fel"}` })),
           ...missions.map((r) => ({ id: `mission-${r.user_id}-${r.mission_id}`, userId: r.user_id, at: r.completed_at, label: `Bråklabbet – avklarat uppdrag: ${r.mission_id}` })),
           ...drills.map((r) => ({ id: `brak-${r.id}`, userId: r.user_id, at: r.created_at, label: `Bråkträning – ${r.mode === "mix" ? "MIX" : r.mode}, steg ${r.level}, ${r.is_correct ? "rätt" : "fel"}${r.is_correct ? `, ${Number(r.points).toLocaleString("sv-SE")} p, svit ${r.streak}` : ""}` })),
+          ...procent.map((r) => ({ id: `procent-${r.id}`, userId: r.user_id, at: r.created_at, label: `Procent – ${r.mode === "faktormangd" ? "förändringsfaktor" : "procenttriangeln"}, steg ${r.level + 1}, ${ok(r.is_correct)}${tip(r.hint_used)}${r.is_correct && r.streak ? `, svit ${r.streak}` : ""}` })),
+          ...ekv.map((r) => ({ id: `ekv-${r.id}`, userId: r.user_id, at: r.created_at, label: `Ekvationspusslet – nivå ${r.level + 1}, ${ok(r.is_correct)}${tip(r.hint_used)}${!r.is_correct && r.error_kind ? ` (${ERR[r.error_kind] ?? r.error_kind})` : ""}${r.seconds_spent ? `, ${r.seconds_spent} s` : ""}` })),
+          ...koord.map((r) => ({ id: `koord-${r.id}`, userId: r.user_id, at: r.created_at, label: `Koordinater – ${r.mode === "mix" ? "MIX" : "läs av punkten"}, steg ${r.level + 1}, ${ok(r.is_correct)}${tip(r.hint_used)}${!r.is_correct && r.error_kind ? ` (${ERR[r.error_kind] ?? r.error_kind})` : ""}${r.is_correct ? `, svit ${r.streak}` : ""}` })),
+          ...linje.map((r) => ({ id: `linje-${r.id}`, userId: r.user_id, at: r.created_at, label: `Räta linjen – ${LINJE[r.mode] ?? r.mode}, steg ${r.level + 1}, ${ok(r.is_correct)}${tip(r.hint_used)}${!r.is_correct && r.error_kind ? ` (${ERR[r.error_kind] ?? r.error_kind})` : ""}${r.is_correct ? `, svit ${r.streak}` : ""}` })),
+          ...kistan.map((r) => ({ id: `kistan-${r.user_id}-${r.level_id}`, userId: r.user_id, at: r.updated_at, label: `Kistan – klarade nivå ${r.level_id}, ${"★".repeat(r.stars)}${"☆".repeat(Math.max(0, 3 - r.stars))}, bästa ${r.best_moves} drag` })),
+          ...sannol.map((r) => ({ id: `sannol-${r.user_id}-${r.level_id}`, userId: r.user_id, at: r.updated_at, label: `Sannolikhetslabbet – nivå ${r.level_id}, ${"★".repeat(r.stars)}${"☆".repeat(Math.max(0, 3 - r.stars))}, bästa ${r.best_correct} rätt` })),
+          ...selfs.map((r) => ({ id: `self-${r.id}`, userId: r.user_id, at: r.updated_at, label: `Hur går det? – Åk ${r.grade}, delkapitel ${r.chapter}.${r.section_index + 1}: ${((r.ratings ?? []) as number[]).map((v) => RATING[v] ?? v).join(", ")}` })),
+          ...geom.map((r) => ({ id: `geom-${r.user_id}`, userId: r.user_id, at: r.updated_at, label: `Enheter – senast sparat, ${r.mastered_count} övningar klarade` })),
         ]);
       } catch { if (!cancelled) setError(true); }
       finally { if (!cancelled) setLoading(false); }
